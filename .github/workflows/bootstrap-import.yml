@@ -1,0 +1,54 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/bootstrap-import.yml
+# 📌 Amac: Tek seferlik repo bootstrap aktarimini checksum kontrollu tamamlar
+# 📌 Modul - FileType: CI - YAML
+# Version: 0.2.0
+# Aciklama: Gecici base64 XZ snapshotini acar, kaynak agacini repo kokune yazar ve kendini temizler
+#
+# Bagimli Oldugu Katman: Tool
+
+name: Bootstrap Import
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/bootstrap-import.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore TurkuazOffice source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat .bootstrap/tko-xz-part-* | base64 -d > /tmp/turkuazoffice.tar.xz
+          echo "63bc6df66e633738bf1fa494c2f27bae815e7c5ebc6085e729965c16d5eb7ba6  /tmp/turkuazoffice.tar.xz" | sha256sum -c -
+
+          rm -rf /tmp/turkuazoffice-source
+          mkdir -p /tmp/turkuazoffice-source
+          tar -xJf /tmp/turkuazoffice.tar.xz -C /tmp/turkuazoffice-source
+
+          rsync -a --exclude='.git/' /tmp/turkuazoffice-source/ ./
+
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-import.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: import TurkuazOffice v0.2.0 source tree"
+            git push origin HEAD:main
+          fi
