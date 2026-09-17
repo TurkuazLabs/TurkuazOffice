@@ -5,6 +5,7 @@
 # Aciklama: Gecici base64 XZ snapshotini acar, kaynak agacini repo kokune yazar ve kendini temizler
 #
 # Bagimli Oldugu Katman: Tool
+# Trigger: github-merge
 
 name: Bootstrap Import
 
