@@ -1,11 +1,11 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/bootstrap-import.yml
 # 📌 Amac: Tek seferlik repo bootstrap aktarimini checksum kontrollu tamamlar
 # 📌 Modul - FileType: CI - YAML
-# Version: 0.2.0
-# Aciklama: Gecici base64 XZ snapshotini acar, kaynak agacini repo kokune yazar ve kendini temizler
+# Version: 0.2.1
+# Aciklama: Kaynak agacini acar, workflow dosyalarini ayri bir son adima birakir ve bootstrap verisini temizler
 #
 # Bagimli Oldugu Katman: Tool
-# Trigger: github-merge
+# Trigger: github-merge-fix
 
 name: Bootstrap Import
 
@@ -40,10 +40,13 @@ jobs:
           mkdir -p /tmp/turkuazoffice-source
           tar -xJf /tmp/turkuazoffice.tar.xz -C /tmp/turkuazoffice-source
 
-          rsync -a --exclude='.git/' /tmp/turkuazoffice-source/ ./
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/workflows/workspace-ci.yml' \
+            --exclude='.github/workflows/bootstrap-import.yml' \
+            /tmp/turkuazoffice-source/ ./
 
           rm -rf .bootstrap
-          rm -f .github/workflows/bootstrap-import.yml
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
