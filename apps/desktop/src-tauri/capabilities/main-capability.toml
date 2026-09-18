@@ -1,0 +1,11 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/capabilities/main-capability.toml
+# 📌 Amac: Main Writer window icin minimum Tauri core capability sinirini tanimlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.2.0
+# Aciklama: Main window icin core ve yalniz gerekli open/save/message dialog permissionlarini verir
+# Bagimli Oldugu Katman: Config
+
+identifier = "main-capability"
+description = "Turkuaz Office main Writer window desktop capability with scoped native open/save dialogs"
+windows = ["main"]
+permissions = ["core:default", "dialog:allow-open", "dialog:allow-save", "dialog:allow-message"]

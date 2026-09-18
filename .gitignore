@@ -1,0 +1,19 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.gitignore
+# 📌 Amac: Build cache ve local editor artefactlarini Git takibinden haric tutar
+# 📌 Modul - FileType: Repo - GitIgnore
+# Version: 0.2.0
+# Aciklama: Monorepo ignore kurallari
+# Bagimli Oldugu Katman: Tool
+
+/target/
+/node_modules/
+/dist/
+.env
+.env.*
+!.env.example
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

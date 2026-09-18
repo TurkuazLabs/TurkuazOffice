@@ -1,0 +1,21 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-core/Cargo.toml
+# 📌 Amac: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini tanimlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.2.0
+# Aciklama: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini tanimlar
+# Bagimli Oldugu Katman: Core
+
+[package]
+name = "turkuaz-office-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+name = "turkuaz_office_core"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

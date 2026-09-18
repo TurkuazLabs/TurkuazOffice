@@ -1,0 +1,13 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-writer/language/en.yml
+# 📌 Amac: Writer modulu Ingilizce kullanici arayuzu etiketlerini tanimlar
+# 📌 Modul - FileType: Language - YAML
+# Version: 0.2.0
+# Aciklama: Writer label key'lerinin Ingilizce karsiliklarini merkezi tutar
+# Bagimli Oldugu Katman: Language
+
+writer:
+  new_document: New Document
+  undo: Undo
+  redo: Redo
+  insert_table: Insert Table
+  insert_image: Insert Image

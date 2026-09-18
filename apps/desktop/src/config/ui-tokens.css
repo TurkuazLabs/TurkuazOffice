@@ -1,0 +1,48 @@
+/*
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/ui-tokens.css
+# 📌 Amac: Turkuaz Office Desktop tasarim tokenlarini merkezi CSS degiskenleri olarak tanimlar
+# 📌 Modul - FileType: Config - CSS
+# Version: 0.2.0
+# Aciklama: View dosyalarinda tekrar eden renk, olcu, radius ve shadow magic value kullanimini azaltir
+# Bagimli Oldugu Katman: Config
+*/
+
+:root {
+  --to-font-ui: "Segoe UI", Inter, Arial, sans-serif;
+  --to-font-document: Arial, sans-serif;
+  --to-bg-app: #eef2f4;
+  --to-bg-surface: #ffffff;
+  --to-bg-toolbar: #f8fafb;
+  --to-bg-toolbar-hover: #e9eff2;
+  --to-border-soft: #d8e0e4;
+  --to-border-focus: #078aa4;
+  --to-text-primary: #172126;
+  --to-text-secondary: #5b6970;
+  --to-accent: #078aa4;
+  --to-accent-strong: #056d82;
+  --to-danger: #a13f3f;
+  --to-shadow-page: 0 10px 30px rgb(23 33 38 / 12%);
+  --to-radius-sm: 6px;
+  --to-radius-md: 10px;
+  --to-toolbar-height: 48px;
+  --to-status-height: 28px;
+  --to-space-1: 4px;
+  --to-space-2: 8px;
+  --to-space-3: 12px;
+  --to-space-4: 16px;
+  --to-space-5: 24px;
+  --to-space-6: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --to-bg-app: #11191d;
+    --to-bg-surface: #1d282d;
+    --to-bg-toolbar: #172126;
+    --to-bg-toolbar-hover: #26343a;
+    --to-border-soft: #34454d;
+    --to-text-primary: #eef5f7;
+    --to-text-secondary: #aebdc4;
+    --to-shadow-page: 0 12px 34px rgb(0 0 0 / 34%);
+  }
+}

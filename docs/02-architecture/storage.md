@@ -1,0 +1,32 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/02-architecture/storage.md
+# 📌 Amac: Local ve cloud storage abstraction stratejisini tanimlar
+# 📌 Modul - FileType: Docs - Markdown
+# Version: 0.2.0
+# Aciklama: Local safe-replace implementation ile cloud/browser storage abstraction stratejisini tanimlar
+
+Bagimli Oldugu Katman: Documentation
+
+# Storage Mimarisi
+
+## Ilke
+
+Core hicbir zaman `C:\\` veya `/home` varsayimi yapmaz. Belge storage bir Repository/Tool kontrati arkasinda kalir.
+
+## Adaptor durumu
+
+- Desktop `LocalFileTool` + `WriterStorageService`: M1 aktif.
+- BrowserIndexedDbRepository: planli.
+- MobileAppStorageRepository: planli.
+- CloudDocumentRepository: planli.
+
+## Local-first
+
+Cloud hesabi olmayan kullanici tam local belge akisina sahip olmalidir.
+
+## Atomic save
+
+Yerel kayitta hedef dosyanin ustune dogrudan yazilmaz. Temp file ayni klasorde olusturulur ve sync edilir. Unix rename replace kullanir. Windows mevcut hedefi backup sidecar'a tasiyip yeni temp file'i hedefe yerlestirir; hata durumunda rollback dener. Relative file path current directory parent olarak normalize edilir. Platform farklari `LocalFileTool` icinde kalir.
+
+## Recovery
+
+Autosave ana dosyanin yerine gecmez. Recovery journal ayri tutulur ve basarili explicit save sonrasinda temizlenir.

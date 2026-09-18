@@ -1,0 +1,155 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/README.md
+# 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
+# 📌 Modul - FileType: Docs - Markdown
+# Version: 0.2.0
+# Aciklama: Product, architecture, development, operations, roadmap, ADR ve quality dokumanlarini indeksler
+
+Bagimli Oldugu Katman: Documentation
+
+# Turkuaz Office Docs
+
+## 01 Product
+
+- `01-product/vision.md`
+- `01-product/scope-v0.1.md`
+
+## 02 Architecture
+
+- `02-architecture/system-context.md`
+- `02-architecture/layers.md`
+- `02-architecture/document-model.md`
+- `02-architecture/native-document-format.md`
+- `02-architecture/format-adapters.md`
+- `02-architecture/storage.md`
+- `02-architecture/autosave-recovery.md`
+- `02-architecture/font-layout-engine.md`
+- `02-architecture/clipboard-contract.md`
+- `02-architecture/print-preview.md`
+- `02-architecture/localization.md`
+- `02-architecture/platform-strategy.md`
+- `02-architecture/offline-sync.md`
+- `02-architecture/plugin-system.md`
+- `02-architecture/plugin-api-contract.md`
+
+## 03 Development
+
+- `03-development/coding-standard.md`
+- `03-development/local-development.md`
+- `03-development/testing-strategy.md`
+
+## 04 Operations
+
+- `04-operations/security.md`
+- `04-operations/untrusted-document-security.md`
+- `04-operations/file-locking-external-change.md`
+- `04-operations/release-distribution.md`
+- `04-operations/licensing-third-party.md`
+- `04-operations/versioning-release.md`
+
+## 05 Roadmap
+
+- `05-roadmap/roadmap.md`
+
+## 06 ADR
+
+- `06-adr/0001-monorepo.md`
+- `06-adr/0002-rust-core.md`
+- `06-adr/0003-web-compatible-core.md`
+- `06-adr/0004-ui-framework-deferred.md`
+- `06-adr/0005-canonical-native-format.md`
+- `06-adr/0006-schema-versioning.md`
+- `06-adr/0007-offline-first-sync-boundary.md`
+- `06-adr/0008-macros-disabled-by-default.md`
+- `06-adr/0009-versioned-plugin-capabilities.md`
+- `06-adr/0010-writer-logical-offset.md`
+- `06-adr/0011-writer-undo-redo-baseline.md`
+- `06-adr/0012-solidjs-desktop-ui.md`
+- `06-adr/0013-desktop-ipc-thin-bridge.md`
+- `06-adr/0014-ime-rich-text-contenteditable.md`
+- `06-adr/0015-caret-typing-style-ribbon-typography.md`
+- `06-adr/0016-tko-v1-local-safe-save.md`
+- `06-adr/0017-autosave-recovery-snapshot.md`
+- `06-adr/0018-external-change-cooperative-lock.md`
+- `06-adr/0019-twip-page-layout-font-fallback.md`
+
+## 07 Quality
+
+- `07-quality/compatibility-matrix.md`
+- `07-quality/definition-of-done.md`
+- `07-quality/accessibility-keyboard.md`
+- `07-quality/performance-budgets.md`
+- `07-quality/foundation-hardening-checklist.md`
+- `07-quality/writer-domain-test-matrix.md`
+- `07-quality/desktop-shell-test-matrix.md`
+- `07-quality/rich-text-ime-test-matrix.md`
+- `07-quality/typography-ribbon-test-matrix.md`
+- `07-quality/local-open-save-test-matrix.md`
+- `07-quality/autosave-recovery-test-matrix.md`
+- `07-quality/external-change-test-matrix.md`
+- `07-quality/font-layout-test-matrix.md`
+
+## 08 Implementation
+
+- `08-implementation/m1-writer-entry.md`
+- `08-implementation/m1-writer-domain-v0.2.0.md`
+- `08-implementation/m1-writer-validation.md`
+- `08-implementation/m1-desktop-shell-v0.2.0.md`
+- `08-implementation/m1-desktop-shell-validation.md`
+- `08-implementation/m1-rich-text-ime-v0.2.0.md`
+- `08-implementation/m1-rich-text-ime-validation.md`
+- `08-implementation/m1-typography-ribbon-v0.2.0.md`
+- `08-implementation/m1-typography-ribbon-validation.md`
+- `08-implementation/m1-local-open-save-v0.2.0.md`
+- `08-implementation/m1-local-open-save-validation.md`
+- `08-implementation/m1-autosave-recovery-v0.2.0.md`
+- `08-implementation/m1-autosave-recovery-validation.md`
+- `08-implementation/m1-external-change-v0.2.0.md`
+- `08-implementation/m1-external-change-validation.md`
+- `08-implementation/m1-font-layout-v0.2.0.md`
+- `08-implementation/m1-font-layout-validation.md`
+
+## Kural
+
+Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security veya architecture degisirse ayni degisiklik setinde docs guncellenir.
+
+## Aktif implementation
+
+- `08-implementation/m1-writer-entry.md`: Writer milestone giris plani.
+- `08-implementation/m1-writer-domain-v0.2.0.md`: Headless Writer Domain gerceklesen kapsam ve bilinen sinirlar.
+- `06-adr/0010-writer-logical-offset.md`: Selection offset semantigi.
+- `06-adr/0011-writer-undo-redo-baseline.md`: Undo/redo baseline karari.
+- `07-quality/writer-domain-test-matrix.md`: Writer headless domain test ve CI bariyeri.
+- `08-implementation/m1-writer-validation.md`: Artifact validation raporu.
+
+
+## M1 Desktop Shell ekleri
+
+- `06-adr/0012-solidjs-desktop-ui.md`
+- `06-adr/0013-desktop-ipc-thin-bridge.md`
+- `06-adr/0014-ime-rich-text-contenteditable.md`
+- `06-adr/0015-caret-typing-style-ribbon-typography.md`
+- `06-adr/0016-tko-v1-local-safe-save.md`
+- `06-adr/0017-autosave-recovery-snapshot.md`
+- `06-adr/0018-external-change-cooperative-lock.md`
+- `06-adr/0019-twip-page-layout-font-fallback.md`
+- `07-quality/desktop-shell-test-matrix.md`
+- `07-quality/rich-text-ime-test-matrix.md`
+- `07-quality/typography-ribbon-test-matrix.md`
+- `07-quality/local-open-save-test-matrix.md`
+- `07-quality/autosave-recovery-test-matrix.md`
+- `07-quality/external-change-test-matrix.md`
+- `07-quality/font-layout-test-matrix.md`
+- `08-implementation/m1-desktop-shell-v0.2.0.md`
+- `08-implementation/m1-desktop-shell-validation.md`
+- `08-implementation/m1-rich-text-ime-v0.2.0.md`
+- `08-implementation/m1-rich-text-ime-validation.md`
+- `08-implementation/m1-typography-ribbon-v0.2.0.md`
+- `08-implementation/m1-typography-ribbon-validation.md`
+- `08-implementation/m1-local-open-save-v0.2.0.md`
+- `08-implementation/m1-local-open-save-validation.md`
+- `08-implementation/m1-autosave-recovery-v0.2.0.md`
+- `08-implementation/m1-autosave-recovery-validation.md`
+- `08-implementation/m1-external-change-v0.2.0.md`
+- `08-implementation/m1-external-change-validation.md`
+- `08-implementation/m1-font-layout-v0.2.0.md`
+- `08-implementation/m1-font-layout-validation.md`

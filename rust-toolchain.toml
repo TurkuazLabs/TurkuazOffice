@@ -1,0 +1,11 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/rust-toolchain.toml
+# 📌 Amac: Turkuaz Office Rust derleme arac zincirini reproducible build icin sabitler
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.2.0
+# Aciklama: Workspace icin Rust 1.85.0, rustfmt ve clippy componentlerini tanimlar
+# Bagimli Oldugu Katman: Config
+
+[toolchain]
+channel = "1.85.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

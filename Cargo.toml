@@ -1,0 +1,29 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/Cargo.toml
+# 📌 Amac: Turkuaz Office Rust workspace uyelerini ve ortak paket metadatasini tanimlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.2.0
+# Aciklama: Core, Writer ve Desktop Tauri shell crate'lerini tek workspace icinde yonetir
+# Bagimli Oldugu Katman: Config
+
+[workspace]
+resolver = "3"
+members = [
+    "crates/turkuaz-office-core",
+    "crates/turkuaz-office-writer",
+    "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.85"
+authors = ["TurkuazLabs"]
+repository = "https://github.com/TurkuazLabs/TurkuazOffice"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"

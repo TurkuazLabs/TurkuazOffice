@@ -1,0 +1,153 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/config/project.yml
+# 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
+# 📌 Modul - FileType: Config - YAML
+# Version: 0.2.0
+# Aciklama: Platform, schema, guvenlik ve kalite kararlarini tek merkezi proje konfigurasyonunda toplar
+# Bagimli Oldugu Katman: Config
+
+project:
+  name: TurkuazOffice
+  owner: TurkuazLabs
+  version: 0.2.0
+
+platforms:
+  active:
+    - windows
+    - linux
+  planned:
+    - macos
+    - web
+    - android
+    - ios
+
+modules:
+  active:
+    - core
+    - document
+    - schema_migration
+    - writer
+  planned:
+    - sheet
+    - slides
+    - format_adapters
+    - plugin
+    - cloud
+    - collaboration
+
+native_document:
+  extension: .tko
+  current_schema_version: 1
+  macros_enabled: false
+
+  package_v1:
+    container: zip
+    compression: stored
+    manifest_entry: manifest.yml
+    writer_content_entry: content/writer.yml
+    unknown_file_entries_allowed: false
+    directory_entries_allowed: false
+    domain_serde_coupled: false
+
+architecture:
+  controller_logic_allowed: false
+  magic_strings_allowed: false
+  inline_config_allowed: false
+  docs_required_for_architecture_change: true
+  canonical_model_format_independent: true
+  offline_first_contract_required: true
+
+quality:
+  accessibility_required: true
+  keyboard_first_required: true
+  performance_budget_required: true
+  untrusted_document_limits_required: true
+
+
+desktop_ui:
+  shell: tauri_2
+  framework: solidjs
+  language: typescript
+  build_tool: vite
+  canonical_state_in_frontend: false
+  ipc_thin_bridge_required: true
+
+writer_input:
+  surface: contenteditable
+  canonical_state_in_dom: false
+  selection_offset_unit: unicode_scalar
+  ime_transaction_boundary: composition_events
+  rich_text_baseline:
+    - bold
+    - italic
+    - underline
+    - font_family
+    - font_size_half_points
+  typing_style:
+    canonical: false
+    repository_session_state: true
+    materialize_on_text_insert: true
+  paragraph_baseline:
+    - align_left
+    - align_center
+    - align_right
+    - align_justify
+  ribbon:
+    active_tab: home
+    tabs:
+      - file
+      - home
+      - insert
+      - view
+
+desktop_storage:
+  active: true
+  local_first: true
+  direct_target_truncate_allowed: false
+  unsaved_change_guard: true
+  safe_replace:
+    unix: temp_sync_rename
+    windows: temp_sync_backup_replace_rollback
+
+
+desktop_recovery:
+  active: true
+  snapshot_format: tko_v1
+  metadata_format: yaml
+  overwrite_source_on_autosave: false
+  autosave_interval_ms: 30000
+  max_snapshots_per_document: 5
+  max_age_seconds: 604800
+  startup_decision_required: true
+  actions:
+    - recover
+    - compare
+    - discard
+
+
+desktop_file_protection:
+  active: true
+  fingerprint: content_hash_and_length
+  timestamp_only_detection: false
+  lock_strategy: cooperative_sidecar
+  lock_failure_mode: read_only
+  backend_mutation_guard: true
+  external_change_poll_ms: 2000
+  overwrite_requires_explicit_keep_local: true
+  save_as_allowed_when_read_only: true
+  actions:
+    - reload_from_disk
+    - keep_local_version
+    - save_as
+
+writer_layout:
+  active: true
+  canonical_unit: twip
+  css_reference_dpi: 96
+  device_dpi_changes_document_geometry: false
+  zoom_session_only: true
+  zoom_min_percent: 50
+  zoom_max_percent: 200
+  zoom_step_percent: 10
+  font_resolution_changes_document_family: false
+  browser_dom_measurement_is_canonical: false
+  primary_section_page_settings_in_view: true

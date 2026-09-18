@@ -1,0 +1,28 @@
+// # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/tsconfig.json
+// # 📌 Amac: Desktop TypeScript ve SolidJS compiler kurallarini tanimlar
+// # 📌 Modul - FileType: Config - JSONC
+// # Version: 0.2.0
+// # Aciklama: Strict typing, bundler module resolution ve Solid JSX kontratini etkinlestirir
+// Bagimli Oldugu Katman: Config
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"]
+}
