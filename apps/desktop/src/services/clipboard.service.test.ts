@@ -11,7 +11,11 @@ import {
   WRITER_CLIPBOARD_FRAGMENT_KIND,
   WRITER_CLIPBOARD_FRAGMENT_SCHEMA_VERSION,
 } from "../config/clipboard";
-import type { ClipboardDomNodeModel, ClipboardTransferModel } from "../models/clipboard-model";
+import type {
+  ClipboardDomNodeModel,
+  ClipboardTransferModel,
+  ClipboardWriteModel,
+} from "../models/clipboard-model";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
 import type { ClipboardDomTool } from "../tools/clipboard-dom.tool";
 import type { ClipboardTool } from "../tools/clipboard.tool";
@@ -87,9 +91,9 @@ function clipboard(
   writeResult = true,
 ) {
   return {
-    read: vi.fn(() => payload),
-    write: vi.fn(() => writeResult),
-    consume: vi.fn(),
+    read: vi.fn((_event: ClipboardEvent) => payload),
+    write: vi.fn((_event: ClipboardEvent, _payload: ClipboardWriteModel) => writeResult),
+    consume: vi.fn((_event: ClipboardEvent) => undefined),
   };
 }
 
@@ -262,7 +266,7 @@ describe("ClipboardService", () => {
     });
     const clipboardMock = {
       ...clipboard(transfer()),
-      write: vi.fn(() => {
+      write: vi.fn((_event: ClipboardEvent, _payload: ClipboardWriteModel) => {
         order.push("write");
         return true;
       }),
