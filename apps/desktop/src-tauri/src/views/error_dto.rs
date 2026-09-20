@@ -6,15 +6,17 @@
 // Bagimli Oldugu Katman: View
 
 use serde::Serialize;
-use turkuaz_office_writer::{TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError};
+use turkuaz_office_writer::{
+    TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError,
+};
 
 use crate::config::constants::{
-    ERROR_COMMAND_FAILED, ERROR_DOCUMENT_NOT_FOUND, ERROR_FILE_EXTENSION_INVALID,
-    ERROR_FILE_PATH_INVALID, ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO,
-    ERROR_FILE_LOCKED, ERROR_EXTERNAL_CHANGE_CONFLICT,
-    ERROR_NOTHING_TO_UNDO, ERROR_PARAGRAPH_NOT_FOUND, ERROR_RECOVERY_INVALID,
-    ERROR_RECOVERY_NOT_FOUND, ERROR_RECOVERY_READ_FAILED, ERROR_RECOVERY_WRITE_FAILED,
-    ERROR_RUN_NOT_FOUND, ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
+    ERROR_COMMAND_FAILED, ERROR_DOCUMENT_NOT_FOUND, ERROR_EXTERNAL_CHANGE_CONFLICT,
+    ERROR_FILE_EXTENSION_INVALID, ERROR_FILE_LOCKED, ERROR_FILE_PATH_INVALID,
+    ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO, ERROR_NOTHING_TO_UNDO,
+    ERROR_PARAGRAPH_NOT_FOUND, ERROR_RECOVERY_INVALID, ERROR_RECOVERY_NOT_FOUND,
+    ERROR_RECOVERY_READ_FAILED, ERROR_RECOVERY_WRITE_FAILED, ERROR_RUN_NOT_FOUND,
+    ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
 };
 use crate::services::writer_file_session_service::WriterFileSessionError;
 use crate::services::writer_recovery_service::WriterRecoveryError;
@@ -54,12 +56,12 @@ impl From<WriterStorageError> for DesktopErrorDto {
             WriterStorageError::InvalidExtension => Self::new(ERROR_FILE_EXTENSION_INVALID),
             WriterStorageError::ReadFailed => Self::new(ERROR_FILE_READ_FAILED),
             WriterStorageError::WriteFailed => Self::new(ERROR_FILE_WRITE_FAILED),
-            WriterStorageError::Package(TkoPackageError::Profile(TkoProfileError::FutureSchema)) => {
-                Self::new(ERROR_TKO_FUTURE_SCHEMA)
-            }
-            WriterStorageError::Package(TkoPackageError::Profile(TkoProfileError::MigrationRequired)) => {
-                Self::new(ERROR_TKO_MIGRATION_REQUIRED)
-            }
+            WriterStorageError::Package(TkoPackageError::Profile(
+                TkoProfileError::FutureSchema,
+            )) => Self::new(ERROR_TKO_FUTURE_SCHEMA),
+            WriterStorageError::Package(TkoPackageError::Profile(
+                TkoProfileError::MigrationRequired,
+            )) => Self::new(ERROR_TKO_MIGRATION_REQUIRED),
             WriterStorageError::Package(_) => Self::new(ERROR_TKO_INVALID),
         }
     }
@@ -68,9 +70,9 @@ impl From<WriterStorageError> for DesktopErrorDto {
 impl From<WriterRecoveryError> for DesktopErrorDto {
     fn from(error: WriterRecoveryError) -> Self {
         match error {
-            WriterRecoveryError::InvalidSnapshotId | WriterRecoveryError::MetadataInvalid | WriterRecoveryError::PackageInvalid => {
-                Self::new(ERROR_RECOVERY_INVALID)
-            }
+            WriterRecoveryError::InvalidSnapshotId
+            | WriterRecoveryError::MetadataInvalid
+            | WriterRecoveryError::PackageInvalid => Self::new(ERROR_RECOVERY_INVALID),
             WriterRecoveryError::SnapshotNotFound => Self::new(ERROR_RECOVERY_NOT_FOUND),
             WriterRecoveryError::ReadFailed => Self::new(ERROR_RECOVERY_READ_FAILED),
             WriterRecoveryError::WriteFailed => Self::new(ERROR_RECOVERY_WRITE_FAILED),
@@ -81,7 +83,9 @@ impl From<WriterFileSessionError> for DesktopErrorDto {
     fn from(error: WriterFileSessionError) -> Self {
         match error {
             WriterFileSessionError::FileLocked => Self::new(ERROR_FILE_LOCKED),
-            WriterFileSessionError::ExternalChangeConflict => Self::new(ERROR_EXTERNAL_CHANGE_CONFLICT),
+            WriterFileSessionError::ExternalChangeConflict => {
+                Self::new(ERROR_EXTERNAL_CHANGE_CONFLICT)
+            }
             WriterFileSessionError::InvalidPath => Self::new(ERROR_FILE_PATH_INVALID),
             WriterFileSessionError::ReadFailed => Self::new(ERROR_FILE_READ_FAILED),
             WriterFileSessionError::WriteFailed => Self::new(ERROR_FILE_WRITE_FAILED),

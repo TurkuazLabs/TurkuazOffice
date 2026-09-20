@@ -9,12 +9,14 @@ use std::path::PathBuf;
 
 use turkuaz_office_writer::{
     CharacterStyle, CharacterStylePatch, InMemoryWriterDocumentRepository, NodeId,
-    ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition, TextRange,
-    WriterCommand, WriterController, WriterDocumentView, WriterEditorError,
+    ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition,
+    TextRange, WriterCommand, WriterController, WriterDocumentView, WriterEditorError,
 };
 
 use crate::config::constants::{ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND};
-use crate::services::writer_file_session_service::{WriterFileSessionService, WriterFileSessionStatus};
+use crate::services::writer_file_session_service::{
+    WriterFileSessionService, WriterFileSessionStatus,
+};
 use crate::services::writer_recovery_service::{
     RecoveryComparison, RecoverySnapshot, WriterRecoveryService,
 };
@@ -50,7 +52,8 @@ impl WriterDesktopService {
     }
 
     pub fn open_document(&mut self, path: &str) -> Result<WriterDocumentView, DesktopErrorDto> {
-        let resolved_path = WriterStorageService::resolve_open_path(path).map_err(DesktopErrorDto::from)?;
+        let resolved_path =
+            WriterStorageService::resolve_open_path(path).map_err(DesktopErrorDto::from)?;
         let document = WriterStorageService::open(path).map_err(DesktopErrorDto::from)?;
         let view = self.controller.load(document);
         self.file_session_service
@@ -68,18 +71,20 @@ impl WriterDesktopService {
             .controller
             .snapshot(document_id)
             .ok_or_else(|| DesktopErrorDto::from(WriterEditorError::DocumentNotFound))?;
-        let target_path = WriterStorageService::resolve_save_path(path).map_err(DesktopErrorDto::from)?;
+        let target_path =
+            WriterStorageService::resolve_save_path(path).map_err(DesktopErrorDto::from)?;
         let prepared = self
             .file_session_service
             .prepare_save(document_id, &target_path)
             .map_err(DesktopErrorDto::from)?;
-        let saved_path = match WriterStorageService::save(&document, target_path.to_string_lossy().as_ref()) {
-            Ok(value) => value,
-            Err(error) => {
-                self.file_session_service.cancel_save(&prepared);
-                return Err(DesktopErrorDto::from(error));
-            }
-        };
+        let saved_path =
+            match WriterStorageService::save(&document, target_path.to_string_lossy().as_ref()) {
+                Ok(value) => value,
+                Err(error) => {
+                    self.file_session_service.cancel_save(&prepared);
+                    return Err(DesktopErrorDto::from(error));
+                }
+            };
         self.file_session_service
             .commit_save(document_id, prepared)
             .map_err(DesktopErrorDto::from)?;
@@ -113,12 +118,16 @@ impl WriterDesktopService {
             .file_session_service
             .current_path(document_id)
             .ok_or_else(|| DesktopErrorDto::from(crate::services::writer_file_session_service::WriterFileSessionError::InvalidPath))?;
-        let document = WriterStorageService::open(path.to_string_lossy().as_ref()).map_err(DesktopErrorDto::from)?;
+        let document = WriterStorageService::open(path.to_string_lossy().as_ref())
+            .map_err(DesktopErrorDto::from)?;
         let view = self.controller.load(document);
         self.file_session_service
             .refresh_baseline(&view.id)
             .map_err(DesktopErrorDto::from)?;
-        let status = self.file_session_service.status(&view.id).map_err(DesktopErrorDto::from)?;
+        let status = self
+            .file_session_service
+            .status(&view.id)
+            .map_err(DesktopErrorDto::from)?;
         Ok((view, status))
     }
 
@@ -199,7 +208,9 @@ impl WriterDesktopService {
         text: &str,
         typing_style: Option<CharacterStyle>,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
         let current = self.document(document_id)?;
         let paragraph = current
             .paragraphs
@@ -295,7 +306,9 @@ impl WriterDesktopService {
         end_offset: usize,
         patch: CharacterStylePatch,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
         let current = self.document(document_id)?;
         let paragraph = current
             .paragraphs
@@ -325,7 +338,9 @@ impl WriterDesktopService {
         paragraph_id: &str,
         alignment: TextAlignment,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
         self.controller
             .execute(
                 document_id,
@@ -345,7 +360,9 @@ impl WriterDesktopService {
         paragraph_id: &str,
         offset: usize,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
         let current = self.document(document_id)?;
         let paragraph = current
             .paragraphs
@@ -364,7 +381,9 @@ impl WriterDesktopService {
         document_id: &str,
         paragraph_id: &str,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
         let current = self.document(document_id)?;
         let paragraph_index = current
             .paragraphs
@@ -388,13 +407,21 @@ impl WriterDesktopService {
     }
 
     pub fn undo(&mut self, document_id: &str) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
-        self.controller.undo(document_id).map_err(DesktopErrorDto::from)
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
+        self.controller
+            .undo(document_id)
+            .map_err(DesktopErrorDto::from)
     }
 
     pub fn redo(&mut self, document_id: &str) -> Result<WriterDocumentView, DesktopErrorDto> {
-        self.file_session_service.ensure_writable(document_id).map_err(DesktopErrorDto::from)?;
-        self.controller.redo(document_id).map_err(DesktopErrorDto::from)
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
+        self.controller
+            .redo(document_id)
+            .map_err(DesktopErrorDto::from)
     }
 
     fn document(&self, document_id: &str) -> Result<WriterDocumentView, DesktopErrorDto> {

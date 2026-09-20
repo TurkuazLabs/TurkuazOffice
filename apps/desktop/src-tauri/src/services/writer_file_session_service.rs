@@ -69,9 +69,17 @@ impl WriterFileSessionService {
         self.current = None;
     }
 
-    pub fn track_open(&mut self, document_id: &str, path: &Path) -> Result<(), WriterFileSessionError> {
+    pub fn track_open(
+        &mut self,
+        document_id: &str,
+        path: &Path,
+    ) -> Result<(), WriterFileSessionError> {
         let fingerprint = Some(Self::fingerprint(path)?);
-        if let Some(current) = self.current.as_mut().filter(|item| Self::same_path(&item.path, path)) {
+        if let Some(current) = self
+            .current
+            .as_mut()
+            .filter(|item| Self::same_path(&item.path, path))
+        {
             current.document_id = document_id.to_owned();
             current.path = path.to_path_buf();
             current.fingerprint = fingerprint;
@@ -95,8 +103,15 @@ impl WriterFileSessionService {
         Ok(())
     }
 
-    pub fn status(&self, document_id: &str) -> Result<WriterFileSessionStatus, WriterFileSessionError> {
-        let Some(session) = self.current.as_ref().filter(|item| item.document_id == document_id) else {
+    pub fn status(
+        &self,
+        document_id: &str,
+    ) -> Result<WriterFileSessionStatus, WriterFileSessionError> {
+        let Some(session) = self
+            .current
+            .as_ref()
+            .filter(|item| item.document_id == document_id)
+        else {
             return Ok(WriterFileSessionStatus {
                 path: None,
                 read_only: false,
@@ -113,7 +128,11 @@ impl WriterFileSessionService {
     }
 
     pub fn ensure_writable(&self, document_id: &str) -> Result<(), WriterFileSessionError> {
-        if let Some(session) = self.current.as_ref().filter(|item| item.document_id == document_id) {
+        if let Some(session) = self
+            .current
+            .as_ref()
+            .filter(|item| item.document_id == document_id)
+        {
             if session.read_only {
                 return Err(WriterFileSessionError::FileLocked);
             }
@@ -172,7 +191,11 @@ impl WriterFileSessionService {
     ) -> Result<(), WriterFileSessionError> {
         let fingerprint = Some(Self::fingerprint(&prepared.target_path)?);
         if prepared.same_path {
-            if let Some(session) = self.current.as_mut().filter(|item| item.document_id == document_id) {
+            if let Some(session) = self
+                .current
+                .as_mut()
+                .filter(|item| item.document_id == document_id)
+            {
                 session.fingerprint = fingerprint;
                 return Ok(());
             }
@@ -190,7 +213,10 @@ impl WriterFileSessionService {
         Ok(())
     }
 
-    pub fn acknowledge_external_change(&mut self, document_id: &str) -> Result<WriterFileSessionStatus, WriterFileSessionError> {
+    pub fn acknowledge_external_change(
+        &mut self,
+        document_id: &str,
+    ) -> Result<WriterFileSessionStatus, WriterFileSessionError> {
         let session = self
             .current
             .as_mut()
@@ -217,22 +243,29 @@ impl WriterFileSessionService {
             .map(|item| item.path.clone())
     }
 
-    fn external_state(session: &WriterFileSession) -> Result<WriterExternalChangeState, WriterFileSessionError> {
+    fn external_state(
+        session: &WriterFileSession,
+    ) -> Result<WriterExternalChangeState, WriterFileSessionError> {
         let current = Self::fingerprint_optional(&session.path)?;
         Ok(match (session.fingerprint, current) {
             (None, None) => WriterExternalChangeState::Unchanged,
             (Some(_), None) => WriterExternalChangeState::Missing,
             (None, Some(_)) => WriterExternalChangeState::Modified,
-            (Some(expected), Some(actual)) if expected == actual => WriterExternalChangeState::Unchanged,
+            (Some(expected), Some(actual)) if expected == actual => {
+                WriterExternalChangeState::Unchanged
+            }
             (Some(_), Some(_)) => WriterExternalChangeState::Modified,
         })
     }
 
     fn fingerprint(path: &Path) -> Result<FileFingerprint, WriterFileSessionError> {
-        FileFingerprintTool::read(path, TkoPackageService::MAX_PACKAGE_BYTES).map_err(Self::map_local_error)
+        FileFingerprintTool::read(path, TkoPackageService::MAX_PACKAGE_BYTES)
+            .map_err(Self::map_local_error)
     }
 
-    fn fingerprint_optional(path: &Path) -> Result<Option<FileFingerprint>, WriterFileSessionError> {
+    fn fingerprint_optional(
+        path: &Path,
+    ) -> Result<Option<FileFingerprint>, WriterFileSessionError> {
         if !LocalFileTool::file_exists(path) {
             return Ok(None);
         }
@@ -262,7 +295,9 @@ impl WriterFileSessionService {
     fn map_local_error(error: LocalFileError) -> WriterFileSessionError {
         match error {
             LocalFileError::InvalidPath => WriterFileSessionError::InvalidPath,
-            LocalFileError::PackageTooLarge | LocalFileError::ReadFailed => WriterFileSessionError::ReadFailed,
+            LocalFileError::PackageTooLarge | LocalFileError::ReadFailed => {
+                WriterFileSessionError::ReadFailed
+            }
             LocalFileError::WriteFailed => WriterFileSessionError::WriteFailed,
         }
     }

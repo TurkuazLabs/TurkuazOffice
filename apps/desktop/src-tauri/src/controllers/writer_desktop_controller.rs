@@ -15,8 +15,8 @@ use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
 use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, RecoverySnapshotDto};
 use crate::views::writer_dto::{
-    WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto, WriterStyledRunInputDto,
-    WriterTextAlignmentDto,
+    WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
+    WriterStyledRunInputDto, WriterTextAlignmentDto,
 };
 use turkuaz_office_writer::CharacterStylePatch;
 
@@ -31,7 +31,6 @@ pub fn writer_create_document(
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     Ok(service.create_document().into())
 }
-
 
 #[tauri::command]
 pub fn writer_open_document(
@@ -102,7 +101,6 @@ pub fn writer_reload_from_disk(
         file_session: file_session.into(),
     })
 }
-
 
 #[tauri::command]
 pub fn writer_list_recovery_snapshots(
@@ -269,11 +267,7 @@ pub fn writer_apply_paragraph_alignment(
         .lock()
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service
-        .apply_paragraph_alignment(
-            &document_id,
-            &paragraph_id,
-            alignment.into(),
-        )
+        .apply_paragraph_alignment(&document_id, &paragraph_id, alignment.into())
         .map(WriterDocumentDto::from)
 }
 

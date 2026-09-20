@@ -7,8 +7,8 @@
 
 use std::path::{Path, PathBuf};
 
-use turkuaz_office_writer::{TkoArchiveError, TkoPackageError, TkoPackageService, WriterDocument};
 use turkuaz_office_writer::config::constants::TKO_FILE_EXTENSION;
+use turkuaz_office_writer::{TkoArchiveError, TkoPackageError, TkoPackageService, WriterDocument};
 
 use crate::tools::local_file_tool::{LocalFileError, LocalFileTool};
 
@@ -31,7 +31,9 @@ impl From<LocalFileError> for WriterStorageError {
     fn from(value: LocalFileError) -> Self {
         match value {
             LocalFileError::InvalidPath => Self::InvalidPath,
-            LocalFileError::PackageTooLarge => Self::Package(TkoPackageError::Archive(TkoArchiveError::PackageTooLarge)),
+            LocalFileError::PackageTooLarge => {
+                Self::Package(TkoPackageError::Archive(TkoArchiveError::PackageTooLarge))
+            }
             LocalFileError::ReadFailed => Self::ReadFailed,
             LocalFileError::WriteFailed => Self::WriteFailed,
         }

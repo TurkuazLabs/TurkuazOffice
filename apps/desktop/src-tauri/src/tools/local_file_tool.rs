@@ -130,7 +130,12 @@ impl LocalFileTool {
         Ok(format!("{}-{timestamp}", std::process::id()))
     }
 
-    fn sidecar_path(parent: &Path, file_name: &str, operation_token: &str, suffix: &str) -> PathBuf {
+    fn sidecar_path(
+        parent: &Path,
+        file_name: &str,
+        operation_token: &str,
+        suffix: &str,
+    ) -> PathBuf {
         parent.join(format!(".{file_name}.{operation_token}.{suffix}"))
     }
 

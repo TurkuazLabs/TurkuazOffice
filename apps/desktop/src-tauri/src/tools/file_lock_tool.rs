@@ -32,7 +32,11 @@ impl FileLockTool {
     pub fn acquire(target_path: &Path) -> Result<FileLockLease, FileLockError> {
         let lock_path = Self::lock_path(target_path)?;
         let token = Self::token()?;
-        let mut file = match OpenOptions::new().write(true).create_new(true).open(&lock_path) {
+        let mut file = match OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&lock_path)
+        {
             Ok(file) => file,
             Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
                 return Err(FileLockError::Locked);
@@ -56,7 +60,8 @@ impl FileLockTool {
             return Err(FileLockError::ReadFailed);
         }
         let mut token = String::new();
-        file.read_to_string(&mut token).map_err(|_| FileLockError::ReadFailed)?;
+        file.read_to_string(&mut token)
+            .map_err(|_| FileLockError::ReadFailed)?;
         if token != lease.token {
             return Err(FileLockError::Locked);
         }

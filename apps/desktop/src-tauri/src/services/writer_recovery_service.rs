@@ -143,7 +143,9 @@ impl WriterRecoveryService {
         let mut kept = Vec::new();
         for snapshot in snapshots {
             let age = now_ms.saturating_sub(snapshot.created_at_unix_ms);
-            let count = document_counts.entry(snapshot.document_id.clone()).or_insert(0);
+            let count = document_counts
+                .entry(snapshot.document_id.clone())
+                .or_insert(0);
             *count += 1;
             if age > max_age_ms || *count > RECOVERY_MAX_SNAPSHOTS_PER_DOCUMENT {
                 let _ = self.discard(&snapshot.snapshot_id);
@@ -159,7 +161,9 @@ impl WriterRecoveryService {
             return Ok(Vec::new());
         }
         let mut snapshots = Vec::new();
-        for path in LocalFileTool::list_files_with_extension(&self.root, RECOVERY_METADATA_EXTENSION)? {
+        for path in
+            LocalFileTool::list_files_with_extension(&self.root, RECOVERY_METADATA_EXTENSION)?
+        {
             let bytes = match LocalFileTool::read(&path, MAX_RECOVERY_METADATA_BYTES) {
                 Ok(value) => value,
                 Err(_) => continue,
@@ -178,10 +182,11 @@ impl WriterRecoveryService {
             if !LocalFileTool::file_exists(&package_path) {
                 continue;
             }
-            let package_bytes = match LocalFileTool::read(&package_path, TkoPackageService::MAX_PACKAGE_BYTES) {
-                Ok(value) => value,
-                Err(_) => continue,
-            };
+            let package_bytes =
+                match LocalFileTool::read(&package_path, TkoPackageService::MAX_PACKAGE_BYTES) {
+                    Ok(value) => value,
+                    Err(_) => continue,
+                };
             let document = match TkoPackageService::deserialize(&package_bytes) {
                 Ok(value) => value,
                 Err(_) => continue,
@@ -247,8 +252,10 @@ impl WriterRecoveryService {
         Ok(())
     }
 
-
-    fn read_metadata(&self, snapshot_id: &str) -> Result<RecoveryMetadataDiskDto, WriterRecoveryError> {
+    fn read_metadata(
+        &self,
+        snapshot_id: &str,
+    ) -> Result<RecoveryMetadataDiskDto, WriterRecoveryError> {
         let path = self.metadata_path(snapshot_id)?;
         if !LocalFileTool::file_exists(&path) {
             return Err(WriterRecoveryError::SnapshotNotFound);
@@ -312,7 +319,13 @@ impl WriterRecoveryService {
         for section in &document.sections {
             for block in &section.blocks {
                 if let Block::Paragraph(paragraph) = block {
-                    paragraphs.push(paragraph.runs.iter().map(|run| run.text.as_str()).collect::<String>());
+                    paragraphs.push(
+                        paragraph
+                            .runs
+                            .iter()
+                            .map(|run| run.text.as_str())
+                            .collect::<String>(),
+                    );
                 }
             }
         }
