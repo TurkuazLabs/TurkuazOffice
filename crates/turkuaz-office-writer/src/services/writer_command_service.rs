@@ -56,11 +56,7 @@ impl WriterCommandService {
             WriterCommand::MergeParagraph {
                 first_paragraph_id,
                 second_paragraph_id,
-            } => Self::merge_paragraph(
-                document,
-                first_paragraph_id,
-                second_paragraph_id,
-            )?,
+            } => Self::merge_paragraph(document, first_paragraph_id, second_paragraph_id)?,
             WriterCommand::SetCharacterStyle { run_id, style } => {
                 Self::set_character_style(document, run_id, style.clone())?;
             }
@@ -94,13 +90,7 @@ impl WriterCommandService {
                 after_paragraph_id,
                 rows,
                 columns,
-            } => Self::insert_table(
-                document,
-                after_paragraph_id,
-                *rows,
-                *columns,
-                id_tool,
-            )?,
+            } => Self::insert_table(document, after_paragraph_id, *rows, *columns, id_tool)?,
         }
 
         document.revision = document.revision.saturating_add(1);
@@ -233,7 +223,11 @@ impl WriterCommandService {
         start_paragraph.runs.append(&mut suffix);
 
         section.blocks[start_block_index] = Block::Paragraph(start_paragraph);
-        drop(section.blocks.drain((start_block_index + 1)..=end_block_index));
+        drop(
+            section
+                .blocks
+                .drain((start_block_index + 1)..=end_block_index),
+        );
         Ok(())
     }
 
@@ -289,11 +283,7 @@ impl WriterCommandService {
             suffix
         };
 
-        drop(
-            paragraph
-                .runs
-                .drain((start_run_index + 1)..=end_run_index),
-        );
+        drop(paragraph.runs.drain((start_run_index + 1)..=end_run_index));
         if !end_suffix.text.is_empty() {
             paragraph.runs.insert(start_run_index + 1, end_suffix);
         }
@@ -337,9 +327,7 @@ impl WriterCommandService {
                 *cursor = run_end;
                 Some((run_start, run_end, run.style.clone()))
             })
-            .find(|(run_start, run_end, _)| {
-                start_offset >= *run_start && start_offset <= *run_end
-            })
+            .find(|(run_start, run_end, _)| start_offset >= *run_start && start_offset <= *run_end)
             .map(|(_, _, style)| style)
             .or_else(|| original_runs.last().map(|run| run.style.clone()))
             .unwrap_or_default();
@@ -366,8 +354,8 @@ impl WriterCommandService {
             if local_end == 0 {
                 continue;
             }
-            let text = Self::char_slice(&run.text, 0, local_end)
-                .ok_or(WriterCommandError::RunNotFound)?;
+            let text =
+                Self::char_slice(&run.text, 0, local_end).ok_or(WriterCommandError::RunNotFound)?;
             if !text.is_empty() {
                 rebuilt.push(TextRun {
                     id: run.id.clone(),
@@ -684,7 +672,8 @@ impl WriterCommandService {
     where
         I: WriterIdTool,
     {
-        let (section_index, block_index) = Self::find_paragraph_block(document, after_paragraph_id)?;
+        let (section_index, block_index) =
+            Self::find_paragraph_block(document, after_paragraph_id)?;
         let image = ImageBlock {
             id: id_tool.next_node_id(),
             asset_id: asset_id.to_owned(),
@@ -713,7 +702,8 @@ impl WriterCommandService {
         {
             return Err(WriterCommandError::InvalidTableSize);
         }
-        let (section_index, block_index) = Self::find_paragraph_block(document, after_paragraph_id)?;
+        let (section_index, block_index) =
+            Self::find_paragraph_block(document, after_paragraph_id)?;
         let mut table_rows = Vec::with_capacity(rows);
         for _ in 0..rows {
             let mut cells = Vec::with_capacity(columns);

@@ -5,15 +5,15 @@
 // # Aciklama: Rich-text round-trip, schema, manifest, ZIP allowlist ve traversal guvenligini dogrular
 // Bagimli Oldugu Katman: Service -> Tool
 
+use std::io::{Cursor, Write};
 use turkuaz_office_core::DocumentSchemaVersion;
 use turkuaz_office_writer::config::constants::{TKO_MANIFEST_ENTRY, TKO_WRITER_CONTENT_ENTRY};
-use std::io::{Cursor, Write};
 
 use turkuaz_office_writer::tools::tko_archive_tool::{TkoArchiveError, TkoArchiveTool};
 use turkuaz_office_writer::{
-    CharacterStylePatch, InMemoryWriterDocumentRepository, ParagraphStylePatch, SequentialWriterIdTool,
-    TextAlignment, TextPosition, TextRange, TkoPackageError, TkoPackageService, TkoProfileError,
-    WriterCommand, WriterEditorService,
+    CharacterStylePatch, InMemoryWriterDocumentRepository, ParagraphStylePatch,
+    SequentialWriterIdTool, TextAlignment, TextPosition, TextRange, TkoPackageError,
+    TkoPackageService, TkoProfileError, WriterCommand, WriterEditorService,
 };
 
 fn editor() -> WriterEditorService<InMemoryWriterDocumentRepository, SequentialWriterIdTool> {
@@ -100,9 +100,8 @@ fn tko_round_trip_preserves_writer_content_and_styles() {
 fn tko_serialize_rejects_future_schema_document() {
     let mut editor = editor();
     let mut document = editor.create_document("Future Save");
-    document.schema_version = DocumentSchemaVersion::new(
-        DocumentSchemaVersion::current().value().saturating_add(1),
-    );
+    document.schema_version =
+        DocumentSchemaVersion::new(DocumentSchemaVersion::current().value().saturating_add(1));
 
     assert!(matches!(
         TkoPackageService::serialize(&document, "0.2.0"),
@@ -121,14 +120,12 @@ fn tko_future_schema_package_is_rejected_on_open() {
     let document = editor.create_document("Future Open");
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize TKO");
     let entries = TkoArchiveTool::decode(&bytes).expect("decode archive");
-    let mut manifest: TkoManifestDtoV1 = TkoYamlTool::deserialize(
-        entries.get(TKO_MANIFEST_ENTRY).expect("manifest"),
-    )
-    .expect("manifest yaml");
-    let mut content: WriterContentDtoV1 = TkoYamlTool::deserialize(
-        entries.get(TKO_WRITER_CONTENT_ENTRY).expect("content"),
-    )
-    .expect("content yaml");
+    let mut manifest: TkoManifestDtoV1 =
+        TkoYamlTool::deserialize(entries.get(TKO_MANIFEST_ENTRY).expect("manifest"))
+            .expect("manifest yaml");
+    let mut content: WriterContentDtoV1 =
+        TkoYamlTool::deserialize(entries.get(TKO_WRITER_CONTENT_ENTRY).expect("content"))
+            .expect("content yaml");
     let future_schema = DocumentSchemaVersion::current().value().saturating_add(1);
     manifest.schema_version = future_schema;
     content.schema_version = future_schema;
@@ -157,14 +154,12 @@ fn tko_old_schema_package_requires_migration() {
     let document = editor.create_document("Old Schema");
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize TKO");
     let entries = TkoArchiveTool::decode(&bytes).expect("decode archive");
-    let mut manifest: TkoManifestDtoV1 = TkoYamlTool::deserialize(
-        entries.get(TKO_MANIFEST_ENTRY).expect("manifest"),
-    )
-    .expect("manifest yaml");
-    let mut content: WriterContentDtoV1 = TkoYamlTool::deserialize(
-        entries.get(TKO_WRITER_CONTENT_ENTRY).expect("content"),
-    )
-    .expect("content yaml");
+    let mut manifest: TkoManifestDtoV1 =
+        TkoYamlTool::deserialize(entries.get(TKO_MANIFEST_ENTRY).expect("manifest"))
+            .expect("manifest yaml");
+    let mut content: WriterContentDtoV1 =
+        TkoYamlTool::deserialize(entries.get(TKO_WRITER_CONTENT_ENTRY).expect("content"))
+            .expect("content yaml");
     let old_schema = DocumentSchemaVersion::current().value().saturating_sub(1);
     manifest.schema_version = old_schema;
     content.schema_version = old_schema;
@@ -223,10 +218,9 @@ fn tko_manifest_content_mismatch_is_rejected() {
     let document = editor.create_document("Mismatch");
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize TKO");
     let entries = TkoArchiveTool::decode(&bytes).expect("decode archive");
-    let mut manifest: TkoManifestDtoV1 = TkoYamlTool::deserialize(
-        entries.get(TKO_MANIFEST_ENTRY).expect("manifest"),
-    )
-    .expect("manifest yaml");
+    let mut manifest: TkoManifestDtoV1 =
+        TkoYamlTool::deserialize(entries.get(TKO_MANIFEST_ENTRY).expect("manifest"))
+            .expect("manifest yaml");
     manifest.document_id = "doc-mismatch".to_owned();
     let manifest_bytes = TkoYamlTool::serialize(&manifest).expect("manifest yaml write");
     let content = entries.get(TKO_WRITER_CONTENT_ENTRY).expect("content");
@@ -238,7 +232,9 @@ fn tko_manifest_content_mismatch_is_rejected() {
 
     assert!(matches!(
         TkoPackageService::deserialize(&modified),
-        Err(TkoPackageError::Profile(TkoProfileError::ManifestContentMismatch))
+        Err(TkoPackageError::Profile(
+            TkoProfileError::ManifestContentMismatch
+        ))
     ));
 }
 
@@ -272,15 +268,17 @@ fn archive_tool_rejects_traversal_entry_name() {
 fn archive_tool_rejects_directory_entry() {
     let cursor = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(cursor);
-    let options = zip::write::SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Stored);
+    let options =
+        zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
     writer
         .add_directory("content/", options)
         .expect("directory fixture");
     writer
         .start_file(TKO_MANIFEST_ENTRY, options)
         .expect("manifest fixture");
-    writer.write_all(b"format_version: 1\n").expect("fixture write");
+    writer
+        .write_all(b"format_version: 1\n")
+        .expect("fixture write");
     let bytes = writer.finish().expect("finish fixture").into_inner();
 
     assert!(matches!(
@@ -293,8 +291,8 @@ fn archive_tool_rejects_directory_entry() {
 fn archive_tool_rejects_duplicate_entry() {
     let cursor = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(cursor);
-    let options = zip::write::SimpleFileOptions::default()
-        .compression_method(zip::CompressionMethod::Stored);
+    let options =
+        zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
     writer
         .start_file(TKO_MANIFEST_ENTRY, options)
         .expect("first manifest fixture");

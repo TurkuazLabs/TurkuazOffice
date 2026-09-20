@@ -111,7 +111,9 @@ impl TkoArchiveTool {
             || name.starts_with('/')
             || name.starts_with('\\')
             || name.contains('\\')
-            || name.split('/').any(|part| part.is_empty() || part == "." || part == "..")
+            || name
+                .split('/')
+                .any(|part| part.is_empty() || part == "." || part == "..")
         {
             return Err(TkoArchiveError::UnsafeEntryName);
         }

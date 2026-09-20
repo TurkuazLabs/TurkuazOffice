@@ -65,7 +65,8 @@ where
     pub fn create_document(&mut self, title: impl Into<String>) -> WriterDocument {
         let document = WriterDocumentFactoryService::create(&self.id_tool, title);
         self.repository.save(document.clone());
-        self.history.insert(document.id.clone(), CommandHistory::default());
+        self.history
+            .insert(document.id.clone(), CommandHistory::default());
         document
     }
 

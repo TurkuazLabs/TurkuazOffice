@@ -5,8 +5,8 @@
 // # Aciklama: Noyalib serde-yaml compatibility detayini Service katmanindan gizleyen serialize/deserialize Tool siniridir
 // Bagimli Oldugu Katman: Tool
 
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TkoYamlError {

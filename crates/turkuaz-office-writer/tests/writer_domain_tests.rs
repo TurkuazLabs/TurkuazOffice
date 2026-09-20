@@ -5,6 +5,7 @@
 // # Aciklama: Create, insert, Unicode offset, split, merge, delete, undo/redo, table ve TKO profile round-trip testlerini kapsar
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
+use turkuaz_office_writer::WriterController;
 use turkuaz_office_writer::repositories::writer_document_repository::InMemoryWriterDocumentRepository;
 use turkuaz_office_writer::services::tko_profile_service::{TkoProfileError, TkoProfileService};
 use turkuaz_office_writer::services::writer_command::{WriterCommand, WriterCommandError};
@@ -15,7 +16,6 @@ use turkuaz_office_writer::services::writer_types::{
     Block, CharacterStyle, CharacterStylePatch, NodeId, ParagraphStylePatch, TextAlignment,
     TextPosition, TextRange, TextRun,
 };
-use turkuaz_office_writer::WriterController;
 use turkuaz_office_writer::tools::writer_id_tool::{SequentialWriterIdTool, WriterIdTool};
 
 fn service() -> WriterEditorService<InMemoryWriterDocumentRepository, SequentialWriterIdTool> {
@@ -37,7 +37,6 @@ fn new_document_has_one_section_paragraph_and_run() {
     assert_eq!(paragraph.runs.len(), 1);
     assert_eq!(document.revision, 0);
 }
-
 
 #[test]
 fn empty_title_uses_core_default_title() {
@@ -96,7 +95,6 @@ fn insert_text_uses_unicode_scalar_offset_and_undo_redo_is_monotonic() {
     assert_eq!(redone.plain_text(), "Merhaba Turkuaz dunya");
     assert_eq!(redone.revision, 4);
 }
-
 
 #[test]
 fn insert_text_offset_counts_unicode_scalars_not_utf8_bytes() {
@@ -213,7 +211,6 @@ fn split_merge_and_delete_range_preserve_document_flow() {
     assert_eq!(merged.id, first_id);
 }
 
-
 #[test]
 fn cross_run_delete_keeps_suffix_before_later_runs() {
     let id_tool = SequentialWriterIdTool::new();
@@ -284,7 +281,6 @@ fn insert_table_creates_requested_grid() {
     assert!(table.rows.iter().all(|row| row.cells.len() == 3));
 }
 
-
 #[test]
 fn tko_profile_rejects_old_schema_until_migration_runs() {
     let mut service = service();
@@ -304,7 +300,6 @@ fn tko_logical_profile_round_trip_is_lossless() {
     let restored = TkoProfileService::restore(package).expect("profile should restore");
     assert_eq!(restored, document);
 }
-
 
 #[test]
 fn batch_commands_create_one_revision_and_one_undo_entry() {
@@ -343,7 +338,9 @@ fn batch_commands_create_one_revision_and_one_undo_entry() {
     assert_eq!(document.plain_text, "Alpha Beta");
     assert_eq!(document.revision, 1);
 
-    let document = controller.undo(&document.id).expect("single undo should revert batch");
+    let document = controller
+        .undo(&document.id)
+        .expect("single undo should revert batch");
     assert_eq!(document.plain_text, "");
     assert_eq!(document.revision, 2);
 }
@@ -451,8 +448,6 @@ fn applying_same_style_to_adjacent_runs_compacts_fragmentation() {
     assert_eq!(paragraph.runs[0].text, "ABCD");
     assert!(paragraph.runs[0].style.bold);
 }
-
-
 
 #[test]
 fn styled_insert_splits_run_and_preserves_neighbor_style() {
@@ -649,13 +644,14 @@ fn paragraph_alignment_is_reversible_through_editor_history() {
     };
     assert_eq!(aligned_paragraph.style.alignment, TextAlignment::Justify);
 
-    let undone = service.undo(&document.id).expect("alignment undo should succeed");
+    let undone = service
+        .undo(&document.id)
+        .expect("alignment undo should succeed");
     let Block::Paragraph(undone_paragraph) = &undone.sections[0].blocks[0] else {
         panic!("paragraph expected");
     };
     assert_eq!(undone_paragraph.style.alignment, TextAlignment::Left);
 }
-
 
 #[test]
 fn writer_view_exposes_primary_page_settings_without_pixel_conversion() {
@@ -791,7 +787,9 @@ fn replace_range_with_styled_runs_preserves_neighbor_styles_and_undoes_once() {
     assert_eq!(paragraph.runs[3].text, "ld");
     assert!(paragraph.runs[3].style.bold);
 
-    let undone = service.undo(&document.id).expect("single undo should restore pre-paste state");
+    let undone = service
+        .undo(&document.id)
+        .expect("single undo should restore pre-paste state");
     assert_eq!(undone.plain_text(), "HelloWorld");
     let Block::Paragraph(paragraph) = &undone.sections[0].blocks[0] else {
         panic!("paragraph expected");
