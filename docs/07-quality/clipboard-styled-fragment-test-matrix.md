@@ -40,3 +40,9 @@ Bu matrix atomic canonical mutation dilimini kapsar. OS clipboard event, sanitiz
 
 | Asiri derin veya cok node'lu HTML | HTML representation reddedilir, plain text varsa fallback edilir |
 | Font family icinde HTML entity/metacharacter | Copy HTML serializer CSS ve HTML baglaminda escape eder |
+
+## Otomatik frontend regression
+
+- Vitest 5.0.1 ile ClipboardService headless unit testleri.
+- Browser DOM gerektirmeden ClipboardTool/ClipboardDomTool ve WriterSessionService sinirlari mock edilir.
+- CI frontend-quality job'u build sonrasinda `npm test` calistirir.

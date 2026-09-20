@@ -34,6 +34,9 @@ jobs:
       - name: Typecheck And Build
         run: npm run build
 
+      - name: Frontend Unit Tests
+        run: npm test
+
   rust-quality:
     runs-on: ubuntu-latest
     steps:

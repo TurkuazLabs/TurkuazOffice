@@ -14,6 +14,10 @@ Static proje verifier runtime clipboard dosyalarini ve event baglantilarini da z
 
 `tools/verify-project.sh` yeni typed fragment command, frontend IPC key, Service/Controller baglantisi ve domain regression testlerini zorunlu contract olarak kontrol eder.
 
+## Frontend unit test kapsami
+
+Vitest Service-level regression testleri internal MIME paste priority, sanitized HTML fallback, plain-text fallback, canonical copy payload ve cut-before-empty-fragment mutation siralamasini kapsar.
+
 ## Runtime acceptance kapsami
 
 - Copy ayni secimi internal MIME, HTML ve plain text olarak yazar.
