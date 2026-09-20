@@ -2,7 +2,7 @@
 // # 📌 Amac: Writer copy/cut/paste representation secimi, sanitizer ve fragment mapping kurallarini yurutur
 // # 📌 Modul - FileType: Service - TypeScript
 // # Version: 0.2.0
-// # Aciklama: Internal Turkuaz MIME > sanitized HTML > plain-text onceligini canonical styled-run mutationina baglar
+// # Aciklama: Internal Turkuaz MIME > sanitized HTML > plain-text onceligini paragraph-local canonical styled-run mutationina baglar
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Model
 
 import {
@@ -193,7 +193,7 @@ export class ClipboardService {
       return html.map((run) => this.toWriterRun(run));
     }
 
-    const plainText = this.normalizeText(transfer.plainText);
+    const plainText = this.normalizeInlineText(transfer.plainText);
     if (plainText.length === 0 || Array.from(plainText).length > WRITER_CLIPBOARD_MAX_TEXT_LENGTH) {
       return null;
     }
@@ -258,7 +258,7 @@ export class ClipboardService {
     ) {
       return null;
     }
-    const text = this.normalizeText(value.text);
+    const text = this.normalizeInlineText(value.text);
     if (text.length === 0) {
       return null;
     }
@@ -301,7 +301,7 @@ export class ClipboardService {
     output: ClipboardStyledRunModel[],
   ): void {
     if (node.kind === "text") {
-      const text = this.normalizeText(node.text);
+      const text = this.normalizeInlineText(node.text);
       if (text.length > 0) {
         this.pushRun(output, { text, style: inheritedStyle });
       }
@@ -313,7 +313,7 @@ export class ClipboardService {
     }
     const style = this.applyHtmlStyle(node.tagName, node.style, inheritedStyle);
     if (WRITER_CLIPBOARD_BREAK_TAGS.has(node.tagName)) {
-      this.pushRun(output, { text: "\n", style });
+      this.pushRun(output, { text: " ", style });
       return;
     }
 
@@ -363,8 +363,8 @@ export class ClipboardService {
     style: ClipboardCharacterStyleModel,
   ): void {
     const last = output.at(-1);
-    if (last !== undefined && !last.text.endsWith("\n")) {
-      this.pushRun(output, { text: "\n", style });
+    if (last !== undefined && !/\s$/u.test(last.text)) {
+      this.pushRun(output, { text: " ", style });
     }
   }
 
@@ -481,8 +481,11 @@ export class ClipboardService {
       .replace(/[\r\n\f]/gu, " ");
   }
 
-  private normalizeText(value: string): string {
-    return value.replace(/\u0000/gu, "").replace(/\r\n?/gu, "\n");
+  private normalizeInlineText(value: string): string {
+    return value
+      .replace(/\u0000/gu, "")
+      .replace(/\r\n?/gu, "\n")
+      .replace(/\n+/gu, " ");
   }
 
   private isRecord(value: unknown): value is Record<string, unknown> {

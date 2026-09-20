@@ -52,6 +52,10 @@ Atomic fragment mutation basarili oldugunda Desktop selection caret'i `startOffs
 - Unknown HTML taglari semantik eklemeden yalniz guvenli text cocuklarini tasir.
 - Remote resource URL'leri okunmaz veya canonical modele yazilmaz.
 
+## Paragraph-local satir sonu kurali
+
+M1 atomic replace yalniz tek paragraf destekledigi icin external HTML veya plain-text satir sonlari tek bosluga normalize edilir. Boylece cok satirli clipboard payload'i canonical paragraph icine ham newline sokmaz. Gercek paragraph split semantigi cross-paragraph clipboard diliminde eklenecektir.
+
 ## M1 siniri
 
 Cross-paragraph rich fragment, image payloadlari ve table-aware adapterlar sonraki dilimlerdir.

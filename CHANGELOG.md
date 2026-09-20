@@ -10,6 +10,13 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Clipboard runtime copy/cut/paste event hatti eklendi.
+- Paste representation onceligi Internal Turkuaz MIME -> sanitized HTML -> plain text olarak baglandi.
+- Clipboard payload schema/limit validation ve executable/resource HTML tag filtering eklendi.
+- M1 paragraph-local paste icin external satir sonlari tek bosluga normalize edildi.
+- Rust toolchain 1.98.1'e sabitlendi ve Windows desktop lib/bin output-name collision giderildi.
+- Onceki CI rustfmt farklari canonical rustfmt outputuna gore normalize edildi.
+
 - `ReplaceRangeWithStyledRuns` typed Writer command'i eklendi.
 - Paragraph-local styled paste ve empty-fragment cut canonical mutation zincirine baglandi.
 - Styled fragment Tauri DTO/IPC ve Desktop Tool/Service/Controller sinirlarina eklendi.

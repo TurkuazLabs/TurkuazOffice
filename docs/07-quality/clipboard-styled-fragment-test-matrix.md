@@ -35,3 +35,5 @@ Bu matrix atomic canonical mutation dilimini kapsar. OS clipboard event, sanitiz
 | Cut | Clipboard representationlari yazilir ve secim bos fragment ile tek undo adiminda silinir |
 | Read-only belge | Cut/paste canonical mutation yapmaz |
 | Paste/cut sonrasi selection | Caret eklenen fragment sonuna collapse olur |
+
+| Cok satirli plain text/HTML paste | M1 paragraph-local sinirinda satir sonlari tek bosluga normalize edilir |
