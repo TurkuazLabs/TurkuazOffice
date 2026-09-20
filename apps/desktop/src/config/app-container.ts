@@ -2,14 +2,17 @@
 // # 📌 Amac: Desktop katman bagimliliklarini tek composition root icinde kurar
 // # 📌 Modul - FileType: Config - TypeScript
 // # Version: 0.2.0
-// # Aciklama: Writer IME, DOM selection, native file dialog, Tauri IPC ve session bagimliliklarini merkezi enjekte eder
+// # Aciklama: Writer IME, clipboard, DOM selection, native file dialog, Tauri IPC ve session bagimliliklarini merkezi enjekte eder
 // Bagimli Oldugu Katman: Config
 
 import { WriterController } from "../controllers/writer.controller";
+import { ClipboardService } from "../services/clipboard.service";
 import { LanguageService } from "../language/language-service";
 import { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { WriterLayoutService } from "../services/writer-layout.service";
 import { WriterSessionService } from "../services/writer-session.service";
+import { ClipboardDomTool } from "../tools/clipboard-dom.tool";
+import { ClipboardTool } from "../tools/clipboard.tool";
 import { DomSelectionTool } from "../tools/dom-selection.tool";
 import { FontCapabilityTool } from "../tools/font-capability.tool";
 import { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
@@ -33,9 +36,17 @@ const writerSessionService = new WriterSessionService(
   writerLayoutService,
   languageService,
 );
+const clipboardTool = new ClipboardTool();
+const clipboardDomTool = new ClipboardDomTool();
+const clipboardService = new ClipboardService(
+  writerSessionRepository,
+  writerSessionService,
+  clipboardTool,
+  clipboardDomTool,
+);
 
 export const APP_CONTAINER = {
-  writerController: new WriterController(writerSessionService),
+  writerController: new WriterController(writerSessionService, clipboardService),
   writerSessionRepository,
   languageService,
 } as const;

@@ -2,9 +2,10 @@
 // # 📌 Amac: Writer View requestlerini alip yalnizca WriterSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
 // # Version: 0.2.0
-// # Aciklama: File, recovery, IME, selection, typography, paragraph ve history requestleri icin ince Controller siniridir
+// # Aciklama: File, recovery, IME, clipboard, selection, typography, paragraph ve history requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
+import type { ClipboardService } from "../services/clipboard.service";
 import type { WriterSessionService } from "../services/writer-session.service";
 import type {
   WriterFormatStateView,
@@ -14,7 +15,10 @@ import type {
 } from "../views/writer-types";
 
 export class WriterController {
-  public constructor(private readonly service: WriterSessionService) {}
+  public constructor(
+    private readonly service: WriterSessionService,
+    private readonly clipboardService: ClipboardService,
+  ) {}
 
   public initializeSession(): Promise<void> {
     return this.service.initializeSession();
@@ -128,6 +132,30 @@ export class WriterController {
       endOffset,
       runs,
     );
+  }
+
+  public copySelection(
+    paragraphId: string,
+    editor: HTMLElement,
+    event: ClipboardEvent,
+  ): void {
+    this.clipboardService.copySelection(paragraphId, editor, event);
+  }
+
+  public cutSelection(
+    paragraphId: string,
+    editor: HTMLElement,
+    event: ClipboardEvent,
+  ): Promise<void> {
+    return this.clipboardService.cutSelection(paragraphId, editor, event);
+  }
+
+  public pasteSelection(
+    paragraphId: string,
+    editor: HTMLElement,
+    event: ClipboardEvent,
+  ): Promise<void> {
+    return this.clipboardService.pasteSelection(paragraphId, editor, event);
   }
 
   public toggleBold(): Promise<void> {

@@ -10,9 +10,18 @@ Bagimli Oldugu Katman: Documentation
 
 ## Sonuc
 
-Static proje verifier basarili.
+Static proje verifier runtime clipboard dosyalarini ve event baglantilarini da zorunlu contract olarak kontrol eder. Compiler-backed sonuc GitHub Actions workspace CI ile ayrica dogrulanir.
 
 `tools/verify-project.sh` yeni typed fragment command, frontend IPC key, Service/Controller baglantisi ve domain regression testlerini zorunlu contract olarak kontrol eder.
+
+## Runtime acceptance kapsami
+
+- Copy ayni secimi internal MIME, HTML ve plain text olarak yazar.
+- Paste representation onceligi internal MIME, sanitized HTML ve plain text sirasindadir.
+- Internal payload schema/version/type/font limitleri dogrulanir.
+- HTML parser sonucunda executable/resource taglari atilir; yalniz basic text style semantigi canonical run'a map edilir.
+- Cut bos fragment mutation ile tek undo adiminda calisir.
+- Paste/cut sonrasi caret eklenen fragment sonuna tasinir.
 
 ## Eklenen regression kapsami
 

@@ -2,7 +2,7 @@
 // # 📌 Amac: Writer paragraph runlarini IME-aware contenteditable rich-text yuzeyinde render eder
 // # 📌 Modul - FileType: View - TSX
 // # Version: 0.2.0
-// # Aciklama: Typography, paragraph alignment, DOM input ve selection eventlerini Controller'a aktarir
+// # Aciklama: Typography, paragraph alignment, clipboard, DOM input ve selection eventlerini Controller'a aktarir
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
 import { createEffect, createSignal, Index, onCleanup, type Accessor } from "solid-js";
@@ -134,6 +134,23 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
         if (!isComposing()) {
           scheduleCommit();
         }
+      }}
+      onCopy={(event) => {
+        props.controller.copySelection(props.paragraph.id, editor, event);
+      }}
+      onCut={(event) => {
+        if (props.readOnly) {
+          return;
+        }
+        clearPendingCommit();
+        void props.controller.cutSelection(props.paragraph.id, editor, event);
+      }}
+      onPaste={(event) => {
+        if (props.readOnly) {
+          return;
+        }
+        clearPendingCommit();
+        void props.controller.pasteSelection(props.paragraph.id, editor, event);
       }}
       onBlur={commitNow}
       onKeyDown={onKeyDown}

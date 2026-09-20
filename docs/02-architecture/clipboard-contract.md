@@ -44,4 +44,6 @@ Paste, secili veya collapsed ayni-paragraf range'ini styled run listesiyle tek c
 
 Range disinda kalan prefix/suffix TextRun stilleri korunur. Fragment run'lari kendi canonical CharacterStyle degerleriyle yazilir. Tum paragraf bosalirsa editable bos TextRun invariant'i korunur.
 
-Bu M1 diliminde cross-paragraph rich fragment replace desteklenmez ve acik typed hata verir. Runtime OS clipboard, sanitizer ve representation selection bu atomic command'in ustunde Tool/Service katmaninda kalir.
+Bu M1 diliminde cross-paragraph rich fragment replace desteklenmez ve acik typed hata verir.
+
+Desktop runtime entegrasyonu representation secimini `Internal Turkuaz MIME -> sanitized HTML -> plain text` sirasi ile yapar. Browser `ClipboardEvent/DataTransfer` erisimi Tool katmaninda kalir; schema validation, HTML whitelist/sanitizer ve canonical run mapping Service katmaninda uygulanir. Script/style/iframe/object/embed/svg/math/link/meta payloadlari canonical modele tasinmaz.

@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // # Version: 0.2.0
-// # Aciklama: DOM, Repo, dialog ve Tauri Tool uzerinden edit, Open/Save, autosave recovery, dirty guard ve history kurallarini yurutur
+// # Aciklama: DOM, Repo, dialog ve Tauri Tool uzerinden edit, clipboard mutation, Open/Save, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -424,9 +424,14 @@ export class WriterSessionService {
       return Promise.resolve();
     }
 
+    const insertedLength = runs.reduce(
+      (total, run) => total + this.textOffsetTool.logicalLength(run.text),
+      0,
+    );
+
     return this.enqueue(async () => {
       const currentDocument = this.requireDocument();
-      await this.run(() =>
+      const changed = await this.run(() =>
         this.writerTool.replaceRangeWithStyledRuns(
           currentDocument.id,
           paragraphId,
@@ -435,8 +440,35 @@ export class WriterSessionService {
           runs,
         ),
       );
+      if (changed) {
+        const caretOffset = startOffset + insertedLength;
+        this.repository.setSelection({
+          paragraphId,
+          startOffset: caretOffset,
+          endOffset: caretOffset,
+        });
+      }
       this.repository.setTypingStyle(null);
     });
+  }
+
+  public insertionStyle(
+    paragraphId: string,
+    offset: number,
+  ): WriterCharacterStyleView {
+    const paragraph = this.repository
+      .document()
+      ?.paragraphs.find((item) => item.id === paragraphId);
+    return (
+      this.repository.typingStyle() ??
+      (paragraph === undefined ? null : this.styleAtCaret(paragraph, offset)) ?? {
+        bold: false,
+        italic: false,
+        underline: false,
+        fontFamily: DEFAULT_WRITER_FONT_FAMILY,
+        fontSizeHalfPoints: DEFAULT_WRITER_FONT_SIZE_HALF_POINTS,
+      }
+    );
   }
 
   public toggleBold(): Promise<void> {

@@ -22,3 +22,16 @@ Bagimli Oldugu Katman: Documentation
 ## M1 kabul siniri
 
 Bu matrix atomic canonical mutation dilimini kapsar. OS clipboard event, sanitizer, internal MIME ve external application interoperability matrix'i Clipboard Minimum entegrasyon diliminde ayrica kapatilacaktir.
+
+
+## Desktop runtime acceptance
+
+| Senaryo | Beklenen |
+|---|---|
+| Turkuaz -> Turkuaz styled copy/paste | Internal MIME secilir, run stilleri korunur |
+| Browser/Word basic rich HTML paste | Script/resource taglari atilir, B/I/U/font family/font size whitelist ile map edilir |
+| Internal MIME bozuk schema | HTML varsa HTML, yoksa plain text fallback kullanilir |
+| Rich representation yok | Plain text insertion style ile atomic replace edilir |
+| Cut | Clipboard representationlari yazilir ve secim bos fragment ile tek undo adiminda silinir |
+| Read-only belge | Cut/paste canonical mutation yapmaz |
+| Paste/cut sonrasi selection | Caret eklenen fragment sonuna collapse olur |

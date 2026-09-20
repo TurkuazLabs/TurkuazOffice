@@ -50,12 +50,20 @@ Desktop akisi su siniri izler:
 
 Controller clipboard is kurali tasimaz. Canonical mutation Rust Service katmaninda kalir.
 
+## Runtime entegrasyon durumu
+
+Desktop paragraph View artik copy/cut/paste eventlerini ince Controller sinirina aktarir. Clipboard Service:
+
+- Copy icin canonical secimi styled run'lara dilimler ve internal MIME + HTML + plain text representationlarini birlikte yazar.
+- Paste icin Internal Turkuaz MIME'i schema ve limit kontroluyle ilk tercih olarak okur.
+- Internal payload yoksa inert DOM parse sonucu basic bold/italic/underline/font family/font size whitelist'i ile sanitize edilmis HTML run'larini kullanir.
+- Rich representation kullanilamazsa plain text'i caret/selection baslangic stiline map eder.
+- Cut icin ayni representationlari yazdiktan sonra bos fragment ile atomic replace yapar.
+- Paste/cut basarili oldugunda caret atomic fragment sonuna tasinir.
+
 ## Bu dilimin disinda
 
-Asagidakiler Clipboard Minimum'un sonraki entegrasyon adimidir:
-
-- Runtime copy/cut/paste event baglantisinin tamamlanmasi.
-- Internal Turkuaz MIME fragment encoder/decoder entegrasyonu.
-- HTML sanitizer sonucunun typed styled run'a map edilmesi.
-- Plain-text fallback'in typed command'a baglanmasi.
 - Cross-paragraph rich fragment replace.
+- Image clipboard payloadlari.
+- Table-aware Writer/Sheet clipboard adapterlari.
+- OS seviyesinde clipboard history entegrasyonu.
