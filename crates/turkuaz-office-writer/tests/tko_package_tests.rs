@@ -322,3 +322,86 @@ fn editor_load_resets_history_and_exposes_snapshot() {
         Err(turkuaz_office_writer::WriterEditorError::NothingToUndo)
     ));
 }
+
+#[test]
+fn tko_round_trip_preserves_binary_image_asset() {
+    let mut editor = editor();
+    let document = editor.create_document("Asset Round Trip");
+    let paragraph_id = match &document.sections[0].blocks[0] {
+        turkuaz_office_writer::Block::Paragraph(value) => value.id.clone(),
+        _ => panic!("expected paragraph"),
+    };
+    let png = vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+    let document = editor
+        .execute(
+            &document.id,
+            WriterCommand::InsertImageData {
+                after_paragraph_id: paragraph_id,
+                media_type: "image/png".to_owned(),
+                data: png,
+                alt_text: "Round trip".to_owned(),
+                width_twips: Some(1440),
+                height_twips: Some(1440),
+            },
+        )
+        .expect("image insert");
+
+    let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize asset TKO");
+    let entries = TkoArchiveTool::decode(&bytes).expect("decode asset archive");
+    assert!(entries.contains_key(
+        turkuaz_office_writer::config::constants::TKO_ASSET_INDEX_ENTRY
+    ));
+    assert!(entries
+        .keys()
+        .any(|name| name.starts_with(
+            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
+        )));
+
+    let restored = TkoPackageService::deserialize(&bytes).expect("deserialize asset TKO");
+    assert_eq!(restored, document);
+}
+
+#[test]
+fn tko_asset_index_missing_binary_entry_is_rejected() {
+    let mut editor = editor();
+    let document = editor.create_document("Missing Asset");
+    let paragraph_id = match &document.sections[0].blocks[0] {
+        turkuaz_office_writer::Block::Paragraph(value) => value.id.clone(),
+        _ => panic!("expected paragraph"),
+    };
+    let document = editor
+        .execute(
+            &document.id,
+            WriterCommand::InsertImageData {
+                after_paragraph_id: paragraph_id,
+                media_type: "image/png".to_owned(),
+                data: vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A],
+                alt_text: String::new(),
+                width_twips: None,
+                height_twips: None,
+            },
+        )
+        .expect("image insert");
+    let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize");
+    let mut entries = TkoArchiveTool::decode(&bytes).expect("decode");
+    let asset_entry = entries
+        .keys()
+        .find(|name| name.starts_with(
+            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
+        ))
+        .cloned()
+        .expect("asset entry");
+    entries.remove(&asset_entry);
+
+    let owned = entries.into_iter().collect::<Vec<_>>();
+    let borrowed = owned
+        .iter()
+        .map(|(name, data)| (name.as_str(), data.as_slice()))
+        .collect::<Vec<_>>();
+    let modified = TkoArchiveTool::encode(&borrowed).expect("re-encode");
+
+    assert!(matches!(
+        TkoPackageService::deserialize(&modified),
+        Err(TkoPackageError::MissingAssetEntry)
+    ));
+}

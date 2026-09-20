@@ -59,6 +59,14 @@ pub enum WriterCommand {
         width_twips: Option<u32>,
         height_twips: Option<u32>,
     },
+    InsertImageData {
+        after_paragraph_id: NodeId,
+        media_type: String,
+        data: Vec<u8>,
+        alt_text: String,
+        width_twips: Option<u32>,
+        height_twips: Option<u32>,
+    },
     InsertTable {
         after_paragraph_id: NodeId,
         rows: usize,
@@ -78,6 +86,9 @@ pub enum WriterCommandError {
     EmptyCommand,
     InvalidTableSize,
     InvalidCharacterStyle,
+    InvalidAsset,
+    AssetNotFound,
+    AssetLimitExceeded,
 }
 
 impl From<SelectionError> for WriterCommandError {

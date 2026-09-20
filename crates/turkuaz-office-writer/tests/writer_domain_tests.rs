@@ -851,3 +851,68 @@ fn replace_range_with_empty_fragment_keeps_editable_empty_run() {
     assert_eq!(paragraph.runs.len(), 1);
     assert_eq!(paragraph.runs[0].text, "");
 }
+
+#[test]
+fn insert_image_data_registers_asset_and_block_atomically() {
+    let mut service = service();
+    let document = service.create_document("ImageAsset");
+    let Block::Paragraph(paragraph) = &document.sections[0].blocks[0] else {
+        panic!("paragraph expected");
+    };
+    let paragraph_id = paragraph.id.clone();
+    let png = vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+
+    let document = service
+        .execute(
+            &document.id,
+            WriterCommand::InsertImageData {
+                after_paragraph_id: paragraph_id,
+                media_type: "image/png".to_owned(),
+                data: png.clone(),
+                alt_text: "Clipboard image".to_owned(),
+                width_twips: None,
+                height_twips: None,
+            },
+        )
+        .expect("image data insert should succeed");
+
+    assert_eq!(document.assets.len(), 1);
+    assert_eq!(document.assets[0].media_type, "image/png");
+    assert_eq!(document.assets[0].bytes, png);
+    let Block::Image(image) = &document.sections[0].blocks[1] else {
+        panic!("image block expected");
+    };
+    assert_eq!(image.asset_id, document.assets[0].id);
+}
+
+#[test]
+fn insert_image_data_rejects_invalid_signature_without_mutation() {
+    let mut service = service();
+    let document = service.create_document("BadImage");
+    let Block::Paragraph(paragraph) = &document.sections[0].blocks[0] else {
+        panic!("paragraph expected");
+    };
+
+    let result = service.execute(
+        &document.id,
+        WriterCommand::InsertImageData {
+            after_paragraph_id: paragraph.id.clone(),
+            media_type: "image/png".to_owned(),
+            data: b"not-png".to_vec(),
+            alt_text: String::new(),
+            width_twips: None,
+            height_twips: None,
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(turkuaz_office_writer::WriterEditorError::Command(
+            WriterCommandError::InvalidAsset
+        ))
+    ));
+    let unchanged = service
+        .get_document(&document.id)
+        .expect("document should remain available");
+    assert!(unchanged.assets.is_empty());
+    assert_eq!(unchanged.sections[0].blocks.len(), 1);
+}

@@ -18,13 +18,17 @@ Turkuaz Office native paket uzantisi `.tko` olarak ayrilir. TKO format version 1
 
 ## Paket yapisi
 
-Writer TKO v1 byte profile asagidaki iki file entry ile sinirlidir:
+Writer TKO v1 byte profile manifest/content temelini korur ve image asset varsa optional asset index + binary entry tasir:
 
 ```text
 sample.tko
 |-- manifest.yml
 `-- content/
-    `-- writer.yml
+|   `-- writer.yml
+`-- assets/
+    |-- index.yml
+    `-- data/
+        `-- asset-1.bin
 ```
 
 - Container ZIP'tir.
@@ -32,7 +36,12 @@ sample.tko
 - Manifest ve Writer content YAML'dir.
 - Directory entry kabul edilmez.
 - Beklenmeyen file entry kabul edilmez.
-- Asset, metadata ve recovery payload henuz v1 allowlist'inde degildir.
+- Asset yoksa eski iki-entry TKO v1 paketi gecerliligini korur.
+- Asset varsa `assets/index.yml` her binary entry icin id, MIME, entry path ve byte length tasir.
+- Binary image entry yalniz canonical `assets/data/<asset-id>.bin` yolunda kabul edilir.
+- M1 asset media allowlist PNG, JPEG ve WebP'dir; MIME ile magic signature birlikte dogrulanir.
+- Tek asset 8 MiB, canonical asset adedi 16 ve tum TKO paket 16 MiB limiti icindedir.
+- Metadata ve recovery payload henuz native package allowlist'inde degildir.
 - Canonical domain struct'lari serde derive tasimaz; disk semasi ayri DTO katmanindadir.
 
 ## Zorunlu metadata
@@ -55,4 +64,4 @@ Kaydetme hedef dosyanin ustune dogrudan yazmaz. Once ayni klasorde benzersiz tem
 
 ## Guvenlik
 
-Paket icerigi guvenilmeyen input kabul edilir. Entry sayisi, compressed package boyutu, acilmis toplam boyut, manifest/content boyutu, directory entry, duplicate entry, unsupported compression ve path traversal security policy ile kontrol edilir.
+Paket icerigi guvenilmeyen input kabul edilir. Entry sayisi, compressed package boyutu, acilmis toplam boyut, manifest/content/asset-index boyutu, directory entry, duplicate entry, unsupported compression ve path traversal security policy ile kontrol edilir. Asset index duplicate id/entry, canonical path, declared byte length, MIME/signature ve ImageBlock referans butunlugu ile dogrulanir.

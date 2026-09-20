@@ -47,6 +47,7 @@ required_files=(
   "crates/turkuaz-office-writer/Cargo.toml"
   "crates/turkuaz-office-writer/src/lib.rs"
   "crates/turkuaz-office-writer/src/services/writer_command.rs"
+  "crates/turkuaz-office-writer/src/services/writer_asset_service.rs"
   "crates/turkuaz-office-writer/src/services/writer_command_service.rs"
   "crates/turkuaz-office-writer/src/services/writer_editor_service.rs"
   "crates/turkuaz-office-writer/src/services/tko_package_service.rs"
@@ -218,6 +219,11 @@ grep -q 'writer_view_exposes_primary_page_settings_without_pixel_conversion' "$R
 
 
 grep -q 'ReplaceRangeWithStyledRuns' "$ROOT/crates/turkuaz-office-writer/src/services/writer_command.rs"
+grep -q 'InsertImageData' "$ROOT/crates/turkuaz-office-writer/src/services/writer_command.rs"
+grep -q 'struct WriterAsset' "$ROOT/crates/turkuaz-office-writer/src/services/writer_types.rs"
+grep -q 'TKO_ASSET_INDEX_ENTRY' "$ROOT/crates/turkuaz-office-writer/src/config/constants.rs"
+grep -q 'validate_image_payload' "$ROOT/crates/turkuaz-office-writer/src/services/writer_asset_service.rs"
+grep -q 'decode_assets' "$ROOT/crates/turkuaz-office-writer/src/services/tko_package_service.rs"
 grep -q 'CrossParagraphFragmentReplaceNotSupported' "$ROOT/crates/turkuaz-office-writer/src/services/writer_command.rs"
 grep -q 'StyledTextRun' "$ROOT/crates/turkuaz-office-writer/src/services/writer_types.rs"
 grep -q 'writerReplaceRangeWithStyledRuns' "$ROOT/apps/desktop/src/config/ipc-commands.ts"

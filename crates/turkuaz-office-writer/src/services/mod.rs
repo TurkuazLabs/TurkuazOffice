@@ -8,6 +8,7 @@
 pub mod tko_package_service;
 pub mod tko_package_types;
 pub mod tko_profile_service;
+pub mod writer_asset_service;
 pub mod writer_command;
 pub mod writer_command_service;
 pub mod writer_document_factory_service;

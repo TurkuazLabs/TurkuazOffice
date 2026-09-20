@@ -9,11 +9,13 @@ use crate::config::constants::{
     MAX_FONT_FAMILY_LENGTH, MAX_FONT_SIZE_HALF_POINTS, MAX_TABLE_DIMENSION,
     MIN_FONT_SIZE_HALF_POINTS, MIN_TABLE_DIMENSION,
 };
+use crate::services::writer_asset_service::{WriterAssetError, WriterAssetService};
 use crate::services::writer_command::{WriterCommand, WriterCommandError};
 use crate::services::writer_selection_service::WriterSelectionService;
 use crate::services::writer_types::{
     Block, CharacterStyle, CharacterStylePatch, ImageBlock, Paragraph, ParagraphStyle,
-    ParagraphStylePatch, StyledTextRun, Table, TableCell, TableRow, TextRun, WriterDocument,
+    ParagraphStylePatch, StyledTextRun, Table, TableCell, TableRow, TextRun, WriterAsset,
+    WriterDocument,
 };
 use crate::tools::writer_id_tool::WriterIdTool;
 
@@ -81,6 +83,23 @@ impl WriterCommandService {
                 document,
                 after_paragraph_id,
                 asset_id,
+                alt_text,
+                *width_twips,
+                *height_twips,
+                id_tool,
+            )?,
+            WriterCommand::InsertImageData {
+                after_paragraph_id,
+                media_type,
+                data,
+                alt_text,
+                width_twips,
+                height_twips,
+            } => Self::insert_image_data(
+                document,
+                after_paragraph_id,
+                media_type,
+                data,
                 alt_text,
                 *width_twips,
                 *height_twips,
@@ -674,6 +693,9 @@ impl WriterCommandService {
     {
         let (section_index, block_index) =
             Self::find_paragraph_block(document, after_paragraph_id)?;
+        if !document.assets.iter().any(|asset| asset.id == asset_id) {
+            return Err(WriterCommandError::AssetNotFound);
+        }
         let image = ImageBlock {
             id: id_tool.next_node_id(),
             asset_id: asset_id.to_owned(),
@@ -685,6 +707,59 @@ impl WriterCommandService {
             .blocks
             .insert(block_index + 1, Block::Image(image));
         Ok(())
+    }
+
+
+    fn insert_image_data<I>(
+        document: &mut WriterDocument,
+        after_paragraph_id: &crate::services::writer_types::NodeId,
+        media_type: &str,
+        data: &[u8],
+        alt_text: &str,
+        width_twips: Option<u32>,
+        height_twips: Option<u32>,
+        id_tool: &I,
+    ) -> Result<(), WriterCommandError>
+    where
+        I: WriterIdTool,
+    {
+        if document.assets.len() >= crate::config::constants::MAX_WRITER_ASSETS {
+            return Err(WriterCommandError::AssetLimitExceeded);
+        }
+        WriterAssetService::validate_image_payload(media_type, data)
+            .map_err(Self::map_asset_error)?;
+        let (section_index, block_index) =
+            Self::find_paragraph_block(document, after_paragraph_id)?;
+
+        let asset_id = (0..=crate::config::constants::MAX_WRITER_ASSETS)
+            .map(|_| id_tool.next_asset_id())
+            .find(|candidate| !document.assets.iter().any(|asset| asset.id == *candidate))
+            .ok_or(WriterCommandError::AssetLimitExceeded)?;
+
+        document.assets.push(WriterAsset {
+            id: asset_id.clone(),
+            media_type: media_type.to_owned(),
+            bytes: data.to_vec(),
+        });
+        document.sections[section_index].blocks.insert(
+            block_index + 1,
+            Block::Image(ImageBlock {
+                id: id_tool.next_node_id(),
+                asset_id,
+                alt_text: alt_text.to_owned(),
+                width_twips,
+                height_twips,
+            }),
+        );
+        Ok(())
+    }
+
+    fn map_asset_error(error: WriterAssetError) -> WriterCommandError {
+        match error {
+            WriterAssetError::TooManyAssets => WriterCommandError::AssetLimitExceeded,
+            WriterAssetError::ReferencedAssetMissing => WriterCommandError::AssetNotFound,
+            _ => WriterCommandError::InvalidAsset,
+        }
     }
 
     fn insert_table<I>(

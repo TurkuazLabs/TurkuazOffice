@@ -55,6 +55,7 @@ impl WriterDocumentFactoryService {
             schema_version: DocumentSchemaVersion::current(),
             revision: 0,
             sections: vec![section],
+            assets: Vec::new(),
         }
     }
 }

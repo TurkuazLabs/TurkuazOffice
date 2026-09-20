@@ -195,6 +195,13 @@ pub struct Table {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct WriterAsset {
+    pub id: String,
+    pub media_type: String,
+    pub bytes: Vec<u8>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ImageBlock {
     pub id: NodeId,
     pub asset_id: String,
@@ -224,6 +231,7 @@ pub struct WriterDocument {
     pub schema_version: DocumentSchemaVersion,
     pub revision: u64,
     pub sections: Vec<Section>,
+    pub assets: Vec<WriterAsset>,
 }
 
 impl WriterDocument {

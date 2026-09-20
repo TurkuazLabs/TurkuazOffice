@@ -26,6 +26,19 @@ pub struct TkoManifestDtoV1 {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct TkoAssetIndexDtoV1 {
+    pub assets: Vec<TkoAssetEntryDtoV1>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct TkoAssetEntryDtoV1 {
+    pub id: String,
+    pub media_type: String,
+    pub entry: String,
+    pub byte_length: u64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct WriterContentDtoV1 {
     pub id: String,
     pub title: String,
@@ -181,6 +194,7 @@ impl From<WriterContentDtoV1> for WriterDocument {
             schema_version: DocumentSchemaVersion::new(value.schema_version),
             revision: value.revision,
             sections: value.sections.into_iter().map(Section::from).collect(),
+            assets: Vec::new(),
         }
     }
 }
