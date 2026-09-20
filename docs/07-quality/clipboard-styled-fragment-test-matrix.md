@@ -37,3 +37,6 @@ Bu matrix atomic canonical mutation dilimini kapsar. OS clipboard event, sanitiz
 | Paste/cut sonrasi selection | Caret eklenen fragment sonuna collapse olur |
 
 | Cok satirli plain text/HTML paste | M1 paragraph-local sinirinda satir sonlari tek bosluga normalize edilir |
+
+| Asiri derin veya cok node'lu HTML | HTML representation reddedilir, plain text varsa fallback edilir |
+| Font family icinde HTML entity/metacharacter | Copy HTML serializer CSS ve HTML baglaminda escape eder |

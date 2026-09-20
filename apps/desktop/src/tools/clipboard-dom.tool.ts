@@ -2,9 +2,13 @@
 // # 📌 Amac: HTML clipboard verisini inert DOM agacina parse edip browser API detaylarini izole eder
 // # 📌 Modul - FileType: Tool - TypeScript
 // # Version: 0.2.0
-// # Aciklama: DOMParser sonucunu yalniz tag, desteklenen inline style ve text alanlarindan olusan Model agacina cevirir
-// Bagimli Oldugu Katman: Tool -> Model
+// # Aciklama: DOMParser sonucunu limitli ve inert tag/style/text Model agacina cevirir
+// Bagimli Oldugu Katman: Tool -> Config -> Model
 
+import {
+  WRITER_CLIPBOARD_MAX_DOM_DEPTH,
+  WRITER_CLIPBOARD_MAX_DOM_NODES,
+} from "../config/clipboard";
 import type {
   ClipboardDomElementNodeModel,
   ClipboardDomNodeModel,
@@ -20,14 +24,31 @@ const EMPTY_STYLE: ClipboardDomStyleModel = {
 };
 
 export class ClipboardDomTool {
-  public parse(html: string): readonly ClipboardDomNodeModel[] {
+  private nodeCount = 0;
+  private limitExceeded = false;
+
+  public parse(html: string): readonly ClipboardDomNodeModel[] | null {
+    this.nodeCount = 0;
+    this.limitExceeded = false;
+
     const documentView = new DOMParser().parseFromString(html, "text/html");
-    return Array.from(documentView.body.childNodes)
-      .map((node) => this.mapNode(node))
+    const nodes = Array.from(documentView.body.childNodes)
+      .map((node) => this.mapNode(node, 0))
       .filter((node): node is ClipboardDomNodeModel => node !== null);
+
+    return this.limitExceeded ? null : nodes;
   }
 
-  private mapNode(node: Node): ClipboardDomNodeModel | null {
+  private mapNode(node: Node, depth: number): ClipboardDomNodeModel | null {
+    this.nodeCount += 1;
+    if (
+      this.nodeCount > WRITER_CLIPBOARD_MAX_DOM_NODES ||
+      depth > WRITER_CLIPBOARD_MAX_DOM_DEPTH
+    ) {
+      this.limitExceeded = true;
+      return null;
+    }
+
     if (node.nodeType === Node.TEXT_NODE) {
       return {
         kind: "text",
@@ -53,7 +74,7 @@ export class ClipboardDomTool {
       tagName: node.tagName.toLowerCase(),
       style,
       children: Array.from(node.childNodes)
-        .map((child) => this.mapNode(child))
+        .map((child) => this.mapNode(child, depth + 1))
         .filter((child): child is ClipboardDomNodeModel => child !== null),
     };
     return mapped;

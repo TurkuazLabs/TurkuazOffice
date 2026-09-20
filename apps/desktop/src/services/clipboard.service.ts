@@ -281,8 +281,12 @@ export class ClipboardService {
     if (html.length === 0 || html.length > WRITER_CLIPBOARD_MAX_PAYLOAD_CHARS) {
       return null;
     }
+    const nodes = this.clipboardDomTool.parse(html);
+    if (nodes === null) {
+      return null;
+    }
     const output: ClipboardStyledRunModel[] = [];
-    for (const node of this.clipboardDomTool.parse(html)) {
+    for (const node of nodes) {
       this.appendHtmlNode(node, this.toClipboardStyle(baseStyle), output);
       if (output.length > WRITER_CLIPBOARD_MAX_RUNS) {
         return null;
@@ -460,7 +464,7 @@ export class ClipboardService {
     const decorations = run.style.underline ? "text-decoration:underline;" : "";
     const weight = run.style.bold ? "font-weight:700;" : "";
     const italic = run.style.italic ? "font-style:italic;" : "";
-    const family = this.escapeCssString(run.style.fontFamily);
+    const family = this.escapeHtml(this.escapeCssString(run.style.fontFamily));
     const sizePoints = run.style.fontSizeHalfPoints / 2;
     return `<span style="font-family:&quot;${family}&quot;;font-size:${sizePoints}pt;${weight}${italic}${decorations}">${this.escapeHtml(run.text)}</span>`;
   }

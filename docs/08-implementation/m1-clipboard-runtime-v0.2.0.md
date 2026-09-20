@@ -47,6 +47,7 @@ Atomic fragment mutation basarili oldugunda Desktop selection caret'i `startOffs
 ## Guvenlik ve limitler
 
 - Clipboard payload upper bound uygulanir.
+- HTML DOM parse node ve depth upper bound uygular; limit asiminda HTML reddedilip plain-text fallback denenir.
 - Null byte temizlenir.
 - Script/style/iframe/object/embed/svg/math/link/meta canonical text akimina girmez.
 - Unknown HTML taglari semantik eklemeden yalniz guvenli text cocuklarini tasir.
