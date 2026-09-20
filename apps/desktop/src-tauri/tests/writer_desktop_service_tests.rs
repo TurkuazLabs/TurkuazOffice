@@ -5,7 +5,9 @@
 // # Aciklama: Editor commandlari ile local TKO save/open ve error contractlarini Tauri runtime olmadan test eder
 // Bagimli Oldugu Katman: Service
 
-use turkuaz_office_desktop_lib::config::constants::{ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID};
+use turkuaz_office_desktop_lib::config::constants::{
+    ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID,
+};
 use turkuaz_office_desktop_lib::services::writer_desktop_service::WriterDesktopService;
 use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, TextAlignment};
 
@@ -163,7 +165,10 @@ fn font_patch_and_paragraph_alignment_are_exposed_in_read_model() {
         .expect("alignment should succeed");
 
     assert_eq!(document.paragraphs[0].runs[0].style.font_family, "Georgia");
-    assert_eq!(document.paragraphs[0].runs[0].style.font_size_half_points, 36);
+    assert_eq!(
+        document.paragraphs[0].runs[0].style.font_size_half_points,
+        36
+    );
     assert_eq!(document.paragraphs[0].style.alignment, TextAlignment::Right);
 }
 
@@ -246,10 +251,12 @@ fn recovery_snapshot_can_be_listed_restored_and_discarded() {
     restored_service
         .discard_recovery_snapshot(&snapshot.snapshot_id)
         .expect("discard should succeed");
-    assert!(restored_service
-        .list_recovery_snapshots()
-        .expect("list after discard")
-        .is_empty());
+    assert!(
+        restored_service
+            .list_recovery_snapshots()
+            .expect("list after discard")
+            .is_empty()
+    );
     let _ = std::fs::remove_dir_all(recovery_root);
 }
 
@@ -304,12 +311,16 @@ fn explicit_save_clears_recovery_snapshots_for_document() {
     let (_, saved_path) = service
         .save_document(&document.id, save_stem.to_string_lossy().as_ref())
         .expect("save");
-    assert!(service.list_recovery_snapshots().expect("list after save").is_empty());
+    assert!(
+        service
+            .list_recovery_snapshots()
+            .expect("list after save")
+            .is_empty()
+    );
 
     let _ = std::fs::remove_file(saved_path);
     let _ = std::fs::remove_dir_all(recovery_root);
 }
-
 
 #[test]
 fn recovery_retention_keeps_latest_five_snapshots() {
@@ -397,7 +408,9 @@ fn external_change_blocks_same_path_save_until_explicit_acknowledge() {
     bytes.extend_from_slice(b"external-change");
     std::fs::write(&saved_path, bytes).expect("external write");
 
-    let status = service.file_session_status(&document.id).expect("modified status");
+    let status = service
+        .file_session_status(&document.id)
+        .expect("modified status");
     assert_eq!(status.external_state, WriterExternalChangeState::Modified);
     let error = service
         .save_document(&document.id, &saved_path)
@@ -410,7 +423,9 @@ fn external_change_blocks_same_path_save_until_explicit_acknowledge() {
     service
         .save_document(&document.id, &saved_path)
         .expect("save after acknowledgement");
-    let status = service.file_session_status(&document.id).expect("clean status");
+    let status = service
+        .file_session_status(&document.id)
+        .expect("clean status");
     assert_eq!(status.external_state, WriterExternalChangeState::Unchanged);
 
     drop(service);

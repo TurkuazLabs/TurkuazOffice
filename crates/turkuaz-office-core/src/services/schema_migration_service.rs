@@ -59,11 +59,13 @@ mod tests {
     #[test]
     fn future_schema_is_rejected() {
         let mut document = Document::new(DocumentId::new("document-1"), "Test");
-        document.schema_version = DocumentSchemaVersion::new(
-            DocumentSchemaVersion::current().value().saturating_add(1),
-        );
+        document.schema_version =
+            DocumentSchemaVersion::new(DocumentSchemaVersion::current().value().saturating_add(1));
 
         let result = SchemaMigrationService::ensure_current(document);
-        assert!(matches!(result, Err(SchemaMigrationError::FutureVersion { .. })));
+        assert!(matches!(
+            result,
+            Err(SchemaMigrationError::FutureVersion { .. })
+        ));
     }
 }

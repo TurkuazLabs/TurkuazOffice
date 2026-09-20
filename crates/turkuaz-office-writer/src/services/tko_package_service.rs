@@ -10,7 +10,9 @@ use crate::config::constants::{
     TKO_WRITER_CONTENT_ENTRY,
 };
 use crate::services::tko_package_types::{TkoManifestDtoV1, WriterContentDtoV1};
-use crate::services::tko_profile_service::{TkoProfileError, TkoProfileService, WriterTkoPackageV1};
+use crate::services::tko_profile_service::{
+    TkoProfileError, TkoProfileService, WriterTkoPackageV1,
+};
 use crate::services::writer_types::WriterDocument;
 use crate::tools::tko_archive_tool::{TkoArchiveError, TkoArchiveTool};
 use crate::tools::tko_yaml_tool::{TkoYamlError, TkoYamlTool};
@@ -50,7 +52,10 @@ pub struct TkoPackageService;
 impl TkoPackageService {
     pub const MAX_PACKAGE_BYTES: u64 = MAX_TKO_PACKAGE_BYTES;
 
-    pub fn serialize(document: &WriterDocument, app_version: &str) -> Result<Vec<u8>, TkoPackageError> {
+    pub fn serialize(
+        document: &WriterDocument,
+        app_version: &str,
+    ) -> Result<Vec<u8>, TkoPackageError> {
         TkoProfileService::validate_current_schema(document.schema_version)?;
         let package = TkoProfileService::build(document, app_version);
         let (manifest, content): (TkoManifestDtoV1, WriterContentDtoV1) = (&package).into();

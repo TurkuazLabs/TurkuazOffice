@@ -19,15 +19,15 @@ pub use repositories::writer_document_repository::{
 };
 pub use services::tko_package_service::{TkoPackageError, TkoPackageService};
 pub use services::tko_profile_service::{TkoProfileError, TkoProfileService};
-pub use tools::tko_archive_tool::TkoArchiveError;
 pub use services::writer_command::{WriterCommand, WriterCommandError};
 pub use services::writer_editor_service::{WriterEditorError, WriterEditorService};
 pub use services::writer_selection_service::{SelectionError, WriterSelectionService};
 pub use services::writer_types::{
-    Block, CharacterStyle, CharacterStylePatch, ImageBlock, NodeId, PageSettings, Paragraph, ParagraphStyle,
-    ParagraphStylePatch, Section, Selection, StyledTextRun, Table, TableCell, TableRow, TextAlignment,
-    TextPosition, TextRange, TextRun, WriterDocument,
+    Block, CharacterStyle, CharacterStylePatch, ImageBlock, NodeId, PageSettings, Paragraph,
+    ParagraphStyle, ParagraphStylePatch, Section, Selection, StyledTextRun, Table, TableCell,
+    TableRow, TextAlignment, TextPosition, TextRange, TextRun, WriterDocument,
 };
+pub use tools::tko_archive_tool::TkoArchiveError;
 pub use tools::writer_id_tool::{SequentialWriterIdTool, WriterIdTool};
 pub use views::writer_view::{
     WriterDocumentView, WriterPageSettingsView, WriterParagraphView, WriterRunView,

@@ -7,7 +7,9 @@
 
 use serde::Serialize;
 
-use crate::services::writer_file_session_service::{WriterExternalChangeState, WriterFileSessionStatus};
+use crate::services::writer_file_session_service::{
+    WriterExternalChangeState, WriterFileSessionStatus,
+};
 use crate::views::writer_dto::WriterDocumentDto;
 
 #[derive(Clone, Copy, Debug, Serialize)]

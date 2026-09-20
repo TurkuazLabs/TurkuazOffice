@@ -25,7 +25,10 @@ where
     I: IdTool,
 {
     pub fn new(repository: R, id_tool: I) -> Self {
-        Self { repository, id_tool }
+        Self {
+            repository,
+            id_tool,
+        }
     }
 
     pub fn create_document(&mut self, title: Option<&str>) -> Document {
@@ -66,7 +69,10 @@ mod tests {
         let document = service.create_document(Some("   "));
 
         assert_eq!(document.title, DEFAULT_DOCUMENT_TITLE);
-        assert_eq!(document.schema_version.value(), crate::config::constants::CURRENT_DOCUMENT_SCHEMA_VERSION);
+        assert_eq!(
+            document.schema_version.value(),
+            crate::config::constants::CURRENT_DOCUMENT_SCHEMA_VERSION
+        );
         assert_eq!(document.revision, 0);
     }
 
