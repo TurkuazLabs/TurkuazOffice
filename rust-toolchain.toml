@@ -2,10 +2,10 @@
 # 📌 Amac: Turkuaz Office Rust derleme arac zincirini reproducible build icin sabitler
 # 📌 Modul - FileType: Config - TOML
 # Version: 0.2.0
-# Aciklama: Workspace icin Rust 1.85.0, rustfmt ve clippy componentlerini tanimlar
+# Aciklama: Workspace icin Rust 1.98.1, rustfmt ve clippy componentlerini tanimlar
 # Bagimli Oldugu Katman: Config
 
 [toolchain]
-channel = "1.85.0"
+channel = "1.98.1"
 components = ["rustfmt", "clippy"]
 profile = "minimal"

@@ -57,7 +57,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.85.0
+          toolchain: 1.98.1
           components: rustfmt, clippy
 
       - name: Project Contract
@@ -99,7 +99,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.85.0
+          toolchain: 1.98.1
 
       - name: Test Workspace
         run: cargo test --workspace

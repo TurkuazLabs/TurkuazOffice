@@ -14,7 +14,7 @@ authors.workspace = true
 repository.workspace = true
 
 [lib]
-name = "turkuaz_office_desktop"
+name = "turkuaz_office_desktop_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [[bin]]

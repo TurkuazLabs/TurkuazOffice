@@ -5,8 +5,8 @@
 // # Aciklama: Editor commandlari ile local TKO save/open ve error contractlarini Tauri runtime olmadan test eder
 // Bagimli Oldugu Katman: Service
 
-use turkuaz_office_desktop::config::constants::{ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID};
-use turkuaz_office_desktop::services::writer_desktop_service::WriterDesktopService;
+use turkuaz_office_desktop_lib::config::constants::{ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID};
+use turkuaz_office_desktop_lib::services::writer_desktop_service::WriterDesktopService;
 use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, TextAlignment};
 
 #[test]
@@ -347,7 +347,7 @@ fn recovery_snapshot_id_rejects_path_traversal() {
 
 #[test]
 fn second_process_style_session_opens_locked_document_read_only() {
-    use turkuaz_office_desktop::config::constants::ERROR_FILE_LOCKED;
+    use turkuaz_office_desktop_lib::config::constants::ERROR_FILE_LOCKED;
 
     let save_stem = temp_file_stem("lock-read-only");
     let saved_path;
@@ -379,8 +379,8 @@ fn second_process_style_session_opens_locked_document_read_only() {
 
 #[test]
 fn external_change_blocks_same_path_save_until_explicit_acknowledge() {
-    use turkuaz_office_desktop::config::constants::ERROR_EXTERNAL_CHANGE_CONFLICT;
-    use turkuaz_office_desktop::services::writer_file_session_service::WriterExternalChangeState;
+    use turkuaz_office_desktop_lib::config::constants::ERROR_EXTERNAL_CHANGE_CONFLICT;
+    use turkuaz_office_desktop_lib::services::writer_file_session_service::WriterExternalChangeState;
 
     let save_stem = temp_file_stem("external-change-conflict");
     let mut service = WriterDesktopService::new();

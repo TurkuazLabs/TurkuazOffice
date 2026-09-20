@@ -6,5 +6,5 @@
 // Bagimli Oldugu Katman: Controller
 
 fn main() {
-    turkuaz_office_desktop::run();
+    turkuaz_office_desktop_lib::run();
 }
