@@ -26,7 +26,9 @@ Print Preview ayri bir belge modeli yaratmaz. Writer layout engine'in print prof
 
 ## Platform siniri
 
-Core printer driver API bilmez. Desktop Tool adapteri Windows/Linux native print sistemleri ile iletisim kurar. Web istemcisi browser print capability'si ile sinirli bir adapter kullanir.
+Core printer driver API bilmez. Desktop Tool adapteri Windows/Linux sistem print capability'sine gider. M1 minimumunda PrintTool WebView'in system print dialogunu acar; printer discovery, page range, copies, orientation, paper size, margin ve scale secimleri sistem dialoguna delege edilir. Bu sayede native driver API Core veya Writer domain'e sizmaz.
+
+Web istemcisi de browser print capability'si ile sinirli ayni adapter kontratini kullanabilir. Programmatic printer inventory veya direct spool ihtiyaci dogarsa ayri Tool implementation eklenir; canonical Writer modeli degismez.
 
 ## Hata davranisi
 
