@@ -10,6 +10,12 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Session-only Print Preview canonical WriterPage read-modeli ile eklendi.
+- PrintTool system print dialog adapteri canonical twip page size degerini physical @page rule'a aktarir.
+- Ctrl+P preview, preview icinde Ctrl+P print ve Escape close keyboard akisi eklendi.
+- Print preview belge revision, dirty baseline ve canonical document modelini mutate etmez.
+- Printer, page range, copies, orientation, paper size, margin ve scale secimleri M1 minimumunda sistem dialoguna delege edilir.
+
 - Clipboard image paste PNG/JPEG/WebP binary payloadlari canonical WriterAsset + ImageBlock command zincirine baglandi.
 - TKO v1 optional asset index ve binary asset entry profile'i eklendi.
 - Writer image read-model, lazy writer_get_asset IPC, Blob/ObjectURL render ve cleanup hatti eklendi.
