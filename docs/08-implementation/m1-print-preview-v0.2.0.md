@@ -24,6 +24,7 @@ Controller yalniz request aktarir. Preview state repository icinde session-only 
 - Pending mutation queue tamamlanir.
 - Yuzde 100 preview layout WriterLayoutService ile canonical page settings uzerinden hesaplanir.
 - Preview read-only WriterPage renderidir.
+- Preview ilk print action'a keyboard focus verir; kapanista mevcut logical editor selection geri yuklenir.
 - Canonical document, revision ve file dirty baseline mutate edilmez.
 
 ## Print minimum
