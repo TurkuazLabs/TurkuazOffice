@@ -14,6 +14,7 @@ import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { WriterPage } from "./writer-page";
+import { WriterPrintPreview } from "./writer-print-preview";
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
@@ -38,6 +39,21 @@ export function WriterShell(props: WriterShellProps) {
 
   const onShortcut = (event: KeyboardEvent) => {
     const modifier = event.ctrlKey || event.metaKey;
+    const key = event.key.toLowerCase();
+
+    if (props.repository.printPreviewLayout() !== null) {
+      if (key === KEYBOARD_KEYS.escape) {
+        event.preventDefault();
+        props.controller.closePrintPreview();
+        return;
+      }
+      if (modifier && key === KEYBOARD_KEYS.p) {
+        event.preventDefault();
+        void props.controller.printDocument();
+      }
+      return;
+    }
+
     if (!modifier || event.isComposing) {
       return;
     }
@@ -46,7 +62,6 @@ export function WriterShell(props: WriterShellProps) {
       return;
     }
 
-    const key = event.key.toLowerCase();
     if (key === KEYBOARD_KEYS.plus || key === KEYBOARD_KEYS.equal) {
       event.preventDefault();
       props.controller.zoomIn();
@@ -82,6 +97,11 @@ export function WriterShell(props: WriterShellProps) {
     if (key === KEYBOARD_KEYS.o) {
       event.preventDefault();
       void props.controller.openDocument();
+      return;
+    }
+    if (key === KEYBOARD_KEYS.p) {
+      event.preventDefault();
+      void props.controller.openPrintPreview();
       return;
     }
     if (key === KEYBOARD_KEYS.s && event.shiftKey) {
@@ -204,6 +224,16 @@ export function WriterShell(props: WriterShellProps) {
         zoomPercent={props.repository.zoomPercent()}
         fontResolutions={props.repository.fontResolutions()}
       />
+      <Show when={props.repository.printPreviewLayout() !== null && props.repository.document() !== null}>
+        <WriterPrintPreview
+          document={props.repository.document()!}
+          controller={props.controller}
+          language={props.language}
+          layout={props.repository.printPreviewLayout()!}
+          fontResolutions={props.repository.fontResolutions()}
+          errorCode={props.repository.printErrorCode()}
+        />
+      </Show>
     </div>
   );
 }
