@@ -458,3 +458,45 @@ fn image_asset_insert_and_fetch_are_exposed_by_desktop_service() {
     assert_eq!(asset.media_type, "image/png");
     assert_eq!(asset.bytes, png);
 }
+
+#[test]
+fn image_asset_survives_save_reopen_and_lazy_fetch() {
+    let save_stem = temp_file_stem("image-asset-reopen");
+    let mut source = WriterDesktopService::new();
+    let document = source.create_document();
+    let paragraph_id = document.paragraphs[0].id.clone();
+    let png = vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+
+    let document = source
+        .insert_image_data(
+            &document.id,
+            &paragraph_id,
+            "image/png",
+            png.clone(),
+            "Reopen image",
+            None,
+            None,
+        )
+        .expect("image insert");
+    let (_, saved_path) = source
+        .save_document(&document.id, save_stem.to_string_lossy().as_ref())
+        .expect("image document save");
+
+    drop(source);
+
+    let mut reopened_service = WriterDesktopService::new();
+    let reopened = reopened_service
+        .open_document(&saved_path)
+        .expect("image document reopen");
+    assert_eq!(reopened.images.len(), 1);
+    assert_eq!(reopened.images[0].alt_text, "Reopen image");
+
+    let asset = reopened_service
+        .get_asset(&reopened.id, &reopened.images[0].asset_id)
+        .expect("lazy asset fetch");
+    assert_eq!(asset.media_type, "image/png");
+    assert_eq!(asset.bytes, png);
+
+    drop(reopened_service);
+    let _ = std::fs::remove_file(saved_path);
+}

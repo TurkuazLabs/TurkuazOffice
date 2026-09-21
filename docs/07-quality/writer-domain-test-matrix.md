@@ -44,6 +44,7 @@ Bagimli Oldugu Katman: Documentation
 
 ## Undo / redo
 
+- Image insert asset registry ve ImageBlock'u ayni snapshot'ta undo/redo eder.
 - Her successful command undo snapshot uretir.
 - Yeni command redo stack'i temizler.
 - Undo exact onceki content state'ini geri getirir.
@@ -53,6 +54,8 @@ Bagimli Oldugu Katman: Documentation
 
 ## TKO logical profile
 
+- Binary image asset TKO round-trip canonical document equality ile korunur.
+- Asset index missing binary entry reddedilir.
 - Manifest document id content ile aynidir.
 - Manifest revision content ile aynidir.
 - Manifest schema content ile aynidir.

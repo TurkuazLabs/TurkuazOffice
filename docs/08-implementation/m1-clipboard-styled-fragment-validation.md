@@ -29,6 +29,7 @@ Vitest Service-level regression testleri internal MIME paste priority, sanitized
 - PNG/JPEG/WebP image-only paste active paragraph sonrasina canonical ImageBlock + WriterAsset olarak eklenir.
 - Image binary asset TKO package round-trip ile korunur ve reopen sonrasinda lazy writer_get_asset IPC ile render edilir.
 - Image insert undo/redo snapshot ile asset registry ve block'u birlikte geri alir/geri getirir.
+- Image save -> reopen -> lazy get_asset regression testi binary byte ve MIME butunlugunu dogrular.
 - Gecersiz/unsupported paste payload'inda browser default contenteditable paste calismaz.
 
 ## Eklenen regression kapsami

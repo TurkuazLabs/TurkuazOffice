@@ -10,6 +10,8 @@ Bagimli Oldugu Katman: Documentation
 
 ## Writer TKO package
 
+- Binary PNG/JPEG/WebP asset index + data entry round-trip korunur.
+- Missing asset binary entry reddedilir.
 - Rich-text, font family, font size ve paragraph alignment round-trip korunur.
 - Manifest ve content document id/revision/schema eslesir.
 - Current-schema disindaki in-memory belge save sirasinda reddedilir.
@@ -26,6 +28,7 @@ Bagimli Oldugu Katman: Documentation
 
 ## Desktop storage
 
+- Image asset save -> yeni Desktop Service -> open -> lazy get_asset zincirinde byte ve MIME korunur.
 - Uzantisiz save yolu `.tko` ile normalize edilir.
 - Save edilen belge yeni Desktop Service tarafindan tekrar acilir.
 - Non-TKO open reddedilir.
