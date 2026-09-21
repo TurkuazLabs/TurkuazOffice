@@ -534,6 +534,10 @@ select {
   min-height: 100%;
 }
 
+.writer-print-preview .writer-paragraph[aria-readonly="true"] {
+  background: transparent;
+}
+
 @media print {
   html,
   body,
