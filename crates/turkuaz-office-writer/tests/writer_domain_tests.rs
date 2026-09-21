@@ -947,7 +947,7 @@ fn insert_image_data_undo_redo_restores_asset_and_block() {
 
     let redone = service.redo(&document.id).expect("image redo");
     assert_eq!(redone.assets.len(), 1);
-    assert!(matches!(redone.sections[0].blocks[1], Block::Image(_)));
+    assert!(matches!(&redone.sections[0].blocks[1], Block::Image(_)));
 }
 
 #[test]
@@ -974,7 +974,7 @@ fn image_insert_undo_redo_restores_asset_and_block_together() {
         )
         .expect("image insert");
     assert_eq!(inserted.assets.len(), 1);
-    assert!(matches!(inserted.sections[0].blocks[1], Block::Image(_)));
+    assert!(matches!(&inserted.sections[0].blocks[1], Block::Image(_)));
 
     let undone = service.undo(&document.id).expect("undo image insert");
     assert!(undone.assets.is_empty());
