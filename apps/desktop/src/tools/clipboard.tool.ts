@@ -5,8 +5,16 @@
 // # Aciklama: Internal MIME, HTML ve plain-text representation okuma/yazma ile default event tuketimini yapar
 // Bagimli Oldugu Katman: Tool -> Config -> Model
 
-import { WRITER_CLIPBOARD_MIME } from "../config/clipboard";
-import type { ClipboardTransferModel, ClipboardWriteModel } from "../models/clipboard-model";
+import {
+  WRITER_CLIPBOARD_IMAGE_MEDIA_TYPES,
+  WRITER_CLIPBOARD_MAX_IMAGE_BYTES,
+  WRITER_CLIPBOARD_MIME,
+} from "../config/clipboard";
+import type {
+  ClipboardImageModel,
+  ClipboardTransferModel,
+  ClipboardWriteModel,
+} from "../models/clipboard-model";
 
 export class ClipboardTool {
   public read(event: ClipboardEvent): ClipboardTransferModel | null {
@@ -19,6 +27,43 @@ export class ClipboardTool {
       html: this.readType(clipboardData, WRITER_CLIPBOARD_MIME.html),
       plainText: this.readType(clipboardData, WRITER_CLIPBOARD_MIME.plainText),
     };
+  }
+
+  public async readImage(event: ClipboardEvent): Promise<ClipboardImageModel | null> {
+    const clipboardData = event.clipboardData;
+    if (clipboardData === null) {
+      return null;
+    }
+
+    const itemFiles = Array.from(clipboardData.items)
+      .filter((item) => item.kind === "file")
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file !== null);
+    const candidates = itemFiles.length > 0
+      ? itemFiles
+      : Array.from(clipboardData.files);
+    const file = candidates.find(
+      (candidate) =>
+        WRITER_CLIPBOARD_IMAGE_MEDIA_TYPES.has(candidate.type) &&
+        candidate.size > 0 &&
+        candidate.size <= WRITER_CLIPBOARD_MAX_IMAGE_BYTES,
+    );
+    if (file === undefined) {
+      return null;
+    }
+
+    try {
+      const data = new Uint8Array(await file.arrayBuffer());
+      if (data.byteLength === 0 || data.byteLength > WRITER_CLIPBOARD_MAX_IMAGE_BYTES) {
+        return null;
+      }
+      return {
+        mediaType: file.type,
+        data: Array.from(data),
+      };
+    } catch {
+      return null;
+    }
   }
 
   public write(event: ClipboardEvent, payload: ClipboardWriteModel): boolean {

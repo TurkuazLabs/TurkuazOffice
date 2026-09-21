@@ -104,22 +104,31 @@ export class ClipboardService {
       return;
     }
 
+    this.clipboardTool.consume(event);
+
     const baseStyle = this.writerSessionService.insertionStyle(
       paragraphId,
       selection.startOffset,
     );
     const runs = this.selectPasteRuns(transfer, baseStyle);
-    if (runs === null || runs.length === 0) {
+    if (runs !== null && runs.length > 0) {
+      await this.writerSessionService.replaceSelectionWithStyledRuns(
+        paragraphId,
+        selection.startOffset,
+        selection.endOffset,
+        runs,
+      );
       return;
     }
 
-    this.clipboardTool.consume(event);
-    await this.writerSessionService.replaceSelectionWithStyledRuns(
-      paragraphId,
-      selection.startOffset,
-      selection.endOffset,
-      runs,
-    );
+    const image = await this.clipboardTool.readImage(event);
+    if (image !== null) {
+      await this.writerSessionService.insertImageData(
+        paragraphId,
+        image.mediaType,
+        image.data,
+      );
+    }
   }
 
   private fragmentFromSelection(

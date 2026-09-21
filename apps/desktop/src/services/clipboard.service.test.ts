@@ -92,6 +92,7 @@ function clipboard(
 ) {
   return {
     read: vi.fn((_event: ClipboardEvent) => payload),
+    readImage: vi.fn(async (_event: ClipboardEvent) => null),
     write: vi.fn((_event: ClipboardEvent, _payload: ClipboardWriteModel) => writeResult),
     consume: vi.fn((_event: ClipboardEvent) => undefined),
   };
@@ -288,3 +289,39 @@ describe("ClipboardService", () => {
     expect(replace).toHaveBeenCalledWith(PARAGRAPH_ID, 0, 2, []);
   });
 });
+
+  it("image-only paste consumes default DOM paste and inserts canonical asset", async () => {
+    const replace = vi.fn(async () => undefined);
+    const insertImageData = vi.fn(async () => undefined);
+    const clipboardMock = {
+      ...clipboard(transfer()),
+      readImage: vi.fn(async () => ({
+        mediaType: "image/png",
+        data: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+      })),
+    };
+    const writerSession = {
+      ...session(1, 1, replace),
+      insertImageData,
+    };
+    const service = new ClipboardService(
+      repository(),
+      writerSession as unknown as WriterSessionService,
+      clipboardMock as unknown as ClipboardTool,
+      { parse: vi.fn(() => null) } as unknown as ClipboardDomTool,
+    );
+
+    await service.pasteSelection(
+      PARAGRAPH_ID,
+      {} as HTMLElement,
+      {} as ClipboardEvent,
+    );
+
+    expect(clipboardMock.consume).toHaveBeenCalledOnce();
+    expect(insertImageData).toHaveBeenCalledWith(
+      PARAGRAPH_ID,
+      "image/png",
+      [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+    );
+    expect(replace).not.toHaveBeenCalled();
+  });

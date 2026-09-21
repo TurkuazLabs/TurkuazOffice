@@ -31,10 +31,15 @@ Paste sirasi:
 1. Gecerli Internal Turkuaz fragment.
 2. Sanitized HTML.
 3. Plain text.
+4. Image-only payload (PNG/JPEG/WebP).
 
 Internal fragment schema/version, run sayisi, toplam text uzunlugu, font family uzunlugu ve font size domain limitleri ile dogrulanir.
 
 HTML path executable/resource taglarini drop eder. Basic B/I/U semantigi ile inline font family/font size/font weight/font style/text decoration degerleri canonical CharacterStyle'a map edilir. HTML hicbir zaman canonical DOM olarak saklanmaz.
+
+Paste event'i Service tarafinda representation seciminden once consume edilir. Boylece gecersiz veya unsupported clipboard payload'i browser default contenteditable paste ile sanitizer'i bypass edemez.
+
+Image-only payload Tool katmaninda File/ArrayBuffer'dan byte dizisine cevrilir ve `WriterSessionService.insertImageData` uzerinden canonical `InsertImageData` command'ine gider. M1 image paste block-level olarak aktif paragraph sonrasina image ekler.
 
 ## Cut
 

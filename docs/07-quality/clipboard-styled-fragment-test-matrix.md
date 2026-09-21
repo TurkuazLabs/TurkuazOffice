@@ -46,3 +46,6 @@ Bu matrix atomic canonical mutation dilimini kapsar. OS clipboard event, sanitiz
 - Vitest 5.0.1 ile ClipboardService headless unit testleri.
 - Browser DOM gerektirmeden ClipboardTool/ClipboardDomTool ve WriterSessionService sinirlari mock edilir.
 - CI frontend-quality job'u build sonrasinda `npm test` calistirir.
+
+| Image-only PNG/JPEG/WebP paste | Browser default paste consume edilir, binary payload InsertImageData ile active paragraph sonrasina eklenir |
+| Unsupported/gecersiz clipboard payload | Event consume edilir; raw contenteditable default paste calismaz |

@@ -16,6 +16,12 @@ export const WRITER_CLIPBOARD_FRAGMENT_SCHEMA_VERSION = 1;
 export const WRITER_CLIPBOARD_MAX_RUNS = 1_024;
 export const WRITER_CLIPBOARD_MAX_TEXT_LENGTH = 1_000_000;
 export const WRITER_CLIPBOARD_MAX_PAYLOAD_CHARS = 2_000_000;
+export const WRITER_CLIPBOARD_MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+export const WRITER_CLIPBOARD_IMAGE_MEDIA_TYPES: ReadonlySet<string> = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
 export const WRITER_CLIPBOARD_MAX_DOM_NODES = 4_096;
 export const WRITER_CLIPBOARD_MAX_DOM_DEPTH = 64;
 

@@ -24,6 +24,11 @@ export interface WriterClipboardFragmentModel {
   readonly runs: readonly ClipboardStyledRunModel[];
 }
 
+export interface ClipboardImageModel {
+  readonly mediaType: string;
+  readonly data: readonly number[];
+}
+
 export interface ClipboardTransferModel {
   readonly internalFragment: string;
   readonly html: string;
