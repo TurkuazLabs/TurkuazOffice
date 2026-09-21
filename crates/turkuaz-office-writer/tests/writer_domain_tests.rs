@@ -916,3 +916,36 @@ fn insert_image_data_rejects_invalid_signature_without_mutation() {
     assert!(unchanged.assets.is_empty());
     assert_eq!(unchanged.sections[0].blocks.len(), 1);
 }
+
+#[test]
+fn insert_image_data_undo_redo_restores_asset_and_block() {
+    let mut service = service();
+    let document = service.create_document("ImageHistory");
+    let paragraph_id = match &document.sections[0].blocks[0] {
+        Block::Paragraph(paragraph) => paragraph.id.clone(),
+        _ => panic!("paragraph expected"),
+    };
+    let document = service
+        .execute(
+            &document.id,
+            WriterCommand::InsertImageData {
+                after_paragraph_id: paragraph_id,
+                media_type: "image/png".to_owned(),
+                data: vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A],
+                alt_text: "History image".to_owned(),
+                width_twips: None,
+                height_twips: None,
+            },
+        )
+        .expect("image insert");
+    assert_eq!(document.assets.len(), 1);
+    assert!(matches!(document.sections[0].blocks[1], Block::Image(_)));
+
+    let undone = service.undo(&document.id).expect("image undo");
+    assert!(undone.assets.is_empty());
+    assert_eq!(undone.sections[0].blocks.len(), 1);
+
+    let redone = service.redo(&document.id).expect("image redo");
+    assert_eq!(redone.assets.len(), 1);
+    assert!(matches!(redone.sections[0].blocks[1], Block::Image(_)));
+}

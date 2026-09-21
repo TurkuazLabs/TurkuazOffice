@@ -34,7 +34,7 @@ Durum: Foundation Hardening tamamlandi.
 
 ## M1 - Desktop Writer v0.2.0
 
-Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection ve font/layout baseline alt fazlari tamamlandi.
+Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout ve Clipboard Minimum implementation alt fazlari tamamlandi. Compiler-backed clipboard validation GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M1 parcasi
 
@@ -76,10 +76,14 @@ Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typog
 - Platform font fallback resolver; requested family canonical belgede korunur.
 - DOM text metric canonical layout sayilmaz siniri.
 - Clipboard paragraph-local atomic styled-fragment replace command ve tek-undo mutation zinciri.
+- Runtime copy/cut/paste event hatti ve Internal MIME -> sanitized HTML -> plain text representation priority.
+- Clipboard HTML node/depth/payload limitleri ve raw contenteditable default-paste bypass korumasi.
+- PNG/JPEG/WebP image clipboard payload -> canonical WriterAsset + ImageBlock mutation hatti.
+- TKO v1 optional assets/index.yml + assets/data/<asset-id>.bin binary image package profile.
+- Lazy writer_get_asset IPC ve ObjectURL cleanup ile image block render baseline.
 
 ### Siradaki M1 parcasi
 
-- Clipboard minimum: runtime copy/cut/paste, sanitizer ve representation integration tamamlama.
 - Print preview + print minimum.
 - DOCX minimum profile.
 - PDF export.

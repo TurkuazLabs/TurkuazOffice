@@ -21,11 +21,15 @@ Vitest Service-level regression testleri internal MIME paste priority, sanitized
 ## Runtime acceptance kapsami
 
 - Copy ayni secimi internal MIME, HTML ve plain text olarak yazar.
-- Paste representation onceligi internal MIME, sanitized HTML ve plain text sirasindadir.
+- Paste representation onceligi internal MIME, sanitized HTML, plain text ve image-only payload sirasindadir.
 - Internal payload schema/version/type/font limitleri dogrulanir.
 - HTML parser sonucunda executable/resource taglari atilir; yalniz basic text style semantigi canonical run'a map edilir.
 - Cut bos fragment mutation ile tek undo adiminda calisir.
 - Paste/cut sonrasi caret eklenen fragment sonuna tasinir.
+- PNG/JPEG/WebP image-only paste active paragraph sonrasina canonical ImageBlock + WriterAsset olarak eklenir.
+- Image binary asset TKO package round-trip ile korunur ve reopen sonrasinda lazy writer_get_asset IPC ile render edilir.
+- Image insert undo/redo snapshot ile asset registry ve block'u birlikte geri alir/geri getirir.
+- Gecersiz/unsupported paste payload'inda browser default contenteditable paste calismaz.
 
 ## Eklenen regression kapsami
 
@@ -33,6 +37,10 @@ Vitest Service-level regression testleri internal MIME paste priority, sanitized
 - Iki farkli fragment stili canonical run olarak korunur.
 - Styled paste tek undo ile onceki belge snapshot'ina doner.
 - Tum paragraf empty-fragment cut sonrasinda tek editable bos run tasir.
+
+## CI runner durumu
+
+GitHub Actions run'lari workflow parse ediliyor olsa da hosted job'lar `runner_id: 0` ve `steps: []` ile step baslamadan failure oluyor. Bu nedenle son commitler icin compiler-backed sonucu kod failure'i olarak yorumlamiyoruz. Onceki runner calisan run'da frontend build basariliydi; eski Rust failure'lari Rust 1.85 dependency uyumsuzlugu ve rustfmt farklariydi, bunlar toolchain 1.98.1 ve rustfmt normalization ile duzeltildi.
 
 ## Ortam siniri
 

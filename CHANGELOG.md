@@ -10,6 +10,12 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Clipboard image paste PNG/JPEG/WebP binary payloadlari canonical WriterAsset + ImageBlock command zincirine baglandi.
+- TKO v1 optional asset index ve binary asset entry profile'i eklendi.
+- Writer image read-model, lazy writer_get_asset IPC, Blob/ObjectURL render ve cleanup hatti eklendi.
+- Gecersiz paste payload'inda browser default contenteditable paste sanitizer bypass'i kapatildi.
+- Image insert undo/redo ve TKO round-trip regression kapsami eklendi.
+
 - Clipboard runtime copy/cut/paste event hatti eklendi.
 - Paste representation onceligi Internal Turkuaz MIME -> sanitized HTML -> plain text olarak baglandi.
 - Clipboard payload schema/limit validation ve executable/resource HTML tag filtering eklendi.

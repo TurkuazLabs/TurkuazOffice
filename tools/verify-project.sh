@@ -248,6 +248,7 @@ grep -q 'invalid rich payload falls back to plain text' "$ROOT/apps/desktop/src/
 grep -q 'cut writes clipboard before atomic empty fragment replace' "$ROOT/apps/desktop/src/services/clipboard.service.test.ts"
 grep -q 'image-only paste consumes default DOM paste and inserts canonical asset' "$ROOT/apps/desktop/src/services/clipboard.service.test.ts"
 grep -q 'image_asset_insert_and_fetch_are_exposed_by_desktop_service' "$ROOT/apps/desktop/src-tauri/tests/writer_desktop_service_tests.rs"
+grep -q 'insert_image_data_undo_redo_restores_asset_and_block' "$ROOT/crates/turkuaz-office-writer/tests/writer_domain_tests.rs"
 grep -q 'onPaste' "$ROOT/apps/desktop/src/views/writer-paragraph.tsx"
 grep -q 'onCut' "$ROOT/apps/desktop/src/views/writer-paragraph.tsx"
 grep -q 'onCopy' "$ROOT/apps/desktop/src/views/writer-paragraph.tsx"
