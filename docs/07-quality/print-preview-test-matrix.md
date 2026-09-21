@@ -13,8 +13,9 @@ Bagimli Oldugu Katman: Documentation
 - Preview belge modelini mutate etmez.
 - Preview zoom degeri session-only ve yuzde 100 canonical render baseline'idir.
 - Preview acilmadan once focused paragraph mutation queue flush edilir.
-- Preview kapatildiginda editor belgesi ve dirty revision ayni kalir.
+- Preview kapatildiginda editor belgesi, logical selection, typing style ve dirty revision ayni kalir.
 - Preview acikken editor mutation shortcutlari devre disi kalir.
+- Preview acildiginda ilk print action focus alir; kapanista logical editor selection geri yuklenir.
 
 ## Physical page geometry
 
