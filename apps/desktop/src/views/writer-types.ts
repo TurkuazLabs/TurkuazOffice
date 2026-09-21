@@ -37,6 +37,21 @@ export interface WriterParagraphView {
   readonly runs: readonly WriterRunView[];
 }
 
+export interface WriterImageView {
+  readonly id: string;
+  readonly assetId: string;
+  readonly afterParagraphId: string | null;
+  readonly altText: string;
+  readonly widthTwips: number | null;
+  readonly heightTwips: number | null;
+}
+
+export interface WriterAssetView {
+  readonly id: string;
+  readonly mediaType: string;
+  readonly data: readonly number[];
+}
+
 export interface WriterPageSettingsView {
   readonly widthTwips: number;
   readonly heightTwips: number;
@@ -54,6 +69,7 @@ export interface WriterDocumentView {
   readonly sectionCount: number;
   readonly pageSettings: WriterPageSettingsView;
   readonly paragraphs: readonly WriterParagraphView[];
+  readonly images: readonly WriterImageView[];
 }
 
 export interface WriterPageLayoutView {

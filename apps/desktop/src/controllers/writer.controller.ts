@@ -112,6 +112,23 @@ export class WriterController {
     return this.service.commitParagraphFromEditor(paragraphId, editor);
   }
 
+  public loadImageAssetUrl(documentId: string, assetId: string): Promise<string> {
+    return this.service.loadImageAssetUrl(documentId, assetId);
+  }
+
+  public releaseImageAssetUrl(url: string): void {
+    this.service.releaseImageAssetUrl(url);
+  }
+
+  public insertImageData(
+    afterParagraphId: string,
+    mediaType: string,
+    data: readonly number[],
+    altText = "",
+  ): Promise<void> {
+    return this.service.insertImageData(afterParagraphId, mediaType, data, altText);
+  }
+
   public splitParagraphFromEditor(paragraphId: string, editor: HTMLElement): Promise<void> {
     return this.service.splitParagraphFromEditor(paragraphId, editor);
   }

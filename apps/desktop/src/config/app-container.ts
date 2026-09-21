@@ -15,6 +15,7 @@ import { ClipboardDomTool } from "../tools/clipboard-dom.tool";
 import { ClipboardTool } from "../tools/clipboard.tool";
 import { DomSelectionTool } from "../tools/dom-selection.tool";
 import { FontCapabilityTool } from "../tools/font-capability.tool";
+import { ImageAssetTool } from "../tools/image-asset.tool";
 import { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import { TauriWriterTool } from "../tools/tauri-writer.tool";
 import { TextOffsetTool } from "../tools/text-offset.tool";
@@ -25,6 +26,7 @@ const writerTool = new TauriWriterTool();
 const textOffsetTool = new TextOffsetTool();
 const domSelectionTool = new DomSelectionTool(textOffsetTool);
 const nativeFileDialogTool = new NativeFileDialogTool();
+const imageAssetTool = new ImageAssetTool();
 const fontCapabilityTool = new FontCapabilityTool();
 const writerLayoutService = new WriterLayoutService(fontCapabilityTool);
 const writerSessionService = new WriterSessionService(
@@ -33,6 +35,7 @@ const writerSessionService = new WriterSessionService(
   textOffsetTool,
   domSelectionTool,
   nativeFileDialogTool,
+  imageAssetTool,
   writerLayoutService,
   languageService,
 );

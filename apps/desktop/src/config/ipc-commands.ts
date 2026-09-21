@@ -18,6 +18,8 @@ export const IPC_COMMANDS = {
   writerCompareRecoverySnapshot: "writer_compare_recovery_snapshot",
   writerDiscardRecoverySnapshot: "writer_discard_recovery_snapshot",
   writerClearDocumentRecovery: "writer_clear_document_recovery",
+  writerGetAsset: "writer_get_asset",
+  writerInsertImageData: "writer_insert_image_data",
   writerReplaceParagraphText: "writer_replace_paragraph_text",
   writerReplaceRangeWithStyledRuns: "writer_replace_range_with_styled_runs",
   writerApplyCharacterStyle: "writer_apply_character_style",

@@ -12,6 +12,7 @@ import type {
   RecoveryComparisonView,
   RecoveryRestoreView,
   RecoverySnapshotView,
+  WriterAssetView,
   WriterCharacterStylePatchView,
   WriterCharacterStyleView,
   WriterDocumentView,
@@ -80,6 +81,33 @@ export class TauriWriterTool {
 
   public reloadFromDisk(documentId: string): Promise<WriterReloadView> {
     return invoke<WriterReloadView>(IPC_COMMANDS.writerReloadFromDisk, { documentId });
+  }
+
+  public getAsset(documentId: string, assetId: string): Promise<WriterAssetView> {
+    return invoke<WriterAssetView>(IPC_COMMANDS.writerGetAsset, {
+      documentId,
+      assetId,
+    });
+  }
+
+  public insertImageData(
+    documentId: string,
+    afterParagraphId: string,
+    mediaType: string,
+    data: readonly number[],
+    altText: string,
+    widthTwips: number | null,
+    heightTwips: number | null,
+  ): Promise<WriterDocumentView> {
+    return invoke<WriterDocumentView>(IPC_COMMANDS.writerInsertImageData, {
+      documentId,
+      afterParagraphId,
+      mediaType,
+      data,
+      altText,
+      widthTwips,
+      heightTwips,
+    });
   }
 
   public replaceParagraphText(

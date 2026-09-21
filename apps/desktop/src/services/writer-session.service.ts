@@ -14,6 +14,7 @@ import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
 import type { WriterLayoutService } from "./writer-layout.service";
 import type { DomSelectionTool } from "../tools/dom-selection.tool";
+import type { ImageAssetTool } from "../tools/image-asset.tool";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import type { TauriWriterTool } from "../tools/tauri-writer.tool";
 import type { TextOffsetTool } from "../tools/text-offset.tool";
@@ -49,6 +50,7 @@ export class WriterSessionService {
     private readonly textOffsetTool: TextOffsetTool,
     private readonly domSelectionTool: DomSelectionTool,
     private readonly fileDialogTool: NativeFileDialogTool,
+    private readonly imageAssetTool: ImageAssetTool,
     private readonly layoutService: WriterLayoutService,
     private readonly language: LanguageService,
   ) {}
@@ -342,6 +344,44 @@ export class WriterSessionService {
       this.repository.setSelection(selection);
     }
     return this.replaceParagraphText(paragraphId, text, this.repository.typingStyle());
+  }
+
+  public async loadImageAssetUrl(documentId: string, assetId: string): Promise<string> {
+    const asset = await this.writerTool.getAsset(documentId, assetId);
+    return this.imageAssetTool.createObjectUrl(asset);
+  }
+
+  public releaseImageAssetUrl(url: string): void {
+    this.imageAssetTool.revokeObjectUrl(url);
+  }
+
+  public insertImageData(
+    afterParagraphId: string,
+    mediaType: string,
+    data: readonly number[],
+    altText = "",
+  ): Promise<void> {
+    if (this.isReadOnly()) {
+      return Promise.resolve();
+    }
+    return this.enqueue(async () => {
+      const document = this.requireDocument();
+      const changed = await this.run(() =>
+        this.writerTool.insertImageData(
+          document.id,
+          afterParagraphId,
+          mediaType,
+          data,
+          altText,
+          null,
+          null,
+        ),
+      );
+      if (changed) {
+        this.repository.setSelection(null);
+        this.repository.setTypingStyle(null);
+      }
+    });
   }
 
   public replaceParagraphText(
