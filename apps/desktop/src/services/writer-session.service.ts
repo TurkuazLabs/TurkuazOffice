@@ -2,10 +2,11 @@
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // # Version: 0.2.0
-// # Aciklama: DOM, Repo, dialog ve Tauri Tool uzerinden edit, clipboard mutation, Open/Save, autosave recovery, dirty guard ve history kurallarini yurutur
+// # Aciklama: DOM, Repo, dialog, print ve Tauri Tool uzerinden edit, clipboard mutation, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
+import { WRITER_PRINT_PREVIEW_ZOOM_PERCENT } from "../config/print";
 import {
   DEFAULT_WRITER_FONT_FAMILY,
   DEFAULT_WRITER_FONT_SIZE_HALF_POINTS,
@@ -16,6 +17,7 @@ import type { WriterLayoutService } from "./writer-layout.service";
 import type { DomSelectionTool } from "../tools/dom-selection.tool";
 import type { ImageAssetTool } from "../tools/image-asset.tool";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
+import type { PrintTool } from "../tools/print.tool";
 import type { TauriWriterTool } from "../tools/tauri-writer.tool";
 import type { TextOffsetTool } from "../tools/text-offset.tool";
 import type {
@@ -51,6 +53,7 @@ export class WriterSessionService {
     private readonly domSelectionTool: DomSelectionTool,
     private readonly fileDialogTool: NativeFileDialogTool,
     private readonly imageAssetTool: ImageAssetTool,
+    private readonly printTool: PrintTool,
     private readonly layoutService: WriterLayoutService,
     private readonly language: LanguageService,
   ) {}
@@ -202,6 +205,36 @@ export class WriterSessionService {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  public async openPrintPreview(): Promise<void> {
+    await this.prepareFileOperation();
+    const document = this.repository.document();
+    if (document === null) {
+      return;
+    }
+    this.repository.setSelection(null);
+    this.repository.setTypingStyle(null);
+    this.repository.setPrintPreviewLayout(
+      this.layoutService.pageLayout(document.pageSettings, WRITER_PRINT_PREVIEW_ZOOM_PERCENT),
+    );
+  }
+
+  public closePrintPreview(): void {
+    this.repository.setPrintPreviewLayout(null);
+  }
+
+  public async printDocument(): Promise<void> {
+    await this.prepareFileOperation();
+    const document = this.requireDocument();
+    this.repository.setPrintPreviewLayout(
+      this.layoutService.pageLayout(document.pageSettings, WRITER_PRINT_PREVIEW_ZOOM_PERCENT),
+    );
+    try {
+      this.printTool.print(document.pageSettings);
+    } catch (error: unknown) {
+      this.repository.setPrintError(this.errorCode(error));
+    }
   }
 
   public async saveDocumentAs(): Promise<void> {
