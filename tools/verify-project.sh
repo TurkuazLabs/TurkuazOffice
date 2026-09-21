@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard fragment kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout ve clipboard fragment contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard ve print contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -114,6 +114,13 @@ required_files=(
   "docs/07-quality/clipboard-styled-fragment-test-matrix.md"
   "docs/08-implementation/m1-clipboard-styled-fragment-v0.2.0.md"
   "docs/08-implementation/m1-clipboard-styled-fragment-validation.md"
+  "apps/desktop/src/config/print.ts"
+  "apps/desktop/src/tools/print.tool.ts"
+  "apps/desktop/src/tools/print.tool.test.ts"
+  "apps/desktop/src/views/writer-print-preview.tsx"
+  "docs/07-quality/print-preview-test-matrix.md"
+  "docs/08-implementation/m1-print-preview-v0.2.0.md"
+  "docs/08-implementation/m1-print-preview-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -264,4 +271,19 @@ grep -q 'WriterImageBlock' "$ROOT/apps/desktop/src/views/writer-image.tsx"
 grep -q 'replace_range_with_styled_runs_preserves_neighbor_styles_and_undoes_once' "$ROOT/crates/turkuaz-office-writer/tests/writer_domain_tests.rs"
 grep -q 'replace_range_with_empty_fragment_keeps_editable_empty_run' "$ROOT/crates/turkuaz-office-writer/tests/writer_domain_tests.rs"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard Runtime verification BASARILI."
+
+grep -q 'writer_print:' "$ROOT/config/project.yml"
+grep -q 'printer_discovery: delegated_to_system_dialog' "$ROOT/config/project.yml"
+grep -q 'WRITER_PRINT_PREVIEW_ZOOM_PERCENT' "$ROOT/apps/desktop/src/config/print.ts"
+grep -q 'class PrintTool' "$ROOT/apps/desktop/src/tools/print.tool.ts"
+grep -q 'window.print' "$ROOT/apps/desktop/src/tools/print.tool.ts"
+grep -q 'openPrintPreview' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'printDocument' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
+grep -q 'printPreviewLayout' "$ROOT/apps/desktop/src/repositories/writer-session.repository.ts"
+grep -q 'KEYBOARD_KEYS.p' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'KEYBOARD_KEYS.escape' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'WriterPrintPreview' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q '@media print' "$ROOT/apps/desktop/src/views/app.css"
+grep -q 'maps canonical twip page size to physical print inches' "$ROOT/apps/desktop/src/tools/print.tool.test.ts"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print verification BASARILI."
