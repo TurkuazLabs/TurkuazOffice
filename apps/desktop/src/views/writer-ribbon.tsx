@@ -96,8 +96,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
-              disabled
-              title={props.language.text("printComingSoon")}
+              onClick={() => void props.controller.openPrintPreview()}
             >
               {props.language.text("print")}
             </button>
