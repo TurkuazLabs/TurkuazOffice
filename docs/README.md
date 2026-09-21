@@ -110,8 +110,6 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m1-font-layout-validation.md`
 - `08-implementation/m1-print-preview-v0.2.0.md`
 - `08-implementation/m1-print-preview-validation.md`
-- `08-implementation/m1-print-preview-v0.2.0.md`
-- `08-implementation/m1-print-preview-validation.md`
 
 ## Kural
 
@@ -159,3 +157,5 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/m1-external-change-validation.md`
 - `08-implementation/m1-font-layout-v0.2.0.md`
 - `08-implementation/m1-font-layout-validation.md`
+- `08-implementation/m1-print-preview-v0.2.0.md`
+- `08-implementation/m1-print-preview-validation.md`
