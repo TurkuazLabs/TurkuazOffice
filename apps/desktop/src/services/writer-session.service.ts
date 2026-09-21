@@ -213,8 +213,6 @@ export class WriterSessionService {
     if (document === null) {
       return;
     }
-    this.repository.setSelection(null);
-    this.repository.setTypingStyle(null);
     this.repository.setPrintPreviewLayout(
       this.layoutService.pageLayout(document.pageSettings, WRITER_PRINT_PREVIEW_ZOOM_PERCENT),
     );
@@ -222,6 +220,7 @@ export class WriterSessionService {
 
   public closePrintPreview(): void {
     this.repository.setPrintPreviewLayout(null);
+    this.restoreSessionSelection();
   }
 
   public async printDocument(): Promise<void> {
