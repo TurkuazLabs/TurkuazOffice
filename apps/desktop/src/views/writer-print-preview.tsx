@@ -5,7 +5,7 @@
 // # Aciklama: Belge modelini mutate etmeden print layout, sistem dialog bilgisi, print ve close komutlarini sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
-import { Show } from "solid-js";
+import { onMount, Show } from "solid-js";
 
 import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
@@ -26,6 +26,12 @@ interface WriterPrintPreviewProps {
 }
 
 export function WriterPrintPreview(props: WriterPrintPreviewProps) {
+  let printButton!: HTMLButtonElement;
+
+  onMount(() => {
+    printButton.focus();
+  });
+
   return (
     <section
       class="writer-print-preview"
@@ -45,6 +51,7 @@ export function WriterPrintPreview(props: WriterPrintPreviewProps) {
         </div>
         <div class="writer-print-preview__actions">
           <button
+            ref={printButton}
             type="button"
             class="toolbar-button toolbar-button--primary"
             onClick={() => void props.controller.printDocument()}
