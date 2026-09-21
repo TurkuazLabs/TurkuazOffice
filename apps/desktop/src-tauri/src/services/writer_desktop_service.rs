@@ -10,10 +10,13 @@ use std::path::PathBuf;
 use turkuaz_office_writer::{
     CharacterStyle, CharacterStylePatch, InMemoryWriterDocumentRepository, NodeId,
     ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition,
-    TextRange, WriterCommand, WriterController, WriterDocumentView, WriterEditorError,
+    TextRange, WriterAsset, WriterCommand, WriterController, WriterDocumentView,
+    WriterEditorError,
 };
 
-use crate::config::constants::{ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND};
+use crate::config::constants::{
+    ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
+};
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
 };
@@ -261,6 +264,50 @@ impl WriterDesktopService {
 
         self.controller
             .execute_batch(document_id, &commands)
+            .map_err(DesktopErrorDto::from)
+    }
+
+    pub fn get_asset(
+        &self,
+        document_id: &str,
+        asset_id: &str,
+    ) -> Result<WriterAsset, DesktopErrorDto> {
+        let document = self
+            .controller
+            .snapshot(document_id)
+            .ok_or_else(|| DesktopErrorDto::from(WriterEditorError::DocumentNotFound))?;
+        document
+            .assets
+            .into_iter()
+            .find(|asset| asset.id == asset_id)
+            .ok_or_else(|| DesktopErrorDto::new(ERROR_ASSET_NOT_FOUND))
+    }
+
+    pub fn insert_image_data(
+        &mut self,
+        document_id: &str,
+        after_paragraph_id: &str,
+        media_type: &str,
+        data: Vec<u8>,
+        alt_text: &str,
+        width_twips: Option<u32>,
+        height_twips: Option<u32>,
+    ) -> Result<WriterDocumentView, DesktopErrorDto> {
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
+        self.controller
+            .execute(
+                document_id,
+                WriterCommand::InsertImageData {
+                    after_paragraph_id: NodeId::new(after_paragraph_id),
+                    media_type: media_type.to_owned(),
+                    data,
+                    alt_text: alt_text.to_owned(),
+                    width_twips,
+                    height_twips,
+                },
+            )
             .map_err(DesktopErrorDto::from)
     }
 

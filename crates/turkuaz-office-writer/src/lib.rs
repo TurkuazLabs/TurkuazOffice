@@ -31,5 +31,6 @@ pub use services::writer_types::{
 pub use tools::tko_archive_tool::TkoArchiveError;
 pub use tools::writer_id_tool::{SequentialWriterIdTool, WriterIdTool};
 pub use views::writer_view::{
-    WriterDocumentView, WriterPageSettingsView, WriterParagraphView, WriterRunView,
+    WriterDocumentView, WriterImageView, WriterPageSettingsView, WriterParagraphView,
+    WriterRunView,
 };

@@ -15,7 +15,7 @@ use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
 use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, RecoverySnapshotDto};
 use crate::views::writer_dto::{
-    WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
+    WriterAssetDto, WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
     WriterStyledRunInputDto, WriterTextAlignmentDto,
 };
 use turkuaz_office_writer::CharacterStylePatch;
@@ -177,6 +177,45 @@ pub fn writer_clear_document_recovery(
         .lock()
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service.clear_recovery_for_document(&document_id)
+}
+
+#[tauri::command]
+pub fn writer_get_asset(
+    state: State<'_, WriterDesktopState>,
+    document_id: String,
+    asset_id: String,
+) -> Result<WriterAssetDto, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service.get_asset(&document_id, &asset_id).map(Into::into)
+}
+
+#[tauri::command]
+pub fn writer_insert_image_data(
+    state: State<'_, WriterDesktopState>,
+    document_id: String,
+    after_paragraph_id: String,
+    media_type: String,
+    data: Vec<u8>,
+    alt_text: String,
+    width_twips: Option<u32>,
+    height_twips: Option<u32>,
+) -> Result<WriterDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .insert_image_data(
+            &document_id,
+            &after_paragraph_id,
+            &media_type,
+            data,
+            &alt_text,
+            width_twips,
+            height_twips,
+        )
+        .map(WriterDocumentDto::from)
 }
 
 #[tauri::command]

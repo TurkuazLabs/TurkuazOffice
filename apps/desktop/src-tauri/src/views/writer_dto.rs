@@ -7,8 +7,9 @@
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_writer::{
-    CharacterStyle, ParagraphStyle, StyledTextRun, TextAlignment, WriterDocumentView,
-    WriterPageSettingsView, WriterParagraphView, WriterRunView,
+    CharacterStyle, ParagraphStyle, StyledTextRun, TextAlignment, WriterAsset,
+    WriterDocumentView, WriterImageView, WriterPageSettingsView, WriterParagraphView,
+    WriterRunView,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -88,6 +89,25 @@ pub struct WriterParagraphDto {
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct WriterImageDto {
+    pub id: String,
+    pub asset_id: String,
+    pub after_paragraph_id: Option<String>,
+    pub alt_text: String,
+    pub width_twips: Option<u32>,
+    pub height_twips: Option<u32>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WriterAssetDto {
+    pub id: String,
+    pub media_type: String,
+    pub data: Vec<u8>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WriterPageSettingsDto {
     pub width_twips: u32,
     pub height_twips: u32,
@@ -107,6 +127,7 @@ pub struct WriterDocumentDto {
     pub section_count: usize,
     pub page_settings: WriterPageSettingsDto,
     pub paragraphs: Vec<WriterParagraphDto>,
+    pub images: Vec<WriterImageDto>,
 }
 
 impl From<WriterCharacterStyleInputDto> for CharacterStyle {
@@ -184,6 +205,29 @@ impl From<WriterParagraphView> for WriterParagraphDto {
     }
 }
 
+impl From<WriterImageView> for WriterImageDto {
+    fn from(view: WriterImageView) -> Self {
+        Self {
+            id: view.id,
+            asset_id: view.asset_id,
+            after_paragraph_id: view.after_paragraph_id,
+            alt_text: view.alt_text,
+            width_twips: view.width_twips,
+            height_twips: view.height_twips,
+        }
+    }
+}
+
+impl From<WriterAsset> for WriterAssetDto {
+    fn from(asset: WriterAsset) -> Self {
+        Self {
+            id: asset.id,
+            media_type: asset.media_type,
+            data: asset.bytes,
+        }
+    }
+}
+
 impl From<WriterPageSettingsView> for WriterPageSettingsDto {
     fn from(view: WriterPageSettingsView) -> Self {
         Self {
@@ -210,6 +254,11 @@ impl From<WriterDocumentView> for WriterDocumentDto {
                 .paragraphs
                 .into_iter()
                 .map(WriterParagraphDto::from)
+                .collect(),
+            images: view
+                .images
+                .into_iter()
+                .map(WriterImageDto::from)
                 .collect(),
         }
     }

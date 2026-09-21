@@ -9,6 +9,7 @@ pub const ERROR_STATE_LOCK: &str = "desktop.state_lock";
 pub const ERROR_DOCUMENT_NOT_FOUND: &str = "writer.document_not_found";
 pub const ERROR_PARAGRAPH_NOT_FOUND: &str = "writer.paragraph_not_found";
 pub const ERROR_RUN_NOT_FOUND: &str = "writer.run_not_found";
+pub const ERROR_ASSET_NOT_FOUND: &str = "writer.asset_not_found";
 pub const ERROR_NOTHING_TO_UNDO: &str = "writer.nothing_to_undo";
 pub const ERROR_NOTHING_TO_REDO: &str = "writer.nothing_to_redo";
 pub const ERROR_COMMAND_FAILED: &str = "writer.command_failed";

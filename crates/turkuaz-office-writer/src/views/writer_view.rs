@@ -2,7 +2,7 @@
 // # 📌 Amac: Writer canonical domain verisini UI ve platform kopruleri icin read-only DTO'ya map eder
 // # 📌 Modul - FileType: Writer - Rust
 // # Version: 0.2.0
-// # Aciklama: Document, paragraph ve run kimliklerini mutation yetkisi vermeden View katmanina tasir
+// # Aciklama: Paragraph, run, image block ve page metadata'sini binary asset bytes tasimadan View katmanina acar
 // Bagimli Oldugu Katman: View
 
 use crate::services::writer_types::{
@@ -22,6 +22,16 @@ pub struct WriterParagraphView {
     pub plain_text: String,
     pub style: ParagraphStyle,
     pub runs: Vec<WriterRunView>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct WriterImageView {
+    pub id: String,
+    pub asset_id: String,
+    pub after_paragraph_id: Option<String>,
+    pub alt_text: String,
+    pub width_twips: Option<u32>,
+    pub height_twips: Option<u32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -56,32 +66,48 @@ pub struct WriterDocumentView {
     pub section_count: usize,
     pub page_settings: WriterPageSettingsView,
     pub paragraphs: Vec<WriterParagraphView>,
+    pub images: Vec<WriterImageView>,
 }
 
 impl From<WriterDocument> for WriterDocumentView {
     fn from(document: WriterDocument) -> Self {
-        let paragraphs = document
-            .sections
-            .iter()
-            .flat_map(|section| section.blocks.iter())
-            .filter_map(|block| match block {
-                Block::Paragraph(paragraph) => Some(WriterParagraphView {
-                    id: paragraph.id.as_str().to_owned(),
-                    plain_text: paragraph.plain_text(),
-                    style: paragraph.style.clone(),
-                    runs: paragraph
-                        .runs
-                        .iter()
-                        .map(|run| WriterRunView {
-                            id: run.id.as_str().to_owned(),
-                            text: run.text.clone(),
-                            style: run.style.clone(),
-                        })
-                        .collect(),
-                }),
-                Block::Table(_) | Block::Image(_) => None,
-            })
-            .collect();
+        let mut paragraphs = Vec::new();
+        let mut images = Vec::new();
+
+        for section in &document.sections {
+            let mut previous_paragraph_id: Option<String> = None;
+            for block in &section.blocks {
+                match block {
+                    Block::Paragraph(paragraph) => {
+                        let paragraph_id = paragraph.id.as_str().to_owned();
+                        paragraphs.push(WriterParagraphView {
+                            id: paragraph_id.clone(),
+                            plain_text: paragraph.plain_text(),
+                            style: paragraph.style.clone(),
+                            runs: paragraph
+                                .runs
+                                .iter()
+                                .map(|run| WriterRunView {
+                                    id: run.id.as_str().to_owned(),
+                                    text: run.text.clone(),
+                                    style: run.style.clone(),
+                                })
+                                .collect(),
+                        });
+                        previous_paragraph_id = Some(paragraph_id);
+                    }
+                    Block::Image(image) => images.push(WriterImageView {
+                        id: image.id.as_str().to_owned(),
+                        asset_id: image.asset_id.clone(),
+                        after_paragraph_id: previous_paragraph_id.clone(),
+                        alt_text: image.alt_text.clone(),
+                        width_twips: image.width_twips,
+                        height_twips: image.height_twips,
+                    }),
+                    Block::Table(_) => {}
+                }
+            }
+        }
 
         let page_settings = document
             .sections
@@ -97,6 +123,7 @@ impl From<WriterDocument> for WriterDocumentView {
             section_count: document.sections.len(),
             page_settings: page_settings.into(),
             paragraphs,
+            images,
         }
     }
 }
