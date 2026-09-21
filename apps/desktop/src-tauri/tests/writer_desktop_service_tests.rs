@@ -431,3 +431,30 @@ fn external_change_blocks_same_path_save_until_explicit_acknowledge() {
     drop(service);
     let _ = std::fs::remove_file(saved_path);
 }
+
+#[test]
+fn image_asset_insert_and_fetch_are_exposed_by_desktop_service() {
+    let mut service = WriterDesktopService::new();
+    let document = service.create_document();
+    let paragraph_id = document.paragraphs[0].id.clone();
+    let png = vec![0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+
+    let document = service
+        .insert_image_data(
+            &document.id,
+            &paragraph_id,
+            "image/png",
+            png.clone(),
+            "Clipboard image",
+            None,
+            None,
+        )
+        .expect("image insert");
+    assert_eq!(document.images.len(), 1);
+
+    let asset = service
+        .get_asset(&document.id, &document.images[0].asset_id)
+        .expect("asset fetch");
+    assert_eq!(asset.media_type, "image/png");
+    assert_eq!(asset.bytes, png);
+}

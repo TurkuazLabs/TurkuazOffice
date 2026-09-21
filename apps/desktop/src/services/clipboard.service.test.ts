@@ -127,6 +127,7 @@ function paragraphDocument(): WriterDocumentView {
         ],
       },
     ],
+    images: [],
   };
 }
 
@@ -288,7 +289,6 @@ describe("ClipboardService", () => {
     expect(order).toEqual(["write", "replace"]);
     expect(replace).toHaveBeenCalledWith(PARAGRAPH_ID, 0, 2, []);
   });
-});
 
   it("image-only paste consumes default DOM paste and inserts canonical asset", async () => {
     const replace = vi.fn(async () => undefined);
@@ -325,3 +325,4 @@ describe("ClipboardService", () => {
     );
     expect(replace).not.toHaveBeenCalled();
   });
+});
