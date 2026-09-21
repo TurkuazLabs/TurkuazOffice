@@ -35,6 +35,12 @@ Assetsiz eski TKO v1 iki entry ile gecerlidir. Assetli paket optional olarak:
 
 tasir. Index id, MIME, canonical entry path ve declared byte length saklar. Deserialize sirasinda duplicate id/path, missing entry, byte-length mismatch, invalid MIME/signature, orphan asset ve missing ImageBlock reference reddedilir.
 
+## Desktop read-model ve binary fetch
+
+WriterDocumentView image block metadata'sini binary bytes olmadan tasir. Desktop `writer_get_asset` IPC komutu binary asset'i yalniz render ihtiyacinda getirir. Frontend `ImageAssetTool` Blob/ObjectURL olusturma ve revoke browser API'sini View'dan ayirir.
+
+WriterPage image block'lari canonical paragraph sonrasinda render eder. Image binary'si lazy fetch edilir ve View cleanup sirasinda ObjectURL revoke edilir.
+
 ## Sonraki adim
 
-Desktop clipboard image DataTransfer -> byte payload -> Tauri IPC -> InsertImageData baglantisi ve Writer View image rendering.
+Clipboard DataTransfer image -> byte payload -> `writer_insert_image_data` baglantisi.

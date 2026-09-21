@@ -458,3 +458,23 @@ select {
   cursor: default;
   background: var(--to-bg-toolbar);
 }
+
+.writer-image-block {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin: var(--to-space-2) 0;
+}
+
+.writer-image-block__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.writer-image-block__placeholder {
+  padding: var(--to-space-2);
+  border: 1px dashed var(--to-border-soft);
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
