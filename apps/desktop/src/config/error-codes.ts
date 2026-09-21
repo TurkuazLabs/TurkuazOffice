@@ -8,4 +8,5 @@
 export const ERROR_CODES = {
   unknown: "desktop.unknown_error",
   appRootMissing: "desktop.app_root_missing",
+  printUnavailable: "desktop.print_unavailable",
 } as const;
