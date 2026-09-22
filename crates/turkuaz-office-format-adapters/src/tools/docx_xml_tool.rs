@@ -150,9 +150,7 @@ impl DocxXmlTool {
                 Event::Text(text) => {
                     if in_text {
                         if let Some(current) = run.as_mut() {
-                            let value = text
-                                .xml_content(XmlVersion::Implicit1_0)
-                                .map_err(|_| DocxXmlError::InvalidXml)?;
+                            let value = text.xml_content(XmlVersion::Implicit1_0);
                             current.text.push_str(&value);
                         }
                     }
@@ -397,9 +395,8 @@ impl DocxXmlTool {
             if Self::local_name(name.as_ref()) != key {
                 continue;
             }
-            let raw = str::from_utf8(attribute.value.as_ref())
-                .map_err(|_| DocxXmlError::InvalidUtf8)?;
-            let value = unescape(raw).map_err(|_| DocxXmlError::InvalidAttribute)?;
+            let value = unescape(attribute.value.as_ref())
+                .map_err(|_| DocxXmlError::InvalidAttribute)?;
             return Ok(Some(value.into_owned()));
         }
         Ok(None)
