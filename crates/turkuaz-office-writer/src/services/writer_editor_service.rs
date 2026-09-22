@@ -14,7 +14,7 @@ use crate::repositories::writer_document_repository::WriterDocumentRepository;
 use crate::services::writer_command::{WriterCommand, WriterCommandError};
 use crate::services::writer_command_service::WriterCommandService;
 use crate::services::writer_document_factory_service::WriterDocumentFactoryService;
-use crate::services::writer_types::WriterDocument;
+use crate::services::writer_types::{Block, Paragraph, WriterDocument};
 use crate::tools::writer_id_tool::WriterIdTool;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -81,6 +81,26 @@ where
         document
     }
 
+    pub fn load_external_document(&mut self, mut document: WriterDocument) -> WriterDocument {
+        let mut asset_ids = HashMap::new();
+        for asset in &mut document.assets {
+            let old_id = asset.id.clone();
+            let new_id = self.id_tool.next_asset_id();
+            asset.id = new_id.clone();
+            asset_ids.insert(old_id, new_id);
+        }
+
+        document.id = self.id_tool.next_document_id();
+        for section in &mut document.sections {
+            section.id = self.id_tool.next_node_id();
+            for block in &mut section.blocks {
+                Self::rekey_block(&self.id_tool, &asset_ids, block);
+            }
+        }
+
+        self.load_document(document)
+    }
+
     pub fn execute(
         &mut self,
         id: &DocumentId,
@@ -133,6 +153,41 @@ where
         history.redo.clear();
         self.repository.save(document.clone());
         Ok(document)
+    }
+
+    fn rekey_block(
+        id_tool: &I,
+        asset_ids: &HashMap<String, String>,
+        block: &mut Block,
+    ) {
+        match block {
+            Block::Paragraph(paragraph) => Self::rekey_paragraph(id_tool, paragraph),
+            Block::Table(table) => {
+                table.id = id_tool.next_node_id();
+                for row in &mut table.rows {
+                    row.id = id_tool.next_node_id();
+                    for cell in &mut row.cells {
+                        cell.id = id_tool.next_node_id();
+                        for paragraph in &mut cell.paragraphs {
+                            Self::rekey_paragraph(id_tool, paragraph);
+                        }
+                    }
+                }
+            }
+            Block::Image(image) => {
+                image.id = id_tool.next_node_id();
+                if let Some(new_asset_id) = asset_ids.get(&image.asset_id) {
+                    image.asset_id.clone_from(new_asset_id);
+                }
+            }
+        }
+    }
+
+    fn rekey_paragraph(id_tool: &I, paragraph: &mut Paragraph) {
+        paragraph.id = id_tool.next_node_id();
+        for run in &mut paragraph.runs {
+            run.id = id_tool.next_node_id();
+        }
     }
 
     pub fn undo(&mut self, id: &DocumentId) -> Result<WriterDocument, WriterEditorError> {
