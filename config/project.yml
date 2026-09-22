@@ -168,3 +168,29 @@ writer_print:
     - paper_size
     - margin
     - scale
+
+
+writer_docx:
+  active: true
+  mode: import_export_adapter
+  native_session_format: false
+  package:
+    container: zip
+    compression_read:
+      - stored
+      - deflate
+    compression_write: deflate
+  supported:
+    - paragraph_text
+    - bold
+    - italic
+    - underline
+    - font_family
+    - font_size_half_points
+    - paragraph_alignment
+    - primary_page_size
+    - primary_page_margins
+    - tab
+    - line_break
+  compatibility_report_required: true
+  strict_export_on_unsupported_structure: true
