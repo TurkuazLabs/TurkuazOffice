@@ -7,6 +7,7 @@
 
 use std::path::PathBuf;
 
+use turkuaz_office_format_adapters::DocxCompatibilityReport;
 use turkuaz_office_writer::{
     CharacterStyle, CharacterStylePatch, InMemoryWriterDocumentRepository, NodeId,
     ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition,
@@ -17,6 +18,7 @@ use turkuaz_office_writer::{
 use crate::config::constants::{
     ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
 };
+use crate::services::writer_docx_service::WriterDocxService;
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
 };
@@ -52,6 +54,29 @@ impl WriterDesktopService {
     pub fn create_document(&mut self) -> WriterDocumentView {
         self.file_session_service.reset_untracked();
         self.controller.create("")
+    }
+
+    pub fn import_docx(
+        &mut self,
+        path: &str,
+    ) -> Result<(WriterDocumentView, DocxCompatibilityReport), DesktopErrorDto> {
+        let imported = WriterDocxService::import(path).map_err(DesktopErrorDto::from)?;
+        let compatibility = imported.compatibility;
+        let view = self.controller.load_external(imported.document);
+        self.file_session_service.reset_untracked();
+        Ok((view, compatibility))
+    }
+
+    pub fn export_docx(
+        &self,
+        document_id: &str,
+        path: &str,
+    ) -> Result<String, DesktopErrorDto> {
+        let document = self
+            .controller
+            .snapshot(document_id)
+            .ok_or_else(|| DesktopErrorDto::from(WriterEditorError::DocumentNotFound))?;
+        WriterDocxService::export(&document, path).map_err(DesktopErrorDto::from)
     }
 
     pub fn open_document(&mut self, path: &str) -> Result<WriterDocumentView, DesktopErrorDto> {

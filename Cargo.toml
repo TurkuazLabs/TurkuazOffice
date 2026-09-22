@@ -10,6 +10,7 @@ resolver = "3"
 members = [
     "crates/turkuaz-office-core",
     "crates/turkuaz-office-writer",
+    "crates/turkuaz-office-format-adapters",
     "apps/desktop/src-tauri",
 ]
 

@@ -454,6 +454,21 @@ select {
   gap: var(--to-space-2);
 }
 
+.writer-docx-banner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--to-space-2);
+  padding: var(--to-space-2) var(--to-space-4);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.writer-docx-banner strong {
+  color: var(--to-text-primary);
+}
+
 .writer-paragraph[aria-readonly="true"] {
   cursor: default;
   background: var(--to-bg-toolbar);

@@ -11,6 +11,7 @@ use tauri::State;
 
 use crate::config::constants::ERROR_STATE_LOCK;
 use crate::services::writer_desktop_service::WriterDesktopService;
+use crate::views::docx_dto::WriterDocxImportDto;
 use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
 use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, RecoverySnapshotDto};
@@ -30,6 +31,33 @@ pub fn writer_create_document(
         .lock()
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     Ok(service.create_document().into())
+}
+
+#[tauri::command]
+pub fn writer_import_docx(
+    state: State<'_, WriterDesktopState>,
+    path: String,
+) -> Result<WriterDocxImportDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    let (document, compatibility) = service.import_docx(&path)?;
+    Ok(WriterDocxImportDto {
+        document: document.into(),
+        compatibility: compatibility.into(),
+    })
+}
+
+#[tauri::command]
+pub fn writer_export_docx(
+    state: State<'_, WriterDesktopState>,
+    document_id: String,
+    path: String,
+) -> Result<String, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service.export_docx(&document_id, &path)
 }
 
 #[tauri::command]

@@ -45,6 +45,10 @@ where
         self.service.load_document(document).into()
     }
 
+    pub fn load_external(&mut self, document: WriterDocument) -> WriterDocumentView {
+        self.service.load_external_document(document).into()
+    }
+
     pub fn snapshot(&self, id: &str) -> Option<WriterDocument> {
         self.service.get_document(&DocumentId::new(id))
     }

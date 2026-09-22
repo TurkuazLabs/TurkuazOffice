@@ -32,3 +32,14 @@ Her format icin destek seviyesi dokumante edilir:
 ## Round-trip
 
 Fixture dosya ac -> modele map et -> tekrar export et -> structural comparison yap. Sadece dosyanin acilmasi uyumluluk kabul edilmez.
+
+
+## M1 DOCX minimum
+
+DOCX parser/writer bagimliliklari `turkuaz-office-format-adapters` crate'inde kalir. Writer domain ve UI WordprocessingML veya ZIP kutuphanesi bilmez.
+
+Minimum import/export profili paragraph/run text, B/I/U, font family/size, paragraph alignment ve primary page geometry ile sinirlidir.
+
+Importta canonical modelde temsil edilemeyen yapilar compatibility report ile typed olarak gorunur hale gelir. Exportta minimum profil disindaki canonical yapilar sessizce atilmaz; typed hata ile reddedilir.
+
+DOCX native calisma formati degildir. Desktop akisi Import DOCX / Export DOCX olarak ayrilir; native file session, lock ve recovery semantigi `.tko` uzerinde kalir.

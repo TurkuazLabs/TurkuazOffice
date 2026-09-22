@@ -16,6 +16,7 @@ import type {
   WriterCharacterStylePatchView,
   WriterCharacterStyleView,
   WriterDocumentView,
+  WriterDocxImportView,
   WriterFileOperationView,
   WriterFileSessionView,
   WriterReloadView,
@@ -30,6 +31,14 @@ export class TauriWriterTool {
 
   public openDocument(path: string): Promise<WriterFileOperationView> {
     return invoke<WriterFileOperationView>(IPC_COMMANDS.writerOpenDocument, { path });
+  }
+
+  public importDocx(path: string): Promise<WriterDocxImportView> {
+    return invoke<WriterDocxImportView>(IPC_COMMANDS.writerImportDocx, { path });
+  }
+
+  public exportDocx(documentId: string, path: string): Promise<string> {
+    return invoke<string>(IPC_COMMANDS.writerExportDocx, { documentId, path });
   }
 
   public listRecoverySnapshots(): Promise<readonly RecoverySnapshotView[]> {

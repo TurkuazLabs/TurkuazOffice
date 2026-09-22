@@ -21,6 +21,8 @@ pub const ERROR_FILE_WRITE_FAILED: &str = "writer.file_write_failed";
 pub const ERROR_TKO_INVALID: &str = "writer.tko_invalid";
 pub const ERROR_TKO_FUTURE_SCHEMA: &str = "writer.tko_future_schema";
 pub const ERROR_TKO_MIGRATION_REQUIRED: &str = "writer.tko_migration_required";
+pub const ERROR_DOCX_INVALID: &str = "writer.docx_invalid";
+pub const ERROR_DOCX_UNSUPPORTED: &str = "writer.docx_unsupported";
 
 pub const ERROR_FILE_LOCKED: &str = "writer.file_locked";
 pub const ERROR_EXTERNAL_CHANGE_CONFLICT: &str = "writer.external_change_conflict";

@@ -2,7 +2,7 @@
 // # 📌 Amac: Writer menu sekmeleri ve Giris ribbon command gruplarini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.2.0
-// Aciklama: New/Open/Save, gecmis, font, inline style ve paragraph alignment kontrollerini erisilebilir sunar
+// Aciklama: New/Open/Save, DOCX import/export, print, gecmis, font, inline style ve paragraph alignment kontrollerini erisilebilir sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language -> Config
 
 import { For } from "solid-js";
@@ -92,6 +92,20 @@ export function WriterRibbon(props: WriterRibbonProps) {
               onClick={() => void props.controller.saveDocumentAs()}
             >
               {props.language.text("saveAs")}
+            </button>
+            <button
+              type="button"
+              class="toolbar-button"
+              onClick={() => void props.controller.importDocx()}
+            >
+              {props.language.text("importDocx")}
+            </button>
+            <button
+              type="button"
+              class="toolbar-button"
+              onClick={() => void props.controller.exportDocx()}
+            >
+              {props.language.text("exportDocx")}
             </button>
             <button
               type="button"

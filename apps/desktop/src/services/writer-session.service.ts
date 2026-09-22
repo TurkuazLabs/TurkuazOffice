@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // # Version: 0.2.0
-// # Aciklama: DOM, Repo, dialog, print ve Tauri Tool uzerinden edit, clipboard mutation, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
+// # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -184,6 +184,30 @@ export class WriterSessionService {
     });
   }
 
+  public async importDocx(): Promise<void> {
+    await this.prepareFileOperation();
+    if (!(await this.confirmDiscardIfNeeded())) {
+      return;
+    }
+    const path = await this.fileDialogTool.openDocx(this.language.text("docxFileFilter"));
+    if (path === null) {
+      return;
+    }
+    await this.clearCurrentRecoveryForDiscard();
+    this.repository.setSelection(null);
+    this.repository.setTypingStyle(null);
+    await this.enqueue(async () => {
+      this.repository.setLoading();
+      try {
+        this.repository.setImportedDocx(await this.writerTool.importDocx(path));
+        this.refreshLayoutEnvironment();
+        this.repository.setFileSession(null);
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
   public async saveDocument(): Promise<void> {
     await this.prepareFileOperation();
     const document = this.requireDocument();
@@ -205,6 +229,20 @@ export class WriterSessionService {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  public async exportDocx(): Promise<void> {
+    await this.prepareFileOperation();
+    const document = this.requireDocument();
+    const path = await this.fileDialogTool.saveDocx(this.language.text("docxFileFilter"));
+    if (path === null) {
+      return;
+    }
+    try {
+      await this.writerTool.exportDocx(document.id, path);
+    } catch (error: unknown) {
+      this.repository.setError(this.errorCode(error));
+    }
   }
 
   public async openPrintPreview(): Promise<void> {

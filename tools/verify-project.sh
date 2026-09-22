@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard ve print contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print ve DOCX contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -121,6 +121,22 @@ required_files=(
   "docs/07-quality/print-preview-test-matrix.md"
   "docs/08-implementation/m1-print-preview-v0.2.0.md"
   "docs/08-implementation/m1-print-preview-validation.md"
+  "crates/turkuaz-office-format-adapters/Cargo.toml"
+  "crates/turkuaz-office-format-adapters/src/lib.rs"
+  "crates/turkuaz-office-format-adapters/src/config/constants.rs"
+  "crates/turkuaz-office-format-adapters/src/models/docx_model.rs"
+  "crates/turkuaz-office-format-adapters/src/services/docx_service.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/docx_archive_tool.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/docx_xml_tool.rs"
+  "crates/turkuaz-office-format-adapters/tests/docx_minimum_tests.rs"
+  "apps/desktop/src-tauri/src/services/writer_docx_service.rs"
+  "apps/desktop/src-tauri/src/views/docx_dto.rs"
+  "apps/desktop/src-tauri/tests/writer_docx_service_tests.rs"
+  "apps/desktop/src/config/docx.ts"
+  "apps/desktop/src/views/writer-docx-compatibility-banner.tsx"
+  "docs/07-quality/docx-minimum-test-matrix.md"
+  "docs/08-implementation/m1-docx-minimum-v0.2.0.md"
+  "docs/08-implementation/m1-docx-minimum-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -286,4 +302,24 @@ grep -q 'WriterPrintPreview' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
 grep -q '@media print' "$ROOT/apps/desktop/src/views/app.css"
 grep -q 'maps canonical twip page size to physical print inches' "$ROOT/apps/desktop/src/tools/print.tool.test.ts"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print verification BASARILI."
+
+
+grep -q '"crates/turkuaz-office-format-adapters"' "$ROOT/Cargo.toml"
+grep -q '    - format_adapters' "$ROOT/config/project.yml"
+grep -q 'writer_docx:' "$ROOT/config/project.yml"
+grep -q 'pub struct DocxService' "$ROOT/crates/turkuaz-office-format-adapters/src/services/docx_service.rs"
+grep -q 'CompressionMethod::Deflated' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/docx_archive_tool.rs"
+grep -q 'DocTypeUnsupported' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/docx_xml_tool.rs"
+grep -q 'DocxUnsupportedFeature::Hyperlink' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/docx_xml_tool.rs"
+grep -q 'docx_minimum_round_trip_preserves_text_typography_alignment_and_page_geometry' "$ROOT/crates/turkuaz-office-format-adapters/tests/docx_minimum_tests.rs"
+grep -q 'load_external_document' "$ROOT/crates/turkuaz-office-writer/src/services/writer_editor_service.rs"
+grep -q 'writer_import_docx' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writer_export_docx' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'docx_export_import_rekeys_document_and_keeps_native_session_untracked' "$ROOT/apps/desktop/src-tauri/tests/writer_docx_service_tests.rs"
+grep -q 'writerImportDocx' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'writerExportDocx' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'importDocx' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'exportDocx' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'WriterDocxCompatibilityBanner' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX verification BASARILI."

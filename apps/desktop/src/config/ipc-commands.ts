@@ -8,6 +8,8 @@
 export const IPC_COMMANDS = {
   writerCreateDocument: "writer_create_document",
   writerOpenDocument: "writer_open_document",
+  writerImportDocx: "writer_import_docx",
+  writerExportDocx: "writer_export_docx",
   writerSaveDocument: "writer_save_document",
   writerGetFileSession: "writer_get_file_session",
   writerAcknowledgeExternalChange: "writer_acknowledge_external_change",
