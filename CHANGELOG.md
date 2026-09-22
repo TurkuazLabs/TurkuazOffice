@@ -10,6 +10,15 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Ayrik `turkuaz-office-format-adapters` crate ve DOCX minimum profile eklendi.
+- DOCX import/export paragraph text, B/I/U, font family/size, alignment ve primary page geometry destekler.
+- DOCX ZIP Stored/Deflate okuma, traversal/size limitleri ve streaming XML depth/node/DOCTYPE bariyerleri eklendi.
+- Unsupported table/image/numbering/hyperlink/header-footer/comments/tracked-changes/fields import compatibility report ile gorunur hale getirildi.
+- Minimum profil disi canonical structure DOCX export sirasinda sessiz veri kaybi yerine typed hata ile reddedilir.
+- Desktop DOCX Iceri Aktar / DOCX Disari Aktar IPC, dialog ve compatibility banner akisi eklendi.
+- External import canonical document/node/asset kimliklerini Writer ID Tool ile yeniden uretir; DOCX native TKO file session sayilmaz.
+
+
 - Session-only Print Preview canonical WriterPage read-modeli ile eklendi.
 - PrintTool system print dialog adapteri canonical twip page size degerini physical @page rule'a aktarir.
 - Ctrl+P preview, preview icinde Ctrl+P print ve Escape close keyboard akisi eklendi.
