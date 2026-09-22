@@ -1,5 +1,5 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/writer-session.repository.ts
-// # 📌 Amac: Desktop Writer oturumunun read-model, recovery, file path, dirty baseline, selection, typing-style ve print preview durumunu bellekte tutar
+// # 📌 Amac: Desktop Writer oturumunun read-model, recovery, file path, dirty baseline, selection, typing-style, print ve DOCX compatibility durumunu bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
 // # Version: 0.2.0
 // # Aciklama: Canonical belgeyi degil backend snapshotini, kayit/recovery baseline'ini ve gecici UI editor/print state'ini saklar
@@ -14,6 +14,8 @@ import type {
   RecoveryRestoreView,
   RecoverySnapshotView,
   WriterCharacterStyleView,
+  DocxUnsupportedFeatureView,
+  WriterDocxImportView,
   WriterDocumentView,
   WriterFileOperationView,
   WriterFileSessionView,
@@ -42,6 +44,7 @@ export class WriterSessionRepository {
   private readonly fontResolutionsSignal = createSignal<readonly WriterResolvedFontView[]>([]);
   private readonly printPreviewLayoutSignal = createSignal<WriterPageLayoutView | null>(null);
   private readonly printErrorCodeSignal = createSignal<string | null>(null);
+  private readonly docxCompatibilityFeaturesSignal = createSignal<readonly DocxUnsupportedFeatureView[]>([]);
 
   public readonly document: Accessor<WriterDocumentView | null> = this.documentSignal[0];
   public readonly selection: Accessor<WriterSelectionView | null> = this.selectionSignal[0];
@@ -60,6 +63,7 @@ export class WriterSessionRepository {
   public readonly fontResolutions: Accessor<readonly WriterResolvedFontView[]> = this.fontResolutionsSignal[0];
   public readonly printPreviewLayout: Accessor<WriterPageLayoutView | null> = this.printPreviewLayoutSignal[0];
   public readonly printErrorCode: Accessor<string | null> = this.printErrorCodeSignal[0];
+  public readonly docxCompatibilityFeatures: Accessor<readonly DocxUnsupportedFeatureView[]> = this.docxCompatibilityFeaturesSignal[0];
   public readonly dirty: Accessor<boolean> = createMemo(() => {
     const document = this.document();
     const baseline = this.savedRevision();
@@ -78,6 +82,7 @@ export class WriterSessionRepository {
   }
 
   public setNewDocument(document: WriterDocumentView): void {
+    this.docxCompatibilityFeaturesSignal[1]([]);
     this.filePathSignal[1](null);
     this.fileSessionSignal[1](null);
     this.savedRevisionSignal[1](document.revision);
@@ -87,9 +92,20 @@ export class WriterSessionRepository {
   }
 
   public setOpenedDocument(result: WriterFileOperationView): void {
+    this.docxCompatibilityFeaturesSignal[1]([]);
     this.filePathSignal[1](result.path);
     this.savedRevisionSignal[1](result.document.revision);
     this.recoveryRevisionSignal[1](null);
+    this.setPrintPreviewLayout(null);
+    this.setDocument(result.document);
+  }
+
+  public setImportedDocx(result: WriterDocxImportView): void {
+    this.filePathSignal[1](null);
+    this.fileSessionSignal[1](null);
+    this.savedRevisionSignal[1](result.document.revision);
+    this.recoveryRevisionSignal[1](null);
+    this.docxCompatibilityFeaturesSignal[1](result.compatibility.unsupportedFeatures);
     this.setPrintPreviewLayout(null);
     this.setDocument(result.document);
   }
@@ -155,6 +171,7 @@ export class WriterSessionRepository {
   }
 
   public setRecoveredDocument(result: RecoveryRestoreView): void {
+    this.docxCompatibilityFeaturesSignal[1]([]);
     this.filePathSignal[1](result.snapshot.sourcePath);
     this.savedRevisionSignal[1](result.snapshot.persistedRevision);
     this.recoveryRevisionSignal[1](result.snapshot.recoveryRevision);
