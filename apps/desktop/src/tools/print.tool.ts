@@ -3,12 +3,12 @@
 // # 📌 Modul - FileType: Tool - TypeScript
 // # Version: 0.2.0
 // # Aciklama: Dinamik @page fiziksel boyut kuralini kurar ve WebView browser print capability'sini cagirir
-// Bagimli Oldugu Katman: Tool -> Config -> View
+// Bagimli Oldugu Katman: Tool -> Config
 
 import { ERROR_CODES } from "../config/error-codes";
 import { TWIPS_PER_INCH } from "../config/layout";
 import { WRITER_PRINT_STYLE_ELEMENT_ID } from "../config/print";
-import type { DesktopErrorView, WriterPageSettingsView } from "../views/writer-types";
+import type { WriterPageSettingsView } from "../views/writer-types";
 
 export class PrintTool {
   public print(pageSettings: WriterPageSettingsView): void {
@@ -39,7 +39,7 @@ export class PrintTool {
     return `@page { size: ${widthInches}in ${heightInches}in; margin: 0; }`;
   }
 
-  private unavailableError(): DesktopErrorView {
+  private unavailableError(): { readonly code: string } {
     return { code: ERROR_CODES.printUnavailable };
   }
 }
