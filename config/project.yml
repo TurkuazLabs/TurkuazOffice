@@ -26,10 +26,10 @@ modules:
     - document
     - schema_migration
     - writer
+    - format_adapters
   planned:
     - sheet
     - slides
-    - format_adapters
     - plugin
     - cloud
     - collaboration
