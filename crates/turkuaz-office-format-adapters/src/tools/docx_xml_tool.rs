@@ -155,6 +155,14 @@ impl DocxXmlTool {
                         }
                     }
                 }
+                Event::CData(text) => {
+                    if in_text {
+                        if let Some(current) = run.as_mut() {
+                            let value = text.xml_content(XmlVersion::Implicit1_0);
+                            current.text.push_str(&value);
+                        }
+                    }
+                }
                 Event::GeneralRef(reference) => {
                     if in_text {
                         if let Some(current) = run.as_mut() {
