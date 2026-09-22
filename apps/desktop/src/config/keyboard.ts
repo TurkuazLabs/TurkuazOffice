@@ -24,6 +24,8 @@ export const KEYBOARD_KEYS = {
   b: "b",
   i: "i",
   u: "u",
+  p: "p",
+  escape: "escape",
   plus: "+",
   equal: "=",
   minus: "-",

@@ -151,3 +151,20 @@ writer_layout:
   font_resolution_changes_document_family: false
   browser_dom_measurement_is_canonical: false
   primary_section_page_settings_in_view: true
+
+
+writer_print:
+  active: true
+  preview_source: canonical_writer_document
+  preview_zoom_percent: 100
+  canonical_page_unit: twip
+  platform_adapter: system_print_dialog
+  printer_discovery: delegated_to_system_dialog
+  system_dialog_controls:
+    - printer
+    - page_range
+    - copies
+    - orientation
+    - paper_size
+    - margin
+    - scale

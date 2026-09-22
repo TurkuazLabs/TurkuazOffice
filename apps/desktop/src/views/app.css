@@ -478,3 +478,112 @@ select {
   color: var(--to-text-secondary);
   font-size: 12px;
 }
+
+
+.writer-print-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  min-height: 0;
+  background: var(--to-bg-app);
+}
+
+.writer-print-preview__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--to-space-4);
+  padding: var(--to-space-3) var(--to-space-4);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+}
+
+.writer-print-preview__summary {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.writer-print-preview__summary span {
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.writer-print-preview__error {
+  color: var(--to-text-primary) !important;
+  font-weight: 600;
+}
+
+.writer-print-preview__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--to-space-2);
+  flex: 0 0 auto;
+}
+
+.writer-print-preview__surface {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.writer-print-preview .writer-workspace {
+  min-height: 100%;
+}
+
+.writer-print-preview .writer-paragraph[aria-readonly="true"] {
+  background: transparent;
+}
+
+@media print {
+  html,
+  body,
+  #app,
+  .office-shell {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .office-shell {
+    display: block;
+  }
+
+  .office-shell > :not(.writer-print-preview) {
+    display: none !important;
+  }
+
+  .writer-print-preview {
+    position: static;
+    display: block;
+    background: #ffffff;
+  }
+
+  .writer-print-preview__toolbar {
+    display: none !important;
+  }
+
+  .writer-print-preview__surface,
+  .writer-print-preview .writer-workspace {
+    min-height: 0;
+    overflow: visible;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .writer-print-preview .writer-page {
+    margin: 0;
+    outline: 0;
+    box-shadow: none;
+  }
+
+  .writer-print-preview .writer-paragraph {
+    color: #000000;
+  }
+}

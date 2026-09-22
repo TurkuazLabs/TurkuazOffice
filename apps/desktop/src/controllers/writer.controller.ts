@@ -2,7 +2,7 @@
 // # 📌 Amac: Writer View requestlerini alip yalnizca WriterSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
 // # Version: 0.2.0
-// # Aciklama: File, recovery, IME, clipboard, selection, typography, paragraph ve history requestleri icin ince Controller siniridir
+// # Aciklama: File, recovery, print, IME, clipboard, selection, typography, paragraph ve history requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
 import type { ClipboardService } from "../services/clipboard.service";
@@ -58,6 +58,18 @@ export class WriterController {
 
   public saveDocumentAs(): Promise<void> {
     return this.service.saveDocumentAs();
+  }
+
+  public openPrintPreview(): Promise<void> {
+    return this.service.openPrintPreview();
+  }
+
+  public closePrintPreview(): void {
+    this.service.closePrintPreview();
+  }
+
+  public printDocument(): Promise<void> {
+    return this.service.printDocument();
   }
 
   public pollExternalChange(): Promise<void> {

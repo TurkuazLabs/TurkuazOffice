@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/writer-session.repository.ts
-// # 📌 Amac: Desktop Writer oturumunun read-model, recovery, file path, dirty baseline, selection ve typing-style durumunu bellekte tutar
+// # 📌 Amac: Desktop Writer oturumunun read-model, recovery, file path, dirty baseline, selection, typing-style ve print preview durumunu bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
 // # Version: 0.2.0
-// # Aciklama: Canonical belgeyi degil backend snapshotini, kayit/recovery baseline'ini ve gecici UI editor state'ini saklar
+// # Aciklama: Canonical belgeyi degil backend snapshotini, kayit/recovery baseline'ini ve gecici UI editor/print state'ini saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createMemo, createSignal, type Accessor } from "solid-js";
@@ -40,6 +40,8 @@ export class WriterSessionRepository {
   private readonly zoomPercentSignal = createSignal<number>(WRITER_DEFAULT_ZOOM_PERCENT);
   private readonly pageLayoutSignal = createSignal<WriterPageLayoutView | null>(null);
   private readonly fontResolutionsSignal = createSignal<readonly WriterResolvedFontView[]>([]);
+  private readonly printPreviewLayoutSignal = createSignal<WriterPageLayoutView | null>(null);
+  private readonly printErrorCodeSignal = createSignal<string | null>(null);
 
   public readonly document: Accessor<WriterDocumentView | null> = this.documentSignal[0];
   public readonly selection: Accessor<WriterSelectionView | null> = this.selectionSignal[0];
@@ -56,6 +58,8 @@ export class WriterSessionRepository {
   public readonly zoomPercent: Accessor<number> = this.zoomPercentSignal[0];
   public readonly pageLayout: Accessor<WriterPageLayoutView | null> = this.pageLayoutSignal[0];
   public readonly fontResolutions: Accessor<readonly WriterResolvedFontView[]> = this.fontResolutionsSignal[0];
+  public readonly printPreviewLayout: Accessor<WriterPageLayoutView | null> = this.printPreviewLayoutSignal[0];
+  public readonly printErrorCode: Accessor<string | null> = this.printErrorCodeSignal[0];
   public readonly dirty: Accessor<boolean> = createMemo(() => {
     const document = this.document();
     const baseline = this.savedRevision();
@@ -78,6 +82,7 @@ export class WriterSessionRepository {
     this.fileSessionSignal[1](null);
     this.savedRevisionSignal[1](document.revision);
     this.recoveryRevisionSignal[1](null);
+    this.setPrintPreviewLayout(null);
     this.setDocument(document);
   }
 
@@ -85,6 +90,7 @@ export class WriterSessionRepository {
     this.filePathSignal[1](result.path);
     this.savedRevisionSignal[1](result.document.revision);
     this.recoveryRevisionSignal[1](null);
+    this.setPrintPreviewLayout(null);
     this.setDocument(result.document);
   }
 
@@ -111,6 +117,15 @@ export class WriterSessionRepository {
 
   public setFontResolutions(resolutions: readonly WriterResolvedFontView[]): void {
     this.fontResolutionsSignal[1](resolutions);
+  }
+
+  public setPrintPreviewLayout(layout: WriterPageLayoutView | null): void {
+    this.printPreviewLayoutSignal[1](layout);
+    this.printErrorCodeSignal[1](null);
+  }
+
+  public setPrintError(errorCode: string): void {
+    this.printErrorCodeSignal[1](errorCode);
   }
 
   public setSelection(selection: WriterSelectionView | null): void {
@@ -145,6 +160,7 @@ export class WriterSessionRepository {
     this.recoveryRevisionSignal[1](result.snapshot.recoveryRevision);
     this.recoveryCandidatesSignal[1]([]);
     this.recoveryComparisonSignal[1](null);
+    this.setPrintPreviewLayout(null);
     this.setDocument(result.document);
   }
 
