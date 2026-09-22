@@ -34,7 +34,7 @@ Durum: Foundation Hardening tamamlandi.
 
 ## M1 - Desktop Writer v0.2.0
 
-Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum ve DOCX Minimum implementation alt fazlari tamamlandi. Compiler-backed clipboard validation GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
+Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum ve DOCX Minimum implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M1 parcasi
 
