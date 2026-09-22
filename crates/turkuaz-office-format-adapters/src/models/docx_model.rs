@@ -46,6 +46,7 @@ pub enum DocxUnsupportedFeature {
     Table,
     Image,
     Numbering,
+    Hyperlink,
     HeaderFooter,
     Comments,
     TrackedChanges,
