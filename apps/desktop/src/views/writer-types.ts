@@ -61,6 +61,25 @@ export interface WriterPageSettingsView {
   readonly marginLeftTwips: number;
 }
 
+export type DocxUnsupportedFeatureView =
+  | "table"
+  | "image"
+  | "numbering"
+  | "hyperlink"
+  | "header_footer"
+  | "comments"
+  | "tracked_changes"
+  | "fields";
+
+export interface WriterDocxCompatibilityView {
+  readonly unsupportedFeatures: readonly DocxUnsupportedFeatureView[];
+}
+
+export interface WriterDocxImportView {
+  readonly document: WriterDocumentView;
+  readonly compatibility: WriterDocxCompatibilityView;
+}
+
 export interface WriterDocumentView {
   readonly id: string;
   readonly title: string;
