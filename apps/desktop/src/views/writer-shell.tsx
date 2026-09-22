@@ -15,6 +15,7 @@ import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { WriterPage } from "./writer-page";
 import { WriterPrintPreview } from "./writer-print-preview";
+import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banner";
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
@@ -178,6 +179,10 @@ export function WriterShell(props: WriterShellProps) {
         <WriterFileProtectionBanner
           controller={props.controller}
           repository={props.repository}
+          language={props.language}
+        />
+        <WriterDocxCompatibilityBanner
+          features={props.repository.docxCompatibilityFeatures()}
           language={props.language}
         />
       </div>
