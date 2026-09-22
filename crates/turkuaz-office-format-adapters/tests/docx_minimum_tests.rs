@@ -6,10 +6,13 @@
 // Bagimli Oldugu Katman: Service -> Tool -> Model
 
 use turkuaz_office_format_adapters::{
-    DocxArchiveTool, DocxService, DocxUnsupportedFeature, DocxXmlTool,
+    DocxArchiveTool, DocxError, DocxService, DocxUnsupportedFeature, DocxXmlError,
+    DocxXmlTool,
 };
 use turkuaz_office_writer::services::writer_document_factory_service::WriterDocumentFactoryService;
-use turkuaz_office_writer::{Block, SequentialWriterIdTool, TextAlignment};
+use turkuaz_office_writer::{
+    Block, SequentialWriterIdTool, TextAlignment, WriterAsset,
+};
 
 #[test]
 fn docx_minimum_round_trip_preserves_text_typography_alignment_and_page_geometry() {
@@ -103,4 +106,32 @@ fn docx_import_reports_table_and_hyperlink_structure_loss() {
             .contains(&DocxUnsupportedFeature::Hyperlink)
     );
     assert_eq!(imported.document.plain_text(), "Cell\nLink text");
+}
+
+
+#[test]
+fn docx_export_rejects_canonical_assets_in_minimum_profile() {
+    let ids = SequentialWriterIdTool::new();
+    let mut document = WriterDocumentFactoryService::create(&ids, "Unsupported Asset");
+    document.assets.push(WriterAsset {
+        id: "asset-docx-test".to_owned(),
+        media_type: "image/png".to_owned(),
+        bytes: vec![0x89, b'P', b'N', b'G'],
+    });
+
+    assert_eq!(DocxService::export(&document), Err(DocxError::UnsupportedAsset));
+}
+
+#[test]
+fn docx_xml_rejects_doctype() {
+    let xml = br#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE w:document [<!ENTITY x "unsafe">]>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body><w:p><w:r><w:t>&x;</w:t></w:r></w:p></w:body>
+</w:document>"#;
+
+    assert_eq!(
+        DocxXmlTool::parse_document(xml),
+        Err(DocxXmlError::DocTypeUnsupported)
+    );
 }
