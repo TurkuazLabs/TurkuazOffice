@@ -8,7 +8,7 @@
 use std::collections::BTreeSet;
 use std::str;
 
-use quick_xml::escape::{escape, unescape};
+use quick_xml::escape::{escape, resolve_predefined_entity, unescape};
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::reader::Reader;
 use quick_xml::XmlVersion;
@@ -152,6 +152,24 @@ impl DocxXmlTool {
                         if let Some(current) = run.as_mut() {
                             let value = text.xml_content(XmlVersion::Implicit1_0);
                             current.text.push_str(&value);
+                        }
+                    }
+                }
+                Event::GeneralRef(reference) => {
+                    if in_text {
+                        if let Some(current) = run.as_mut() {
+                            if let Some(character) = reference
+                                .resolve_char_ref()
+                                .map_err(|_| DocxXmlError::InvalidXml)?
+                            {
+                                current.text.push(character);
+                            } else if let Some(value) =
+                                resolve_predefined_entity(reference.as_ref())
+                            {
+                                current.text.push_str(value);
+                            } else {
+                                return Err(DocxXmlError::InvalidXml);
+                            }
                         }
                     }
                 }
