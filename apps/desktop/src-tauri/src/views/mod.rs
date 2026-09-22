@@ -5,6 +5,7 @@
 // # Aciklama: Writer document, recovery ve error DTO erisim noktasidir
 // Bagimli Oldugu Katman: View
 
+pub mod docx_dto;
 pub mod error_dto;
 pub mod file_session_dto;
 pub mod writer_dto;
