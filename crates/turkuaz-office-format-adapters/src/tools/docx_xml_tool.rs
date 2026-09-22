@@ -43,6 +43,7 @@ const TAG_DRAWING: &[u8] = b"drawing";
 const TAG_PICTURE: &[u8] = b"pict";
 const TAG_OBJECT: &[u8] = b"object";
 const TAG_NUMBERING: &[u8] = b"numPr";
+const TAG_HYPERLINK: &[u8] = b"hyperlink";
 const TAG_HEADER_REFERENCE: &[u8] = b"headerReference";
 const TAG_FOOTER_REFERENCE: &[u8] = b"footerReference";
 const TAG_COMMENT_REFERENCE: &[u8] = b"commentReference";
@@ -451,6 +452,7 @@ impl DocxXmlTool {
             TAG_TABLE => Some(DocxUnsupportedFeature::Table),
             TAG_DRAWING | TAG_PICTURE | TAG_OBJECT => Some(DocxUnsupportedFeature::Image),
             TAG_NUMBERING => Some(DocxUnsupportedFeature::Numbering),
+            TAG_HYPERLINK => Some(DocxUnsupportedFeature::Hyperlink),
             TAG_HEADER_REFERENCE | TAG_FOOTER_REFERENCE => {
                 Some(DocxUnsupportedFeature::HeaderFooter)
             }
