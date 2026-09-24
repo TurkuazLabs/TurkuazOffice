@@ -218,3 +218,14 @@ writer_pdf:
     - line_break
     - multi_page_text_flow
   strict_export_on_unsupported_structure: true
+
+
+desktop_recent_files:
+  active: true
+  native_extension: .tko
+  metadata_format: yaml
+  metadata_file: recent-files.yml
+  path_normalization: canonical
+  prune_missing: true
+  max_entries: 12
+  ribbon_quick_open_entries: 3
