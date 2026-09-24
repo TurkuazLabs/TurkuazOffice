@@ -27,6 +27,7 @@ pub struct WriterTemplateSummary {
     pub id: String,
     pub name_key: String,
     pub description_key: String,
+    pub quick_create: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,6 +47,8 @@ struct WriterTemplateConfig {
     id: String,
     name_key: String,
     description_key: String,
+    #[serde(default)]
+    quick_create: bool,
     paragraphs: Vec<WriterTemplateParagraphConfig>,
 }
 
@@ -93,6 +96,7 @@ impl WriterTemplateService {
                 id: template.id,
                 name_key: template.name_key,
                 description_key: template.description_key,
+                quick_create: template.quick_create,
             })
             .collect())
     }
