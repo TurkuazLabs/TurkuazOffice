@@ -13,6 +13,7 @@ import type {
   WriterSelectionView,
   WriterStyledRunInputView,
   WriterTextAlignmentView,
+  WriterTemplateView,
 } from "../views/writer-types";
 
 export class WriterController {
@@ -47,6 +48,14 @@ export class WriterController {
 
   public createDocument(): Promise<void> {
     return this.service.createDocument();
+  }
+
+  public templates(): readonly WriterTemplateView[] {
+    return this.service.templates();
+  }
+
+  public createDocumentFromTemplate(templateId: string): Promise<void> {
+    return this.service.createDocumentFromTemplate(templateId);
   }
 
   public openDocument(): Promise<void> {
