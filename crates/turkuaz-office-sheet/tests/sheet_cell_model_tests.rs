@@ -5,8 +5,9 @@
 // Aciklama: Grid sinirlari, text/number validation, revision no-op ve Controller/View akislarini cell-model kabul testi yapar
 // Bagimli Oldugu Katman: Controller -> Service -> Repo -> Tool -> View
 
+use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_sheet::config::constants::{
-    DEFAULT_SHEET_DOCUMENT_TITLE, MAX_CELL_TEXT_LENGTH, MAX_SHEET_COLUMNS, MAX_SHEET_ROWS,
+    DEFAULT_WORKSHEET_NAME, MAX_CELL_TEXT_LENGTH, MAX_SHEET_COLUMNS, MAX_SHEET_ROWS,
 };
 use turkuaz_office_sheet::{
     CellAddress, CellReferenceError, CellReferenceTool, CellValue, CellValueView,
@@ -26,10 +27,10 @@ fn new_sheet_document_is_sparse_with_one_default_worksheet() {
     let mut service = service();
     let document = service.create_document("   ");
 
-    assert_eq!(document.title, DEFAULT_SHEET_DOCUMENT_TITLE);
+    assert_eq!(document.title, DEFAULT_DOCUMENT_TITLE);
     assert_eq!(document.revision, 0);
     assert_eq!(document.worksheets.len(), 1);
-    assert_eq!(document.worksheets[0].name, "Sheet1");
+    assert_eq!(document.worksheets[0].name, DEFAULT_WORKSHEET_NAME);
     assert!(document.worksheets[0].cells.is_empty());
 }
 
