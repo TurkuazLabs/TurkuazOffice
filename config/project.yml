@@ -273,3 +273,15 @@ desktop_localization:
   preference_storage: local_storage
   view_direct_storage_access: false
   ui_locale_is_document_locale: false
+
+
+desktop_keyboard_smoke:
+  active: true
+  typed_shortcut_resolver: true
+  ctrl_meta_parity: true
+  ime_blocking: true
+  recovery_blocking: true
+  print_preview_isolation: true
+  aria_keyshortcuts: true
+  focus_visible_required: true
+  manual_smoke_required: true
