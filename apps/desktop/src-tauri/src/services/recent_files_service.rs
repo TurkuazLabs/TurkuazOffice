@@ -53,13 +53,9 @@ impl RecentFilesService {
 
     pub fn list(&self) -> Result<Vec<RecentFileEntry>, RecentFilesError> {
         let metadata = self.repository.load()?;
-        let normalized = Self::normalize(metadata.entries);
-        let changed = normalized.len() != metadata.entries.len()
-            || normalized
-                .iter()
-                .zip(metadata.entries.iter())
-                .any(|(left, right)| left != right);
-        if changed {
+        let original = metadata.entries;
+        let normalized = Self::normalize(original.clone());
+        if normalized != original {
             self.repository.save(&RecentFilesDiskDto {
                 entries: normalized.clone(),
             })?;
@@ -68,10 +64,12 @@ impl RecentFilesService {
     }
 
     pub fn record(&self, path_text: &str) -> Result<Vec<RecentFileEntry>, RecentFilesError> {
-        let path = Path::new(path_text);
-        if !LocalFileTool::file_exists(path) || !Self::is_tko(path) {
+        let path = LocalFileTool::canonicalize_file(Path::new(path_text))
+            .map_err(|_| RecentFilesError::InvalidPath)?;
+        if !Self::is_tko(&path) {
             return Err(RecentFilesError::InvalidPath);
         }
+        let canonical_path = path.to_string_lossy().into_owned();
         let title = path
             .file_stem()
             .and_then(|value| value.to_str())
@@ -80,11 +78,11 @@ impl RecentFilesService {
             .to_owned();
         let timestamp = Self::now_unix_ms()?;
         let mut entries = self.repository.load()?.entries;
-        entries.retain(|entry| !Self::same_path(&entry.path, path_text));
+        entries.retain(|entry| !Self::same_path(&entry.path, &canonical_path));
         entries.insert(
             0,
             RecentFileDiskDto {
-                path: path_text.to_owned(),
+                path: canonical_path,
                 title,
                 last_accessed_unix_ms: timestamp,
             },
@@ -96,14 +94,29 @@ impl RecentFilesService {
         Ok(entries.into_iter().map(Into::into).collect())
     }
 
-    fn normalize(mut entries: Vec<RecentFileDiskDto>) -> Vec<RecentFileDiskDto> {
-        entries.retain(|entry| {
-            let path = Path::new(&entry.path);
-            !entry.path.trim().is_empty()
-                && !entry.title.trim().is_empty()
-                && Self::is_tko(path)
-                && LocalFileTool::file_exists(path)
-        });
+    fn normalize(entries: Vec<RecentFileDiskDto>) -> Vec<RecentFileDiskDto> {
+        let mut entries = entries
+            .into_iter()
+            .filter_map(|entry| {
+                if entry.path.trim().is_empty() {
+                    return None;
+                }
+                let canonical = LocalFileTool::canonicalize_file(Path::new(&entry.path)).ok()?;
+                if !Self::is_tko(&canonical) {
+                    return None;
+                }
+                let title = canonical
+                    .file_stem()
+                    .and_then(|value| value.to_str())
+                    .filter(|value| !value.is_empty())?
+                    .to_owned();
+                Some(RecentFileDiskDto {
+                    path: canonical.to_string_lossy().into_owned(),
+                    title,
+                    last_accessed_unix_ms: entry.last_accessed_unix_ms,
+                })
+            })
+            .collect::<Vec<_>>();
         entries.sort_by(|left, right| {
             right
                 .last_accessed_unix_ms
