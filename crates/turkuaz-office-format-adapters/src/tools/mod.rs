@@ -7,3 +7,4 @@
 
 pub mod docx_archive_tool;
 pub mod docx_xml_tool;
+pub mod pdf_writer_tool;
