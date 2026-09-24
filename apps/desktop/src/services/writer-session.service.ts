@@ -330,9 +330,11 @@ export class WriterSessionService {
     await this.enqueue(async () => {
       this.repository.setLoading();
       try {
-        this.repository.setSavedDocument(await this.writerTool.saveDocument(document.id, path));
+        const result = await this.writerTool.saveDocument(document.id, path);
+        this.repository.setSavedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -386,9 +388,11 @@ export class WriterSessionService {
       this.repository.setLoading();
       try {
         this.repository.setFileSession(await this.writerTool.acknowledgeExternalChange(document.id));
-        this.repository.setSavedDocument(await this.writerTool.saveDocument(document.id, path));
+        const result = await this.writerTool.saveDocument(document.id, path);
+        this.repository.setSavedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
