@@ -26,6 +26,10 @@ import type {
 } from "../views/writer-types";
 
 export class TauriWriterTool {
+  public takeStartupFile(): Promise<string | null> {
+    return invoke<string | null>(IPC_COMMANDS.writerTakeStartupFile);
+  }
+
   public listRecentFiles(): Promise<readonly RecentFileView[]> {
     return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerListRecentFiles);
   }
