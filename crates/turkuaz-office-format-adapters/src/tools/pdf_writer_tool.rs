@@ -14,7 +14,7 @@ use printpdf::{
 
 use crate::config::pdf_constants::{
     MAX_PDF_OUTPUT_BYTES, MAX_PDF_PAGES, PDF_LINE_HEIGHT_MULTIPLIER,
-    PDF_PARAGRAPH_GAP_POINTS, PDF_UNDERLINE_OFFSET_MULTIPLIER,
+    PDF_PARAGRAPH_GAP_POINTS, PDF_TAB_SPACES, PDF_UNDERLINE_OFFSET_MULTIPLIER,
     PDF_UNDERLINE_THICKNESS_MULTIPLIER, TWIPS_PER_POINT,
 };
 use crate::models::pdf_model::{
@@ -177,41 +177,74 @@ impl PdfWriterTool {
                     lines.push(LayoutLine::default());
                     continue;
                 }
-                let width_pt = Self::character_width(&loaded.parsed, character, size_pt)?;
-                let current = lines.last_mut().expect("layout always has line");
-                if current.width_pt > 0.0 && current.width_pt + width_pt > max_width_pt {
-                    lines.push(LayoutLine::default());
-                }
-                let current = lines.last_mut().expect("layout always has line");
-                current.height_pt = current
-                    .height_pt
-                    .max(size_pt * PDF_LINE_HEIGHT_MULTIPLIER);
-                current.width_pt += width_pt;
-                if let Some(fragment) = current.fragments.last_mut() {
-                    if fragment.font == run.font
-                        && fragment.size_pt == size_pt
-                        && fragment.underline == run.underline
-                    {
-                        fragment.text.push(character);
-                        fragment.width_pt += width_pt;
-                        continue;
+                if character == '\t' {
+                    for _ in 0..PDF_TAB_SPACES {
+                        Self::append_character(
+                            &mut lines,
+                            run,
+                            loaded,
+                            ' ',
+                            size_pt,
+                            max_width_pt,
+                        )?;
                     }
+                    continue;
                 }
-                current.fragments.push(LineFragment {
-                    text: character.to_string(),
-                    font: run.font.clone(),
+                Self::append_character(
+                    &mut lines,
+                    run,
+                    loaded,
+                    character,
                     size_pt,
-                    underline: run.underline,
-                    width_pt,
-                });
+                    max_width_pt,
+                )?;
             }
         }
+
         for line in &mut lines {
             if line.height_pt <= 0.0 {
                 line.height_pt = 12.0 * PDF_LINE_HEIGHT_MULTIPLIER;
             }
         }
         Ok(lines)
+    }
+
+    fn append_character(
+        lines: &mut Vec<LayoutLine>,
+        run: &PdfRunModel,
+        loaded: &LoadedFont,
+        character: char,
+        size_pt: f32,
+        max_width_pt: f32,
+    ) -> Result<(), PdfWriterError> {
+        let width_pt = Self::character_width(&loaded.parsed, character, size_pt)?;
+        let current = lines.last_mut().expect("layout always has line");
+        if current.width_pt > 0.0 && current.width_pt + width_pt > max_width_pt {
+            lines.push(LayoutLine::default());
+        }
+        let current = lines.last_mut().expect("layout always has line");
+        current.height_pt = current
+            .height_pt
+            .max(size_pt * PDF_LINE_HEIGHT_MULTIPLIER);
+        current.width_pt += width_pt;
+        if let Some(fragment) = current.fragments.last_mut() {
+            if fragment.font == run.font
+                && fragment.size_pt == size_pt
+                && fragment.underline == run.underline
+            {
+                fragment.text.push(character);
+                fragment.width_pt += width_pt;
+                return Ok(());
+            }
+        }
+        current.fragments.push(LineFragment {
+            text: character.to_string(),
+            font: run.font.clone(),
+            size_pt,
+            underline: run.underline,
+            width_pt,
+        });
+        Ok(())
     }
 
     fn render_line(
