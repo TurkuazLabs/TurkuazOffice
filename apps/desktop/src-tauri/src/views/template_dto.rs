@@ -14,6 +14,7 @@ pub struct WriterTemplateDto {
     pub id: String,
     pub name_key: String,
     pub description_key: String,
+    pub quick_create: bool,
 }
 
 impl From<WriterTemplateSummary> for WriterTemplateDto {
@@ -22,6 +23,7 @@ impl From<WriterTemplateSummary> for WriterTemplateDto {
             id: value.id,
             name_key: value.name_key,
             description_key: value.description_key,
+            quick_create: value.quick_create,
         }
     }
 }
