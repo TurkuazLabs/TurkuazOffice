@@ -9,3 +9,5 @@ export const TKO_FILE_EXTENSION = "tko";
 export const TKO_FILE_EXTENSIONS: readonly string[] = [TKO_FILE_EXTENSION];
 export const DOCX_FILE_EXTENSION = "docx";
 export const DOCX_FILE_EXTENSIONS: readonly string[] = [DOCX_FILE_EXTENSION];
+export const PDF_FILE_EXTENSION = "pdf";
+export const PDF_FILE_EXTENSIONS: readonly string[] = [PDF_FILE_EXTENSION];
