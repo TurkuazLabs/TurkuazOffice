@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files ve File Associations contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations ve Template Foundation contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -167,6 +167,15 @@ required_files=(
   "docs/07-quality/file-associations-test-matrix.md"
   "docs/08-implementation/m1-file-associations-v0.2.0.md"
   "docs/08-implementation/m1-file-associations-validation.md"
+  "crates/turkuaz-office-writer/templates/builtin.yml"
+  "crates/turkuaz-office-writer/src/tools/writer_template_catalog_tool.rs"
+  "crates/turkuaz-office-writer/src/services/writer_template_service.rs"
+  "crates/turkuaz-office-writer/tests/writer_template_tests.rs"
+  "apps/desktop/src-tauri/src/views/template_dto.rs"
+  "apps/desktop/src-tauri/tests/writer_template_desktop_tests.rs"
+  "docs/07-quality/template-foundation-test-matrix.md"
+  "docs/08-implementation/m1-template-foundation-v0.2.0.md"
+  "docs/08-implementation/m1-template-foundation-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -406,4 +415,24 @@ grep -q 'openNativePath(startupPath)' "$ROOT/apps/desktop/src/services/writer-se
 grep -q 'startup_file_service_selects_first_existing_tko_once' "$ROOT/apps/desktop/src-tauri/tests/startup_file_service_tests.rs"
 grep -q 'writer_desktop_exposes_startup_file_as_one_shot_state' "$ROOT/apps/desktop/src-tauri/tests/startup_file_service_tests.rs"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations verification BASARILI."
+
+
+grep -q 'writer_templates:' "$ROOT/config/project.yml"
+grep -q 'source: built_in_yaml' "$ROOT/config/project.yml"
+grep -q 'catalog_version: 1' "$ROOT/crates/turkuaz-office-writer/templates/builtin.yml"
+grep -q 'quick_create: true' "$ROOT/crates/turkuaz-office-writer/templates/builtin.yml"
+grep -q 'pub struct WriterTemplateCatalogTool' "$ROOT/crates/turkuaz-office-writer/src/tools/writer_template_catalog_tool.rs"
+grep -q 'pub struct WriterTemplateService' "$ROOT/crates/turkuaz-office-writer/src/services/writer_template_service.rs"
+grep -q 'create_document_from_template' "$ROOT/crates/turkuaz-office-writer/src/services/writer_editor_service.rs"
+grep -q 'built_in_template_catalog_is_stable_and_ordered' "$ROOT/crates/turkuaz-office-writer/tests/writer_template_tests.rs"
+grep -q 'report_template_creates_canonical_styled_paragraphs' "$ROOT/crates/turkuaz-office-writer/tests/writer_template_tests.rs"
+grep -q 'writer_list_templates' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writer_create_document_from_template' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writerListTemplates' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'writerCreateDocumentFromTemplate' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'refreshTemplates' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'createDocumentFromTemplate' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
+grep -q 'item.quickCreate' "$ROOT/apps/desktop/src/views/writer-ribbon.tsx"
+grep -q 'desktop_template_catalog_and_create_keep_native_session_untracked' "$ROOT/apps/desktop/src-tauri/tests/writer_template_desktop_tests.rs"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations + Template Foundation verification BASARILI."
