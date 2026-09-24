@@ -10,6 +10,15 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- PDF Export Minimum format adapteri eklendi.
+- PDF paragraph text, B/I/U, font family/size, alignment, page geometry, tab ve line break export baseline'i eklendi.
+- Multi-page text flow ve font metric tabanli character wrapping eklendi.
+- Desktop SystemFontTool fontdb ile requested family/style ve merkezi fallback zincirini cozer.
+- External font byte + face index printpdf ile PDF'e embed edilir ve subset save kullanilir.
+- Table/image/assets/multiple-section PDF export sessiz veri kaybi yerine typed hata ile reddedilir.
+- Desktop PDF Disari Aktar dialog, IPC ve Service akisi eklendi; TKO file session degismez.
+
+
 - Ayrik `turkuaz-office-format-adapters` crate ve DOCX minimum profile eklendi.
 - DOCX import/export paragraph text, B/I/U, font family/size, alignment ve primary page geometry destekler.
 - DOCX ZIP Stored/Deflate okuma, traversal/size limitleri ve streaming XML depth/node/DOCTYPE bariyerleri eklendi.
