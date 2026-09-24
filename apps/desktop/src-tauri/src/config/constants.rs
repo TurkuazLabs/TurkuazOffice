@@ -62,6 +62,6 @@ pub const SAFE_SAVE_TEMP_SUFFIX: &str = "turkuaz-save.tmp";
 pub const SAFE_SAVE_BACKUP_SUFFIX: &str = "turkuaz-save.bak";
 
 pub const CURRENT_DIRECTORY_PATH: &str = ".";
-pub const WINDOWS_VERBATIM_PATH_PREFIX: &str = r"\\?\\";
-pub const WINDOWS_VERBATIM_UNC_PATH_PREFIX: &str = r"\\?\\UNC\\";
+pub const WINDOWS_VERBATIM_PATH_PREFIX: &str = r"\\?\";
+pub const WINDOWS_VERBATIM_UNC_PATH_PREFIX: &str = r"\\?\UNC\";
 pub const WINDOWS_UNC_PATH_PREFIX: &str = r"\\";
