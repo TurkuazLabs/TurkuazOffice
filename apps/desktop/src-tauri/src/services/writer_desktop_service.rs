@@ -12,7 +12,7 @@ use turkuaz_office_writer::{
     CharacterStyle, CharacterStylePatch, InMemoryWriterDocumentRepository, NodeId,
     ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition,
     TextRange, WriterAsset, WriterCommand, WriterController, WriterDocumentView,
-    WriterEditorError,
+    WriterEditorError, WriterTemplateSummary,
 };
 
 use crate::config::constants::{
@@ -123,6 +123,22 @@ impl WriterDesktopService {
     pub fn create_document(&mut self) -> WriterDocumentView {
         self.file_session_service.reset_untracked();
         self.controller.create("")
+    }
+
+    pub fn list_templates(&self) -> Result<Vec<WriterTemplateSummary>, DesktopErrorDto> {
+        self.controller
+            .templates()
+            .map_err(|error| DesktopErrorDto::from(WriterEditorError::Template(error)))
+    }
+
+    pub fn create_document_from_template(
+        &mut self,
+        template_id: &str,
+    ) -> Result<WriterDocumentView, DesktopErrorDto> {
+        self.file_session_service.reset_untracked();
+        self.controller
+            .create_from_template(template_id)
+            .map_err(DesktopErrorDto::from)
     }
 
     pub fn import_docx(
