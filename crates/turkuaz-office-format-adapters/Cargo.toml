@@ -17,7 +17,7 @@ repository.workspace = true
 turkuaz-office-core = { path = "../turkuaz-office-core" }
 turkuaz-office-writer = { path = "../turkuaz-office-writer" }
 quick-xml = "=0.42.0"
-printpdf = { version = "=0.12.8", default-features = false }
+printpdf = { version = "=0.12.8", default-features = false, features = ["text_layout"] }
 zip = { version = "=6.0.0", default-features = false, features = ["deflate"] }
 
 [lib]
