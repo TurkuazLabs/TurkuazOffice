@@ -10,6 +10,7 @@ export const IPC_COMMANDS = {
   writerOpenDocument: "writer_open_document",
   writerImportDocx: "writer_import_docx",
   writerExportDocx: "writer_export_docx",
+  writerExportPdf: "writer_export_pdf",
   writerSaveDocument: "writer_save_document",
   writerGetFileSession: "writer_get_file_session",
   writerAcknowledgeExternalChange: "writer_acknowledge_external_change",
