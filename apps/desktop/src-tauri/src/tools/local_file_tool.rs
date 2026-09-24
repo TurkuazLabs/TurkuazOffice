@@ -41,10 +41,6 @@ impl LocalFileTool {
         path.is_file()
     }
 
-    pub fn canonical_path(path: &Path) -> Result<PathBuf, LocalFileError> {
-        fs::canonicalize(path).map_err(|_| LocalFileError::InvalidPath)
-    }
-
     pub fn canonicalize_file(path: &Path) -> Result<PathBuf, LocalFileError> {
         if !path.is_file() {
             return Err(LocalFileError::InvalidPath);
