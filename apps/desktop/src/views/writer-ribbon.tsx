@@ -126,6 +126,30 @@ export function WriterRibbon(props: WriterRibbonProps) {
           <span class="ribbon-group__label">{props.language.text("documentGroup")}</span>
         </div>
 
+        <Show when={props.controller.templates().some((item) => item.quickCreate)}>
+          <>
+            <div class="writer-ribbon__separator" aria-hidden="true" />
+
+            <div class="ribbon-group">
+              <div class="ribbon-group__commands">
+                <For each={props.controller.templates().filter((item) => item.quickCreate)}>
+                  {(item) => (
+                    <button
+                      type="button"
+                      class="toolbar-button"
+                      title={props.language.text(item.descriptionKey as DesktopLabelKey)}
+                      onClick={() => void props.controller.createDocumentFromTemplate(item.id)}
+                    >
+                      {props.language.text(item.nameKey as DesktopLabelKey)}
+                    </button>
+                  )}
+                </For>
+              </div>
+              <span class="ribbon-group__label">{props.language.text("templateGroup")}</span>
+            </div>
+          </>
+        </Show>
+
         <Show when={props.controller.recentFiles().length > 0}>
           <>
             <div class="writer-ribbon__separator" aria-hidden="true" />
