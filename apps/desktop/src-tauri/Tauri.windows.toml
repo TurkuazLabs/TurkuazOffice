@@ -1,0 +1,9 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/Tauri.windows.toml
+# 📌 Amac: Windows Desktop release bundle hedefini NSIS installer ile sinirlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.2.0
+# Aciklama: File association destekleyen Windows installer hedefini platform config seviyesinde sabitler
+# Bagimli Oldugu Katman: Config
+
+[bundle]
+targets = ["nsis"]
