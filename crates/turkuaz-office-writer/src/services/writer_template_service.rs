@@ -10,7 +10,8 @@ use std::collections::HashSet;
 use serde::Deserialize;
 
 use crate::config::constants::{
-    MAX_TEMPLATE_ID_LENGTH, MAX_TEMPLATE_LANGUAGE_KEY_LENGTH, MAX_TEMPLATE_PARAGRAPHS,
+    MAX_FONT_FAMILY_LENGTH, MAX_FONT_SIZE_HALF_POINTS, MAX_TEMPLATE_ID_LENGTH,
+    MAX_TEMPLATE_LANGUAGE_KEY_LENGTH, MAX_TEMPLATE_PARAGRAPHS, MIN_FONT_SIZE_HALF_POINTS,
     TEMPLATE_CATALOG_VERSION,
 };
 use crate::services::writer_document_factory_service::WriterDocumentFactoryService;
@@ -177,6 +178,22 @@ impl WriterTemplateService {
                 || !ids.insert(template.id.as_str())
             {
                 return Err(WriterTemplateError::CatalogInvalid);
+            }
+
+            for paragraph in &template.paragraphs {
+                if paragraph
+                    .font_family
+                    .as_deref()
+                    .is_some_and(|family| family.trim().is_empty() || family.len() > MAX_FONT_FAMILY_LENGTH)
+                    || paragraph
+                        .font_size_half_points
+                        .is_some_and(|size| {
+                            !(MIN_FONT_SIZE_HALF_POINTS..=MAX_FONT_SIZE_HALF_POINTS)
+                                .contains(&size)
+                        })
+                {
+                    return Err(WriterTemplateError::CatalogInvalid);
+                }
             }
         }
         Ok(())
