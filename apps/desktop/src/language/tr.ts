@@ -114,4 +114,7 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   zoomOut: "Uzaklastir",
   zoomReset: "Yuzde 100",
   fontSubstituted: "Yazi tipi fallback ile gosteriliyor",
+  language: "Dil",
+  languageTurkish: "Turkce",
+  languageEnglish: "Ingilizce",
 };
