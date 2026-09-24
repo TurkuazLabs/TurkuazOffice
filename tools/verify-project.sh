@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print ve DOCX contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX ve PDF contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -137,6 +137,17 @@ required_files=(
   "docs/07-quality/docx-minimum-test-matrix.md"
   "docs/08-implementation/m1-docx-minimum-v0.2.0.md"
   "docs/08-implementation/m1-docx-minimum-validation.md"
+  "crates/turkuaz-office-format-adapters/src/config/pdf_constants.rs"
+  "crates/turkuaz-office-format-adapters/src/models/pdf_model.rs"
+  "crates/turkuaz-office-format-adapters/src/services/pdf_service.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/pdf_writer_tool.rs"
+  "crates/turkuaz-office-format-adapters/tests/pdf_minimum_tests.rs"
+  "apps/desktop/src-tauri/src/services/writer_pdf_service.rs"
+  "apps/desktop/src-tauri/src/tools/system_font_tool.rs"
+  "apps/desktop/src-tauri/tests/writer_pdf_service_tests.rs"
+  "docs/07-quality/pdf-export-test-matrix.md"
+  "docs/08-implementation/m1-pdf-export-v0.2.0.md"
+  "docs/08-implementation/m1-pdf-export-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -322,4 +333,20 @@ grep -q 'importDocx' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
 grep -q 'exportDocx' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
 grep -q 'WriterDocxCompatibilityBanner' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX verification BASARILI."
+
+
+grep -q 'writer_pdf:' "$ROOT/config/project.yml"
+grep -q 'printpdf = ' "$ROOT/crates/turkuaz-office-format-adapters/Cargo.toml"
+grep -q 'pub struct PdfService' "$ROOT/crates/turkuaz-office-format-adapters/src/services/pdf_service.rs"
+grep -q 'pub struct PdfWriterTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/pdf_writer_tool.rs"
+grep -q 'subset_fonts: true' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/pdf_writer_tool.rs"
+grep -q 'PDF_TAB_SPACES' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/pdf_writer_tool.rs"
+grep -q 'pdf_font_requests_preserve_family_bold_and_italic_variants' "$ROOT/crates/turkuaz-office-format-adapters/tests/pdf_minimum_tests.rs"
+grep -q 'pub struct SystemFontTool' "$ROOT/apps/desktop/src-tauri/src/tools/system_font_tool.rs"
+grep -q 'load_system_fonts' "$ROOT/apps/desktop/src-tauri/src/tools/system_font_tool.rs"
+grep -q 'writer_export_pdf' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writerExportPdf' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'exportPdf' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'pdf_export_writes_pdf_signature_and_keeps_native_session_untracked' "$ROOT/apps/desktop/src-tauri/tests/writer_pdf_service_tests.rs"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF verification BASARILI."
