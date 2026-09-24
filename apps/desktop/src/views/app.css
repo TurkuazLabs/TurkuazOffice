@@ -318,6 +318,25 @@ select {
 }
 
 
+.writer-statusbar__language {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--to-space-2);
+}
+
+.writer-statusbar__language select {
+  height: 24px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+}
+
+.writer-statusbar__language select:focus-visible {
+  border-color: var(--to-border-focus);
+  outline: none;
+}
+
 .writer-statusbar__zoom {
   display: inline-flex;
   align-items: center;
