@@ -37,6 +37,13 @@ impl LocalFileTool {
         path.is_file()
     }
 
+    pub fn canonicalize_file(path: &Path) -> Result<PathBuf, LocalFileError> {
+        if !path.is_file() {
+            return Err(LocalFileError::InvalidPath);
+        }
+        fs::canonicalize(path).map_err(|_| LocalFileError::InvalidPath)
+    }
+
     pub fn list_files_with_extension(
         directory: &Path,
         extension: &str,
