@@ -194,3 +194,27 @@ writer_docx:
     - line_break
   compatibility_report_required: true
   strict_export_on_unsupported_structure: true
+
+
+writer_pdf:
+  active: true
+  mode: export_adapter
+  canonical_page_unit: twip
+  font_source: desktop_system_font_tool
+  font_embedding: true
+  font_subsetting: true
+  pagination: adapter_local_m1_baseline
+  supported:
+    - paragraph_text
+    - bold
+    - italic
+    - underline
+    - font_family
+    - font_size_half_points
+    - paragraph_alignment
+    - primary_page_size
+    - primary_page_margins
+    - tab
+    - line_break
+    - multi_page_text_flow
+  strict_export_on_unsupported_structure: true
