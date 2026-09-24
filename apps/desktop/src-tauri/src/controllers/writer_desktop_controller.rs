@@ -25,6 +25,16 @@ use turkuaz_office_writer::CharacterStylePatch;
 pub type WriterDesktopState = Mutex<WriterDesktopService>;
 
 #[tauri::command]
+pub fn writer_take_startup_file(
+    state: State<'_, WriterDesktopState>,
+) -> Result<Option<String>, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    Ok(service.take_startup_file())
+}
+
+#[tauri::command]
 pub fn writer_list_recent_files(
     state: State<'_, WriterDesktopState>,
 ) -> Result<Vec<RecentFileDto>, DesktopErrorDto> {
