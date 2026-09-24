@@ -11,7 +11,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use turkuaz_office_desktop_lib::config::constants::RECENT_FILES_MAX_ENTRIES;
 use turkuaz_office_desktop_lib::repositories::recent_files_repository::RecentFilesRepository;
-use turkuaz_office_desktop_lib::services::recent_files_service::{RecentFilesError, RecentFilesService};
+use turkuaz_office_desktop_lib::services::recent_files_service::{
+    RecentFilesError, RecentFilesService,
+};
 
 fn unique_root() -> PathBuf {
     let token = SystemTime::now()
