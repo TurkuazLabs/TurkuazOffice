@@ -36,3 +36,8 @@ pub const TKO_ASSET_DATA_PREFIX: &str = "assets/data/";
 pub const IMAGE_MEDIA_TYPE_PNG: &str = "image/png";
 pub const IMAGE_MEDIA_TYPE_JPEG: &str = "image/jpeg";
 pub const IMAGE_MEDIA_TYPE_WEBP: &str = "image/webp";
+
+pub const TEMPLATE_CATALOG_VERSION: u32 = 1;
+pub const MAX_TEMPLATE_ID_LENGTH: usize = 64;
+pub const MAX_TEMPLATE_LANGUAGE_KEY_LENGTH: usize = 128;
+pub const MAX_TEMPLATE_PARAGRAPHS: usize = 32;
