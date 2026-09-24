@@ -22,6 +22,7 @@ use services::writer_desktop_service::WriterDesktopService;
 
 pub mod config;
 pub mod controllers;
+pub mod repositories;
 pub mod services;
 pub mod tools;
 pub mod views;
