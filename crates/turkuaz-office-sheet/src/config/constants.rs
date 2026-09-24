@@ -8,7 +8,6 @@
 pub const SHEET_DOCUMENT_ID_PREFIX: &str = "sheet-document";
 pub const WORKSHEET_ID_PREFIX: &str = "worksheet";
 
-pub const DEFAULT_SHEET_DOCUMENT_TITLE: &str = "Untitled Sheet";
 pub const DEFAULT_WORKSHEET_NAME: &str = "Sheet1";
 
 pub const MAX_SHEET_ROWS: u32 = 1_048_576;
