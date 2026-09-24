@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations ve Template Foundation contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations, Template Foundation ve Turkish English UI contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -176,6 +176,16 @@ required_files=(
   "docs/07-quality/template-foundation-test-matrix.md"
   "docs/08-implementation/m1-template-foundation-v0.2.0.md"
   "docs/08-implementation/m1-template-foundation-validation.md"
+  "apps/desktop/src/config/localization.ts"
+  "apps/desktop/src/language/en.ts"
+  "apps/desktop/src/language/language-packs.ts"
+  "apps/desktop/src/tools/language-preference.tool.ts"
+  "apps/desktop/src/services/language-preference.service.ts"
+  "apps/desktop/src/language/language-service.test.ts"
+  "apps/desktop/src/services/language-preference.service.test.ts"
+  "docs/07-quality/turkish-english-ui-test-matrix.md"
+  "docs/08-implementation/m1-turkish-english-ui-v0.2.0.md"
+  "docs/08-implementation/m1-turkish-english-ui-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -435,4 +445,22 @@ grep -q 'createDocumentFromTemplate' "$ROOT/apps/desktop/src/controllers/writer.
 grep -q 'item.quickCreate' "$ROOT/apps/desktop/src/views/writer-ribbon.tsx"
 grep -q 'desktop_template_catalog_and_create_keep_native_session_untracked' "$ROOT/apps/desktop/src-tauri/tests/writer_template_desktop_tests.rs"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations + Template Foundation verification BASARILI."
+
+
+grep -q 'desktop_localization:' "$ROOT/config/project.yml"
+grep -q 'default_locale: tr-TR' "$ROOT/config/project.yml"
+grep -q 'en-US' "$ROOT/config/project.yml"
+grep -q 'DESKTOP_LOCALES = \["tr-TR", "en-US"\]' "$ROOT/apps/desktop/src/config/localization.ts"
+grep -q 'export const EN_LABELS' "$ROOT/apps/desktop/src/language/en.ts"
+grep -q 'export const TR_LABELS' "$ROOT/apps/desktop/src/language/tr.ts"
+grep -q 'DESKTOP_LANGUAGE_PACKS' "$ROOT/apps/desktop/src/language/language-packs.ts"
+grep -q 'createSignal' "$ROOT/apps/desktop/src/language/language-service.ts"
+grep -q 'pub' "$ROOT/apps/desktop/src/language/language-service.ts" || true
+grep -q 'class LanguagePreferenceTool' "$ROOT/apps/desktop/src/tools/language-preference.tool.ts"
+grep -q 'class LanguagePreferenceService' "$ROOT/apps/desktop/src/services/language-preference.service.ts"
+grep -q 'setLocale(locale: string)' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
+grep -q 'writer-statusbar__language' "$ROOT/apps/desktop/src/views/writer-statusbar.tsx"
+grep -q 'switches between Turkish and English packs at runtime' "$ROOT/apps/desktop/src/language/language-service.test.ts"
+grep -q 'loads persisted English locale and saves later changes' "$ROOT/apps/desktop/src/services/language-preference.service.test.ts"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI verification BASARILI."
