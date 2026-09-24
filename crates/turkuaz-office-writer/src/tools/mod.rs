@@ -8,3 +8,4 @@
 pub mod tko_archive_tool;
 pub mod tko_yaml_tool;
 pub mod writer_id_tool;
+pub mod writer_template_catalog_tool;

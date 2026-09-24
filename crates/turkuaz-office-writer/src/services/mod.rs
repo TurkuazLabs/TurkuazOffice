@@ -15,3 +15,4 @@ pub mod writer_document_factory_service;
 pub mod writer_editor_service;
 pub mod writer_selection_service;
 pub mod writer_types;
+pub mod writer_template_service;

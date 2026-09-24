@@ -1,0 +1,42 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-writer/templates/builtin.yml
+# 📌 Amac: M1 Writer built-in offline template katalog ve canonical paragraph stil iskeletlerini tanimlar
+# 📌 Modul - FileType: Config - YAML
+# Version: 0.2.0
+# Aciklama: Bos belge, mektup ve rapor template metadata/stil profillerini koddan ayri merkezi kaynakta tutar
+# Bagimli Oldugu Katman: Config
+
+catalog_version: 1
+templates:
+  - id: blank
+    name_key: templateBlank
+    description_key: templateBlankDescription
+    quick_create: false
+    paragraphs:
+      - alignment: left
+
+  - id: letter
+    name_key: templateLetter
+    description_key: templateLetterDescription
+    quick_create: true
+    paragraphs:
+      - alignment: right
+        space_after_twips: 240
+      - alignment: left
+        space_after_twips: 240
+      - alignment: justify
+        space_after_twips: 480
+      - alignment: right
+
+  - id: report
+    name_key: templateReport
+    description_key: templateReportDescription
+    quick_create: true
+    paragraphs:
+      - alignment: center
+        bold: true
+        font_size_half_points: 36
+        space_after_twips: 240
+      - alignment: center
+        italic: true
+        space_after_twips: 480
+      - alignment: left

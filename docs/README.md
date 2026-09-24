@@ -92,6 +92,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/pdf-export-test-matrix.md`
 - `07-quality/recent-files-test-matrix.md`
 - `07-quality/file-associations-test-matrix.md`
+- `07-quality/template-foundation-test-matrix.md`
 
 ## 08 Implementation
 
@@ -122,6 +123,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m1-recent-files-validation.md`
 - `08-implementation/m1-file-associations-v0.2.0.md`
 - `08-implementation/m1-file-associations-validation.md`
+- `08-implementation/m1-template-foundation-v0.2.0.md`
+- `08-implementation/m1-template-foundation-validation.md`
 
 ## Kural
 
@@ -159,6 +162,7 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/pdf-export-test-matrix.md`
 - `07-quality/recent-files-test-matrix.md`
 - `07-quality/file-associations-test-matrix.md`
+- `07-quality/template-foundation-test-matrix.md`
 - `08-implementation/m1-desktop-shell-v0.2.0.md`
 - `08-implementation/m1-desktop-shell-validation.md`
 - `08-implementation/m1-rich-text-ime-v0.2.0.md`
@@ -183,3 +187,5 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/m1-recent-files-validation.md`
 - `08-implementation/m1-file-associations-v0.2.0.md`
 - `08-implementation/m1-file-associations-validation.md`
+- `08-implementation/m1-template-foundation-v0.2.0.md`
+- `08-implementation/m1-template-foundation-validation.md`

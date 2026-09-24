@@ -246,3 +246,18 @@ desktop_file_associations:
     portable_target: appimage
     deb_association_supported: true
     appimage_association_guaranteed: false
+
+
+writer_templates:
+  active: true
+  source: built_in_yaml
+  catalog_version: 1
+  offline: true
+  built_in:
+    - blank
+    - letter
+    - report
+  quick_create_metadata: true
+  user_templates: false
+  cloud_templates: false
+  dynamic_fields: false

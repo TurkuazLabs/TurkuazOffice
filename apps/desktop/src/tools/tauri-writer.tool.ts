@@ -23,6 +23,7 @@ import type {
   WriterReloadView,
   WriterStyledRunInputView,
   WriterTextAlignmentView,
+  WriterTemplateView,
 } from "../views/writer-types";
 
 export class TauriWriterTool {
@@ -36,6 +37,16 @@ export class TauriWriterTool {
 
   public recordRecentFile(path: string): Promise<readonly RecentFileView[]> {
     return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerRecordRecentFile, { path });
+  }
+
+  public listTemplates(): Promise<readonly WriterTemplateView[]> {
+    return invoke<readonly WriterTemplateView[]>(IPC_COMMANDS.writerListTemplates);
+  }
+
+  public createDocumentFromTemplate(templateId: string): Promise<WriterDocumentView> {
+    return invoke<WriterDocumentView>(IPC_COMMANDS.writerCreateDocumentFromTemplate, {
+      templateId,
+    });
   }
 
   public createDocument(): Promise<WriterDocumentView> {

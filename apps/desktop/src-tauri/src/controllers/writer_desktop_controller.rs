@@ -16,6 +16,7 @@ use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
 use crate::views::recent_file_dto::RecentFileDto;
 use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, RecoverySnapshotDto};
+use crate::views::template_dto::WriterTemplateDto;
 use crate::views::writer_dto::{
     WriterAssetDto, WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
     WriterStyledRunInputDto, WriterTextAlignmentDto,
@@ -57,6 +58,31 @@ pub fn writer_record_recent_file(
     service
         .record_recent_file(&path)
         .map(|items| items.into_iter().map(RecentFileDto::from).collect())
+}
+
+#[tauri::command]
+pub fn writer_list_templates(
+    state: State<'_, WriterDesktopState>,
+) -> Result<Vec<WriterTemplateDto>, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .list_templates()
+        .map(|items| items.into_iter().map(WriterTemplateDto::from).collect())
+}
+
+#[tauri::command]
+pub fn writer_create_document_from_template(
+    state: State<'_, WriterDesktopState>,
+    template_id: String,
+) -> Result<WriterDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .create_document_from_template(&template_id)
+        .map(WriterDocumentDto::from)
 }
 
 #[tauri::command]

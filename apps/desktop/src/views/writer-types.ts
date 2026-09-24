@@ -130,6 +130,13 @@ export interface WriterFileOperationView {
   readonly path: string;
 }
 
+export interface WriterTemplateView {
+  readonly id: string;
+  readonly nameKey: string;
+  readonly descriptionKey: string;
+  readonly quickCreate: boolean;
+}
+
 export interface RecentFileView {
   readonly path: string;
   readonly title: string;

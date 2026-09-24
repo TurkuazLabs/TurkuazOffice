@@ -10,6 +10,7 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::writer_document_repository::WriterDocumentRepository;
 use crate::services::writer_command::WriterCommand;
 use crate::services::writer_editor_service::{WriterEditorError, WriterEditorService};
+use crate::services::writer_template_service::{WriterTemplateError, WriterTemplateService, WriterTemplateSummary};
 use crate::services::writer_types::WriterDocument;
 use crate::tools::writer_id_tool::WriterIdTool;
 use crate::views::writer_view::WriterDocumentView;
@@ -33,6 +34,19 @@ where
 
     pub fn create(&mut self, title: &str) -> WriterDocumentView {
         self.service.create_document(title).into()
+    }
+
+    pub fn templates(&self) -> Result<Vec<WriterTemplateSummary>, WriterTemplateError> {
+        WriterTemplateService::catalog()
+    }
+
+    pub fn create_from_template(
+        &mut self,
+        template_id: &str,
+    ) -> Result<WriterDocumentView, WriterEditorError> {
+        self.service
+            .create_document_from_template(template_id)
+            .map(WriterDocumentView::from)
     }
 
     pub fn get(&self, id: &str) -> Option<WriterDocumentView> {

@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Writer Template Foundation eklendi.
+- Built-in template katalogu inline kod yerine YAML config kaynaginda tutulur.
+- Bos Belge, Mektup ve Rapor canonical paragraph/style skeleton profilleri eklendi.
+- WriterTemplateCatalogTool + WriterTemplateService katalog parse/validation/document creation siniri eklendi.
+- Template-created belgeler normal WriterDocument repository/history/file-session yasam dongusunu kullanir.
+- Template list/create Tauri IPC ve frontend typed state akisi eklendi.
+- Ribbon quick-create gorunurlugu template ID magic string yerine quick_create metadata ile belirlenir.
+- User/cloud templates ve dynamic fields M1 minimum disinda tutuldu.
+
+
 - Native .tko file association bundle profili eklendi.
 - Windows NSIS ve Linux DEB association hedefleri sabitlendi; AppImage portable hedef association garantisi disinda tutuldu.
 - StartupArgumentsTool + StartupFileService ile existing TKO process argument secimi eklendi.

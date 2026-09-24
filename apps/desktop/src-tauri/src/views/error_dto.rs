@@ -8,7 +8,7 @@
 use serde::Serialize;
 use turkuaz_office_format_adapters::{DocxError, PdfError, PdfWriterError};
 use turkuaz_office_writer::{
-    TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError,
+    TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError, WriterTemplateError,
 };
 
 use crate::config::constants::{
@@ -20,7 +20,8 @@ use crate::config::constants::{
     ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO, ERROR_NOTHING_TO_UNDO,
     ERROR_PARAGRAPH_NOT_FOUND, ERROR_RECOVERY_INVALID, ERROR_RECOVERY_NOT_FOUND,
     ERROR_RECOVERY_READ_FAILED, ERROR_RECOVERY_WRITE_FAILED, ERROR_RUN_NOT_FOUND,
-    ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
+    ERROR_TEMPLATE_INVALID, ERROR_TEMPLATE_NOT_FOUND, ERROR_TKO_FUTURE_SCHEMA,
+    ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
 };
 use crate::services::writer_docx_service::WriterDocxError;
 use crate::services::writer_file_session_service::WriterFileSessionError;
@@ -53,6 +54,12 @@ impl From<WriterEditorError> for DesktopErrorDto {
                 WriterCommandError::RunNotFound => Self::new(ERROR_RUN_NOT_FOUND),
                 _ => Self::new(ERROR_COMMAND_FAILED),
             },
+            WriterEditorError::Template(WriterTemplateError::CatalogInvalid) => {
+                Self::new(ERROR_TEMPLATE_INVALID)
+            }
+            WriterEditorError::Template(WriterTemplateError::TemplateNotFound) => {
+                Self::new(ERROR_TEMPLATE_NOT_FOUND)
+            }
         }
     }
 }

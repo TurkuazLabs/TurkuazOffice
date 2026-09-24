@@ -12,3 +12,4 @@ pub mod writer_dto;
 
 pub mod recovery_dto;
 pub mod recent_file_dto;
+pub mod template_dto;

@@ -23,6 +23,7 @@ import type {
   WriterPageLayoutView,
   WriterResolvedFontView,
   WriterSelectionView,
+  WriterTemplateView,
 } from "../views/writer-types";
 
 export type WriterSessionStatus = "idle" | "loading" | "ready" | "error";
@@ -37,6 +38,7 @@ export class WriterSessionRepository {
   private readonly statusSignal = createSignal<WriterSessionStatus>("idle");
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly recoveryCandidatesSignal = createSignal<readonly RecoverySnapshotView[]>([]);
+  private readonly templatesSignal = createSignal<readonly WriterTemplateView[]>([]);
   private readonly recentFilesSignal = createSignal<readonly RecentFileView[]>([]);
   private readonly recentFilesErrorCodeSignal = createSignal<string | null>(null);
   private readonly recoveryComparisonSignal = createSignal<RecoveryComparisonView | null>(null);
@@ -58,6 +60,7 @@ export class WriterSessionRepository {
   public readonly status: Accessor<WriterSessionStatus> = this.statusSignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly recoveryCandidates: Accessor<readonly RecoverySnapshotView[]> = this.recoveryCandidatesSignal[0];
+  public readonly templates: Accessor<readonly WriterTemplateView[]> = this.templatesSignal[0];
   public readonly recentFiles: Accessor<readonly RecentFileView[]> = this.recentFilesSignal[0];
   public readonly recentFilesErrorCode: Accessor<string | null> = this.recentFilesErrorCodeSignal[0];
   public readonly recoveryComparison: Accessor<RecoveryComparisonView | null> = this.recoveryComparisonSignal[0];
@@ -155,6 +158,10 @@ export class WriterSessionRepository {
 
   public setTypingStyle(style: WriterCharacterStyleView | null): void {
     this.typingStyleSignal[1](style);
+  }
+
+  public setTemplates(items: readonly WriterTemplateView[]): void {
+    this.templatesSignal[1](items);
   }
 
   public setRecentFiles(items: readonly RecentFileView[]): void {
