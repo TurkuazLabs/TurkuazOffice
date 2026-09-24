@@ -9,6 +9,7 @@ import { WriterController } from "../controllers/writer.controller";
 import { ClipboardService } from "../services/clipboard.service";
 import { LanguageService } from "../language/language-service";
 import { LanguagePreferenceService } from "../services/language-preference.service";
+import { KeyboardShortcutService } from "../services/keyboard-shortcut.service";
 import { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { WriterLayoutService } from "../services/writer-layout.service";
 import { WriterSessionService } from "../services/writer-session.service";
@@ -58,12 +59,14 @@ const clipboardService = new ClipboardService(
   clipboardTool,
   clipboardDomTool,
 );
+const keyboardShortcutService = new KeyboardShortcutService();
 
 export const APP_CONTAINER = {
   writerController: new WriterController(
     writerSessionService,
     clipboardService,
     languagePreferenceService,
+    keyboardShortcutService,
   ),
   writerSessionRepository,
   languageService,
