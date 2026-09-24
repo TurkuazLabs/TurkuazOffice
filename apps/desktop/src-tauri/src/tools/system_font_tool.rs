@@ -8,7 +8,7 @@
 use fontdb::{Database, Family, Query, Stretch, Style, Weight};
 use turkuaz_office_format_adapters::{PdfFontData, PdfFontKey};
 
-use crate::config::constants::PDF_FONT_FALLBACK_FAMILIES;
+use crate::config::pdf_font_config::pdf_font_fallbacks;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SystemFontError {
@@ -39,9 +39,11 @@ impl SystemFontTool {
             Style::Normal
         };
 
-        let mut families = Vec::with_capacity(PDF_FONT_FALLBACK_FAMILIES.len() + 1);
+        let fallbacks = pdf_font_fallbacks(&key.family);
+        let mut families = Vec::with_capacity(fallbacks.len() + 1);
         families.push(key.family.as_str());
-        families.extend(PDF_FONT_FALLBACK_FAMILIES.iter().copied());
+        families.extend(fallbacks.iter().copied());
+        let mut data_unavailable = false;
 
         for family in families {
             let family_query = [Family::Name(family)];
@@ -58,6 +60,7 @@ impl SystemFontTool {
                 .database
                 .with_face_data(id, |data, index| (data.to_vec(), index))
             else {
+                data_unavailable = true;
                 continue;
             };
             return Ok(PdfFontData {
@@ -67,7 +70,11 @@ impl SystemFontTool {
             });
         }
 
-        Err(SystemFontError::FontNotFound)
+        if data_unavailable {
+            Err(SystemFontError::FontDataUnavailable)
+        } else {
+            Err(SystemFontError::FontNotFound)
+        }
     }
 }
 
