@@ -56,6 +56,7 @@ export type DesktopLabelKey =
   | "menuView"
   | "menuComingSoon"
   | "documentGroup"
+  | "recentFilesGroup"
   | "historyGroup"
   | "fontGroup"
   | "paragraphGroup"
