@@ -78,10 +78,7 @@ impl WriterDesktopService {
             .map_err(DesktopErrorDto::from)
     }
 
-    pub fn record_recent_file(
-        &self,
-        path: &str,
-    ) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
+    pub fn record_recent_file(&self, path: &str) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
         self.recent_files_service
             .record(path)
             .map_err(DesktopErrorDto::from)
