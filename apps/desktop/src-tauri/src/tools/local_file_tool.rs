@@ -12,6 +12,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::config::constants::{
     CURRENT_DIRECTORY_PATH, SAFE_SAVE_BACKUP_SUFFIX, SAFE_SAVE_TEMP_SUFFIX,
+};
+#[cfg(target_os = "windows")]
+use crate::config::constants::{
     WINDOWS_UNC_PATH_PREFIX, WINDOWS_VERBATIM_PATH_PREFIX, WINDOWS_VERBATIM_UNC_PATH_PREFIX,
 };
 
