@@ -10,6 +10,7 @@ import { createMemo, createSignal, type Accessor } from "solid-js";
 import { WRITER_DEFAULT_ZOOM_PERCENT } from "../config/layout";
 
 import type {
+  RecentFileView,
   RecoveryComparisonView,
   RecoveryRestoreView,
   RecoverySnapshotView,
@@ -36,6 +37,8 @@ export class WriterSessionRepository {
   private readonly statusSignal = createSignal<WriterSessionStatus>("idle");
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly recoveryCandidatesSignal = createSignal<readonly RecoverySnapshotView[]>([]);
+  private readonly recentFilesSignal = createSignal<readonly RecentFileView[]>([]);
+  private readonly recentFilesErrorCodeSignal = createSignal<string | null>(null);
   private readonly recoveryComparisonSignal = createSignal<RecoveryComparisonView | null>(null);
   private readonly recoveryRevisionSignal = createSignal<number | null>(null);
   private readonly recoveryErrorCodeSignal = createSignal<string | null>(null);
@@ -55,6 +58,8 @@ export class WriterSessionRepository {
   public readonly status: Accessor<WriterSessionStatus> = this.statusSignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly recoveryCandidates: Accessor<readonly RecoverySnapshotView[]> = this.recoveryCandidatesSignal[0];
+  public readonly recentFiles: Accessor<readonly RecentFileView[]> = this.recentFilesSignal[0];
+  public readonly recentFilesErrorCode: Accessor<string | null> = this.recentFilesErrorCodeSignal[0];
   public readonly recoveryComparison: Accessor<RecoveryComparisonView | null> = this.recoveryComparisonSignal[0];
   public readonly recoveryRevision: Accessor<number | null> = this.recoveryRevisionSignal[0];
   public readonly recoveryErrorCode: Accessor<string | null> = this.recoveryErrorCodeSignal[0];
@@ -150,6 +155,15 @@ export class WriterSessionRepository {
 
   public setTypingStyle(style: WriterCharacterStyleView | null): void {
     this.typingStyleSignal[1](style);
+  }
+
+  public setRecentFiles(items: readonly RecentFileView[]): void {
+    this.recentFilesSignal[1](items);
+    this.recentFilesErrorCodeSignal[1](null);
+  }
+
+  public setRecentFilesError(errorCode: string): void {
+    this.recentFilesErrorCodeSignal[1](errorCode);
   }
 
   public setRecoveryCandidates(candidates: readonly RecoverySnapshotView[]): void {
