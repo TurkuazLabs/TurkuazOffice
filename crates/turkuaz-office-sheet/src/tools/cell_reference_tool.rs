@@ -76,7 +76,9 @@ impl CellReferenceTool {
         let mut letters = Vec::new();
         while column_number > 0 {
             let remainder = (column_number - 1) % 26;
-            letters.push(char::from(b'A' + u8::try_from(remainder).unwrap_or_default()));
+            let letter_offset =
+                u8::try_from(remainder).map_err(|_| CellReferenceError::OutOfBounds)?;
+            letters.push(char::from(b'A' + letter_offset));
             column_number = (column_number - 1) / 26;
         }
         letters.reverse();
