@@ -56,12 +56,3 @@ pub const SAFE_SAVE_TEMP_SUFFIX: &str = "turkuaz-save.tmp";
 pub const SAFE_SAVE_BACKUP_SUFFIX: &str = "turkuaz-save.bak";
 
 pub const CURRENT_DIRECTORY_PATH: &str = ".";
-
-pub const PDF_FONT_FALLBACK_FAMILIES: &[&str] = &[
-    "Carlito",
-    "Arial",
-    "Liberation Sans",
-    "DejaVu Sans",
-    "Noto Sans",
-    "Nimbus Sans",
-];
