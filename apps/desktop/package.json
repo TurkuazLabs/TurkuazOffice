@@ -3,13 +3,13 @@
     "# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/package.json",
     "# 📌 Amac: Desktop SolidJS ve Tauri frontend bagimliliklarini ve scriptlerini tanimlar",
     "# 📌 Modul - FileType: Desktop - JSON",
-    "# Version: 0.2.0",
+    "# Version: 0.3.0",
     "# Aciklama: SolidJS, TypeScript, Vite, Vitest ve Tauri CLI build/test kontratini sabitler",
     "# Bagimli Oldugu Katman: Config"
   ],
   "name": "turkuaz-office-desktop",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
