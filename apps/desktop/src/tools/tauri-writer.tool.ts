@@ -13,6 +13,7 @@ import type {
   RecoveryComparisonView,
   RecoveryRestoreView,
   RecoverySnapshotView,
+  RecentFileView,
   WriterAssetView,
   WriterCharacterStylePatchView,
   WriterCharacterStyleView,
@@ -36,6 +37,14 @@ export class TauriWriterTool {
 
   public createDocument(): Promise<WriterDocumentView> {
     return invoke<WriterDocumentView>(IPC_COMMANDS.writerCreateDocument);
+  }
+
+  public listRecentFiles(): Promise<readonly RecentFileView[]> {
+    return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerListRecentFiles);
+  }
+
+  public recordRecentFile(path: string): Promise<readonly RecentFileView[]> {
+    return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerRecordRecentFile, { path });
   }
 
   public openDocument(path: string): Promise<WriterFileOperationView> {
