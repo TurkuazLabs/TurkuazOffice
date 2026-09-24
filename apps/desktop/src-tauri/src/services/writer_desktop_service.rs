@@ -19,6 +19,7 @@ use crate::config::constants::{
     ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
 };
 use crate::services::writer_docx_service::WriterDocxService;
+use crate::services::writer_pdf_service::WriterPdfService;
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
 };
@@ -77,6 +78,20 @@ impl WriterDesktopService {
             .snapshot(document_id)
             .ok_or_else(|| DesktopErrorDto::from(WriterEditorError::DocumentNotFound))?;
         WriterDocxService::export(&document, path).map_err(DesktopErrorDto::from)
+    }
+
+    pub fn export_pdf(
+        &self,
+        document_id: &str,
+        path: &str,
+    ) -> Result<String, DesktopErrorDto> {
+        let document = self
+            .controller
+            .snapshot(document_id)
+            .ok_or_else(|| DesktopErrorDto::from(WriterEditorError::DocumentNotFound))?;
+        WriterPdfService::new()
+            .export(&document, path)
+            .map_err(DesktopErrorDto::from)
     }
 
     pub fn open_document(&mut self, path: &str) -> Result<WriterDocumentView, DesktopErrorDto> {
