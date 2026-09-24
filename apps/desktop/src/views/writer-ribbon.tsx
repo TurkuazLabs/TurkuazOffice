@@ -5,7 +5,7 @@
 // Aciklama: New/Open/Save, DOCX import/export, print, gecmis, font, inline style ve paragraph alignment kontrollerini erisilebilir sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language -> Config
 
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 
 import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
 import {
@@ -126,27 +126,31 @@ export function WriterRibbon(props: WriterRibbonProps) {
           <span class="ribbon-group__label">{props.language.text("documentGroup")}</span>
         </div>
 
-        <div class="writer-ribbon__separator" aria-hidden="true" />
+        <Show when={props.controller.recentFiles().length > 0}>
+          <>
+            <div class="writer-ribbon__separator" aria-hidden="true" />
 
-        <div class="ribbon-group ribbon-group--recent">
-          <div class="ribbon-group__commands ribbon-group__commands--recent">
-            <For each={props.controller.recentFiles().slice(0, RECENT_FILES_RIBBON_LIMIT)}>
-              {(item) => (
-                <button
-                  type="button"
-                  class="toolbar-button toolbar-button--recent"
-                  title={item.path}
-                  onClick={() => void props.controller.openRecentFile(item.path)}
-                >
-                  {item.title}
-                </button>
-              )}
-            </For>
-          </div>
-          <span class="ribbon-group__label">{props.language.text("recentFilesGroup")}</span>
-        </div>
+            <div class="ribbon-group ribbon-group--recent">
+              <div class="ribbon-group__commands ribbon-group__commands--recent">
+                <For each={props.controller.recentFiles().slice(0, RECENT_FILES_RIBBON_LIMIT)}>
+                  {(item) => (
+                    <button
+                      type="button"
+                      class="toolbar-button toolbar-button--recent"
+                      title={item.path}
+                      onClick={() => void props.controller.openRecentFile(item.path)}
+                    >
+                      {item.title}
+                    </button>
+                  )}
+                </For>
+              </div>
+              <span class="ribbon-group__label">{props.language.text("recentFilesGroup")}</span>
+            </div>
 
-        <div class="writer-ribbon__separator" aria-hidden="true" />
+            <div class="writer-ribbon__separator" aria-hidden="true" />
+          </>
+        </Show>
 
         <div class="ribbon-group">
           <div class="ribbon-group__commands">
