@@ -1,5 +1,5 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/tests/writer_pdf_service_tests.rs
-// # 📌 Amac: Desktop PDF export, Unicode font embedding ve native session isolation davranisini regression testiyle dogrular
+// # 📌 Amac: Desktop PDF export, external font embedding ve native session isolation davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - Rust
 // # Version: 0.2.0
 // # Aciklama: Gercek sistem fontu ile PDF imzasi uretimini ve exportun aktif TKO session'ini degistirmedigini test eder
