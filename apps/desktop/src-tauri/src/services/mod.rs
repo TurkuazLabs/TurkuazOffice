@@ -1,3 +1,4 @@
+pub mod recent_files_service;
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/mod.rs
 // # 📌 Amac: Desktop Rust shell Service modullerini disari acar
 // # 📌 Modul - FileType: Service - Rust
