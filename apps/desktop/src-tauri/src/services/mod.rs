@@ -1,4 +1,3 @@
-pub mod recent_files_service;
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/mod.rs
 // # 📌 Amac: Desktop Rust shell Service modullerini disari acar
 // # 📌 Modul - FileType: Service - Rust
@@ -6,6 +5,7 @@ pub mod recent_files_service;
 // # Aciklama: Writer Desktop edit, local storage ve recovery Service erisim noktalaridir
 // Bagimli Oldugu Katman: Service
 
+pub mod recent_files_service;
 pub mod writer_desktop_service;
 pub mod writer_docx_service;
 pub mod writer_file_session_service;
