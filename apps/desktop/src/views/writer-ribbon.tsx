@@ -7,6 +7,7 @@
 
 import { For } from "solid-js";
 
+import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
 import {
   WRITER_ALIGNMENT_COMMANDS,
   WRITER_RIBBON_TABS,
@@ -123,6 +124,26 @@ export function WriterRibbon(props: WriterRibbonProps) {
             </button>
           </div>
           <span class="ribbon-group__label">{props.language.text("documentGroup")}</span>
+        </div>
+
+        <div class="writer-ribbon__separator" aria-hidden="true" />
+
+        <div class="ribbon-group ribbon-group--recent">
+          <div class="ribbon-group__commands ribbon-group__commands--recent">
+            <For each={props.controller.recentFiles().slice(0, RECENT_FILES_RIBBON_LIMIT)}>
+              {(item) => (
+                <button
+                  type="button"
+                  class="toolbar-button toolbar-button--recent"
+                  title={item.path}
+                  onClick={() => void props.controller.openRecentFile(item.path)}
+                >
+                  {item.title}
+                </button>
+              )}
+            </For>
+          </div>
+          <span class="ribbon-group__label">{props.language.text("recentFilesGroup")}</span>
         </div>
 
         <div class="writer-ribbon__separator" aria-hidden="true" />
