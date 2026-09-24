@@ -19,6 +19,8 @@ use crate::config::constants::{
     ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
 };
 use crate::services::writer_docx_service::WriterDocxService;
+use crate::repositories::recent_files_repository::RecentFilesRepository;
+use crate::services::recent_files_service::{RecentFileEntry, RecentFilesService};
 use crate::services::writer_pdf_service::WriterPdfService;
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
@@ -27,6 +29,8 @@ use crate::services::writer_recovery_service::{
     RecoveryComparison, RecoverySnapshot, WriterRecoveryService,
 };
 use crate::services::writer_storage_service::WriterStorageService;
+use crate::config::constants::RECENT_FILES_METADATA_NAME;
+use crate::tools::app_state_path_tool::AppStatePathTool;
 use crate::tools::recovery_path_tool::RecoveryPathTool;
 use crate::views::error_dto::DesktopErrorDto;
 
@@ -34,14 +38,30 @@ pub struct WriterDesktopService {
     controller: WriterController<InMemoryWriterDocumentRepository, SequentialWriterIdTool>,
     recovery_service: WriterRecoveryService,
     file_session_service: WriterFileSessionService,
+    recent_files_service: RecentFilesService,
 }
 
 impl WriterDesktopService {
     pub fn new() -> Self {
-        Self::with_recovery_root(RecoveryPathTool::recovery_directory())
+        let state_root = AppStatePathTool::state_root();
+        Self::with_state_roots(
+            RecoveryPathTool::recovery_directory(),
+            state_root.join(RECENT_FILES_METADATA_NAME),
+        )
     }
 
     pub fn with_recovery_root(recovery_root: PathBuf) -> Self {
+        let recent_metadata_path = recovery_root
+            .parent()
+            .unwrap_or(recovery_root.as_path())
+            .join(RECENT_FILES_METADATA_NAME);
+        Self::with_state_roots(recovery_root, recent_metadata_path)
+    }
+
+    pub fn with_state_roots(
+        recovery_root: PathBuf,
+        recent_metadata_path: PathBuf,
+    ) -> Self {
         let repository = InMemoryWriterDocumentRepository::new();
         let id_tool = SequentialWriterIdTool::new();
         let editor_service = turkuaz_office_writer::WriterEditorService::new(repository, id_tool);
@@ -49,7 +69,25 @@ impl WriterDesktopService {
             controller: WriterController::new(editor_service),
             recovery_service: WriterRecoveryService::new(recovery_root),
             file_session_service: WriterFileSessionService::new(),
+            recent_files_service: RecentFilesService::new(RecentFilesRepository::new(
+                recent_metadata_path,
+            )),
         }
+    }
+
+    pub fn list_recent_files(&self) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
+        self.recent_files_service
+            .list()
+            .map_err(DesktopErrorDto::from)
+    }
+
+    pub fn record_recent_file(
+        &self,
+        path: &str,
+    ) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
+        self.recent_files_service
+            .record(path)
+            .map_err(DesktopErrorDto::from)
     }
 
     pub fn create_document(&mut self) -> WriterDocumentView {
