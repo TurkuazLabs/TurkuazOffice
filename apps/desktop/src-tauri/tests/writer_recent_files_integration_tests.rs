@@ -52,5 +52,6 @@ fn recent_record_does_not_change_native_file_session() {
     assert_eq!(before, after);
     assert_eq!(after.path.as_deref(), Some(saved_path.as_str()));
 
+    drop(service);
     let _ = fs::remove_dir_all(root);
 }
