@@ -1,0 +1,24 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/Cargo.toml
+# 📌 Amac: Platformdan bagimsiz Sheet domain modulunu Rust workspace icinde tanimlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.3.0
+# Aciklama: Sparse workbook/cell modeli, repository, A1 Tool ve Sheet Service katmanlarini paketler
+# Bagimli Oldugu Katman: Config
+
+[package]
+name = "turkuaz-office-sheet"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+turkuaz-office-core = { path = "../turkuaz-office-core" }
+
+[lib]
+name = "turkuaz_office_sheet"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
