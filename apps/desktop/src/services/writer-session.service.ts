@@ -59,6 +59,7 @@ export class WriterSessionService {
   ) {}
 
   public async initializeSession(): Promise<void> {
+    await this.refreshTemplates();
     await this.refreshRecentFiles();
     try {
       const candidates = await this.writerTool.listRecoverySnapshots();
@@ -159,6 +160,31 @@ export class WriterSessionService {
       this.repository.setLoading();
       try {
         this.repository.setNewDocument(await this.writerTool.createDocument());
+        this.refreshLayoutEnvironment();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
+  public templates() {
+    return this.repository.templates();
+  }
+
+  public async createDocumentFromTemplate(templateId: string): Promise<void> {
+    await this.prepareFileOperation();
+    if (!(await this.confirmDiscardIfNeeded())) {
+      return;
+    }
+    await this.clearCurrentRecoveryForDiscard();
+    this.repository.setSelection(null);
+    this.repository.setTypingStyle(null);
+    await this.enqueue(async () => {
+      this.repository.setLoading();
+      try {
+        this.repository.setNewDocument(
+          await this.writerTool.createDocumentFromTemplate(templateId),
+        );
         this.refreshLayoutEnvironment();
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
@@ -967,6 +993,14 @@ export class WriterSessionService {
         }
       }
     });
+  }
+
+  private async refreshTemplates(): Promise<void> {
+    try {
+      this.repository.setTemplates(await this.writerTool.listTemplates());
+    } catch {
+      this.repository.setTemplates([]);
+    }
   }
 
   private async refreshRecentFiles(): Promise<void> {
