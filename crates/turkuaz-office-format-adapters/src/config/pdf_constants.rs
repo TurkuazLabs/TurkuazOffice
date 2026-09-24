@@ -9,6 +9,7 @@ pub const PDF_FILE_EXTENSION: &str = "pdf";
 pub const TWIPS_PER_POINT: f32 = 20.0;
 pub const PDF_LINE_HEIGHT_MULTIPLIER: f32 = 1.55;
 pub const PDF_PARAGRAPH_GAP_POINTS: f32 = 3.0;
+pub const PDF_TAB_SPACES: usize = 4;
 pub const PDF_UNDERLINE_OFFSET_MULTIPLIER: f32 = 0.12;
 pub const PDF_UNDERLINE_THICKNESS_MULTIPLIER: f32 = 0.055;
 pub const MAX_PDF_OUTPUT_BYTES: usize = 64 * 1024 * 1024;
