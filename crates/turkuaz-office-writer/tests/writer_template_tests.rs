@@ -17,8 +17,11 @@ fn built_in_template_catalog_is_stable_and_ordered() {
     assert_eq!(catalog.len(), 3);
     assert_eq!(catalog[0].id, "blank");
     assert_eq!(catalog[0].name_key, "templateBlank");
+    assert!(!catalog[0].quick_create);
     assert_eq!(catalog[1].id, "letter");
+    assert!(catalog[1].quick_create);
     assert_eq!(catalog[2].id, "report");
+    assert!(catalog[2].quick_create);
 }
 
 #[test]
