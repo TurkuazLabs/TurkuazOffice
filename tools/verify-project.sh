@@ -239,6 +239,7 @@ done < <(
 )
 
 grep -q "Version:" "$ROOT/.gitignore"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/README.md"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/Cargo.toml"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/config/project.yml"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/README.md"
