@@ -12,7 +12,8 @@ Bagimli Oldugu Katman: Documentation
 
 - Native extension: .tko.
 - MIME: application/x-turkuaz-office.
-- Windows installer target: NSIS.
+- Windows release command: tauri build --bundles nsis.
+- Linux release command: tauri build --bundles deb,appimage.
 - Linux association-capable package target: DEB.
 - Linux AppImage portable target file association kaydi garanti etmez.
 
