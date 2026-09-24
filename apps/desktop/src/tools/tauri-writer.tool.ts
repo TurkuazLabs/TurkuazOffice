@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 import { IPC_COMMANDS } from "../config/ipc-commands";
 import type {
+  RecentFileView,
   RecoveryComparisonView,
   RecoveryRestoreView,
   RecoverySnapshotView,
@@ -25,6 +26,14 @@ import type {
 } from "../views/writer-types";
 
 export class TauriWriterTool {
+  public listRecentFiles(): Promise<readonly RecentFileView[]> {
+    return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerListRecentFiles);
+  }
+
+  public recordRecentFile(path: string): Promise<readonly RecentFileView[]> {
+    return invoke<readonly RecentFileView[]>(IPC_COMMANDS.writerRecordRecentFile, { path });
+  }
+
   public createDocument(): Promise<WriterDocumentView> {
     return invoke<WriterDocumentView>(IPC_COMMANDS.writerCreateDocument);
   }
