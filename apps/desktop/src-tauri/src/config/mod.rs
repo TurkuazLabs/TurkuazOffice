@@ -6,3 +6,5 @@
 // Bagimli Oldugu Katman: Config
 
 pub mod constants;
+
+pub mod pdf_font_config;
