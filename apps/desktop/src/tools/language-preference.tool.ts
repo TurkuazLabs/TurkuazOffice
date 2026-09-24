@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop UI locale tercihini browser local storage adaptorunun arkasinda okur ve yazar
 // # 📌 Modul - FileType: Tool - TypeScript
 // Version: 0.2.0
-// Aciklama: localStorage erisimini Language ve View katmanlarindan ayirir; gecersiz degerde default locale'e doner
+// Aciklama: localStorage erisimini Language ve View katmanlarindan ayirir; storage hatalarinda default locale ile devam eder
 // Bagimli Oldugu Katman: Tool -> Config
 
 import {
@@ -18,10 +18,11 @@ export interface LanguagePreferenceStorage {
 }
 
 export class LanguagePreferenceTool {
-  public constructor(
-    private readonly storage: LanguagePreferenceStorage | null =
-      typeof window === "undefined" ? null : window.localStorage,
-  ) {}
+  private readonly storage: LanguagePreferenceStorage | null;
+
+  public constructor(storage?: LanguagePreferenceStorage | null) {
+    this.storage = storage === undefined ? LanguagePreferenceTool.browserStorage() : storage;
+  }
 
   public load(): DesktopLocale {
     if (this.storage === null) {
@@ -43,6 +44,14 @@ export class LanguagePreferenceTool {
       this.storage.setItem(DESKTOP_LOCALE_STORAGE_KEY, locale);
     } catch {
       // Preference persistence must not block Writer usage.
+    }
+  }
+
+  private static browserStorage(): LanguagePreferenceStorage | null {
+    try {
+      return typeof window === "undefined" ? null : window.localStorage;
+    } catch {
+      return null;
     }
   }
 }
