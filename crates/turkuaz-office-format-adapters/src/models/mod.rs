@@ -6,3 +6,4 @@
 // Bagimli Oldugu Katman: Model
 
 pub mod docx_model;
+pub mod pdf_model;

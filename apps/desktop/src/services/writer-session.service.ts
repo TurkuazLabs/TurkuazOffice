@@ -245,6 +245,20 @@ export class WriterSessionService {
     }
   }
 
+  public async exportPdf(): Promise<void> {
+    await this.prepareFileOperation();
+    const document = this.requireDocument();
+    const path = await this.fileDialogTool.savePdf(this.language.text("pdfFileFilter"));
+    if (path === null) {
+      return;
+    }
+    try {
+      await this.writerTool.exportPdf(document.id, path);
+    } catch (error: unknown) {
+      this.repository.setError(this.errorCode(error));
+    }
+  }
+
   public async openPrintPreview(): Promise<void> {
     await this.prepareFileOperation();
     const document = this.repository.document();

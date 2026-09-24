@@ -64,6 +64,10 @@ export class WriterController {
     return this.service.exportDocx();
   }
 
+  public exportPdf(): Promise<void> {
+    return this.service.exportPdf();
+  }
+
   public saveDocumentAs(): Promise<void> {
     return this.service.saveDocumentAs();
   }

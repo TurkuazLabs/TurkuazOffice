@@ -34,7 +34,7 @@ Durum: Foundation Hardening tamamlandi.
 
 ## M1 - Desktop Writer v0.2.0
 
-Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum ve DOCX Minimum implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
+Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum, DOCX Minimum ve PDF Export Minimum implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M1 parcasi
 
@@ -83,10 +83,10 @@ Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typog
 - Lazy writer_get_asset IPC ve ObjectURL cleanup ile image block render baseline.
 - Session-only Print Preview + system print dialog Tool adapteri ve canonical physical page geometry baseline.
 - DOCX paragraph/run/page minimum import-export adapteri, compatibility report ve strict unsupported export bariyeri.
+- PDF paragraph/run/page minimum export adapteri, embedded system font, multi-page text flow ve strict unsupported export bariyeri.
 
 ### Siradaki M1 parcasi
 
-- PDF export.
 - Recent files.
 - File associations.
 - Template foundation.

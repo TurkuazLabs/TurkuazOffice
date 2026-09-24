@@ -41,6 +41,10 @@ export class TauriWriterTool {
     return invoke<string>(IPC_COMMANDS.writerExportDocx, { documentId, path });
   }
 
+  public exportPdf(documentId: string, path: string): Promise<string> {
+    return invoke<string>(IPC_COMMANDS.writerExportPdf, { documentId, path });
+  }
+
   public listRecoverySnapshots(): Promise<readonly RecoverySnapshotView[]> {
     return invoke<readonly RecoverySnapshotView[]>(IPC_COMMANDS.writerListRecoverySnapshots);
   }

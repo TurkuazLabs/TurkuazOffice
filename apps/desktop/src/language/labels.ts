@@ -29,6 +29,8 @@ export type DesktopLabelKey =
   | "print"
   | "importDocx"
   | "exportDocx"
+  | "exportPdf"
+  | "pdfFileFilter"
   | "docxFileFilter"
   | "docxCompatibilityWarning"
   | "docxFeatureTable"

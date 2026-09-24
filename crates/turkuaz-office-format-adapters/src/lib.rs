@@ -14,6 +14,12 @@ pub use models::docx_model::{
     DocxAlignment, DocxCompatibilityReport, DocxDocumentModel, DocxImportResult,
     DocxPageSettingsModel, DocxParagraphModel, DocxRunModel, DocxUnsupportedFeature,
 };
+pub use models::pdf_model::{
+    PdfAlignment, PdfDocumentModel, PdfFontData, PdfFontKey, PdfPageSettingsModel,
+    PdfParagraphModel, PdfRunModel,
+};
 pub use services::docx_service::{DocxError, DocxService};
+pub use services::pdf_service::{PdfError, PdfService};
 pub use tools::docx_archive_tool::{DocxArchiveError, DocxArchiveTool};
 pub use tools::docx_xml_tool::{DocxXmlError, DocxXmlTool};
+pub use tools::pdf_writer_tool::{PdfWriterError, PdfWriterTool};

@@ -26,7 +26,7 @@ Bagimli Oldugu Katman: Documentation
 | TXT | Planned | Planned | M1 |
 | HTML | Planned | Planned | M1 |
 | DOCX | Partial - M1 minimum | Partial - M1 minimum | M1 |
-| PDF | N/A | Planned | M1 |
+| PDF | N/A | Partial - M1 minimum | M1 |
 | CSV | Planned | Planned | M2 |
 | XLSX | Planned | Planned | M2 |
 | PPTX | Planned | Planned | M6 |

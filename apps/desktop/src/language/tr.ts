@@ -29,6 +29,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   print: "Yazdir",
   importDocx: "DOCX Iceri Aktar",
   exportDocx: "DOCX Disari Aktar",
+  exportPdf: "PDF Disari Aktar",
+  pdfFileFilter: "PDF Belgesi",
   docxFileFilter: "Word DOCX Belgesi",
   docxCompatibilityWarning: "DOCX icerigi kismen donusturuldu",
   docxFeatureTable: "Tablo yapisi",

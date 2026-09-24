@@ -61,6 +61,18 @@ pub fn writer_export_docx(
 }
 
 #[tauri::command]
+pub fn writer_export_pdf(
+    state: State<'_, WriterDesktopState>,
+    document_id: String,
+    path: String,
+) -> Result<String, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service.export_pdf(&document_id, &path)
+}
+
+#[tauri::command]
 pub fn writer_open_document(
     state: State<'_, WriterDesktopState>,
     path: String,

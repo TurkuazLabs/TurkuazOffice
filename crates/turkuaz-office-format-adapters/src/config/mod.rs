@@ -6,3 +6,4 @@
 // Bagimli Oldugu Katman: Config
 
 pub mod constants;
+pub mod pdf_constants;

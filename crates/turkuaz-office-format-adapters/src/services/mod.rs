@@ -6,3 +6,4 @@
 // Bagimli Oldugu Katman: Service -> Model -> Tool
 
 pub mod docx_service;
+pub mod pdf_service;

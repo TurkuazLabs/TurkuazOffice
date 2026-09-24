@@ -7,7 +7,7 @@
 
 import { confirm, open, save } from "@tauri-apps/plugin-dialog";
 
-import { DOCX_FILE_EXTENSIONS, TKO_FILE_EXTENSIONS } from "../config/file-format";
+import { DOCX_FILE_EXTENSIONS, PDF_FILE_EXTENSIONS, TKO_FILE_EXTENSIONS } from "../config/file-format";
 
 export class NativeFileDialogTool {
   public openTko(filterName: string): Promise<string | null> {
@@ -35,6 +35,12 @@ export class NativeFileDialogTool {
   public saveDocx(filterName: string): Promise<string | null> {
     return save({
       filters: [{ name: filterName, extensions: [...DOCX_FILE_EXTENSIONS] }],
+    });
+  }
+
+  public savePdf(filterName: string): Promise<string | null> {
+    return save({
+      filters: [{ name: filterName, extensions: [...PDF_FILE_EXTENSIONS] }],
     });
   }
 

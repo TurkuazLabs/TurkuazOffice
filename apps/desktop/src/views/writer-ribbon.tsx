@@ -110,6 +110,13 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
+              onClick={() => void props.controller.exportPdf()}
+            >
+              {props.language.text("exportPdf")}
+            </button>
+            <button
+              type="button"
+              class="toolbar-button"
               onClick={() => void props.controller.openPrintPreview()}
             >
               {props.language.text("print")}
