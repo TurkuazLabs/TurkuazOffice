@@ -18,7 +18,7 @@ fn pdf_export_writes_pdf_signature_and_keeps_native_session_untracked() {
         .replace_paragraph_text(
             &document.id,
             &paragraph_id,
-            "Turkuaz PDF: Cagri, Sivas ve Turkce Unicode",
+            "Turkuaz PDF: \\u{00C7}agri, Sivas ve T\\u{00FC}rk\\u{00E7}e Unicode",
         )
         .expect("paragraph replace");
 
