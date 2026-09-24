@@ -8,10 +8,18 @@
 use std::env;
 use std::path::PathBuf;
 
+use crate::config::constants::APP_DIRECTORY_NAME;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use crate::config::constants::HOME_DIRECTORY_ENV;
+#[cfg(target_os = "linux")]
 use crate::config::constants::{
-    APP_DIRECTORY_NAME, HOME_DIRECTORY_ENV, LINUX_APP_DIRECTORY_NAME,
-    LINUX_LOCAL_STATE_SEGMENTS, MACOS_APP_SUPPORT_SEGMENTS, TURKUAZLABS_DIRECTORY_NAME,
-    WINDOWS_LOCAL_APP_DATA_ENV, XDG_STATE_HOME_ENV,
+    LINUX_APP_DIRECTORY_NAME, LINUX_LOCAL_STATE_SEGMENTS, XDG_STATE_HOME_ENV,
+};
+#[cfg(target_os = "macos")]
+use crate::config::constants::MACOS_APP_SUPPORT_SEGMENTS;
+#[cfg(target_os = "windows")]
+use crate::config::constants::{
+    TURKUAZLABS_DIRECTORY_NAME, WINDOWS_LOCAL_APP_DATA_ENV,
 };
 
 pub struct AppStatePathTool;
