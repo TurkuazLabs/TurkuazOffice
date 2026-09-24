@@ -261,3 +261,15 @@ writer_templates:
   user_templates: false
   cloud_templates: false
   dynamic_fields: false
+
+
+desktop_localization:
+  active: true
+  default_locale: tr-TR
+  supported_locales:
+    - tr-TR
+    - en-US
+  runtime_switch: true
+  preference_storage: local_storage
+  view_direct_storage_access: false
+  ui_locale_is_document_locale: false
