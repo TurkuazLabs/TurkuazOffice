@@ -21,6 +21,7 @@ use crate::config::constants::{
 use crate::services::writer_docx_service::WriterDocxService;
 use crate::repositories::recent_files_repository::RecentFilesRepository;
 use crate::services::recent_files_service::{RecentFileEntry, RecentFilesService};
+use crate::services::startup_file_service::StartupFileService;
 use crate::services::writer_pdf_service::WriterPdfService;
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
@@ -32,6 +33,7 @@ use crate::services::writer_storage_service::WriterStorageService;
 use crate::config::constants::RECENT_FILES_METADATA_NAME;
 use crate::tools::app_state_path_tool::AppStatePathTool;
 use crate::tools::recovery_path_tool::RecoveryPathTool;
+use crate::tools::startup_arguments_tool::StartupArgumentsTool;
 use crate::views::error_dto::DesktopErrorDto;
 
 pub struct WriterDesktopService {
@@ -39,14 +41,16 @@ pub struct WriterDesktopService {
     recovery_service: WriterRecoveryService,
     file_session_service: WriterFileSessionService,
     recent_files_service: RecentFilesService,
+    startup_file_service: StartupFileService,
 }
 
 impl WriterDesktopService {
     pub fn new() -> Self {
         let state_root = AppStatePathTool::state_root();
-        Self::with_state_roots(
+        Self::compose(
             RecoveryPathTool::recovery_directory(),
             state_root.join(RECENT_FILES_METADATA_NAME),
+            StartupFileService::from_arguments(StartupArgumentsTool::arguments()),
         )
     }
 
@@ -59,6 +63,33 @@ impl WriterDesktopService {
     }
 
     pub fn with_state_roots(recovery_root: PathBuf, recent_metadata_path: PathBuf) -> Self {
+        Self::compose(
+            recovery_root,
+            recent_metadata_path,
+            StartupFileService::empty(),
+        )
+    }
+
+    pub fn with_state_roots_and_startup_arguments<I>(
+        recovery_root: PathBuf,
+        recent_metadata_path: PathBuf,
+        arguments: I,
+    ) -> Self
+    where
+        I: IntoIterator<Item = String>,
+    {
+        Self::compose(
+            recovery_root,
+            recent_metadata_path,
+            StartupFileService::from_arguments(arguments),
+        )
+    }
+
+    fn compose(
+        recovery_root: PathBuf,
+        recent_metadata_path: PathBuf,
+        startup_file_service: StartupFileService,
+    ) -> Self {
         let repository = InMemoryWriterDocumentRepository::new();
         let id_tool = SequentialWriterIdTool::new();
         let editor_service = turkuaz_office_writer::WriterEditorService::new(repository, id_tool);
@@ -69,7 +100,12 @@ impl WriterDesktopService {
             recent_files_service: RecentFilesService::new(RecentFilesRepository::new(
                 recent_metadata_path,
             )),
+            startup_file_service,
         }
+    }
+
+    pub fn take_startup_file(&mut self) -> Option<String> {
+        self.startup_file_service.take()
     }
 
     pub fn list_recent_files(&self) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {

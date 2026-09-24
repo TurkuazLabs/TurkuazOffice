@@ -6,6 +6,7 @@
 // Bagimli Oldugu Katman: Service
 
 pub mod recent_files_service;
+pub mod startup_file_service;
 pub mod writer_desktop_service;
 pub mod writer_docx_service;
 pub mod writer_file_session_service;

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF ve Recent Files contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files ve File Associations contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -161,6 +161,12 @@ required_files=(
   "docs/07-quality/recent-files-test-matrix.md"
   "docs/08-implementation/m1-recent-files-v0.2.0.md"
   "docs/08-implementation/m1-recent-files-validation.md"
+  "apps/desktop/src-tauri/src/tools/startup_arguments_tool.rs"
+  "apps/desktop/src-tauri/src/services/startup_file_service.rs"
+  "apps/desktop/src-tauri/tests/startup_file_service_tests.rs"
+  "docs/07-quality/file-associations-test-matrix.md"
+  "docs/08-implementation/m1-file-associations-v0.2.0.md"
+  "docs/08-implementation/m1-file-associations-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -382,4 +388,22 @@ grep -q 'RECENT_FILES_RIBBON_LIMIT' "$ROOT/apps/desktop/src/views/writer-ribbon.
 grep -q 'recent_files_are_canonical_deduplicated_limited_and_pruned' "$ROOT/apps/desktop/src-tauri/tests/recent_files_service_tests.rs"
 grep -q 'recent_record_does_not_change_native_file_session' "$ROOT/apps/desktop/src-tauri/tests/writer_recent_files_integration_tests.rs"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files verification BASARILI."
+
+
+grep -q 'desktop_file_associations:' "$ROOT/config/project.yml"
+grep -q 'running_instance_handoff: false' "$ROOT/config/project.yml"
+grep -q 'fileAssociations' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'application/x-turkuaz-office' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q '"tauri:build:windows": "tauri build --bundles nsis"' "$ROOT/apps/desktop/package.json"
+grep -q '"tauri:build:linux": "tauri build --bundles deb,appimage"' "$ROOT/apps/desktop/package.json"
+grep -q 'pub struct StartupArgumentsTool' "$ROOT/apps/desktop/src-tauri/src/tools/startup_arguments_tool.rs"
+grep -q 'pub struct StartupFileService' "$ROOT/apps/desktop/src-tauri/src/services/startup_file_service.rs"
+grep -q 'LocalFileTool::canonicalize_file' "$ROOT/apps/desktop/src-tauri/src/services/startup_file_service.rs"
+grep -q 'writer_take_startup_file' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writerTakeStartupFile' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'takeStartupFile' "$ROOT/apps/desktop/src/tools/tauri-writer.tool.ts"
+grep -q 'openNativePath(startupPath)' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'startup_file_service_selects_first_existing_tko_once' "$ROOT/apps/desktop/src-tauri/tests/startup_file_service_tests.rs"
+grep -q 'writer_desktop_exposes_startup_file_as_one_shot_state' "$ROOT/apps/desktop/src-tauri/tests/startup_file_service_tests.rs"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations verification BASARILI."

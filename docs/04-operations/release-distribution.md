@@ -34,3 +34,18 @@ CI build metadata; git commit, platform, toolchain ve dependency lock bilgisini 
 ## Rollback
 
 Schema migration forward-only olsa bile application update rollback durumunda future-schema belge riski vardir. Stable release migration policy bu riski compatibility test ile kapatmadan destructive schema migration yapmaz.
+
+
+## Native TKO file association
+
+M1 Desktop Writer native .tko association'i bundle-time installer metadata ile kurulur.
+
+- Windows: npm run tauri:build:windows -> NSIS installer.
+- Linux: npm run tauri:build:linux -> DEB + AppImage.
+- MIME: application/x-turkuaz-office.
+- DEB association metadata tasir.
+- AppImage portable build association kaydini garanti etmez.
+
+Association ile cold-start edilen process, path'i process argument olarak alir. StartupArgumentsTool ve StartupFileService yalniz existing canonical .tko path'i kabul eder.
+
+Calisan uygulamaya ikinci file-open isteginin tek instance'a aktarimi bu M1 minimumunun disindadir.

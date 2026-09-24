@@ -34,6 +34,14 @@
     },
   },
   bundle: {
-    active: false,
+    active: true,
+    fileAssociations: [
+      {
+        ext: ["tko"],
+        name: "Turkuaz Office Belgesi",
+        description: "Turkuaz Office Belgesi",
+        mimeType: "application/x-turkuaz-office",
+      },
+    ],
   },
 }

@@ -69,6 +69,12 @@ export class WriterSessionService {
     } catch (error: unknown) {
       this.repository.setRecoveryError(this.errorCode(error));
     }
+
+    const startupPath = await this.takeStartupFile();
+    if (startupPath !== null) {
+      await this.openNativePath(startupPath);
+      return;
+    }
     await this.createDocument();
   }
 
@@ -193,21 +199,7 @@ export class WriterSessionService {
       return;
     }
     await this.clearCurrentRecoveryForDiscard();
-    this.repository.setSelection(null);
-    this.repository.setTypingStyle(null);
-    await this.enqueue(async () => {
-      this.repository.setLoading();
-      try {
-        const result = await this.writerTool.openDocument(path);
-        this.repository.setOpenedDocument(result);
-        this.refreshLayoutEnvironment();
-        await this.refreshFileSession();
-        await this.recordRecentFile(result.path);
-      } catch (error: unknown) {
-        this.repository.setError(this.errorCode(error));
-        await this.refreshRecentFiles();
-      }
-    });
+    await this.openNativePath(path, true);
   }
 
   public recentFiles() {
@@ -947,6 +939,34 @@ export class WriterSessionService {
       this.repository.setError(this.errorCode(error));
       return false;
     }
+  }
+
+  private async takeStartupFile(): Promise<string | null> {
+    try {
+      return await this.writerTool.takeStartupFile();
+    } catch {
+      return null;
+    }
+  }
+
+  private async openNativePath(path: string, refreshRecentOnFailure = false): Promise<void> {
+    this.repository.setSelection(null);
+    this.repository.setTypingStyle(null);
+    await this.enqueue(async () => {
+      this.repository.setLoading();
+      try {
+        const result = await this.writerTool.openDocument(path);
+        this.repository.setOpenedDocument(result);
+        this.refreshLayoutEnvironment();
+        await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+        if (refreshRecentOnFailure) {
+          await this.refreshRecentFiles();
+        }
+      }
+    });
   }
 
   private async refreshRecentFiles(): Promise<void> {

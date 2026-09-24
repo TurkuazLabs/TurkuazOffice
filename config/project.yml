@@ -229,3 +229,20 @@ desktop_recent_files:
   prune_missing: true
   max_entries: 12
   ribbon_quick_open_entries: 3
+
+
+desktop_file_associations:
+  active: true
+  native_extension: .tko
+  mime_type: application/x-turkuaz-office
+  cold_start_open: true
+  recovery_precedence: true
+  running_instance_handoff: false
+  windows:
+    installer_target: nsis
+    association_supported: true
+  linux:
+    installer_target: deb
+    portable_target: appimage
+    deb_association_supported: true
+    appimage_association_guaranteed: false

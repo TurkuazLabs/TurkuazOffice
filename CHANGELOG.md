@@ -10,6 +10,15 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Native .tko file association bundle profili eklendi.
+- Windows NSIS ve Linux DEB association hedefleri sabitlendi; AppImage portable hedef association garantisi disinda tutuldu.
+- StartupArgumentsTool + StartupFileService ile existing TKO process argument secimi eklendi.
+- Startup path canonicalize edilir, foreign/missing path reddedilir ve one-shot state olarak expose edilir.
+- Recovery yoksa frontend cold-start association path'i normal native Open pipeline'i ile acar.
+- Association open mevcut TKO validation, file lock, external-change ve Recent Files zincirini yeniden kullanir.
+- Running-instance second-open single-instance handoff M1 minimum siniri olarak acikca dokumante edildi.
+
+
 - Native TKO Recent Files persistence eklendi.
 - AppStatePathTool Windows/Linux/macOS Desktop state root mantigini ortaklasti.
 - RecentFilesMetadataTool + RecentFilesRepository + RecentFilesService katmanlari eklendi.
