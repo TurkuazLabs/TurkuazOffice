@@ -6,7 +6,10 @@
 // Bagimli Oldugu Katman: Controller -> Service
 
 import type { ClipboardService } from "../services/clipboard.service";
+import type { LanguagePreferenceService } from "../services/language-preference.service";
 import type { WriterSessionService } from "../services/writer-session.service";
+import type { DesktopLocale } from "../config/localization";
+import type { DesktopLocaleOption } from "../language/language-packs";
 import type {
   RecentFileView,
   WriterFormatStateView,
@@ -20,7 +23,20 @@ export class WriterController {
   public constructor(
     private readonly service: WriterSessionService,
     private readonly clipboardService: ClipboardService,
+    private readonly languagePreferenceService: LanguagePreferenceService,
   ) {}
+
+  public locale(): DesktopLocale {
+    return this.languagePreferenceService.locale();
+  }
+
+  public localeOptions(): readonly DesktopLocaleOption[] {
+    return this.languagePreferenceService.options();
+  }
+
+  public setLocale(locale: string): void {
+    this.languagePreferenceService.setLocale(locale);
+  }
 
   public initializeSession(): Promise<void> {
     return this.service.initializeSession();

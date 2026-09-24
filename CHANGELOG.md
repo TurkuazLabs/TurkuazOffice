@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Desktop Turkish + English UI runtime localization eklendi.
+- tr-TR ve en-US locale listesi, default locale ve storage key merkezi config'e tasindi.
+- English typed language pack eklendi; Turkish/English pack'ler DesktopLabelKey tam coverage kontratini kullanir.
+- LanguageService Solid signal ile runtime reactive locale switch destekler.
+- LanguagePreferenceTool localStorage adaptorunu, LanguagePreferenceService validation/load/save is kuralini tasir.
+- WriterController locale/options/setLocale ince request yuzeyi eklendi.
+- Statusbar locale selector reload gerektirmeden tum mevcut UI label'larini gunceller.
+- UI locale ile canonical document locale birbirinden ayri tutulur.
+
+
 - Writer Template Foundation eklendi.
 - Built-in template katalogu inline kod yerine YAML config kaynaginda tutulur.
 - Bos Belge, Mektup ve Rapor canonical paragraph/style skeleton profilleri eklendi.

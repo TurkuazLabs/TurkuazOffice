@@ -111,4 +111,7 @@ export type DesktopLabelKey =
   | "zoomIn"
   | "zoomOut"
   | "zoomReset"
-  | "fontSubstituted";
+  | "fontSubstituted"
+  | "language"
+  | "languageTurkish"
+  | "languageEnglish";

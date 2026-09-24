@@ -52,6 +52,20 @@ export function WriterStatusbar(props: WriterStatusbarProps) {
           <span>{props.language.text("revision")}: {props.document.revision}</span>
         </>
       )}
+      <label class="writer-statusbar__language">
+        <span>{props.language.text("language")}</span>
+        <select
+          aria-label={props.language.text("language")}
+          value={props.controller.locale()}
+          onChange={(event) => props.controller.setLocale(event.currentTarget.value)}
+        >
+          {props.controller.localeOptions().map((option) => (
+            <option value={option.locale}>
+              {props.language.text(option.labelKey)}
+            </option>
+          ))}
+        </select>
+      </label>
       <div class="writer-statusbar__zoom" aria-label={props.language.text("zoom")}>
         <button
           type="button"

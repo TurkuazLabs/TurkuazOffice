@@ -8,6 +8,7 @@
 import { WriterController } from "../controllers/writer.controller";
 import { ClipboardService } from "../services/clipboard.service";
 import { LanguageService } from "../language/language-service";
+import { LanguagePreferenceService } from "../services/language-preference.service";
 import { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { WriterLayoutService } from "../services/writer-layout.service";
 import { WriterSessionService } from "../services/writer-session.service";
@@ -16,12 +17,19 @@ import { ClipboardTool } from "../tools/clipboard.tool";
 import { DomSelectionTool } from "../tools/dom-selection.tool";
 import { FontCapabilityTool } from "../tools/font-capability.tool";
 import { ImageAssetTool } from "../tools/image-asset.tool";
+import { LanguagePreferenceTool } from "../tools/language-preference.tool";
 import { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import { PrintTool } from "../tools/print.tool";
 import { TauriWriterTool } from "../tools/tauri-writer.tool";
 import { TextOffsetTool } from "../tools/text-offset.tool";
 
 const languageService = new LanguageService();
+const languagePreferenceTool = new LanguagePreferenceTool();
+const languagePreferenceService = new LanguagePreferenceService(
+  languageService,
+  languagePreferenceTool,
+);
+languagePreferenceService.initialize();
 const writerSessionRepository = new WriterSessionRepository();
 const writerTool = new TauriWriterTool();
 const textOffsetTool = new TextOffsetTool();
@@ -52,7 +60,11 @@ const clipboardService = new ClipboardService(
 );
 
 export const APP_CONTAINER = {
-  writerController: new WriterController(writerSessionService, clipboardService),
+  writerController: new WriterController(
+    writerSessionService,
+    clipboardService,
+    languagePreferenceService,
+  ),
   writerSessionRepository,
   languageService,
 } as const;
