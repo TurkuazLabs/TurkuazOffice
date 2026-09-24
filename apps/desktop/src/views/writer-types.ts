@@ -125,6 +125,12 @@ export interface WriterReloadView {
   readonly fileSession: WriterFileSessionView;
 }
 
+export interface RecentFileView {
+  readonly path: string;
+  readonly title: string;
+  readonly lastAccessedUnixMs: number;
+}
+
 export interface WriterFileOperationView {
   readonly document: WriterDocumentView;
   readonly path: string;
