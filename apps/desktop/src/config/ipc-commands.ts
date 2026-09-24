@@ -9,6 +9,8 @@ export const IPC_COMMANDS = {
   writerListRecentFiles: "writer_list_recent_files",
   writerRecordRecentFile: "writer_record_recent_file",
   writerCreateDocument: "writer_create_document",
+  writerListRecentFiles: "writer_list_recent_files",
+  writerRecordRecentFile: "writer_record_recent_file",
   writerOpenDocument: "writer_open_document",
   writerImportDocx: "writer_import_docx",
   writerExportDocx: "writer_export_docx",
