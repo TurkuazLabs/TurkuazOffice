@@ -10,12 +10,14 @@ templates:
   - id: blank
     name_key: templateBlank
     description_key: templateBlankDescription
+    quick_create: false
     paragraphs:
       - alignment: left
 
   - id: letter
     name_key: templateLetter
     description_key: templateLetterDescription
+    quick_create: true
     paragraphs:
       - alignment: right
         space_after_twips: 240
@@ -28,6 +30,7 @@ templates:
   - id: report
     name_key: templateReport
     description_key: templateReportDescription
+    quick_create: true
     paragraphs:
       - alignment: center
         bold: true
