@@ -94,6 +94,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/file-associations-test-matrix.md`
 - `07-quality/template-foundation-test-matrix.md`
 - `07-quality/turkish-english-ui-test-matrix.md`
+- `07-quality/keyboard-only-smoke-test.md`
 
 ## 08 Implementation
 
@@ -128,6 +129,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m1-template-foundation-validation.md`
 - `08-implementation/m1-turkish-english-ui-v0.2.0.md`
 - `08-implementation/m1-turkish-english-ui-validation.md`
+- `08-implementation/m1-keyboard-only-smoke-v0.2.0.md`
+- `08-implementation/m1-keyboard-only-smoke-validation.md`
 
 ## Kural
 
@@ -167,6 +170,7 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/file-associations-test-matrix.md`
 - `07-quality/template-foundation-test-matrix.md`
 - `07-quality/turkish-english-ui-test-matrix.md`
+- `07-quality/keyboard-only-smoke-test.md`
 - `08-implementation/m1-desktop-shell-v0.2.0.md`
 - `08-implementation/m1-desktop-shell-validation.md`
 - `08-implementation/m1-rich-text-ime-v0.2.0.md`
@@ -195,3 +199,5 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/m1-template-foundation-validation.md`
 - `08-implementation/m1-turkish-english-ui-v0.2.0.md`
 - `08-implementation/m1-turkish-english-ui-validation.md`
+- `08-implementation/m1-keyboard-only-smoke-v0.2.0.md`
+- `08-implementation/m1-keyboard-only-smoke-validation.md`
