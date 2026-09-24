@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Keyboard-Only Smoke baseline tamamlandi.
+- Writer global shortcut routing KeyboardShortcutService icinde typed action resolver'a tasindi.
+- Ctrl/Meta New/Open/Save/SaveAs/Print/Undo/Redo/B/I/U/Zoom shortcut regression testleri eklendi.
+- IME composition, startup recovery ve Print Preview context bloklari test edildi.
+- Visible shortcut controls aria-keyshortcuts metadata ile baglandi.
+- Editor, locale select ve statusbar zoom kontrollerinde belirgin focus-visible halkalari eklendi.
+- Manual keyboard-only smoke checklist kalite dokumani eklendi.
+- M1 Desktop Writer feature kapsami roadmap seviyesinde tamamlandi; hosted runner steps=null altyapi sorunu nedeniyle final compiler-backed validation pending tutuldu.
+
+
 - Desktop Turkish + English UI runtime localization eklendi.
 - tr-TR ve en-US locale listesi, default locale ve storage key merkezi config'e tasindi.
 - English typed language pack eklendi; Turkish/English pack'ler DesktopLabelKey tam coverage kontratini kullanir.

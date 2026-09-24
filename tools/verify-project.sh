@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI + Keyboard Smoke kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations, Template Foundation ve Turkish English UI contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations, Template Foundation, Turkish English UI ve Keyboard Smoke contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -186,6 +186,11 @@ required_files=(
   "docs/07-quality/turkish-english-ui-test-matrix.md"
   "docs/08-implementation/m1-turkish-english-ui-v0.2.0.md"
   "docs/08-implementation/m1-turkish-english-ui-validation.md"
+  "apps/desktop/src/services/keyboard-shortcut.service.ts"
+  "apps/desktop/src/services/keyboard-shortcut.service.test.ts"
+  "docs/07-quality/keyboard-only-smoke-test.md"
+  "docs/08-implementation/m1-keyboard-only-smoke-v0.2.0.md"
+  "docs/08-implementation/m1-keyboard-only-smoke-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -464,4 +469,21 @@ grep -q 'switches between Turkish and English packs at runtime' "$ROOT/apps/desk
 grep -q 'loads persisted English locale and saves later changes' "$ROOT/apps/desktop/src/services/language-preference.service.test.ts"
 grep -q 'keeps Writer usable when preference storage throws' "$ROOT/apps/desktop/src/services/language-preference.service.test.ts"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI verification BASARILI."
+
+
+grep -q 'desktop_keyboard_smoke:' "$ROOT/config/project.yml"
+grep -q 'typed_shortcut_resolver: true' "$ROOT/config/project.yml"
+grep -q 'WRITER_SHORTCUT_ACTIONS' "$ROOT/apps/desktop/src/config/keyboard.ts"
+grep -q 'WRITER_ARIA_SHORTCUTS' "$ROOT/apps/desktop/src/config/keyboard.ts"
+grep -q 'class KeyboardShortcutService' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.ts"
+grep -q 'resolveKeyboardShortcut' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
+grep -q 'WRITER_SHORTCUT_ACTIONS.closePrintPreview' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.newDocument}' "$ROOT/apps/desktop/src/views/writer-ribbon.tsx"
+grep -q 'aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.zoomReset}' "$ROOT/apps/desktop/src/views/writer-statusbar.tsx"
+grep -q 'writer-paragraph:focus-visible' "$ROOT/apps/desktop/src/views/app.css"
+grep -q 'statusbar-button:focus-visible' "$ROOT/apps/desktop/src/views/app.css"
+grep -q 'maps Ctrl+%s to %s' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.test.ts"
+grep -q 'blocks edit shortcuts during IME composition' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.test.ts"
+grep -q 'restricts print preview shortcuts to Escape and print' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.test.ts"
+
+echo "Turkuaz Office Writer v0.2.0 M1 Keyboard Smoke verification BASARILI."

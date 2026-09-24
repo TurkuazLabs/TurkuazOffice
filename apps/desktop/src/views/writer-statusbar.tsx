@@ -5,6 +5,7 @@
 // # Aciklama: File path, dirty state, revision, fallback bilgisi ve session-only zoom kontrollerini render eder
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
+import { WRITER_ARIA_SHORTCUTS } from "../config/keyboard";
 import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
 import type {
@@ -71,6 +72,7 @@ export function WriterStatusbar(props: WriterStatusbarProps) {
           type="button"
           class="statusbar-button"
           aria-label={props.language.text("zoomOut")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.zoomOut}
           onClick={() => props.controller.zoomOut()}
         >
           -
@@ -79,6 +81,7 @@ export function WriterStatusbar(props: WriterStatusbarProps) {
           type="button"
           class="statusbar-button statusbar-button--zoom"
           aria-label={props.language.text("zoomReset")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.zoomReset}
           onClick={() => props.controller.resetZoom()}
         >
           {props.zoomPercent}%
@@ -87,6 +90,7 @@ export function WriterStatusbar(props: WriterStatusbarProps) {
           type="button"
           class="statusbar-button"
           aria-label={props.language.text("zoomIn")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.zoomIn}
           onClick={() => props.controller.zoomIn()}
         >
           +

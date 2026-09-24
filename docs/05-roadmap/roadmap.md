@@ -34,7 +34,7 @@ Durum: Foundation Hardening tamamlandi.
 
 ## M1 - Desktop Writer v0.2.0
 
-Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations Minimum, Template Foundation ve Turkish + English UI implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
+Durum: Feature kapsaminda tamamlandi; compiler-backed final validation pending. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations Minimum, Template Foundation, Turkish + English UI ve Keyboard-Only Smoke implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M1 parcasi
 
@@ -88,10 +88,13 @@ Durum: Devam ediyor. Headless Writer Domain, Desktop Shell, rich-text/IME, typog
 - Native TKO Windows NSIS + Linux DEB file association ve cold-start open baseline.
 - Built-in YAML Writer template catalog, Bos/Mektup/Rapor skeleton ve ribbon quick-create baseline.
 - Runtime tr-TR/en-US Desktop UI, typed language pack coverage ve kalici locale preference baseline.
+- Typed keyboard shortcut resolver, aria-keyshortcuts ve keyboard-only smoke baseline.
 
-### Siradaki M1 parcasi
+### M1 kapanis durumu
 
-- Keyboard-only smoke test.
+M1 feature kapsaminda planlanan alt fazlar tamamlandi.
+
+Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compiler-backed final validation pending tutulur. Bu altyapi durumu M1 source kapsamindan ayri izlenir.
 
 ## M2 - Sheet v0.3.0
 

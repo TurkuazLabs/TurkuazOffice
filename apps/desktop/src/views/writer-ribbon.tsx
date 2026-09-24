@@ -8,6 +8,7 @@
 import { For, Show } from "solid-js";
 
 import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
+import { WRITER_ARIA_SHORTCUTS } from "../config/keyboard";
 import {
   WRITER_ALIGNMENT_COMMANDS,
   WRITER_RIBBON_TABS,
@@ -69,6 +70,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button toolbar-button--primary"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.newDocument}
               onClick={() => void props.controller.createDocument()}
             >
               {props.language.text("newDocument")}
@@ -76,6 +78,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.open}
               onClick={() => void props.controller.openDocument()}
             >
               {props.language.text("open")}
@@ -83,6 +86,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.save}
               onClick={() => void props.controller.saveDocument()}
             >
               {props.language.text("save")}
@@ -90,6 +94,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.saveAs}
               onClick={() => void props.controller.saveDocumentAs()}
             >
               {props.language.text("saveAs")}
@@ -118,6 +123,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button
               type="button"
               class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.print}
               onClick={() => void props.controller.openPrintPreview()}
             >
               {props.language.text("print")}
@@ -178,10 +184,20 @@ export function WriterRibbon(props: WriterRibbonProps) {
 
         <div class="ribbon-group">
           <div class="ribbon-group__commands">
-            <button type="button" class="toolbar-button" onClick={() => void props.controller.undo()}>
+            <button
+              type="button"
+              class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.undo}
+              onClick={() => void props.controller.undo()}
+            >
               {props.language.text("undo")}
             </button>
-            <button type="button" class="toolbar-button" onClick={() => void props.controller.redo()}>
+            <button
+              type="button"
+              class="toolbar-button"
+              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.redo}
+              onClick={() => void props.controller.redo()}
+            >
               {props.language.text("redo")}
             </button>
           </div>
@@ -242,6 +258,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
                 class="toolbar-button toolbar-button--format"
                 disabled={!formatState().canFormat}
                 aria-label={props.language.text("bold")}
+                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.bold}
                 aria-pressed={formatState().bold}
                 onMouseDown={preserveEditorSelection}
                 onClick={() => void props.controller.toggleBold()}
@@ -253,6 +270,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
                 class="toolbar-button toolbar-button--format toolbar-button--italic"
                 disabled={!formatState().canFormat}
                 aria-label={props.language.text("italic")}
+                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.italic}
                 aria-pressed={formatState().italic}
                 onMouseDown={preserveEditorSelection}
                 onClick={() => void props.controller.toggleItalic()}
@@ -264,6 +282,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
                 class="toolbar-button toolbar-button--format toolbar-button--underline"
                 disabled={!formatState().canFormat}
                 aria-label={props.language.text("underline")}
+                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.underline}
                 aria-pressed={formatState().underline}
                 onMouseDown={preserveEditorSelection}
                 onClick={() => void props.controller.toggleUnderline()}

@@ -8,7 +8,7 @@
 import { Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
 import { WRITER_PARAGRAPH_MARKER_VALUE } from "../config/dom-contract";
-import { KEYBOARD_KEYS } from "../config/keyboard";
+import { WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
 import { WRITER_AUTOSAVE_INTERVAL_MS, WRITER_EXTERNAL_CHANGE_POLL_MS } from "../config/runtime-config";
 import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
@@ -39,95 +39,70 @@ export function WriterShell(props: WriterShellProps) {
   };
 
   const onShortcut = (event: KeyboardEvent) => {
-    const modifier = event.ctrlKey || event.metaKey;
-    const key = event.key.toLowerCase();
+    const action = props.controller.resolveKeyboardShortcut({
+      key: event.key,
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+      isComposing: event.isComposing,
+      printPreviewOpen: props.repository.printPreviewLayout() !== null,
+      recoveryBlocking:
+        props.repository.document() === null &&
+        props.repository.recoveryCandidates().length > 0,
+    });
+    if (action === null) {
+      return;
+    }
 
-    if (props.repository.printPreviewLayout() !== null) {
-      if (key === KEYBOARD_KEYS.escape) {
-        event.preventDefault();
+    event.preventDefault();
+    switch (action) {
+      case WRITER_SHORTCUT_ACTIONS.closePrintPreview:
         props.controller.closePrintPreview();
         return;
-      }
-      if (modifier && key === KEYBOARD_KEYS.p) {
-        event.preventDefault();
+      case WRITER_SHORTCUT_ACTIONS.print:
         void props.controller.printDocument();
-      }
-      return;
-    }
-
-    if (!modifier || event.isComposing) {
-      return;
-    }
-
-    if (props.repository.document() === null && props.repository.recoveryCandidates().length > 0) {
-      return;
-    }
-
-    if (key === KEYBOARD_KEYS.plus || key === KEYBOARD_KEYS.equal) {
-      event.preventDefault();
-      props.controller.zoomIn();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.minus) {
-      event.preventDefault();
-      props.controller.zoomOut();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.zero) {
-      event.preventDefault();
-      props.controller.resetZoom();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.z && !event.shiftKey) {
-      event.preventDefault();
-      commitFocusedParagraph();
-      void props.controller.undo();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.y || (key === KEYBOARD_KEYS.z && event.shiftKey)) {
-      event.preventDefault();
-      commitFocusedParagraph();
-      void props.controller.redo();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.n) {
-      event.preventDefault();
-      void props.controller.createDocument();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.o) {
-      event.preventDefault();
-      void props.controller.openDocument();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.p) {
-      event.preventDefault();
-      void props.controller.openPrintPreview();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.s && event.shiftKey) {
-      event.preventDefault();
-      void props.controller.saveDocumentAs();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.s) {
-      event.preventDefault();
-      void props.controller.saveDocument();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.b) {
-      event.preventDefault();
-      void props.controller.toggleBold();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.i) {
-      event.preventDefault();
-      void props.controller.toggleItalic();
-      return;
-    }
-    if (key === KEYBOARD_KEYS.u) {
-      event.preventDefault();
-      void props.controller.toggleUnderline();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.zoomIn:
+        props.controller.zoomIn();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.zoomOut:
+        props.controller.zoomOut();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.zoomReset:
+        props.controller.resetZoom();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.undo:
+        commitFocusedParagraph();
+        void props.controller.undo();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.redo:
+        commitFocusedParagraph();
+        void props.controller.redo();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.newDocument:
+        void props.controller.createDocument();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.open:
+        void props.controller.openDocument();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.printPreview:
+        void props.controller.openPrintPreview();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.saveAs:
+        void props.controller.saveDocumentAs();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.save:
+        void props.controller.saveDocument();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.bold:
+        void props.controller.toggleBold();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.italic:
+        void props.controller.toggleItalic();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.underline:
+        void props.controller.toggleUnderline();
+        return;
     }
   };
 

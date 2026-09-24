@@ -290,6 +290,11 @@ select {
   box-shadow: inset 3px 0 0 var(--to-accent);
 }
 
+.writer-paragraph:focus-visible {
+  outline: 2px solid var(--to-border-focus);
+  outline-offset: 2px;
+}
+
 .writer-run--bold {
   font-weight: 700;
 }
@@ -334,7 +339,8 @@ select {
 
 .writer-statusbar__language select:focus-visible {
   border-color: var(--to-border-focus);
-  outline: none;
+  outline: 2px solid color-mix(in srgb, var(--to-border-focus) 30%, transparent);
+  outline-offset: 1px;
 }
 
 .writer-statusbar__zoom {
@@ -359,6 +365,10 @@ select {
   border-color: var(--to-border-focus);
   background: var(--to-bg-toolbar-hover);
   outline: none;
+}
+
+.statusbar-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--to-border-focus);
 }
 
 .statusbar-button--zoom {
