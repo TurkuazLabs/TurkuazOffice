@@ -58,10 +58,7 @@ impl WriterDesktopService {
         Self::with_state_roots(recovery_root, recent_metadata_path)
     }
 
-    pub fn with_state_roots(
-        recovery_root: PathBuf,
-        recent_metadata_path: PathBuf,
-    ) -> Self {
+    pub fn with_state_roots(recovery_root: PathBuf, recent_metadata_path: PathBuf) -> Self {
         let repository = InMemoryWriterDocumentRepository::new();
         let id_tool = SequentialWriterIdTool::new();
         let editor_service = turkuaz_office_writer::WriterEditorService::new(repository, id_tool);
