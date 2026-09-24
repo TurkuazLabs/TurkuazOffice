@@ -5,7 +5,7 @@
 // Aciklama: tr-TR/en-US runtime secimini Solid signal uzerinden cozer; document locale ile UI locale'i ayri tutar
 // Bagimli Oldugu Katman: Language -> Config
 
-import { createSignal, type Accessor } from "solid-js";
+import { createSignal, type Accessor, type Signal } from "solid-js";
 
 import {
   DEFAULT_DESKTOP_LOCALE,
@@ -19,7 +19,7 @@ import {
 import type { DesktopLabelKey } from "./labels";
 
 export class LanguageService {
-  private readonly localeSignal;
+  private readonly localeSignal: Signal<DesktopLocale>;
 
   public readonly locale: Accessor<DesktopLocale>;
 
