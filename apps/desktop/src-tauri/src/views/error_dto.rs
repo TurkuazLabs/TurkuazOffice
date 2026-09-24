@@ -19,9 +19,12 @@ use crate::config::constants::{
     ERROR_FILE_EXTENSION_INVALID, ERROR_FILE_LOCKED, ERROR_FILE_PATH_INVALID,
     ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO, ERROR_NOTHING_TO_UNDO,
     ERROR_PARAGRAPH_NOT_FOUND, ERROR_RECOVERY_INVALID, ERROR_RECOVERY_NOT_FOUND,
-    ERROR_RECOVERY_READ_FAILED, ERROR_RECOVERY_WRITE_FAILED, ERROR_RUN_NOT_FOUND,
+    ERROR_RECENT_FILES_INVALID, ERROR_RECENT_FILES_READ_FAILED,
+    ERROR_RECENT_FILES_WRITE_FAILED, ERROR_RECOVERY_READ_FAILED, ERROR_RECOVERY_WRITE_FAILED,
+    ERROR_RUN_NOT_FOUND,
     ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
 };
+use crate::services::recent_files_service::RecentFilesError;
 use crate::services::writer_docx_service::WriterDocxError;
 use crate::services::writer_file_session_service::WriterFileSessionError;
 use crate::services::writer_pdf_service::WriterPdfError;
@@ -97,6 +100,18 @@ impl From<WriterPdfError> for DesktopErrorDto {
                 | PdfWriterError::GlyphMissing,
             )) => Self::new(ERROR_PDF_FONT_UNAVAILABLE),
             WriterPdfError::Format(_) => Self::new(ERROR_PDF_EXPORT_FAILED),
+        }
+    }
+}
+
+impl From<RecentFilesError> for DesktopErrorDto {
+    fn from(error: RecentFilesError) -> Self {
+        match error {
+            RecentFilesError::InvalidPath | RecentFilesError::MetadataInvalid => {
+                Self::new(ERROR_RECENT_FILES_INVALID)
+            }
+            RecentFilesError::ReadFailed => Self::new(ERROR_RECENT_FILES_READ_FAILED),
+            RecentFilesError::WriteFailed => Self::new(ERROR_RECENT_FILES_WRITE_FAILED),
         }
     }
 }
