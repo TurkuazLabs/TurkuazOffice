@@ -14,6 +14,7 @@ use crate::repositories::writer_document_repository::WriterDocumentRepository;
 use crate::services::writer_command::{WriterCommand, WriterCommandError};
 use crate::services::writer_command_service::WriterCommandService;
 use crate::services::writer_document_factory_service::WriterDocumentFactoryService;
+use crate::services::writer_template_service::{WriterTemplateError, WriterTemplateService};
 use crate::services::writer_types::{Block, Paragraph, WriterDocument};
 use crate::tools::writer_id_tool::WriterIdTool;
 
@@ -21,6 +22,7 @@ use crate::tools::writer_id_tool::WriterIdTool;
 pub enum WriterEditorError {
     DocumentNotFound,
     Command(WriterCommandError),
+    Template(WriterTemplateError),
     NothingToUndo,
     NothingToRedo,
 }
@@ -28,6 +30,12 @@ pub enum WriterEditorError {
 impl From<WriterCommandError> for WriterEditorError {
     fn from(value: WriterCommandError) -> Self {
         Self::Command(value)
+    }
+}
+
+impl From<WriterTemplateError> for WriterEditorError {
+    fn from(value: WriterTemplateError) -> Self {
+        Self::Template(value)
     }
 }
 
@@ -68,6 +76,17 @@ where
         self.history
             .insert(document.id.clone(), CommandHistory::default());
         document
+    }
+
+    pub fn create_document_from_template(
+        &mut self,
+        template_id: &str,
+    ) -> Result<WriterDocument, WriterEditorError> {
+        let document = WriterTemplateService::create(&self.id_tool, template_id)?;
+        self.repository.save(document.clone());
+        self.history
+            .insert(document.id.clone(), CommandHistory::default());
+        Ok(document)
     }
 
     pub fn get_document(&self, id: &DocumentId) -> Option<WriterDocument> {
