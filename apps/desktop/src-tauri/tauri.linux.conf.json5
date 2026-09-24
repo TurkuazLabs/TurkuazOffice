@@ -1,0 +1,11 @@
+// # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/tauri.linux.conf.json5
+// # 📌 Amac: Linux Desktop release bundle hedeflerini AppImage ve DEB olarak sinirlar
+// # 📌 Modul - FileType: Config - JSON5
+// # Version: 0.2.0
+// # Aciklama: Portable AppImage ile file association destekleyen DEB paket hedeflerini platform config seviyesinde sabitler
+// Bagimli Oldugu Katman: Config
+{
+  bundle: {
+    targets: ["appimage", "deb"],
+  },
+}
