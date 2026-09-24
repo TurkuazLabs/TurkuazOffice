@@ -12,8 +12,8 @@ Bagimli Oldugu Katman: Documentation
 
 - bundle.fileAssociations ana Tauri config'tedir.
 - .tko extension ve MIME central bundle config'tedir.
-- Windows target NSIS platform config'tedir.
-- Linux targets AppImage + DEB platform config'tedir.
+- Windows build script NSIS bundle hedefini explicit secer.
+- Linux build script DEB + AppImage bundle hedeflerini explicit secer.
 - Process argv okuma Tool katmanindadir.
 - Native startup path secimi Service katmanindadir.
 - Tauri Controller yalniz take_startup_file requestini aktarir.
