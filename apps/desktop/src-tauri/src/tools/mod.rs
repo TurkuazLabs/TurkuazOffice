@@ -10,6 +10,7 @@ pub mod file_fingerprint_tool;
 pub mod file_lock_tool;
 pub mod local_file_tool;
 pub mod system_font_tool;
+pub mod startup_arguments_tool;
 
 pub mod recovery_metadata_tool;
 pub mod recent_files_metadata_tool;
