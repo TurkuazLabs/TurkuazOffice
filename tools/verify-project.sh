@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX ve PDF contract kontrollerini uygular
+# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF ve Recent Files contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -149,6 +149,18 @@ required_files=(
   "docs/07-quality/pdf-export-test-matrix.md"
   "docs/08-implementation/m1-pdf-export-v0.2.0.md"
   "docs/08-implementation/m1-pdf-export-validation.md"
+  "apps/desktop/src-tauri/src/tools/app_state_path_tool.rs"
+  "apps/desktop/src-tauri/src/tools/recent_files_metadata_tool.rs"
+  "apps/desktop/src-tauri/src/repositories/mod.rs"
+  "apps/desktop/src-tauri/src/repositories/recent_files_repository.rs"
+  "apps/desktop/src-tauri/src/services/recent_files_service.rs"
+  "apps/desktop/src-tauri/src/views/recent_file_dto.rs"
+  "apps/desktop/src-tauri/tests/recent_files_service_tests.rs"
+  "apps/desktop/src-tauri/tests/writer_recent_files_integration_tests.rs"
+  "apps/desktop/src/config/recent-files.ts"
+  "docs/07-quality/recent-files-test-matrix.md"
+  "docs/08-implementation/m1-recent-files-v0.2.0.md"
+  "docs/08-implementation/m1-recent-files-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -351,4 +363,23 @@ grep -q 'writerExportPdf' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
 grep -q 'exportPdf' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
 grep -q 'pdf_export_writes_pdf_signature_and_keeps_native_session_untracked' "$ROOT/apps/desktop/src-tauri/tests/writer_pdf_service_tests.rs"
 
-echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF verification BASARILI."
+
+
+grep -q 'desktop_recent_files:' "$ROOT/config/project.yml"
+grep -q 'path_normalization: canonical' "$ROOT/config/project.yml"
+grep -q 'RECENT_FILES_MAX_ENTRIES' "$ROOT/apps/desktop/src-tauri/src/config/constants.rs"
+grep -q 'pub struct AppStatePathTool' "$ROOT/apps/desktop/src-tauri/src/tools/app_state_path_tool.rs"
+grep -q 'canonicalize_file' "$ROOT/apps/desktop/src-tauri/src/tools/local_file_tool.rs"
+grep -q 'pub struct RecentFilesRepository' "$ROOT/apps/desktop/src-tauri/src/repositories/recent_files_repository.rs"
+grep -q 'pub struct RecentFilesService' "$ROOT/apps/desktop/src-tauri/src/services/recent_files_service.rs"
+grep -q 'writer_list_recent_files' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writer_record_recent_file' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writerListRecentFiles' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'writerRecordRecentFile' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'openRecentFile' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'recordRecentFile' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
+grep -q 'RECENT_FILES_RIBBON_LIMIT' "$ROOT/apps/desktop/src/views/writer-ribbon.tsx"
+grep -q 'recent_files_are_canonical_deduplicated_limited_and_pruned' "$ROOT/apps/desktop/src-tauri/tests/recent_files_service_tests.rs"
+grep -q 'recent_record_does_not_change_native_file_session' "$ROOT/apps/desktop/src-tauri/tests/writer_recent_files_integration_tests.rs"
+
+echo "Turkuaz Office Writer v0.2.0 Font Layout + Clipboard + Print + DOCX + PDF + Recent Files verification BASARILI."

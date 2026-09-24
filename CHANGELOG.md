@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.2.0 - M1 Writer Development
 
+- Native TKO Recent Files persistence eklendi.
+- AppStatePathTool Windows/Linux/macOS Desktop state root mantigini ortaklasti.
+- RecentFilesMetadataTool + RecentFilesRepository + RecentFilesService katmanlari eklendi.
+- Recent path kayitlari fs::canonicalize ile normalize edilir; duplicate kayit basa tasinir.
+- Recent liste 12 kayitla sinirli, latest-first ve missing-file prune desteklidir.
+- Basarili native Open/Save sonrasi recent record IPC zinciri eklendi; metadata hatasi document Open/Save'i rollback etmez.
+- Home ribbon ilk 3 recent dosyayi tam path tooltip ile quick-open butonu olarak gosterir.
+- Recent quick-open mevcut unsaved-changes ve file-protection akislarini yeniden kullanir.
+
+
 - PDF Export Minimum format adapteri eklendi.
 - PDF paragraph text, B/I/U, font family/size, alignment, page geometry, tab ve line break export baseline'i eklendi.
 - Multi-page text flow ve font metric tabanli character wrapping eklendi.

@@ -8,6 +8,7 @@
 import type { ClipboardService } from "../services/clipboard.service";
 import type { WriterSessionService } from "../services/writer-session.service";
 import type {
+  RecentFileView,
   WriterFormatStateView,
   WriterSelectionView,
   WriterStyledRunInputView,
@@ -50,6 +51,14 @@ export class WriterController {
 
   public openDocument(): Promise<void> {
     return this.service.openDocument();
+  }
+
+  public openRecentFile(path: string): Promise<void> {
+    return this.service.openRecentFile(path);
+  }
+
+  public recentFiles(): readonly RecentFileView[] {
+    return this.service.recentFiles();
   }
 
   public saveDocument(): Promise<void> {

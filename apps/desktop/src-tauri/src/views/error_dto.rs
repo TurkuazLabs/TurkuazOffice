@@ -14,6 +14,7 @@ use turkuaz_office_writer::{
 use crate::config::constants::{
     ERROR_COMMAND_FAILED, ERROR_DOCUMENT_NOT_FOUND, ERROR_DOCX_INVALID, ERROR_DOCX_UNSUPPORTED,
     ERROR_EXTERNAL_CHANGE_CONFLICT, ERROR_PDF_EXPORT_FAILED, ERROR_PDF_FONT_UNAVAILABLE,
+    ERROR_RECENT_FILES_INVALID, ERROR_RECENT_FILES_READ_FAILED, ERROR_RECENT_FILES_WRITE_FAILED,
     ERROR_PDF_UNSUPPORTED,
     ERROR_FILE_EXTENSION_INVALID, ERROR_FILE_LOCKED, ERROR_FILE_PATH_INVALID,
     ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO, ERROR_NOTHING_TO_UNDO,
@@ -24,6 +25,7 @@ use crate::config::constants::{
 use crate::services::writer_docx_service::WriterDocxError;
 use crate::services::writer_file_session_service::WriterFileSessionError;
 use crate::services::writer_pdf_service::WriterPdfError;
+use crate::services::recent_files_service::RecentFilesError;
 use crate::services::writer_recovery_service::WriterRecoveryError;
 use crate::services::writer_storage_service::WriterStorageError;
 
@@ -113,6 +115,18 @@ impl From<WriterStorageError> for DesktopErrorDto {
                 TkoProfileError::MigrationRequired,
             )) => Self::new(ERROR_TKO_MIGRATION_REQUIRED),
             WriterStorageError::Package(_) => Self::new(ERROR_TKO_INVALID),
+        }
+    }
+}
+
+impl From<RecentFilesError> for DesktopErrorDto {
+    fn from(error: RecentFilesError) -> Self {
+        match error {
+            RecentFilesError::InvalidPath | RecentFilesError::MetadataInvalid => {
+                Self::new(ERROR_RECENT_FILES_INVALID)
+            }
+            RecentFilesError::ReadFailed => Self::new(ERROR_RECENT_FILES_READ_FAILED),
+            RecentFilesError::WriteFailed => Self::new(ERROR_RECENT_FILES_WRITE_FAILED),
         }
     }
 }

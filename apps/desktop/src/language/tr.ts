@@ -56,6 +56,7 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   menuView: "Gorunum",
   menuComingSoon: "Bu ribbon sekmesi sonraki fazda aktif olacak",
   documentGroup: "Belge",
+  recentFilesGroup: "Son Dosyalar",
   historyGroup: "Gecmis",
   fontGroup: "Yazi Tipi",
   paragraphGroup: "Paragraf",

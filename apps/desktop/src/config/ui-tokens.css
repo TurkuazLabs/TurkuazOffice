@@ -25,6 +25,8 @@
   --to-radius-sm: 6px;
   --to-radius-md: 10px;
   --to-toolbar-height: 48px;
+  --to-recent-ribbon-group-max-width: 360px;
+  --to-recent-ribbon-button-max-width: 112px;
   --to-status-height: 28px;
   --to-space-1: 4px;
   --to-space-2: 8px;

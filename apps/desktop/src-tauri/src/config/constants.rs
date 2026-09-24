@@ -26,6 +26,9 @@ pub const ERROR_DOCX_UNSUPPORTED: &str = "writer.docx_unsupported";
 pub const ERROR_PDF_EXPORT_FAILED: &str = "writer.pdf_export_failed";
 pub const ERROR_PDF_FONT_UNAVAILABLE: &str = "writer.pdf_font_unavailable";
 pub const ERROR_PDF_UNSUPPORTED: &str = "writer.pdf_unsupported";
+pub const ERROR_RECENT_FILES_READ_FAILED: &str = "writer.recent_files_read_failed";
+pub const ERROR_RECENT_FILES_WRITE_FAILED: &str = "writer.recent_files_write_failed";
+pub const ERROR_RECENT_FILES_INVALID: &str = "writer.recent_files_invalid";
 
 pub const ERROR_FILE_LOCKED: &str = "writer.file_locked";
 pub const ERROR_EXTERNAL_CHANGE_CONFLICT: &str = "writer.external_change_conflict";
@@ -40,6 +43,9 @@ pub const APP_DIRECTORY_NAME: &str = "TurkuazOffice";
 pub const LINUX_APP_DIRECTORY_NAME: &str = "turkuaz-office";
 pub const TURKUAZLABS_DIRECTORY_NAME: &str = "TurkuazLabs";
 pub const RECOVERY_DIRECTORY_NAME: &str = "recovery";
+pub const RECENT_FILES_METADATA_NAME: &str = "recent-files.yml";
+pub const RECENT_FILES_MAX_ENTRIES: usize = 12;
+pub const MAX_RECENT_FILES_METADATA_BYTES: u64 = 65_536;
 pub const RECOVERY_SNAPSHOT_PREFIX: &str = "snapshot-";
 pub const RECOVERY_SNAPSHOT_EXTENSION: &str = "tko";
 pub const RECOVERY_METADATA_EXTENSION: &str = "yml";
@@ -56,3 +62,6 @@ pub const SAFE_SAVE_TEMP_SUFFIX: &str = "turkuaz-save.tmp";
 pub const SAFE_SAVE_BACKUP_SUFFIX: &str = "turkuaz-save.bak";
 
 pub const CURRENT_DIRECTORY_PATH: &str = ".";
+pub const WINDOWS_VERBATIM_PATH_PREFIX: &str = r"\\?\";
+pub const WINDOWS_VERBATIM_UNC_PATH_PREFIX: &str = r"\\?\UNC\";
+pub const WINDOWS_UNC_PATH_PREFIX: &str = r"\\";

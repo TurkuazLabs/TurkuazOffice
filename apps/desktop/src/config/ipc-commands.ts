@@ -6,6 +6,8 @@
 // Bagimli Oldugu Katman: Config
 
 export const IPC_COMMANDS = {
+  writerListRecentFiles: "writer_list_recent_files",
+  writerRecordRecentFile: "writer_record_recent_file",
   writerCreateDocument: "writer_create_document",
   writerOpenDocument: "writer_open_document",
   writerImportDocx: "writer_import_docx",

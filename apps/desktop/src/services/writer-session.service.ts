@@ -59,6 +59,7 @@ export class WriterSessionService {
   ) {}
 
   public async initializeSession(): Promise<void> {
+    await this.refreshRecentFiles();
     try {
       const candidates = await this.writerTool.listRecoverySnapshots();
       if (candidates.length > 0) {
@@ -175,13 +176,42 @@ export class WriterSessionService {
     await this.enqueue(async () => {
       this.repository.setLoading();
       try {
-        this.repository.setOpenedDocument(await this.writerTool.openDocument(path));
+        const result = await this.writerTool.openDocument(path);
+        this.repository.setOpenedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  public async openRecentFile(path: string): Promise<void> {
+    await this.prepareFileOperation();
+    if (!(await this.confirmDiscardIfNeeded())) {
+      return;
+    }
+    await this.clearCurrentRecoveryForDiscard();
+    this.repository.setSelection(null);
+    this.repository.setTypingStyle(null);
+    await this.enqueue(async () => {
+      this.repository.setLoading();
+      try {
+        const result = await this.writerTool.openDocument(path);
+        this.repository.setOpenedDocument(result);
+        this.refreshLayoutEnvironment();
+        await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+        await this.refreshRecentFiles();
+      }
+    });
+  }
+
+  public recentFiles() {
+    return this.repository.recentFiles();
   }
 
   public async importDocx(): Promise<void> {
@@ -222,9 +252,11 @@ export class WriterSessionService {
     await this.enqueue(async () => {
       this.repository.setLoading();
       try {
-        this.repository.setSavedDocument(await this.writerTool.saveDocument(document.id, path));
+        const result = await this.writerTool.saveDocument(document.id, path);
+        this.repository.setSavedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -298,9 +330,11 @@ export class WriterSessionService {
     await this.enqueue(async () => {
       this.repository.setLoading();
       try {
-        this.repository.setSavedDocument(await this.writerTool.saveDocument(document.id, path));
+        const result = await this.writerTool.saveDocument(document.id, path);
+        this.repository.setSavedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -354,9 +388,11 @@ export class WriterSessionService {
       this.repository.setLoading();
       try {
         this.repository.setFileSession(await this.writerTool.acknowledgeExternalChange(document.id));
-        this.repository.setSavedDocument(await this.writerTool.saveDocument(document.id, path));
+        const result = await this.writerTool.saveDocument(document.id, path);
+        this.repository.setSavedDocument(result);
         this.refreshLayoutEnvironment();
         await this.refreshFileSession();
+        await this.recordRecentFile(result.path);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -910,6 +946,22 @@ export class WriterSessionService {
     } catch (error: unknown) {
       this.repository.setError(this.errorCode(error));
       return false;
+    }
+  }
+
+  private async refreshRecentFiles(): Promise<void> {
+    try {
+      this.repository.setRecentFiles(await this.writerTool.listRecentFiles());
+    } catch (error: unknown) {
+      this.repository.setRecentFilesError(this.errorCode(error));
+    }
+  }
+
+  private async recordRecentFile(path: string): Promise<void> {
+    try {
+      this.repository.setRecentFiles(await this.writerTool.recordRecentFile(path));
+    } catch (error: unknown) {
+      this.repository.setRecentFilesError(this.errorCode(error));
     }
   }
 

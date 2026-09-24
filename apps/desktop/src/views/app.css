@@ -602,3 +602,16 @@ select {
     color: #000000;
   }
 }
+
+
+.ribbon-group__commands--recent {
+  max-width: var(--to-recent-ribbon-group-max-width);
+  flex-wrap: wrap;
+}
+
+.toolbar-button--recent {
+  max-width: var(--to-recent-ribbon-button-max-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

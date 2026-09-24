@@ -30,3 +30,16 @@ Yerel kayitta hedef dosyanin ustune dogrudan yazilmaz. Temp file ayni klasorde o
 ## Recovery
 
 Autosave ana dosyanin yerine gecmez. Recovery journal ayri tutulur ve basarili explicit save sonrasinda temizlenir.
+
+
+## Recent Files
+
+Recent Files canonical document storage degildir; Desktop local state metadata'sidir.
+
+Platform state root AppStatePathTool tarafindan cozulur. recent-files.yml persistence Repo/Tool katmanlarinda kalir.
+
+Liste yalniz native .tko calisma dosyalarini kabul eder. DOCX/PDF foreign-format import/export hedefleri recent native document listesine girmez.
+
+Recent path kaydi canonicalize edilir, duplicate tek kayit olur, en son erisilen basa tasinir ve missing files list okumasinda prune edilir.
+
+Recent metadata yazma hatasi basarili native document Open/Save islemini rollback etmez.

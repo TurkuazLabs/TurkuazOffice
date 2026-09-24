@@ -130,6 +130,12 @@ export interface WriterFileOperationView {
   readonly path: string;
 }
 
+export interface RecentFileView {
+  readonly path: string;
+  readonly title: string;
+  readonly lastAccessedUnixMs: number;
+}
+
 export interface RecoverySnapshotView {
   readonly snapshotId: string;
   readonly documentId: string;
