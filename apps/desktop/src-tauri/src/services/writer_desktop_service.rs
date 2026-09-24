@@ -84,21 +84,6 @@ impl WriterDesktopService {
             .map_err(DesktopErrorDto::from)
     }
 
-    pub fn list_recent_files(&self) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
-        self.recent_files_service
-            .list()
-            .map_err(DesktopErrorDto::from)
-    }
-
-    pub fn record_recent_file(
-        &self,
-        path: &str,
-    ) -> Result<Vec<RecentFileEntry>, DesktopErrorDto> {
-        self.recent_files_service
-            .record(path)
-            .map_err(DesktopErrorDto::from)
-    }
-
     pub fn create_document(&mut self) -> WriterDocumentView {
         self.file_session_service.reset_untracked();
         self.controller.create("")
