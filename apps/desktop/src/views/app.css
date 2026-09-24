@@ -605,12 +605,12 @@ select {
 
 
 .ribbon-group__commands--recent {
-  max-width: 360px;
+  max-width: var(--to-recent-ribbon-group-max-width);
   flex-wrap: wrap;
 }
 
 .toolbar-button--recent {
-  max-width: 112px;
+  max-width: var(--to-recent-ribbon-button-max-width);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
