@@ -134,18 +134,6 @@ impl From<WriterStorageError> for DesktopErrorDto {
     }
 }
 
-impl From<RecentFilesError> for DesktopErrorDto {
-    fn from(error: RecentFilesError) -> Self {
-        match error {
-            RecentFilesError::InvalidPath | RecentFilesError::MetadataInvalid => {
-                Self::new(ERROR_RECENT_FILES_INVALID)
-            }
-            RecentFilesError::ReadFailed => Self::new(ERROR_RECENT_FILES_READ_FAILED),
-            RecentFilesError::WriteFailed => Self::new(ERROR_RECENT_FILES_WRITE_FAILED),
-        }
-    }
-}
-
 impl From<WriterRecoveryError> for DesktopErrorDto {
     fn from(error: WriterRecoveryError) -> Self {
         match error {
