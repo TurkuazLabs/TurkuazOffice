@@ -31,6 +31,16 @@ class MemoryStorage implements LanguagePreferenceStorage {
   }
 }
 
+class ThrowingStorage implements LanguagePreferenceStorage {
+  public getItem(_key: string): string | null {
+    throw new Error("storage read blocked");
+  }
+
+  public setItem(_key: string, _value: string): void {
+    throw new Error("storage write blocked");
+  }
+}
+
 describe("LanguagePreferenceService", () => {
   it("loads persisted English locale and saves later changes", () => {
     const storage = new MemoryStorage();
@@ -48,6 +58,19 @@ describe("LanguagePreferenceService", () => {
 
     expect(service.locale()).toBe("tr-TR");
     expect(storage.getItem(DESKTOP_LOCALE_STORAGE_KEY)).toBe("tr-TR");
+  });
+
+  it("keeps Writer usable when preference storage throws", () => {
+    const language = new LanguageService();
+    const service = new LanguagePreferenceService(
+      language,
+      new LanguagePreferenceTool(new ThrowingStorage()),
+    );
+
+    expect(() => service.initialize()).not.toThrow();
+    expect(service.locale()).toBe("tr-TR");
+    expect(() => service.setLocale("en-US")).not.toThrow();
+    expect(service.locale()).toBe("en-US");
   });
 
   it("ignores unsupported locale values", () => {
