@@ -18,9 +18,7 @@ use crate::config::constants::{
 #[cfg(target_os = "macos")]
 use crate::config::constants::MACOS_APP_SUPPORT_SEGMENTS;
 #[cfg(target_os = "windows")]
-use crate::config::constants::{
-    TURKUAZLABS_DIRECTORY_NAME, WINDOWS_LOCAL_APP_DATA_ENV,
-};
+use crate::config::constants::{TURKUAZLABS_DIRECTORY_NAME, WINDOWS_LOCAL_APP_DATA_ENV};
 
 pub struct AppStatePathTool;
 
