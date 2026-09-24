@@ -12,6 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::config::constants::{
     CURRENT_DIRECTORY_PATH, SAFE_SAVE_BACKUP_SUFFIX, SAFE_SAVE_TEMP_SUFFIX,
+    WINDOWS_UNC_PATH_PREFIX, WINDOWS_VERBATIM_PATH_PREFIX, WINDOWS_VERBATIM_UNC_PATH_PREFIX,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -41,7 +42,25 @@ impl LocalFileTool {
         if !path.is_file() {
             return Err(LocalFileError::InvalidPath);
         }
-        fs::canonicalize(path).map_err(|_| LocalFileError::InvalidPath)
+        let canonical = fs::canonicalize(path).map_err(|_| LocalFileError::InvalidPath)?;
+        Ok(Self::normalize_canonical_path(canonical))
+    }
+
+    #[cfg(target_os = "windows")]
+    fn normalize_canonical_path(path: PathBuf) -> PathBuf {
+        let text = path.to_string_lossy();
+        if let Some(rest) = text.strip_prefix(WINDOWS_VERBATIM_UNC_PATH_PREFIX) {
+            return PathBuf::from(format!("{WINDOWS_UNC_PATH_PREFIX}{rest}"));
+        }
+        if let Some(rest) = text.strip_prefix(WINDOWS_VERBATIM_PATH_PREFIX) {
+            return PathBuf::from(rest);
+        }
+        path
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    fn normalize_canonical_path(path: PathBuf) -> PathBuf {
+        path
     }
 
     pub fn list_files_with_extension(
