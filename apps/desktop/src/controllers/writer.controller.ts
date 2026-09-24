@@ -7,9 +7,14 @@
 
 import type { ClipboardService } from "../services/clipboard.service";
 import type { LanguagePreferenceService } from "../services/language-preference.service";
+import type {
+  KeyboardShortcutInput,
+  KeyboardShortcutService,
+} from "../services/keyboard-shortcut.service";
 import type { WriterSessionService } from "../services/writer-session.service";
 import type { DesktopLocale } from "../config/localization";
 import type { DesktopLocaleOption } from "../language/language-packs";
+import type { WriterShortcutAction } from "../config/keyboard";
 import type {
   RecentFileView,
   WriterFormatStateView,
@@ -24,6 +29,7 @@ export class WriterController {
     private readonly service: WriterSessionService,
     private readonly clipboardService: ClipboardService,
     private readonly languagePreferenceService: LanguagePreferenceService,
+    private readonly keyboardShortcutService: KeyboardShortcutService,
   ) {}
 
   public locale(): DesktopLocale {
@@ -36,6 +42,12 @@ export class WriterController {
 
   public setLocale(locale: string): void {
     this.languagePreferenceService.setLocale(locale);
+  }
+
+  public resolveKeyboardShortcut(
+    input: KeyboardShortcutInput,
+  ): WriterShortcutAction | null {
+    return this.keyboardShortcutService.resolve(input);
   }
 
   public initializeSession(): Promise<void> {
