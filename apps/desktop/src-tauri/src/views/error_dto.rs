@@ -6,14 +6,15 @@
 // Bagimli Oldugu Katman: View
 
 use serde::Serialize;
-use turkuaz_office_format_adapters::DocxError;
+use turkuaz_office_format_adapters::{DocxError, PdfError, PdfWriterError};
 use turkuaz_office_writer::{
     TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError,
 };
 
 use crate::config::constants::{
     ERROR_COMMAND_FAILED, ERROR_DOCUMENT_NOT_FOUND, ERROR_DOCX_INVALID, ERROR_DOCX_UNSUPPORTED,
-    ERROR_EXTERNAL_CHANGE_CONFLICT,
+    ERROR_EXTERNAL_CHANGE_CONFLICT, ERROR_PDF_EXPORT_FAILED, ERROR_PDF_FONT_UNAVAILABLE,
+    ERROR_PDF_UNSUPPORTED,
     ERROR_FILE_EXTENSION_INVALID, ERROR_FILE_LOCKED, ERROR_FILE_PATH_INVALID,
     ERROR_FILE_READ_FAILED, ERROR_FILE_WRITE_FAILED, ERROR_NOTHING_TO_REDO, ERROR_NOTHING_TO_UNDO,
     ERROR_PARAGRAPH_NOT_FOUND, ERROR_RECOVERY_INVALID, ERROR_RECOVERY_NOT_FOUND,
@@ -22,6 +23,7 @@ use crate::config::constants::{
 };
 use crate::services::writer_docx_service::WriterDocxError;
 use crate::services::writer_file_session_service::WriterFileSessionError;
+use crate::services::writer_pdf_service::WriterPdfError;
 use crate::services::writer_recovery_service::WriterRecoveryError;
 use crate::services::writer_storage_service::WriterStorageError;
 
@@ -68,6 +70,31 @@ impl From<WriterDocxError> for DesktopErrorDto {
                 | DocxError::InvalidCharacterStyle,
             ) => Self::new(ERROR_DOCX_UNSUPPORTED),
             WriterDocxError::Format(_) => Self::new(ERROR_DOCX_INVALID),
+        }
+    }
+}
+
+impl From<WriterPdfError> for DesktopErrorDto {
+    fn from(error: WriterPdfError) -> Self {
+        match error {
+            WriterPdfError::InvalidPath => Self::new(ERROR_FILE_PATH_INVALID),
+            WriterPdfError::OutputTooLarge | WriterPdfError::WriteFailed => {
+                Self::new(ERROR_FILE_WRITE_FAILED)
+            }
+            WriterPdfError::Font(_) | WriterPdfError::Format(PdfError::FontMissing(_)) => {
+                Self::new(ERROR_PDF_FONT_UNAVAILABLE)
+            }
+            WriterPdfError::Format(
+                PdfError::MultipleSectionsUnsupported
+                | PdfError::UnsupportedBlock
+                | PdfError::UnsupportedAsset,
+            ) => Self::new(ERROR_PDF_UNSUPPORTED),
+            WriterPdfError::Format(PdfError::Writer(
+                PdfWriterError::FontMissing
+                | PdfWriterError::FontInvalid
+                | PdfWriterError::GlyphMissing,
+            )) => Self::new(ERROR_PDF_FONT_UNAVAILABLE),
+            WriterPdfError::Format(_) => Self::new(ERROR_PDF_EXPORT_FAILED),
         }
     }
 }
