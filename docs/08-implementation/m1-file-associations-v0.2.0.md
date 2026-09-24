@@ -16,9 +16,9 @@ MIME:
 
 application/x-turkuaz-office
 
-Windows release target NSIS'tir.
+Windows release script'i tauri build --bundles nsis kullanir.
 
-Linux release targets AppImage + DEB olarak korunur. File association installer entegrasyonu DEB hedefinde beklenir; portable AppImage icin association kaydi garanti edilmez.
+Linux release script'i tauri build --bundles deb,appimage kullanir. File association installer entegrasyonu DEB hedefinde beklenir; portable AppImage icin association kaydi garanti edilmez.
 
 ## Startup architecture
 
