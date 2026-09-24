@@ -43,3 +43,16 @@ Minimum import/export profili paragraph/run text, B/I/U, font family/size, parag
 Importta canonical modelde temsil edilemeyen yapilar compatibility report ile typed olarak gorunur hale gelir. Exportta minimum profil disindaki canonical yapilar sessizce atilmaz; typed hata ile reddedilir.
 
 DOCX native calisma formati degildir. Desktop akisi Import DOCX / Export DOCX olarak ayrilir; native file session, lock ve recovery semantigi `.tko` uzerinde kalir.
+
+
+## M1 PDF export minimum
+
+PDF native calisma formati degildir; yalniz export adapteridir.
+
+Canonical WriterDocument, PdfService tarafindan format-specific PdfDocumentModel'e map edilir. PdfWriterTool platform font path veya Desktop state bilmez.
+
+Desktop SystemFontTool requested family + bold/italic face'i cozer ve yalniz font byte + face index bilgisini adaptere verir. Requested family canonical belgede korunur; fallback yalniz render substitution'dir.
+
+M1 PDF profile paragraph/run text, B/I/U, font family/size, paragraph alignment, primary page geometry ve multi-page text flow ile sinirlidir. Table, image, asset registry ve multiple-section structure typed hata ile reddedilir.
+
+Common canonical pagination engine henuz bulunmadigi icin PDF pagination adapter-local baseline'dir. Print Preview ile ayni physical PageSettings kullanilir fakat pixel-perfect pagination esitligi iddia edilmez.
