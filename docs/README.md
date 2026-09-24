@@ -89,6 +89,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/font-layout-test-matrix.md`
 - `07-quality/print-preview-test-matrix.md`
 - `07-quality/docx-minimum-test-matrix.md`
+- `07-quality/pdf-export-test-matrix.md`
 
 ## 08 Implementation
 
@@ -113,6 +114,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m1-print-preview-validation.md`
 - `08-implementation/m1-docx-minimum-v0.2.0.md`
 - `08-implementation/m1-docx-minimum-validation.md`
+- `08-implementation/m1-pdf-export-v0.2.0.md`
+- `08-implementation/m1-pdf-export-validation.md`
 
 ## Kural
 
@@ -147,6 +150,7 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/font-layout-test-matrix.md`
 - `07-quality/print-preview-test-matrix.md`
 - `07-quality/docx-minimum-test-matrix.md`
+- `07-quality/pdf-export-test-matrix.md`
 - `08-implementation/m1-desktop-shell-v0.2.0.md`
 - `08-implementation/m1-desktop-shell-validation.md`
 - `08-implementation/m1-rich-text-ime-v0.2.0.md`
@@ -165,3 +169,5 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/m1-print-preview-validation.md`
 - `08-implementation/m1-docx-minimum-v0.2.0.md`
 - `08-implementation/m1-docx-minimum-validation.md`
+- `08-implementation/m1-pdf-export-v0.2.0.md`
+- `08-implementation/m1-pdf-export-validation.md`
