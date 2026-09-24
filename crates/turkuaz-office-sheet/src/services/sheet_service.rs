@@ -7,11 +7,11 @@
 
 use std::collections::BTreeMap;
 
+use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 
 use crate::config::constants::{
-    DEFAULT_SHEET_DOCUMENT_TITLE, DEFAULT_WORKSHEET_NAME, MAX_CELL_TEXT_LENGTH,
-    MAX_SHEET_COLUMNS, MAX_SHEET_ROWS,
+    DEFAULT_WORKSHEET_NAME, MAX_CELL_TEXT_LENGTH, MAX_SHEET_COLUMNS, MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
@@ -55,7 +55,7 @@ where
         let raw_title = title.into();
         let normalized_title = raw_title.trim();
         let title = if normalized_title.is_empty() {
-            DEFAULT_SHEET_DOCUMENT_TITLE.to_owned()
+            DEFAULT_DOCUMENT_TITLE.to_owned()
         } else {
             normalized_title.to_owned()
         };
