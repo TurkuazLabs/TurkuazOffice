@@ -18,7 +18,9 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tauri:build:windows": "tauri build --bundles nsis",
+    "tauri:build:linux": "tauri build --bundles deb,appimage"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
