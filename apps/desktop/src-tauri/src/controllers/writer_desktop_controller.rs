@@ -15,6 +15,7 @@ use crate::views::docx_dto::WriterDocxImportDto;
 use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
 use crate::views::recent_file_dto::RecentFileDto;
+use crate::views::recent_file_dto::RecentFileDto;
 use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, RecoverySnapshotDto};
 use crate::views::writer_dto::{
     WriterAssetDto, WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
@@ -23,6 +24,31 @@ use crate::views::writer_dto::{
 use turkuaz_office_writer::CharacterStylePatch;
 
 pub type WriterDesktopState = Mutex<WriterDesktopService>;
+
+#[tauri::command]
+pub fn writer_list_recent_files(
+    state: State<'_, WriterDesktopState>,
+) -> Result<Vec<RecentFileDto>, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .list_recent_files()
+        .map(|items| items.into_iter().map(RecentFileDto::from).collect())
+}
+
+#[tauri::command]
+pub fn writer_record_recent_file(
+    state: State<'_, WriterDesktopState>,
+    path: String,
+) -> Result<Vec<RecentFileDto>, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .record_recent_file(&path)
+        .map(|items| items.into_iter().map(RecentFileDto::from).collect())
+}
 
 #[tauri::command]
 pub fn writer_list_recent_files(
