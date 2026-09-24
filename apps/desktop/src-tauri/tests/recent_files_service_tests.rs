@@ -11,7 +11,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use turkuaz_office_desktop_lib::config::constants::RECENT_FILES_MAX_ENTRIES;
 use turkuaz_office_desktop_lib::repositories::recent_files_repository::RecentFilesRepository;
-use turkuaz_office_desktop_lib::services::recent_files_service::RecentFilesService;
+use turkuaz_office_desktop_lib::services::recent_files_service::{RecentFilesError, RecentFilesService};
 
 fn unique_root() -> PathBuf {
     let token = SystemTime::now()
@@ -30,6 +30,13 @@ fn recent_files_are_canonical_deduplicated_limited_and_pruned() {
     fs::create_dir_all(root.join("nested")).expect("root");
     let metadata_path = root.join("recent-files.yml");
     let service = RecentFilesService::new(RecentFilesRepository::new(metadata_path));
+
+    let foreign_path = root.join("foreign.docx");
+    fs::write(&foreign_path, b"foreign").expect("foreign fixture");
+    assert_eq!(
+        service.record(foreign_path.to_string_lossy().as_ref()),
+        Err(RecentFilesError::InvalidPath)
+    );
 
     let mut paths = Vec::new();
     for index in 0..(RECENT_FILES_MAX_ENTRIES + 2) {
