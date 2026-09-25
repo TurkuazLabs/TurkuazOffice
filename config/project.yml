@@ -1,14 +1,14 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/config/project.yml
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.2.0
+# Version: 0.3.0
 # Aciklama: Platform, schema, guvenlik ve kalite kararlarini tek merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
 project:
   name: TurkuazOffice
   owner: TurkuazLabs
-  version: 0.2.0
+  version: 0.3.0
 
 platforms:
   active:
@@ -26,9 +26,9 @@ modules:
     - document
     - schema_migration
     - writer
+    - sheet
     - format_adapters
   planned:
-    - sheet
     - slides
     - plugin
     - cloud
@@ -285,3 +285,18 @@ desktop_keyboard_smoke:
   aria_keyshortcuts: true
   focus_visible_required: true
   manual_smoke_required: true
+
+
+sheet_cell_model:
+  active: true
+  storage: sparse
+  address_model: zero_based_row_column
+  a1_reference_tool: true
+  max_rows: 1048576
+  max_columns: 16384
+  max_text_length: 32767
+  values:
+    - text
+    - number
+    - boolean
+  formula_engine: false

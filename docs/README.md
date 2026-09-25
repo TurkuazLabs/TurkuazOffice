@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/README.md
 # 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.3.0
 # Aciklama: Product, architecture, development, operations, roadmap, ADR ve quality dokumanlarini indeksler
 
 Bagimli Oldugu Katman: Documentation
@@ -95,6 +95,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/template-foundation-test-matrix.md`
 - `07-quality/turkish-english-ui-test-matrix.md`
 - `07-quality/keyboard-only-smoke-test.md`
+- `07-quality/sheet-cell-model-test-matrix.md`
 
 ## 08 Implementation
 
@@ -131,6 +132,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m1-turkish-english-ui-validation.md`
 - `08-implementation/m1-keyboard-only-smoke-v0.2.0.md`
 - `08-implementation/m1-keyboard-only-smoke-validation.md`
+- `08-implementation/m2-sheet-cell-model-v0.3.0.md`
+- `08-implementation/m2-sheet-cell-model-validation.md`
 
 ## Kural
 
@@ -201,3 +204,10 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/m1-turkish-english-ui-validation.md`
 - `08-implementation/m1-keyboard-only-smoke-v0.2.0.md`
 - `08-implementation/m1-keyboard-only-smoke-validation.md`
+
+
+## M2 Sheet ekleri
+
+- `07-quality/sheet-cell-model-test-matrix.md`
+- `08-implementation/m2-sheet-cell-model-v0.3.0.md`
+- `08-implementation/m2-sheet-cell-model-validation.md`

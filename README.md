@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/README.md
 # 📌 Amac: Turkuaz Office monorepo giris dokumani ve gelistirme yonlendirmesi
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
-# Aciklama: Writer v0.2.0 domain, Desktop editor, storage, recovery, file protection ve font/layout gelisim durumunu tanimlar
+# Version: 0.3.0
+# Aciklama: Tamamlanan Writer M1 ile aktif Sheet M2 cell-model gelisim durumunu ve monorepo giris yolunu tanimlar
 
 Bagimli Oldugu Katman: Documentation
 
@@ -14,11 +14,11 @@ Turkuaz Office; Windows ve Linux ile baslayan, ileride macOS, Web, Android ve iO
 
 Microsoft Office ile ozellik sayisi yarisi yapmak hedef degildir. Hedef; gunluk belge, tablo ve sunum islerini hizli, sade, guvenilir ve genisletilebilir bir urunle karsilamaktir.
 
-## Writer Domain v0.2.0 durumu
+## Writer M1 v0.2.0 durumu
 
-Bu paket `v0.2.0` Writer modulunun aktif M1 gelistirme snapshot'idir; son kullaniciya yonelik stable Writer release degildir. Tauri 2 + SolidJS shell, rich-text/IME motoru, logical DOM selection, B/I/U, font family/size, caret typing-style, paragraph alignment, native Open/Save, `.tko` ZIP+YAML serializer, autosave/recovery, external-change/file-lock protection ve twip tabanli font/layout baseline calisma agacinda aktiftir. Clipboard, DOCX, PDF ve print M1 icinde siradaki fazlardir.
+Writer M1 feature kapsami tamamlanmistir. Tauri 2 + SolidJS shell, rich-text/IME, typography/ribbon, native Open/Save, autosave/recovery, file protection, font/layout, Clipboard Minimum, Print Preview + Print, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations, Template Foundation, tr-TR/en-US runtime UI ve Keyboard-Only Smoke calisma agacinda aktiftir. Hosted GitHub runner job'larinin checkout oncesi steps=null ile dusmesi nedeniyle final compiler-backed M1 validation pending olarak izlenir.
 
-Foundation Hardening korunurken ilk urun modulu olan headless Writer Domain aktif hale getirilmistir. Asagidaki mimari kararlar ve Writer kontratlari artik kod ile temsil edilir:
+Foundation Hardening ve tamamlanan Writer M1 kontratlari kod ile temsil edilir:
 
 - Canonical Document Model dosya formatindan bagimsizdir.
 - Turkuaz Office native paket uzantisi icin `.tko` calisma karari vardir.
@@ -59,7 +59,22 @@ Foundation Hardening korunurken ilk urun modulu olan headless Writer Domain akti
 - Font fallback render katmaninda cozulur; requested font family canonical belgede korunur.
 - Windows/Linux icin Arial/Calibri/Times New Roman/Georgia/Verdana/Courier New fallback profilleri merkezi configte tutulur.
 
-Ilk kullanilabilir urun hedefi halen `Desktop + Writer` olarak tanimlidir. Web, Mobile, API ve Collaboration mimari sinirlari korunur; roadmap sirasi disinda implementation acilmaz.
+Desktop + Writer M1 feature kapsami tamamlanmistir. Roadmap sirasi geregi aktif gelisim M2 Sheet v0.3.0 uzerindedir; Web, Mobile, API ve Collaboration mimari sinirlari korunur.
+
+## Sheet M2 v0.3.0 durumu
+
+M2'nin ilk parcasi olan Cell Model aktiftir:
+
+- `turkuaz-office-sheet` workspace crate.
+- Sparse `SheetDocument -> Worksheet -> CellAddress/CellValue` model.
+- Deterministik `BTreeMap` cell storage.
+- Text / finite number / boolean value baseline.
+- Simple A1 reference Tool.
+- XLSX grid sinirlari: 1048576 satir x 16384 kolon.
+- Sparse set/get/clear ve revision no-op kurallari.
+- Thin Controller, Repo, Tool, View ve Language katmanlari.
+
+Siradaki M2 parcasi CSV/XLSX adapteridir. Formula engine, format/filter/sort, chart ve 100000-cell benchmark sonraki roadmap adimlari olarak korunur.
 
 ## Monorepo
 
@@ -74,7 +89,9 @@ TurkuazOffice/
 |   `-- collaboration/
 |-- crates/
 |   |-- turkuaz-office-core/
-|   `-- turkuaz-office-writer/
+|   |-- turkuaz-office-writer/
+|   |-- turkuaz-office-sheet/
+|   `-- turkuaz-office-format-adapters/
 |-- config/
 |-- docs/
 |-- tools/

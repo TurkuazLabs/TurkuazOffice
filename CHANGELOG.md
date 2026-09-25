@@ -1,12 +1,26 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/CHANGELOG.md
 # 📌 Amac: Turkuaz Office surum degisikliklerini kullanici ve gelistirici seviyesinde izler
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
-# Aciklama: Foundation, hardening ve Writer Domain degisiklik kaydini tutar
+# Version: 0.3.0
+# Aciklama: Foundation, Writer M1 ve Sheet M2 degisiklik kaydini tutar
 
 Bagimli Oldugu Katman: Documentation
 
 # Changelog
+
+## v0.3.0 - M2 Sheet Development
+
+- turkuaz-office-sheet Rust workspace crate eklendi.
+- SheetDocument, Worksheet, WorksheetId, CellAddress, Cell ve CellValue canonical modelleri eklendi.
+- Sparse deterministic BTreeMap cell storage baseline'i eklendi.
+- Text, finite number ve boolean cell value baseline'i eklendi.
+- XLSX uyumlu 1048576 x 16384 grid limitleri merkezi config'e eklendi.
+- CellReferenceTool simple A1 parse/format (A1..XFD1048576) eklendi.
+- SheetService sparse set/get/clear, validation ve revision kurallarini uygular.
+- InMemorySheetDocumentRepository ve SequentialSheetIdTool eklendi.
+- Thin SheetController ve read-only Sheet View modelleri eklendi.
+- Sheet cell model regression testleri ve kalite dokumanlari eklendi.
+- Workspace/project/Desktop release metadata 0.3.0'a tasindi.
 
 ## v0.2.0 - M1 Writer Development
 

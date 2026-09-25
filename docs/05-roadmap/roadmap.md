@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/05-roadmap/roadmap.md
 # 📌 Amac: Turkuaz Office milestone sirasini ve roadmap deviation yasagini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.3.0
 # Aciklama: Foundation Hardening sonrasi Desktop Writer ve takip eden platform milestone sirasini sabitler
 
 Bagimli Oldugu Katman: Documentation
@@ -98,7 +98,24 @@ Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compil
 
 ## M2 - Sheet v0.3.0
 
-- Cell model.
+Durum: Devam ediyor. Cell Model implementation parcasi tamamlandi. Compiler-backed validation hosted runner steps=null sorunu nedeniyle pending tutuluyor.
+
+### Tamamlanan M2 parcasi
+
+- Yeni turkuaz-office-sheet workspace crate.
+- Controller -> Service -> Repo -> Tool -> View -> Language katman iskeleti.
+- Sparse SheetDocument / Worksheet / CellAddress / CellValue canonical model.
+- Text / finite number / boolean cell value baseline.
+- XLSX grid limitleri: 1048576 satir x 16384 kolon.
+- Simple A1 parse/format Tool: A1..XFD1048576.
+- Sparse BTreeMap set/get/clear mutation.
+- Same-value ve missing-clear revision no-op.
+- Typed cell/grid validation hatalari.
+- Thin SheetController ve deterministic Sheet View.
+- Cell model regression test matrisi.
+
+### Siradaki M2 parcasi
+
 - CSV/XLSX.
 - Basic formula engine.
 - Format/filter/sort.

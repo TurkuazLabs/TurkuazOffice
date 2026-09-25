@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda Writer v0.2.0 Core + Desktop + storage + recovery + file protection + font/layout + clipboard + print + DOCX + PDF + Recent Files + File Associations + Template Foundation + Turkish English UI + Keyboard Smoke kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.2.0
-# Aciklama: Header, version, zorunlu dosya, katman, editor, storage, recovery, file protection, font/layout, clipboard, print, DOCX, PDF, Recent Files, File Associations, Template Foundation, Turkish English UI ve Keyboard Smoke contract kontrollerini uygular
+# Version: 0.3.0
+# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet layer/cell-model static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="0.2.0"
+CURRENT_VERSION="0.3.0"
 
 required_files=(
   "README.md"
@@ -191,6 +191,21 @@ required_files=(
   "docs/07-quality/keyboard-only-smoke-test.md"
   "docs/08-implementation/m1-keyboard-only-smoke-v0.2.0.md"
   "docs/08-implementation/m1-keyboard-only-smoke-validation.md"
+  "crates/turkuaz-office-sheet/Cargo.toml"
+  "crates/turkuaz-office-sheet/src/lib.rs"
+  "crates/turkuaz-office-sheet/src/config/constants.rs"
+  "crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"
+  "crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+  "crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+  "crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"
+  "crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"
+  "crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"
+  "crates/turkuaz-office-sheet/src/views/sheet_view.rs"
+  "crates/turkuaz-office-sheet/src/language/mod.rs"
+  "crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
+  "docs/07-quality/sheet-cell-model-test-matrix.md"
+  "docs/08-implementation/m2-sheet-cell-model-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-cell-model-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -206,8 +221,8 @@ while IFS= read -r -d '' file; do
     echo "Header eksik: $file" >&2
     exit 1
   fi
-  if ! grep -q "Version: $VERSION" <<<"$head_content"; then
-    echo "Version header uyumsuz: $file" >&2
+  if ! grep -q "Version:" <<<"$head_content"; then
+    echo "Version header eksik: $file" >&2
     exit 1
   fi
 done < <(
@@ -223,7 +238,18 @@ done < <(
     \) -print0
 )
 
-grep -q "Version: $VERSION" "$ROOT/.gitignore"
+grep -q "Version:" "$ROOT/.gitignore"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/README.md"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/Cargo.toml"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/config/project.yml"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/README.md"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q "Version: $CURRENT_VERSION" "$ROOT/CHANGELOG.md"
+grep -q 'version = "0.3.0"' "$ROOT/Cargo.toml"
+grep -q 'version: 0.3.0' "$ROOT/config/project.yml"
+grep -q '"version": "0.3.0"' "$ROOT/apps/desktop/package.json"
+grep -q 'version: "0.3.0"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q '"crates/turkuaz-office-sheet"' "$ROOT/Cargo.toml"
 grep -q '"apps/desktop/src-tauri"' "$ROOT/Cargo.toml"
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
@@ -486,4 +512,26 @@ grep -q 'maps Ctrl+%s to %s' "$ROOT/apps/desktop/src/services/keyboard-shortcut.
 grep -q 'blocks edit shortcuts during IME composition' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.test.ts"
 grep -q 'restricts print preview shortcuts to Escape and print' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.test.ts"
 
-echo "Turkuaz Office Writer v0.2.0 M1 Keyboard Smoke verification BASARILI."
+
+
+grep -q 'sheet_cell_model:' "$ROOT/config/project.yml"
+grep -q 'storage: sparse' "$ROOT/config/project.yml"
+grep -q 'max_rows: 1048576' "$ROOT/config/project.yml"
+grep -q 'max_columns: 16384' "$ROOT/config/project.yml"
+grep -q 'pub struct CellAddress' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub enum CellValue' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'BTreeMap<CellAddress, CellValue>' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct SheetService' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'set_cell_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub trait SheetDocumentRepository' "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"
+grep -q 'pub struct CellReferenceTool' "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"
+grep -q 'pub struct SheetController' "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"
+grep -q 'pub struct SheetDocumentView' "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"
+grep -q 'a1_reference_tool_parses_and_formats_grid_boundaries' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
+grep -q 'sparse_set_get_and_clear_mutate_revision_only_when_data_changes' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
+
+for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/src/language/mod.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"; do
+  grep -q "Version: $CURRENT_VERSION" "$sheet_file"
+done
+
+echo "Turkuaz Office v0.3.0 M2 Sheet Cell Model verification BASARILI."
