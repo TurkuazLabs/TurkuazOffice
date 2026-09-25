@@ -268,11 +268,11 @@ impl SheetXlsxXmlTool {
 
     pub fn content_types_xml(sheet_count: usize) -> String {
         let mut xml = format!(
-            "<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="{XLSX_CONTENT_TYPES_NAMESPACE}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="{XLSX_WORKBOOK_CONTENT_TYPE}"/>"
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="{XLSX_CONTENT_TYPES_NAMESPACE}"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="{XLSX_WORKBOOK_CONTENT_TYPE}"/>"#
         );
         for index in 1..=sheet_count {
             xml.push_str(&format!(
-                "<Override PartName="/xl/worksheets/sheet{index}.xml" ContentType="{XLSX_WORKSHEET_CONTENT_TYPE}"/>"
+                r#"<Override PartName="/xl/worksheets/sheet{index}.xml" ContentType="{XLSX_WORKSHEET_CONTENT_TYPE}"/>"#
             ));
         }
         xml.push_str("</Types>");
@@ -281,19 +281,19 @@ impl SheetXlsxXmlTool {
 
     pub fn root_relationships_xml() -> String {
         format!(
-            "<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="{XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE}"><Relationship Id="rId1" Type="{XLSX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE}" Target="xl/workbook.xml"/></Relationships>"
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="{XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE}"><Relationship Id="rId1" Type="{XLSX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE}" Target="xl/workbook.xml"/></Relationships>"#
         )
     }
 
     pub fn workbook_xml(worksheets: &[XlsxWorksheetModel]) -> String {
         let mut xml = format!(
-            "<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="{XLSX_SPREADSHEET_NAMESPACE}" xmlns:r="{XLSX_OFFICE_RELATIONSHIPS_NAMESPACE}"><sheets>"
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="{XLSX_SPREADSHEET_NAMESPACE}" xmlns:r="{XLSX_OFFICE_RELATIONSHIPS_NAMESPACE}"><sheets>"#
         );
         for (index, worksheet) in worksheets.iter().enumerate() {
             let sheet_id = index + 1;
-            xml.push_str("<sheet name="");
+            xml.push_str(r#"<sheet name=""#);
             xml.push_str(&escape(worksheet.name.as_str()));
-            xml.push_str(&format!("" sheetId="{sheet_id}" r:id="rId{sheet_id}"/>"));
+            xml.push_str(&format!(r#"" sheetId="{sheet_id}" r:id="rId{sheet_id}"/>"#));
         }
         xml.push_str("</sheets></workbook>");
         xml
@@ -301,11 +301,11 @@ impl SheetXlsxXmlTool {
 
     pub fn workbook_relationships_xml(sheet_count: usize) -> String {
         let mut xml = format!(
-            "<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="{XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE}">"
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="{XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE}">"#
         );
         for index in 1..=sheet_count {
             xml.push_str(&format!(
-                "<Relationship Id="rId{index}" Type="{XLSX_WORKSHEET_RELATIONSHIP_TYPE}" Target="worksheets/sheet{index}.xml"/>"
+                r#"<Relationship Id="rId{index}" Type="{XLSX_WORKSHEET_RELATIONSHIP_TYPE}" Target="worksheets/sheet{index}.xml"/>"#
             ));
         }
         xml.push_str("</Relationships>");
@@ -314,7 +314,7 @@ impl SheetXlsxXmlTool {
 
     pub fn worksheet_xml(worksheet: &XlsxWorksheetModel) -> String {
         let mut xml = format!(
-            "<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="{XLSX_SPREADSHEET_NAMESPACE}"><sheetData>"
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="{XLSX_SPREADSHEET_NAMESPACE}"><sheetData>"#
         );
         let mut current_row: Option<String> = None;
 
@@ -324,31 +324,31 @@ impl SheetXlsxXmlTool {
                 if current_row.is_some() {
                     xml.push_str("</row>");
                 }
-                xml.push_str("<row r="");
+                xml.push_str(r#"<row r=""#);
                 xml.push_str(row);
-                xml.push_str("">");
+                xml.push_str(r#"">"#);
                 current_row = Some(row.to_owned());
             }
 
             match &cell.value {
                 XlsxCellValue::Text(value) => {
-                    xml.push_str("<c r="");
+                    xml.push_str(r#"<c r=""#);
                     xml.push_str(&cell.reference);
-                    xml.push_str("" t="inlineStr"><is><t xml:space="preserve">");
+                    xml.push_str(r#"" t="inlineStr"><is><t xml:space="preserve">"#);
                     xml.push_str(&escape(value.as_str()));
                     xml.push_str("</t></is></c>");
                 }
                 XlsxCellValue::Number(value) => {
-                    xml.push_str("<c r="");
+                    xml.push_str(r#"<c r=""#);
                     xml.push_str(&cell.reference);
-                    xml.push_str(""><v>");
+                    xml.push_str(r#""><v>"#);
                     xml.push_str(&value.to_string());
                     xml.push_str("</v></c>");
                 }
                 XlsxCellValue::Boolean(value) => {
-                    xml.push_str("<c r="");
+                    xml.push_str(r#"<c r=""#);
                     xml.push_str(&cell.reference);
-                    xml.push_str("" t="b"><v>");
+                    xml.push_str(r#"" t="b"><v>"#);
                     xml.push(if *value { '1' } else { '0' });
                     xml.push_str("</v></c>");
                 }
