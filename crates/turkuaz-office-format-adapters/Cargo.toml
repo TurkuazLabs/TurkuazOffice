@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/Cargo.toml
 # 📌 Amac: Turkuaz Office external format adapter crate bagimliliklarini tanimlar
 # 📌 Modul - FileType: Config - TOML
-# Version: 0.2.0
-# Aciklama: DOCX minimum profile icin Writer canonical model, ZIP Deflate ve streaming XML parser bagimliliklarini sabitler
+# Version: 0.3.0
+# Aciklama: Writer/Sheet external format adapterleri icin canonical model, ZIP Deflate ve streaming XML parser bagimliliklarini sabitler
 # Bagimli Oldugu Katman: Config
 
 [package]
@@ -16,6 +16,7 @@ repository.workspace = true
 [dependencies]
 turkuaz-office-core = { path = "../turkuaz-office-core" }
 turkuaz-office-writer = { path = "../turkuaz-office-writer" }
+turkuaz-office-sheet = { path = "../turkuaz-office-sheet" }
 quick-xml = "=0.42.0"
 printpdf = { version = "=0.12.8", default-features = false, features = ["text_layout"] }
 zip = { version = "=6.0.0", default-features = false, features = ["deflate"] }
