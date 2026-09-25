@@ -165,7 +165,7 @@ impl SheetCsvTool {
         output.push('"');
         for character in value.chars() {
             if character == '"' {
-                output.push_str("""");
+                output.push_str("\"\"");
             } else {
                 output.push(character);
             }
