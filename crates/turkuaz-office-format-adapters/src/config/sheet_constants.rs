@@ -40,6 +40,7 @@ pub const XLSX_WORKSHEET_CONTENT_TYPE: &str =
 
 pub const MAX_XLSX_PACKAGE_BYTES: u64 = 64 * 1024 * 1024;
 pub const MAX_XLSX_ARCHIVE_ENTRIES: usize = 1024;
+pub const MAX_XLSX_WORKSHEETS: usize = 256;
 pub const MAX_XLSX_ENTRY_BYTES: u64 = 32 * 1024 * 1024;
 pub const MAX_XLSX_XML_BYTES: usize = 16 * 1024 * 1024;
 pub const MAX_XLSX_XML_DEPTH: usize = 128;
