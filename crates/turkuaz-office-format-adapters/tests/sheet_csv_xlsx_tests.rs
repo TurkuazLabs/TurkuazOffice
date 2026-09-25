@@ -77,7 +77,7 @@ fn csv_export_quotes_text_and_serializes_typed_values() {
     let bytes = SheetCsvService::export_worksheet(&worksheet).expect("csv export");
     let text = String::from_utf8(bytes).expect("utf8");
 
-    assert_eq!(text, "\"A,B\",42.5,TRUE\r\n\"A \"\"quote\"\"\"\",,");
+    assert_eq!(text, "\"A,B\",42.5,TRUE\r\n\"A \"\"quote\"\"\",,");
 }
 
 #[test]
