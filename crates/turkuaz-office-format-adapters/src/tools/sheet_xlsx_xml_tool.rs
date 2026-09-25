@@ -455,7 +455,7 @@ impl SheetXlsxXmlTool {
 
     fn append_reference(
         output: &mut String,
-        raw: &[u8],
+        raw: &str,
         reference: &quick_xml::events::BytesRef<'_>,
     ) -> Result<(), SheetXlsxXmlError> {
         if let Some(character) = reference
