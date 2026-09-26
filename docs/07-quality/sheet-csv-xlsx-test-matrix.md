@@ -55,6 +55,8 @@ Import:
 - canonical A1 validation.
 - duplicate cell reject.
 - worksheet-name validation.
+- case-insensitive duplicate worksheet-name reject.
+- XML 1.0 invalid control character reject.
 
 Export:
 
@@ -101,4 +103,6 @@ sheet_csv_xlsx_tests.rs:
 - XLSX multi-sheet typed round-trip.
 - sharedStrings import.
 - root workbook relationship validation.
+- duplicate worksheet-name reject.
+- XML-invalid cell text reject.
 - formula reject.
