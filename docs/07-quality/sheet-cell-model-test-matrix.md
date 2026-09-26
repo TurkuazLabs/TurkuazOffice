@@ -38,11 +38,12 @@ M2 Cell Model simple A1 referansini kapsar. Absolute/mixed references Formula En
 
 ## Values
 
-Supported baseline:
+Canonical value set after Formula Engine follow-on phase:
 
 - Text.
 - Number.
 - Boolean.
+- Formula source.
 
 Validation:
 
@@ -50,7 +51,7 @@ Validation:
 - Number finite olmali.
 - NaN / +Inf / -Inf reddedilir.
 
-Formula value bu fazda aktif degildir.
+Formula ilk Cell Model slice'inda aktif degildi; sonraki M2 Basic Formula Engine parcasi CellValue::Formula source varyantini ekledi. Formula evaluation kontrati sheet-formula-engine-test-matrix.md icindedir.
 
 ## Sparse mutation
 
