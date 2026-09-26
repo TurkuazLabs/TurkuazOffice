@@ -299,7 +299,8 @@ sheet_cell_model:
     - text
     - number
     - boolean
-  formula_engine: false
+    - formula
+  formula_engine: true
 
 
 sheet_csv_xlsx:
@@ -332,3 +333,32 @@ sheet_csv_xlsx:
     formula_import: strict_reject
     max_package_bytes: 67108864
     max_worksheets: 256
+
+
+sheet_formula_engine:
+  active: true
+  source_prefix: "="
+  result_profile: numeric
+  same_worksheet_references: true
+  missing_reference_value: 0
+  supported:
+    - numeric_literal
+    - unary_plus
+    - unary_minus
+    - add
+    - subtract
+    - multiply
+    - divide
+    - parentheses
+    - a1_reference
+    - a1_range
+    - sum
+  max_formula_bytes: 8192
+  max_parse_depth: 64
+  max_evaluation_depth: 128
+  max_dependency_depth: 128
+  max_range_cells: 100000
+  circular_reference_error: true
+  csv_formula_export: strict_reject
+  xlsx_formula_import: strict_reject
+  xlsx_formula_export: strict_reject
