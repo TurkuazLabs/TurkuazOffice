@@ -10,6 +10,15 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.3.0 - M2 Sheet Development
 
+- Basic Sheet Formula Engine eklendi.
+- Canonical CellValue Formula source varyanti ve ayri EvaluatedCellValue read-modeli eklendi.
+- FormulaParserTool arithmetic precedence, parentheses, same-sheet A1 reference/range ve SUM syntax'ini parse eder.
+- SheetFormulaService missing-reference=0, recursive formula evaluation, cycle/div0/type/non-finite ve range/depth limitlerini uygular.
+- SheetService/Controller formula set ve evaluated-cell request yuzeyleri eklendi.
+- CSV/XLSX minimum profilleri formula hucreyi computed value'a sessiz flatten etmez; typed unsupported hata verir.
+- Formula regression testleri ve kalite dokumanlari eklendi.
+
+
 - Sheet CSV/XLSX minimum format adapterleri eklendi.
 - CSV import UTF-8 text-only semantigi kullanir; 001/TRUE gibi degerler otomatik type inference ile degistirilmez.
 - CSV export canonical text/number/boolean degerlerini RFC-style quoting ve CRLF ile yazar.
