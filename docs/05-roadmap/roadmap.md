@@ -98,7 +98,7 @@ Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compil
 
 ## M2 - Sheet v0.3.0
 
-Durum: Devam ediyor. Cell Model ve CSV/XLSX implementation parcalari tamamlandi. Compiler-backed validation hosted runner steps=null sorunu nedeniyle pending tutuluyor.
+Durum: Devam ediyor. Cell Model, CSV/XLSX ve Basic Formula Engine implementation parcalari tamamlandi. Compiler-backed validation hosted runner steps=null sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M2 parcasi
 
@@ -118,10 +118,13 @@ Durum: Devam ediyor. Cell Model ve CSV/XLSX implementation parcalari tamamlandi.
 - XLSX inlineStr export + inlineStr/sharedStrings import.
 - XLSX ZIP/XML resource limitleri, root relationship validation ve strict formula reject.
 - CSV/XLSX regression test matrisi.
+- Basic numeric formula parser/evaluator baseline.
+- Arithmetic precedence, same-sheet A1 reference, SUM range ve typed formula error modeli.
+- Cycle/div0/type/range/dependency/expression limit bariyerleri.
+- Raw formula source ile evaluated result ayrimi.
 
 ### Siradaki M2 parcasi
 
-- Basic formula engine.
 - Format/filter/sort.
 - Basic charts.
 - 100000-cell benchmark profile.
