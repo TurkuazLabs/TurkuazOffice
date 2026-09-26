@@ -14,7 +14,7 @@ use turkuaz_office_sheet::{
     CellAddress, CellValue, SheetDocument, SheetIdTool, Worksheet,
 };
 
-use crate::tools::sheet_csv_tool::{SheetCsvTool, SheetCsvToolError};
+use crate::tools::sheet_csv_tool::{SheetCsvField, SheetCsvTool, SheetCsvToolError};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SheetCsvError {
@@ -73,30 +73,21 @@ impl SheetCsvService {
     }
 
     pub fn export_worksheet(worksheet: &Worksheet) -> Result<Vec<u8>, SheetCsvError> {
-        let Some(last_address) = worksheet.cells.keys().next_back().copied() else {
-            return Ok(Vec::new());
-        };
-
-        let row_count =
-            usize::try_from(last_address.row).map_err(|_| SheetCsvError::ResourceLimit)? + 1;
-        let max_column = worksheet
+        let fields = worksheet
             .cells
-            .keys()
-            .map(|address| address.column)
-            .max()
-            .unwrap_or(0);
-        let column_count =
-            usize::try_from(max_column).map_err(|_| SheetCsvError::ResourceLimit)? + 1;
+            .iter()
+            .map(|(address, value)| {
+                Ok(SheetCsvField {
+                    row: usize::try_from(address.row)
+                        .map_err(|_| SheetCsvError::ResourceLimit)?,
+                    column: usize::try_from(address.column)
+                        .map_err(|_| SheetCsvError::ResourceLimit)?,
+                    value: Self::value_text(value),
+                })
+            })
+            .collect::<Result<Vec<_>, SheetCsvError>>()?;
 
-        let mut rows = vec![vec![String::new(); column_count]; row_count];
-        for (address, value) in &worksheet.cells {
-            let row = usize::try_from(address.row).map_err(|_| SheetCsvError::ResourceLimit)?;
-            let column =
-                usize::try_from(address.column).map_err(|_| SheetCsvError::ResourceLimit)?;
-            rows[row][column] = Self::value_text(value);
-        }
-
-        SheetCsvTool::encode(&rows).map_err(Self::map_tool_error)
+        SheetCsvTool::encode_sparse(&fields).map_err(Self::map_tool_error)
     }
 
     fn value_text(value: &CellValue) -> String {
