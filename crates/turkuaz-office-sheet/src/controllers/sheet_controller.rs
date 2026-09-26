@@ -11,7 +11,9 @@ use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
 use crate::services::sheet_types::{CellValue, WorksheetId};
 use crate::tools::sheet_id_tool::SheetIdTool;
-use crate::views::sheet_view::{CellView, SheetDocumentView};
+use crate::views::sheet_view::{
+    CellView, EvaluatedCellValueView, SheetDocumentView,
+};
 
 pub struct SheetController<R, I>
 where
@@ -55,6 +57,38 @@ where
                 value,
             )
             .map(SheetDocumentView::from)
+    }
+
+    pub fn set_formula_a1(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+        source: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .set_formula_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+                source,
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn evaluated_cell_a1(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+    ) -> Result<Option<EvaluatedCellValueView>, SheetError> {
+        self.service
+            .evaluated_cell_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+            )
+            .map(|value| value.map(EvaluatedCellValueView::from))
     }
 
     pub fn clear_cell_a1(
