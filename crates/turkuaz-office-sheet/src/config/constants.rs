@@ -18,4 +18,5 @@ pub const MAX_WORKSHEET_NAME_LENGTH: usize = 31;
 pub const MAX_FORMULA_LENGTH: usize = 8_192;
 pub const MAX_FORMULA_PARSE_DEPTH: usize = 64;
 pub const MAX_FORMULA_DEPENDENCY_DEPTH: usize = 128;
+pub const MAX_FORMULA_EVALUATION_DEPTH: usize = 128;
 pub const MAX_FORMULA_RANGE_CELLS: u64 = 100_000;
