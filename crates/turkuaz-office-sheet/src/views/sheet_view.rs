@@ -5,10 +5,20 @@
 // Aciklama: Document/worksheet/cell/value alanlarini sparse BTreeMap sirasini koruyarak presentation katmanina tasir
 // Bagimli Oldugu Katman: View -> Service
 
-use crate::services::sheet_types::{Cell, CellValue, SheetDocument, Worksheet};
+use crate::services::sheet_types::{
+    Cell, CellValue, EvaluatedCellValue, SheetDocument, Worksheet,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum CellValueView {
+    Text(String),
+    Number(f64),
+    Boolean(bool),
+    Formula(String),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum EvaluatedCellValueView {
     Text(String),
     Number(f64),
     Boolean(bool),
@@ -43,6 +53,17 @@ impl From<CellValue> for CellValueView {
             CellValue::Text(text) => Self::Text(text),
             CellValue::Number(number) => Self::Number(number),
             CellValue::Boolean(value) => Self::Boolean(value),
+            CellValue::Formula(source) => Self::Formula(source),
+        }
+    }
+}
+
+impl From<EvaluatedCellValue> for EvaluatedCellValueView {
+    fn from(value: EvaluatedCellValue) -> Self {
+        match value {
+            EvaluatedCellValue::Text(text) => Self::Text(text),
+            EvaluatedCellValue::Number(number) => Self::Number(number),
+            EvaluatedCellValue::Boolean(value) => Self::Boolean(value),
         }
     }
 }
