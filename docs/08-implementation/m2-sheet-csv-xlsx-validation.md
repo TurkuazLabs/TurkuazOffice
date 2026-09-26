@@ -37,7 +37,7 @@ Bagimli Oldugu Katman: Documentation
 - root workbook relationship validation.
 - case-insensitive duplicate worksheet-name reject.
 - XML 1.0 invalid cell text reject.
-- formula strict reject.
+- formula strict reject; canonical Formula Engine aktif olsa da CSV/XLSX value-only profile formula round-trip iddiasi yapmaz.
 
 ## Security validation
 
