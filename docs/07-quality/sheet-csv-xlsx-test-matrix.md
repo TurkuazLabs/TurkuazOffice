@@ -75,7 +75,7 @@ Formula gorulurse:
 
 SheetXlsxError::UnsupportedFormula
 
-Basic Formula Engine roadmap'in sonraki ayri parcasidir.
+Basic Formula Engine canonical Sheet katmaninda sonraki M2 parca olarak tamamlandi; ancak bu CSV/XLSX minimum format profili formula round-trip'i henuz desteklemez.
 
 Unsupported/invalid cell type typed hata ile reddedilir.
 
