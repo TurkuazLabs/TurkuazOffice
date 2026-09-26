@@ -65,7 +65,7 @@ Import:
 
 SheetXlsxError::UnsupportedFormula
 
-Formula engine roadmap'in sonraki M2 parcasinda ele alinacaktir.
+Basic Formula Engine canonical Sheet katmaninda sonraki M2 parca olarak tamamlanmistir. XLSX formula round-trip ise bu value-only minimum profile otomatik olarak eklenmez ve strict unsupported kalir.
 
 ## Package boundary
 
