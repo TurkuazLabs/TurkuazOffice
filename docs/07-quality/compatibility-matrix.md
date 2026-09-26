@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/07-quality/compatibility-matrix.md
 # 📌 Amac: Platform ve format destek seviyelerini tek kaynakta takip eder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.3.0
 # Aciklama: Platform ve format destek seviyelerini tek kaynakta takip eder
 
 Bagimli Oldugu Katman: Documentation
@@ -27,8 +27,8 @@ Bagimli Oldugu Katman: Documentation
 | HTML | Planned | Planned | M1 |
 | DOCX | Partial - M1 minimum | Partial - M1 minimum | M1 |
 | PDF | N/A | Partial - M1 minimum | M1 |
-| CSV | Planned | Planned | M2 |
-| XLSX | Planned | Planned | M2 |
+| CSV | Partial - M2 text-only minimum | Partial - M2 value export minimum | M2 |
+| XLSX | Partial - M2 value-only minimum | Partial - M2 value-only minimum | M2 |
 | PPTX | Planned | Planned | M6 |
 | ODT | Future | Future | TBD |
 

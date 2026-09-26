@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.3.0 - M2 Sheet Development
 
+- Sheet CSV/XLSX minimum format adapterleri eklendi.
+- CSV import UTF-8 text-only semantigi kullanir; 001/TRUE gibi degerler otomatik type inference ile degistirilmez.
+- CSV export canonical text/number/boolean degerlerini RFC-style quoting ve CRLF ile yazar.
+- XLSX import/export value-only multi-sheet text/finite-number/boolean baseline'i eklendi.
+- XLSX text export inlineStr, import inlineStr + sharedStrings destekler.
+- XLSX root workbook relationship, worksheet relationship target, ZIP traversal/duplicate ve XML resource limit kontrolleri eklendi.
+- Formula cell importu cached value'a sessiz dusmek yerine UnsupportedFormula ile reddedilir.
+- CSV/XLSX format regression testleri ve kalite dokumanlari eklendi.
+
+
 - turkuaz-office-sheet Rust workspace crate eklendi.
 - SheetDocument, Worksheet, WorksheetId, CellAddress, Cell ve CellValue canonical modelleri eklendi.
 - Sparse deterministic BTreeMap cell storage baseline'i eklendi.

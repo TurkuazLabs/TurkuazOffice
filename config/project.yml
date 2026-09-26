@@ -300,3 +300,35 @@ sheet_cell_model:
     - number
     - boolean
   formula_engine: false
+
+
+sheet_csv_xlsx:
+  active: true
+  csv:
+    encoding: utf8
+    delimiter: comma
+    import_semantics: text_only
+    export_values:
+      - text
+      - number
+      - boolean
+    max_bytes: 16777216
+  xlsx:
+    mode: value_only
+    package: zip
+    compression_read:
+      - stored
+      - deflate
+    compression_write: deflate
+    text_export: inline_string
+    text_import:
+      - inline_string
+      - shared_string
+    values:
+      - text
+      - number
+      - boolean
+    multiple_worksheets: true
+    formula_import: strict_reject
+    max_package_bytes: 67108864
+    max_worksheets: 256
