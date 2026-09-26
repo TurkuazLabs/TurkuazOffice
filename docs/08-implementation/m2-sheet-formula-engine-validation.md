@@ -34,6 +34,9 @@ sheet_formula_tests.rs:
 - divide by zero.
 - type mismatch.
 - range cap.
+- formula source length cap.
+- dependency depth cap.
+- expression depth cap.
 - revision no-op.
 - Controller raw/evaluated split.
 
