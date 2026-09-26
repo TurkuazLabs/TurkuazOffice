@@ -178,6 +178,25 @@ fn formula_engine_reports_cycle_division_type_and_range_errors() {
 }
 
 #[test]
+fn formula_engine_bounds_expression_recursion_depth() {
+    let mut service = service();
+    let document = service.create_document("Depth");
+    let worksheet_id = document.worksheets[0].id.clone();
+    let source = format!(
+        "={}",
+        std::iter::repeat_n("1", 140).collect::<Vec<_>>().join("+")
+    );
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "A1", &source)
+        .expect("deep expression formula");
+
+    assert_eq!(
+        service.evaluated_cell_by_a1(&document.id, &worksheet_id, "A1"),
+        Err(SheetError::Formula(FormulaError::ExpressionDepthExceeded))
+    );
+}
+
+#[test]
 fn formula_set_validates_source_and_same_formula_is_revision_noop() {
     let mut service = service();
     let document = service.create_document("Revision");
