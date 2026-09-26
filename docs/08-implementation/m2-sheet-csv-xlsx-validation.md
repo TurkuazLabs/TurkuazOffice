@@ -35,6 +35,8 @@ Bagimli Oldugu Katman: Documentation
 - multi-sheet round-trip.
 - sharedStrings import.
 - root workbook relationship validation.
+- case-insensitive duplicate worksheet-name reject.
+- XML 1.0 invalid cell text reject.
 - formula strict reject.
 
 ## Security validation
