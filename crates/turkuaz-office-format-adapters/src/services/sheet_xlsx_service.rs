@@ -239,6 +239,7 @@ impl SheetXlsxService {
                     XlsxCellValue::Number(*value)
                 }
                 CellValue::Boolean(value) => XlsxCellValue::Boolean(*value),
+                CellValue::Formula(_) => return Err(SheetXlsxError::UnsupportedFormula),
             };
             cells.push(XlsxCellModel { reference, value });
         }
