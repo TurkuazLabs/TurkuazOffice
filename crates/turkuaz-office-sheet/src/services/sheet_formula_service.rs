@@ -8,7 +8,7 @@
 use std::collections::HashSet;
 
 use crate::config::constants::{
-    MAX_FORMULA_DEPENDENCY_DEPTH, MAX_FORMULA_RANGE_CELLS,
+    MAX_FORMULA_DEPENDENCY_DEPTH, MAX_FORMULA_EVALUATION_DEPTH, MAX_FORMULA_RANGE_CELLS,
 };
 use crate::services::sheet_types::{CellAddress, CellValue, EvaluatedCellValue, Worksheet};
 use crate::tools::formula_parser_tool::{
@@ -20,6 +20,7 @@ use crate::tools::formula_parser_tool::{
 pub enum FormulaError {
     Parse(FormulaParseError),
     DependencyDepthExceeded,
+    ExpressionDepthExceeded,
     CircularReference,
     RangeOutsideFunction,
     RangeTooLarge,
@@ -87,7 +88,7 @@ impl SheetFormulaService {
         }
 
         let expression = FormulaParserTool::parse(source)?;
-        let result = Self::evaluate_expression(worksheet, &expression, visiting, depth);
+        let result = Self::evaluate_expression(worksheet, &expression, visiting, depth, 0);
         visiting.remove(&address);
         let value = result?;
         Self::finite(value)
@@ -97,16 +98,27 @@ impl SheetFormulaService {
         worksheet: &Worksheet,
         expression: &FormulaExpression,
         visiting: &mut HashSet<CellAddress>,
-        depth: usize,
+        dependency_depth: usize,
+        expression_depth: usize,
     ) -> Result<f64, FormulaError> {
+        if expression_depth > MAX_FORMULA_EVALUATION_DEPTH {
+            return Err(FormulaError::ExpressionDepthExceeded);
+        }
+
         let value = match expression {
             FormulaExpression::Number(value) => *value,
             FormulaExpression::Reference(address) => {
-                Self::numeric_reference(worksheet, *address, visiting, depth + 1)?
+                Self::numeric_reference(worksheet, *address, visiting, dependency_depth + 1)?
             }
             FormulaExpression::Range { .. } => return Err(FormulaError::RangeOutsideFunction),
             FormulaExpression::Unary { operator, operand } => {
-                let value = Self::evaluate_expression(worksheet, operand, visiting, depth)?;
+                let value = Self::evaluate_expression(
+                    worksheet,
+                    operand,
+                    visiting,
+                    dependency_depth,
+                    expression_depth + 1,
+                )?;
                 match operator {
                     FormulaUnaryOperator::Positive => value,
                     FormulaUnaryOperator::Negative => -value,
@@ -117,8 +129,20 @@ impl SheetFormulaService {
                 left,
                 right,
             } => {
-                let left = Self::evaluate_expression(worksheet, left, visiting, depth)?;
-                let right = Self::evaluate_expression(worksheet, right, visiting, depth)?;
+                let left = Self::evaluate_expression(
+                    worksheet,
+                    left,
+                    visiting,
+                    dependency_depth,
+                    expression_depth + 1,
+                )?;
+                let right = Self::evaluate_expression(
+                    worksheet,
+                    right,
+                    visiting,
+                    dependency_depth,
+                    expression_depth + 1,
+                )?;
                 match operator {
                     FormulaBinaryOperator::Add => left + right,
                     FormulaBinaryOperator::Subtract => left - right,
@@ -136,9 +160,21 @@ impl SheetFormulaService {
                 for argument in arguments {
                     total += match argument {
                         FormulaExpression::Range { start, end } => {
-                            Self::sum_range(worksheet, *start, *end, visiting, depth)?
+                            Self::sum_range(
+                                worksheet,
+                                *start,
+                                *end,
+                                visiting,
+                                dependency_depth,
+                            )?
                         }
-                        _ => Self::evaluate_expression(worksheet, argument, visiting, depth)?,
+                        _ => Self::evaluate_expression(
+                            worksheet,
+                            argument,
+                            visiting,
+                            dependency_depth,
+                            expression_depth + 1,
+                        )?,
                     };
                     total = Self::finite(total)?;
                 }
