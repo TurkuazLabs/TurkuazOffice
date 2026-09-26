@@ -563,6 +563,8 @@ grep -q 'csv_sparse_export_handles_max_grid_address_without_rectangular_allocati
 grep -q 'xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_import_reads_shared_string_cells' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_import_rejects_missing_root_workbook_relationship' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_export_rejects_duplicate_worksheet_names_case_insensitively' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_export_rejects_xml_invalid_cell_text' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_import_rejects_formula_cells_until_formula_engine_phase' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 
 for sheet_format_file in \
