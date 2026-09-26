@@ -20,6 +20,7 @@ use crate::tools::sheet_csv_tool::{SheetCsvField, SheetCsvTool, SheetCsvToolErro
 pub enum SheetCsvError {
     InvalidCsv,
     ResourceLimit,
+    FormulaUnsupported,
 }
 
 pub struct SheetCsvService;
@@ -82,7 +83,7 @@ impl SheetCsvService {
                         .map_err(|_| SheetCsvError::ResourceLimit)?,
                     column: usize::try_from(address.column)
                         .map_err(|_| SheetCsvError::ResourceLimit)?,
-                    value: Self::value_text(value),
+                    value: Self::value_text(value)?,
                 })
             })
             .collect::<Result<Vec<_>, SheetCsvError>>()?;
@@ -90,17 +91,16 @@ impl SheetCsvService {
         SheetCsvTool::encode_sparse(&fields).map_err(Self::map_tool_error)
     }
 
-    fn value_text(value: &CellValue) -> String {
+    fn value_text(value: &CellValue) -> Result<String, SheetCsvError> {
         match value {
-            CellValue::Text(text) => text.clone(),
-            CellValue::Number(number) => number.to_string(),
-            CellValue::Boolean(value) => {
-                if *value {
-                    "TRUE".to_owned()
-                } else {
-                    "FALSE".to_owned()
-                }
-            }
+            CellValue::Text(text) => Ok(text.clone()),
+            CellValue::Number(number) => Ok(number.to_string()),
+            CellValue::Boolean(value) => Ok(if *value {
+                "TRUE".to_owned()
+            } else {
+                "FALSE".to_owned()
+            }),
+            CellValue::Formula(_) => Err(SheetCsvError::FormulaUnsupported),
         }
     }
 
