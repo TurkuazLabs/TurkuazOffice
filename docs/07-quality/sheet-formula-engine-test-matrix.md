@@ -105,6 +105,9 @@ sheet_formula_tests.rs:
 - division by zero.
 - type mismatch.
 - range limit.
+- formula source length limit.
+- dependency chain depth limit.
+- expression recursion depth limit.
 - invalid source rejection.
 - same-formula revision no-op.
 - Controller raw/evaluated separation.
