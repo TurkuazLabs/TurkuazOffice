@@ -24,6 +24,8 @@ Import:
 
 Export:
 
+- Sparse worksheet rectangular matrix olarak materialize edilmez.
+- Output row/column gap'leri streaming yazilir.
 - Text.
 - finite Number.
 - Boolean -> TRUE/FALSE.
@@ -95,6 +97,7 @@ sheet_csv_xlsx_tests.rs:
 - CSV quote + CRLF parse.
 - CSV text-only import.
 - CSV typed export serialization.
+- CSV max-grid sparse export memory regression.
 - XLSX multi-sheet typed round-trip.
 - sharedStrings import.
 - root workbook relationship validation.
