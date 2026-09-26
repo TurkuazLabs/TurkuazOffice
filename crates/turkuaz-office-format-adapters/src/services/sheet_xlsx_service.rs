@@ -5,7 +5,7 @@
 // Aciklama: Value-only SpreadsheetML import/export, worksheet/cell validation ve relationship target normalization business kurallarini uygular
 // Bagimli Oldugu Katman: Service -> Model -> Tool -> Sheet
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::DocumentSchemaVersion;
@@ -36,6 +36,7 @@ pub enum SheetXlsxError {
     InvalidWorksheetName,
     InvalidCellReference,
     CellTextTooLong,
+    InvalidCellText,
     CellNumberNotFinite,
     UnsupportedFormula,
     UnsupportedCellType,
@@ -93,7 +94,12 @@ impl SheetXlsxService {
             .unwrap_or_default();
 
         let mut worksheets = Vec::with_capacity(descriptors.len());
+        let mut worksheet_names = HashSet::new();
         for descriptor in descriptors {
+            let normalized_name = descriptor.name.to_lowercase();
+            if !worksheet_names.insert(normalized_name) {
+                return Err(SheetXlsxError::InvalidWorksheetName);
+            }
             Self::validate_worksheet_name(&descriptor.name)?;
             let target = relationships
                 .get(&descriptor.relationship_id)
@@ -133,13 +139,19 @@ impl SheetXlsxService {
             return Err(SheetXlsxError::ResourceLimit);
         }
 
-        let workbook = XlsxWorkbookModel {
-            worksheets: document
-                .worksheets
-                .iter()
-                .map(Self::to_xlsx_worksheet)
-                .collect::<Result<Vec<_>, _>>()?,
-        };
+        let mut worksheet_names = HashSet::new();
+        let worksheets = document
+            .worksheets
+            .iter()
+            .map(|worksheet| {
+                let normalized_name = worksheet.name.to_lowercase();
+                if !worksheet_names.insert(normalized_name) {
+                    return Err(SheetXlsxError::InvalidWorksheetName);
+                }
+                Self::to_xlsx_worksheet(worksheet)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let workbook = XlsxWorkbookModel { worksheets };
 
         let mut entries = Vec::with_capacity(workbook.worksheets.len() + 4);
         entries.push((
@@ -185,9 +197,7 @@ impl SheetXlsxService {
                 .map_err(|_| SheetXlsxError::InvalidCellReference)?;
             let value = match cell.value {
                 XlsxCellValue::Text(value) => {
-                    if value.chars().count() > MAX_CELL_TEXT_LENGTH {
-                        return Err(SheetXlsxError::CellTextTooLong);
-                    }
+                    Self::validate_cell_text(&value)?;
                     CellValue::Text(value)
                 }
                 XlsxCellValue::Number(value) => {
@@ -219,9 +229,7 @@ impl SheetXlsxService {
                 .map_err(|_| SheetXlsxError::InvalidCellReference)?;
             let value = match value {
                 CellValue::Text(value) => {
-                    if value.chars().count() > MAX_CELL_TEXT_LENGTH {
-                        return Err(SheetXlsxError::CellTextTooLong);
-                    }
+                    Self::validate_cell_text(value)?;
                     XlsxCellValue::Text(value.clone())
                 }
                 CellValue::Number(value) => {
@@ -245,13 +253,33 @@ impl SheetXlsxService {
         let trimmed = name.trim();
         if trimmed.is_empty()
             || trimmed.chars().count() > MAX_WORKSHEET_NAME_LENGTH
-            || trimmed
-                .chars()
-                .any(|character| matches!(character, '[' | ']' | ':' | '*' | '?' | '/' | '\\'))
+            || trimmed.starts_with('\'')
+            || trimmed.ends_with('\'')
+            || trimmed.chars().any(|character| {
+                !Self::is_xml_1_0_character(character)
+                    || matches!(character, '[' | ']' | ':' | '*' | '?' | '/' | '\\')
+            })
         {
             return Err(SheetXlsxError::InvalidWorksheetName);
         }
         Ok(())
+    }
+
+    fn validate_cell_text(value: &str) -> Result<(), SheetXlsxError> {
+        if value.chars().count() > MAX_CELL_TEXT_LENGTH {
+            return Err(SheetXlsxError::CellTextTooLong);
+        }
+        if value.chars().any(|character| !Self::is_xml_1_0_character(character)) {
+            return Err(SheetXlsxError::InvalidCellText);
+        }
+        Ok(())
+    }
+
+    fn is_xml_1_0_character(character: char) -> bool {
+        matches!(character, '\u{0009}' | '\u{000A}' | '\u{000D}')
+            || ('\u{0020}'..='\u{D7FF}').contains(&character)
+            || ('\u{E000}'..='\u{FFFD}').contains(&character)
+            || ('\u{10000}'..='\u{10FFFF}').contains(&character)
     }
 
     fn worksheet_entry_name(target: &str) -> Result<String, SheetXlsxError> {
