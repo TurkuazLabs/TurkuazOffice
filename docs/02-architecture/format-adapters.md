@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/02-architecture/format-adapters.md
 # 📌 Amac: DOCX XLSX PPTX ODT CSV ve PDF format adaptoru sinirlarini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.3.0
 # Aciklama: DOCX XLSX PPTX ODT CSV ve PDF format adaptoru sinirlarini tanimlar
 
 Bagimli Oldugu Katman: Documentation
@@ -56,3 +56,26 @@ Desktop SystemFontTool requested family + bold/italic face'i cozer ve yalniz fon
 M1 PDF profile paragraph/run text, B/I/U, font family/size, paragraph alignment, primary page geometry ve multi-page text flow ile sinirlidir. Table, image, asset registry ve multiple-section structure typed hata ile reddedilir.
 
 Common canonical pagination engine henuz bulunmadigi icin PDF pagination adapter-local baseline'dir. Print Preview ile ayni physical PageSettings kullanilir fakat pixel-perfect pagination esitligi iddia edilmez.
+
+
+## M2 Sheet CSV/XLSX minimum
+
+Sheet canonical domain dis format syntax'i bilmez.
+
+CSV:
+
+Canonical Worksheet <-> SheetCsvService <-> SheetCsvTool <-> CSV bytes.
+
+CSV import text-only semantiktedir. CSV type metadata tasimadigi icin 001, TRUE veya tarih gorunumlu degerler otomatik type inference ile degistirilmez.
+
+XLSX:
+
+Canonical SheetDocument <-> SheetXlsxService <-> XlsxWorkbookModel <-> SheetXlsxXmlTool + SheetXlsxArchiveTool <-> XLSX bytes.
+
+XLSX value-only minimum text, finite number, boolean ve multiple worksheet destekler.
+
+Text export inlineStr kullanir. Import inlineStr ve sharedStrings okur.
+
+Formula, style, number-format, date/time, merge, comment, chart ve diger advanced SpreadsheetML yapilari bu minimum profile dahil degildir. Formula cached-value ile sessizce deger olarak alinmaz; typed UnsupportedFormula hatasi ile reddedilir.
+
+ZIP/XML resource limitleri ve relationship path validation format-adapter Tool/Service katmanlarinda kalir.
