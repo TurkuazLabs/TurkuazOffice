@@ -175,7 +175,7 @@ fn xlsx_import_reads_shared_string_cells() {
 
 #[test]
 fn xlsx_import_rejects_missing_root_workbook_relationship() {
-    let mut entries = vec![
+    let entries = vec![
         (
             "[Content_Types].xml".to_owned(),
             br#"<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>"#.to_vec(),
@@ -205,7 +205,6 @@ fn xlsx_import_rejects_missing_root_workbook_relationship() {
         Err(SheetXlsxError::InvalidPackage)
     );
 
-    entries.clear();
 }
 
 #[test]
