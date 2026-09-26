@@ -63,7 +63,9 @@ impl SheetFormulaService {
     ) -> Result<EvaluatedCellValue, FormulaError> {
         match value {
             CellValue::Text(text) => Ok(EvaluatedCellValue::Text(text.clone())),
-            CellValue::Number(number) => Ok(EvaluatedCellValue::Number(*number)),
+            CellValue::Number(number) => {
+                Ok(EvaluatedCellValue::Number(Self::finite(*number)?))
+            },
             CellValue::Boolean(value) => Ok(EvaluatedCellValue::Boolean(*value)),
             CellValue::Formula(source) => {
                 let number =
