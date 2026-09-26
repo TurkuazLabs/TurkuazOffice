@@ -16,6 +16,13 @@ pub enum SheetCsvToolError {
     InvalidCsv,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetCsvField {
+    pub row: usize,
+    pub column: usize,
+    pub value: String,
+}
+
 pub struct SheetCsvTool;
 
 impl SheetCsvTool {
@@ -103,6 +110,58 @@ impl SheetCsvTool {
         Ok(rows)
     }
 
+    pub fn encode_sparse(fields: &[SheetCsvField]) -> Result<Vec<u8>, SheetCsvToolError> {
+        if fields.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let mut ordered = fields.iter().collect::<Vec<_>>();
+        ordered.sort_by_key(|field| (field.row, field.column));
+
+        let mut output = String::new();
+        let mut current_row = 0_usize;
+        let mut last_column: Option<usize> = None;
+        let mut last_address: Option<(usize, usize)> = None;
+
+        for field in ordered {
+            if field.row >= MAX_CSV_ROWS {
+                return Err(SheetCsvToolError::TooManyRows);
+            }
+            if field.column >= MAX_CSV_COLUMNS {
+                return Err(SheetCsvToolError::TooManyColumns);
+            }
+            if last_address == Some((field.row, field.column)) {
+                return Err(SheetCsvToolError::InvalidCsv);
+            }
+
+            while current_row < field.row {
+                output.push_str("\r\n");
+                Self::validate_output_size(&output)?;
+                current_row += 1;
+                last_column = None;
+            }
+
+            let comma_count = match last_column {
+                Some(previous) => field.column.saturating_sub(previous),
+                None => field.column,
+            };
+            if last_column.is_some_and(|previous| field.column <= previous) {
+                return Err(SheetCsvToolError::InvalidCsv);
+            }
+            for _ in 0..comma_count {
+                output.push(',');
+                Self::validate_output_size(&output)?;
+            }
+
+            Self::write_field(&mut output, &field.value);
+            Self::validate_output_size(&output)?;
+            last_column = Some(field.column);
+            last_address = Some((field.row, field.column));
+        }
+
+        Ok(output.into_bytes())
+    }
+
     pub fn encode(rows: &[Vec<String>]) -> Result<Vec<u8>, SheetCsvToolError> {
         if rows.len() > MAX_CSV_ROWS {
             return Err(SheetCsvToolError::TooManyRows);
@@ -130,6 +189,13 @@ impl SheetCsvTool {
             return Err(SheetCsvToolError::TooLarge);
         }
         Ok(output.into_bytes())
+    }
+
+    fn validate_output_size(output: &str) -> Result<(), SheetCsvToolError> {
+        if output.len() > MAX_CSV_BYTES {
+            return Err(SheetCsvToolError::TooLarge);
+        }
+        Ok(())
     }
 
     fn push_row(
