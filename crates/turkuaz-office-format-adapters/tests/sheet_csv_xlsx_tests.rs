@@ -174,6 +174,41 @@ fn xlsx_import_reads_shared_string_cells() {
 }
 
 #[test]
+fn xlsx_import_rejects_missing_root_workbook_relationship() {
+    let mut entries = vec![
+        (
+            "[Content_Types].xml".to_owned(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>"#.to_vec(),
+        ),
+        (
+            "_rels/.rels".to_owned(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>"#.to_vec(),
+        ),
+        (
+            "xl/workbook.xml".to_owned(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>"#.to_vec(),
+        ),
+        (
+            "xl/_rels/workbook.xml.rels".to_owned(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>"#.to_vec(),
+        ),
+        (
+            "xl/worksheets/sheet1.xml".to_owned(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/></worksheet>"#.to_vec(),
+        ),
+    ];
+    let bytes = SheetXlsxArchiveTool::encode(&entries).expect("invalid root package");
+    let ids = SequentialSheetIdTool::new();
+
+    assert_eq!(
+        SheetXlsxService::import(&ids, "Invalid Root", &bytes),
+        Err(SheetXlsxError::InvalidPackage)
+    );
+
+    entries.clear();
+}
+
+#[test]
 fn xlsx_import_rejects_formula_cells_until_formula_engine_phase() {
     let bytes = workbook_package(
         br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1"><f>1+2</f><v>3</v></c></row></sheetData></worksheet>"#,
@@ -195,7 +230,7 @@ fn workbook_package(worksheet_xml: &[u8], shared_strings: Option<&[u8]>) -> Vec<
         ),
         (
             "_rels/.rels".to_owned(),
-            br#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>"#.to_vec(),
+            br#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>"#.to_vec(),
         ),
         (
             "xl/workbook.xml".to_owned(),
