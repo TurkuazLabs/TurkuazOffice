@@ -178,6 +178,56 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
 }
 
 #[test]
+fn xlsx_export_rejects_duplicate_worksheet_names_case_insensitively() {
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-duplicate-names"),
+        title: "Duplicate Names".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 0,
+        worksheets: vec![
+            Worksheet {
+                id: WorksheetId::new("worksheet-1"),
+                name: "Data".to_owned(),
+                cells: BTreeMap::new(),
+            },
+            Worksheet {
+                id: WorksheetId::new("worksheet-2"),
+                name: "data".to_owned(),
+                cells: BTreeMap::new(),
+            },
+        ],
+    };
+
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::InvalidWorksheetName)
+    );
+}
+
+#[test]
+fn xlsx_export_rejects_xml_invalid_cell_text() {
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-invalid-text"),
+        title: "Invalid Text".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 0,
+        worksheets: vec![Worksheet {
+            id: WorksheetId::new("worksheet-invalid-text"),
+            name: "Sheet1".to_owned(),
+            cells: BTreeMap::from([(
+                CellAddress { row: 0, column: 0 },
+                CellValue::Text("bad\u{0000}text".to_owned()),
+            )]),
+        }],
+    };
+
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::InvalidCellText)
+    );
+}
+
+#[test]
 fn xlsx_import_reads_shared_string_cells() {
     let bytes = workbook_package(
         br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c></row></sheetData></worksheet>"#,
