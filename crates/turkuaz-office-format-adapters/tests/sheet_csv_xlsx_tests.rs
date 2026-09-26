@@ -11,6 +11,7 @@ use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use turkuaz_office_format_adapters::{
     SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError, SheetXlsxService,
 };
+use turkuaz_office_sheet::config::constants::{MAX_SHEET_COLUMNS, MAX_SHEET_ROWS};
 use turkuaz_office_sheet::{
     CellAddress, CellValue, SequentialSheetIdTool, SheetDocument, Worksheet, WorksheetId,
 };
@@ -78,6 +79,30 @@ fn csv_export_quotes_text_and_serializes_typed_values() {
     let text = String::from_utf8(bytes).expect("utf8");
 
     assert_eq!(text, "\"A,B\",42.5,TRUE\r\n\"A \"\"quote\"\"\",,");
+}
+
+#[test]
+fn csv_sparse_export_handles_max_grid_address_without_rectangular_allocation() {
+    let worksheet = Worksheet {
+        id: WorksheetId::new("worksheet-sparse-max"),
+        name: "Sheet1".to_owned(),
+        cells: BTreeMap::from([(
+            CellAddress {
+                row: MAX_SHEET_ROWS - 1,
+                column: MAX_SHEET_COLUMNS - 1,
+            },
+            CellValue::Boolean(true),
+        )]),
+    };
+
+    let bytes = SheetCsvService::export_worksheet(&worksheet).expect("sparse csv export");
+    let expected_length =
+        usize::try_from(MAX_SHEET_ROWS - 1).expect("rows") * 2
+        + usize::try_from(MAX_SHEET_COLUMNS - 1).expect("columns")
+        + "TRUE".len();
+
+    assert_eq!(bytes.len(), expected_length);
+    assert!(bytes.ends_with(b"TRUE"));
 }
 
 #[test]
