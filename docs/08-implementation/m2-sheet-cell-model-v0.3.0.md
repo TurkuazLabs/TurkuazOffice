@@ -38,13 +38,13 @@ CellAddress canonical olarak zero-based row/column tasir.
 
 ## Cell values
 
-M2 first slice:
+Initial Cell Model slice:
 
 - text.
 - finite number.
 - boolean.
 
-Formula bu branch'te CellValue olarak aktif edilmez. Basic formula engine roadmap'in sonraki ayri parcasi olarak kalir.
+M2 Basic Formula Engine follow-on parcasi daha sonra canonical CellValue::Formula source varyantini ekledi. Formula parser/evaluation detaylari m2-sheet-formula-engine-v0.3.0.md icindedir.
 
 ## A1 boundary
 
