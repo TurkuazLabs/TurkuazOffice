@@ -14,8 +14,9 @@ use crate::config::constants::{
     DEFAULT_WORKSHEET_NAME, MAX_CELL_TEXT_LENGTH, MAX_SHEET_COLUMNS, MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
+use crate::services::sheet_formula_service::{FormulaError, SheetFormulaService};
 use crate::services::sheet_types::{
-    Cell, CellAddress, CellValue, SheetDocument, Worksheet, WorksheetId,
+    Cell, CellAddress, CellValue, EvaluatedCellValue, SheetDocument, Worksheet, WorksheetId,
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::sheet_id_tool::SheetIdTool;
@@ -28,6 +29,7 @@ pub enum SheetError {
     CellOutOfBounds,
     CellTextTooLong,
     CellNumberNotFinite,
+    Formula(FormulaError),
 }
 
 pub struct SheetService<R, I>
@@ -77,6 +79,51 @@ where
 
     pub fn get_document(&self, id: &DocumentId) -> Option<SheetDocument> {
         self.repository.find(id)
+    }
+
+    pub fn set_formula_by_a1(
+        &mut self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        reference: &str,
+        source: &str,
+    ) -> Result<SheetDocument, SheetError> {
+        self.set_cell_by_a1(
+            document_id,
+            worksheet_id,
+            reference,
+            CellValue::Formula(source.to_owned()),
+        )
+    }
+
+    pub fn evaluated_cell_by_a1(
+        &self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        reference: &str,
+    ) -> Result<Option<EvaluatedCellValue>, SheetError> {
+        let address =
+            CellReferenceTool::parse(reference).map_err(|_| SheetError::InvalidCellReference)?;
+        self.evaluated_cell(document_id, worksheet_id, address)
+    }
+
+    pub fn evaluated_cell(
+        &self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        address: CellAddress,
+    ) -> Result<Option<EvaluatedCellValue>, SheetError> {
+        Self::validate_address(address)?;
+        let document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        let worksheet = document
+            .worksheets
+            .iter()
+            .find(|worksheet| &worksheet.id == worksheet_id)
+            .ok_or(SheetError::WorksheetNotFound)?;
+        SheetFormulaService::evaluate_cell(worksheet, address).map_err(SheetError::Formula)
     }
 
     pub fn set_cell_by_a1(
@@ -203,6 +250,9 @@ where
             }
             CellValue::Number(number) if !number.is_finite() => {
                 Err(SheetError::CellNumberNotFinite)
+            }
+            CellValue::Formula(source) => {
+                SheetFormulaService::validate(source).map_err(SheetError::Formula)
             }
             CellValue::Text(_) | CellValue::Number(_) | CellValue::Boolean(_) => Ok(()),
         }
