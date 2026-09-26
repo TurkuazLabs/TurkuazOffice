@@ -178,7 +178,7 @@ impl<'a> Parser<'a> {
         &mut self,
         depth: usize,
     ) -> Result<FormulaExpression, FormulaParseError> {
-        let token = self.take_ascii_alphanumeric();
+        let token = self.take_ascii_alphanumeric().to_owned();
         if token.is_empty() {
             return Err(FormulaParseError::UnexpectedToken);
         }
@@ -192,7 +192,7 @@ impl<'a> Parser<'a> {
         }
 
         let start =
-            CellReferenceTool::parse(token).map_err(|_| FormulaParseError::InvalidReference)?;
+            CellReferenceTool::parse(&token).map_err(|_| FormulaParseError::InvalidReference)?;
         self.skip_whitespace();
         if self.peek_byte() != Some(b':') {
             return Ok(FormulaExpression::Reference(start));
