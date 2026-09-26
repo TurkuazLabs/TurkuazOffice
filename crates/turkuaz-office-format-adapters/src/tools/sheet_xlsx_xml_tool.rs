@@ -105,6 +105,39 @@ impl SheetXlsxXmlTool {
         Ok(sheets)
     }
 
+    pub fn validate_root_relationships(xml: &[u8]) -> Result<(), SheetXlsxXmlError> {
+        let mut reader = Self::reader(xml)?;
+        let mut depth = 0_usize;
+        let mut nodes = 0_usize;
+        let mut valid = false;
+
+        loop {
+            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+                Event::Start(start) => {
+                    depth = depth.saturating_add(1);
+                    nodes = nodes.saturating_add(1);
+                    Self::validate_limits(depth, nodes)?;
+                    valid |= Self::is_office_document_relationship(&start)?;
+                }
+                Event::Empty(empty) => {
+                    nodes = nodes.saturating_add(1);
+                    Self::validate_limits(depth, nodes)?;
+                    valid |= Self::is_office_document_relationship(&empty)?;
+                }
+                Event::End(_) => depth = depth.saturating_sub(1),
+                Event::DocType(_) => return Err(SheetXlsxXmlError::DocTypeUnsupported),
+                Event::Eof => break,
+                _ => {}
+            }
+        }
+
+        if valid {
+            Ok(())
+        } else {
+            Err(SheetXlsxXmlError::MissingAttribute)
+        }
+    }
+
     pub fn parse_workbook_relationships(
         xml: &[u8],
     ) -> Result<HashMap<String, String>, SheetXlsxXmlError> {
@@ -381,6 +414,22 @@ impl SheetXlsxXmlTool {
             relationship_id: Self::attribute(element, ATTR_ID)?
                 .ok_or(SheetXlsxXmlError::MissingAttribute)?,
         })
+    }
+
+    fn is_office_document_relationship(
+        element: &BytesStart<'_>,
+    ) -> Result<bool, SheetXlsxXmlError> {
+        if Self::local_name(element.name().as_ref()) != TAG_RELATIONSHIP {
+            return Ok(false);
+        }
+        let relation_type = Self::attribute(element, ATTR_TYPE)?;
+        let target = Self::attribute(element, ATTR_TARGET)?;
+        Ok(
+            relation_type.as_deref() == Some(XLSX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE)
+                && target
+                    .as_deref()
+                    .is_some_and(|value| value.trim_start_matches('/') == "xl/workbook.xml"),
+        )
     }
 
     fn read_relationship(
