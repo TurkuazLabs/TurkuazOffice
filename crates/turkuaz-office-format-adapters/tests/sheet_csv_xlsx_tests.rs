@@ -9,7 +9,8 @@ use std::collections::BTreeMap;
 
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use turkuaz_office_format_adapters::{
-    SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError, SheetXlsxService,
+    SheetCsvError, SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError,
+    SheetXlsxService,
 };
 use turkuaz_office_sheet::config::constants::{MAX_SHEET_COLUMNS, MAX_SHEET_ROWS};
 use turkuaz_office_sheet::{
@@ -103,6 +104,35 @@ fn csv_sparse_export_handles_max_grid_address_without_rectangular_allocation() {
 
     assert_eq!(bytes.len(), expected_length);
     assert!(bytes.ends_with(b"TRUE"));
+}
+
+#[test]
+fn csv_and_xlsx_export_reject_formula_cells_without_silent_flattening() {
+    let worksheet = Worksheet {
+        id: WorksheetId::new("worksheet-formula-export"),
+        name: "Sheet1".to_owned(),
+        cells: BTreeMap::from([(
+            CellAddress { row: 0, column: 0 },
+            CellValue::Formula("=1+2".to_owned()),
+        )]),
+    };
+
+    assert_eq!(
+        SheetCsvService::export_worksheet(&worksheet),
+        Err(SheetCsvError::FormulaUnsupported)
+    );
+
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-formula-export"),
+        title: "Formula Export".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 1,
+        worksheets: vec![worksheet],
+    };
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::UnsupportedFormula)
+    );
 }
 
 #[test]
