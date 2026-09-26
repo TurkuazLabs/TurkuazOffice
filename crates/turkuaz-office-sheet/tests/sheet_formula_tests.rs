@@ -178,6 +178,45 @@ fn formula_engine_reports_cycle_division_type_and_range_errors() {
 }
 
 #[test]
+fn formula_parser_rejects_overlong_source() {
+    let source = format!("={}", "1".repeat(8_192));
+
+    assert_eq!(
+        FormulaParserTool::parse(&source),
+        Err(FormulaParseError::TooLong)
+    );
+}
+
+#[test]
+fn formula_engine_bounds_dependency_chain_depth() {
+    let mut service = service();
+    let document = service.create_document("Dependency Depth");
+    let worksheet_id = document.worksheets[0].id.clone();
+    let mut current = document;
+
+    for row in 1..=130 {
+        let reference = format!("A{row}");
+        let next = format!("=A{}", row + 1);
+        current = service
+            .set_formula_by_a1(&current.id, &worksheet_id, &reference, &next)
+            .expect("dependency formula");
+    }
+    current = service
+        .set_cell_by_a1(
+            &current.id,
+            &worksheet_id,
+            "A131",
+            CellValue::Number(1.0),
+        )
+        .expect("dependency terminal");
+
+    assert_eq!(
+        service.evaluated_cell_by_a1(&current.id, &worksheet_id, "A1"),
+        Err(SheetError::Formula(FormulaError::DependencyDepthExceeded))
+    );
+}
+
+#[test]
 fn formula_engine_bounds_expression_recursion_depth() {
     let mut service = service();
     let document = service.create_document("Depth");
