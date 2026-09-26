@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.3.0
-# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet layer/cell-model static contract kontrollerini uygular
+# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -206,6 +206,17 @@ required_files=(
   "docs/07-quality/sheet-cell-model-test-matrix.md"
   "docs/08-implementation/m2-sheet-cell-model-v0.3.0.md"
   "docs/08-implementation/m2-sheet-cell-model-validation.md"
+  "crates/turkuaz-office-format-adapters/src/config/sheet_constants.rs"
+  "crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs"
+  "crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs"
+  "crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/sheet_csv_tool.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs"
+  "crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+  "crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+  "docs/07-quality/sheet-csv-xlsx-test-matrix.md"
+  "docs/08-implementation/m2-sheet-csv-xlsx-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-csv-xlsx-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -534,4 +545,36 @@ for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crat
   grep -q "Version: $CURRENT_VERSION" "$sheet_file"
 done
 
-echo "Turkuaz Office v0.3.0 M2 Sheet Cell Model verification BASARILI."
+
+
+grep -q 'sheet_csv_xlsx:' "$ROOT/config/project.yml"
+grep -q 'import_semantics: text_only' "$ROOT/config/project.yml"
+grep -q 'formula_import: strict_reject' "$ROOT/config/project.yml"
+grep -q 'turkuaz-office-sheet = ' "$ROOT/crates/turkuaz-office-format-adapters/Cargo.toml"
+grep -q 'pub struct SheetCsvTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_csv_tool.rs"
+grep -q 'pub struct SheetCsvService' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs"
+grep -q 'pub struct SheetXlsxArchiveTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs"
+grep -q 'pub struct SheetXlsxXmlTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub struct SheetXlsxService' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+grep -q 'validate_root_relationships' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'UnsupportedFormula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+grep -q 'csv_parser_handles_quotes_crlf_and_service_import_is_text_only' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_import_reads_shared_string_cells' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_import_rejects_missing_root_workbook_relationship' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_import_rejects_formula_cells_until_formula_engine_phase' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+
+for sheet_format_file in \
+  "$ROOT/crates/turkuaz-office-format-adapters/Cargo.toml" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/config/sheet_constants.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_csv_tool.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"; do
+  grep -q "Version: $CURRENT_VERSION" "$sheet_format_file"
+done
+
+echo "Turkuaz Office v0.3.0 M2 Sheet CSV XLSX verification BASARILI."
