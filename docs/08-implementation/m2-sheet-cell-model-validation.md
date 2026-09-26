@@ -36,7 +36,7 @@ sheet_cell_model_tests.rs:
 
 ## Roadmap integrity
 
-Formula, CSV/XLSX, format/filter/sort, chart ve 100000-cell benchmark bu Cell Model fazinda tamamlanmis sayilmaz.
+Cell Model fazinin kendi scope'u formula ve dis formatlari tamamlamiyordu. Sonraki M2 follow-on parcalarinda CSV/XLSX ve Basic Formula Engine tamamlandi; format/filter/sort, chart ve 100000-cell benchmark henuz sonraki parcalardir.
 
 ## Compiler-backed durum
 
