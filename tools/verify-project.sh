@@ -603,6 +603,8 @@ grep -q 'EvaluatedCellValueView' "$ROOT/crates/turkuaz-office-sheet/src/views/sh
 grep -q 'formula_parser_preserves_arithmetic_precedence_and_parentheses' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
 grep -q 'formula_sum_accepts_ranges_and_expression_arguments' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
 grep -q 'formula_engine_reports_cycle_division_type_and_range_errors' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'formula_parser_rejects_overlong_source' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'formula_engine_bounds_dependency_chain_depth' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
 grep -q 'formula_engine_bounds_expression_recursion_depth' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
 grep -q 'formula_set_validates_source_and_same_formula_is_revision_noop' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
 grep -q 'csv_and_xlsx_export_reject_formula_cells_without_silent_flattening' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
