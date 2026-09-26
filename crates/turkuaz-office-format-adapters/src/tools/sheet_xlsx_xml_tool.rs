@@ -23,20 +23,20 @@ use crate::models::sheet_xlsx_model::{
     XlsxCellModel, XlsxCellValue, XlsxSheetDescriptor, XlsxWorksheetModel,
 };
 
-const TAG_SHEET: &[u8] = b"sheet";
-const TAG_RELATIONSHIP: &[u8] = b"Relationship";
-const TAG_SHARED_ITEM: &[u8] = b"si";
-const TAG_CELL: &[u8] = b"c";
-const TAG_VALUE: &[u8] = b"v";
-const TAG_TEXT: &[u8] = b"t";
-const TAG_FORMULA: &[u8] = b"f";
+const TAG_SHEET: &str = "sheet";
+const TAG_RELATIONSHIP: &str = "Relationship";
+const TAG_SHARED_ITEM: &str = "si";
+const TAG_CELL: &str = "c";
+const TAG_VALUE: &str = "v";
+const TAG_TEXT: &str = "t";
+const TAG_FORMULA: &str = "f";
 
-const ATTR_NAME: &[u8] = b"name";
-const ATTR_ID: &[u8] = b"id";
-const ATTR_TARGET: &[u8] = b"Target";
-const ATTR_TYPE: &[u8] = b"Type";
-const ATTR_REFERENCE: &[u8] = b"r";
-const ATTR_CELL_TYPE: &[u8] = b"t";
+const ATTR_NAME: &str = "name";
+const ATTR_ID: &str = "id";
+const ATTR_TARGET: &str = "Target";
+const ATTR_TYPE: &str = "Type";
+const ATTR_REFERENCE: &str = "r";
+const ATTR_CELL_TYPE: &str = "t";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SheetXlsxXmlError {
@@ -362,7 +362,7 @@ impl SheetXlsxXmlTool {
         xml
     }
 
-    fn reader(xml: &[u8]) -> Result<Reader<&str>, SheetXlsxXmlError> {
+    fn reader(xml: &[u8]) -> Result<Reader<&[u8]>, SheetXlsxXmlError> {
         if xml.len() > MAX_XLSX_XML_BYTES {
             return Err(SheetXlsxXmlError::DocumentTooLarge);
         }
@@ -474,7 +474,7 @@ impl SheetXlsxXmlTool {
 
     fn attribute(
         element: &BytesStart<'_>,
-        key: &[u8],
+        key: &str,
     ) -> Result<Option<String>, SheetXlsxXmlError> {
         for attribute in element.attributes() {
             let attribute = attribute.map_err(|_| SheetXlsxXmlError::InvalidAttribute)?;
@@ -505,7 +505,7 @@ impl SheetXlsxXmlTool {
         Ok(())
     }
 
-    fn local_name(name: &[u8]) -> &[u8] {
-        name.rsplit(|byte| *byte == b':').next().unwrap_or(name)
+    fn local_name(name: &str) -> &str {
+        name.rsplit(':').next().unwrap_or(name)
     }
 }
