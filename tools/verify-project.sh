@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.3.0
-# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX static contract kontrollerini uygular
+# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX + Formula Engine static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -217,6 +217,12 @@ required_files=(
   "docs/07-quality/sheet-csv-xlsx-test-matrix.md"
   "docs/08-implementation/m2-sheet-csv-xlsx-v0.3.0.md"
   "docs/08-implementation/m2-sheet-csv-xlsx-validation.md"
+  "crates/turkuaz-office-sheet/src/tools/formula_parser_tool.rs"
+  "crates/turkuaz-office-sheet/src/services/sheet_formula_service.rs"
+  "crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+  "docs/07-quality/sheet-formula-engine-test-matrix.md"
+  "docs/08-implementation/m2-sheet-formula-engine-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-formula-engine-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -580,4 +586,24 @@ for sheet_format_file in \
   grep -q "Version: $CURRENT_VERSION" "$sheet_format_file"
 done
 
-echo "Turkuaz Office v0.3.0 M2 Sheet CSV XLSX verification BASARILI."
+
+
+grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
+grep -q 'formula_engine: true' "$ROOT/config/project.yml"
+grep -q 'max_range_cells: 100000' "$ROOT/config/project.yml"
+grep -q 'Formula(String)' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct FormulaParserTool' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_parser_tool.rs"
+grep -q 'pub struct SheetFormulaService' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_formula_service.rs"
+grep -q 'CircularReference' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_formula_service.rs"
+grep -q 'ExpressionDepthExceeded' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_formula_service.rs"
+grep -q 'set_formula_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'evaluated_cell_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'set_formula_a1' "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"
+grep -q 'EvaluatedCellValueView' "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"
+grep -q 'formula_parser_preserves_arithmetic_precedence_and_parentheses' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'formula_sum_accepts_ranges_and_expression_arguments' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'formula_engine_reports_cycle_division_type_and_range_errors' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'formula_set_validates_source_and_same_formula_is_revision_noop' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_tests.rs"
+grep -q 'csv_and_xlsx_export_reject_formula_cells_without_silent_flattening' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+
+echo "Turkuaz Office v0.3.0 M2 Sheet Formula Engine verification BASARILI."
