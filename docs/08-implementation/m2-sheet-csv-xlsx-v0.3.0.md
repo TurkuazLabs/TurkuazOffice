@@ -40,6 +40,8 @@ TRUE degeri otomatik Boolean yapilmaz.
 
 Export canonical typed degerleri stringe cevirir.
 
+Sparse Worksheet exportu full rectangular Vec<Vec<String>> olusturmaz. Yalniz populated cell metadata'si tutulur; row/column gap'leri CSV byte akimina streaming yazilir. Bu karar XFD1048576 gibi uzak sparse adreslerde dev bos matris allocation riskini engeller.
+
 ## XLSX semantigi
 
 M2 value-only profile:
