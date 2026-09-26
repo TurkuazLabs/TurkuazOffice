@@ -6,4 +6,5 @@
 // Bagimli Oldugu Katman: Tool
 
 pub mod cell_reference_tool;
+pub mod formula_parser_tool;
 pub mod sheet_id_tool;
