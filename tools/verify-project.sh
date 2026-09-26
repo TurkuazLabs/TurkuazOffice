@@ -559,6 +559,7 @@ grep -q 'pub struct SheetXlsxService' "$ROOT/crates/turkuaz-office-format-adapte
 grep -q 'validate_root_relationships' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
 grep -q 'UnsupportedFormula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
 grep -q 'csv_parser_handles_quotes_crlf_and_service_import_is_text_only' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'csv_sparse_export_handles_max_grid_address_without_rectangular_allocation' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_import_reads_shared_string_cells' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_import_rejects_missing_root_workbook_relationship' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
