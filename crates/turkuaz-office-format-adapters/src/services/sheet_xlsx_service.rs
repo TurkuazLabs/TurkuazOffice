@@ -64,6 +64,12 @@ impl SheetXlsxService {
             }
         }
 
+        let root_relationships = entries
+            .get(XLSX_ROOT_RELATIONSHIPS_ENTRY)
+            .ok_or(SheetXlsxError::InvalidPackage)?;
+        SheetXlsxXmlTool::validate_root_relationships(root_relationships)
+            .map_err(Self::map_xml_error)?;
+
         let workbook_xml = entries
             .get(XLSX_WORKBOOK_ENTRY)
             .ok_or(SheetXlsxError::InvalidPackage)?;
