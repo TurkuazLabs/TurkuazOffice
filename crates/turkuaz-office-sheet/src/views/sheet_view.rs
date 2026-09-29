@@ -12,6 +12,7 @@ pub enum CellValueView {
     Text(String),
     Number(f64),
     Boolean(bool),
+    Formula(String),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -43,6 +44,7 @@ impl From<CellValue> for CellValueView {
             CellValue::Text(text) => Self::Text(text),
             CellValue::Number(number) => Self::Number(number),
             CellValue::Boolean(value) => Self::Boolean(value),
+            CellValue::Formula(formula) => Self::Formula(formula.expression),
         }
     }
 }

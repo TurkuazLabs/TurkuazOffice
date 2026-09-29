@@ -2,7 +2,7 @@
 // # 📌 Amac: Sheet request girdilerini alip yalnizca SheetService cagirir
 // # 📌 Modul - FileType: Controller - Rust
 // Version: 0.3.0
-// Aciklama: Create/get/set/clear/cell A1 request yuzeyini business logic tasimadan typed View modeline cevirir
+// Aciklama: Create/get/set/formula/evaluate/clear/cell A1 request yuzeyini business logic tasimadan typed View modeline cevirir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use turkuaz_office_core::DocumentId;
@@ -57,6 +57,23 @@ where
             .map(SheetDocumentView::from)
     }
 
+    pub fn set_formula_a1(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+        expression: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .set_formula_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+                expression,
+            )
+            .map(SheetDocumentView::from)
+    }
+
     pub fn clear_cell_a1(
         &mut self,
         document_id: &str,
@@ -70,6 +87,21 @@ where
                 reference,
             )
             .map(SheetDocumentView::from)
+    }
+
+    pub fn evaluated_cell_a1(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+    ) -> Result<Option<CellView>, SheetError> {
+        self.service
+            .evaluated_cell_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+            )
+            .map(|cell| cell.map(CellView::from))
     }
 
     pub fn cell_a1(
