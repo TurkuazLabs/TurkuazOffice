@@ -63,7 +63,7 @@ Desktop + Writer M1 feature kapsami tamamlanmistir. Roadmap sirasi geregi aktif 
 
 ## Sheet M2 v0.3.0 durumu
 
-M2 Cell Model, CSV/XLSX minimum ve Basic Formula Engine parcalari aktiftir:
+M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine ve Format/Filter/Sort parcalari aktiftir:
 
 - `turkuaz-office-sheet` workspace crate.
 - Sparse `SheetDocument -> Worksheet -> CellAddress/CellValue` model.
@@ -77,8 +77,13 @@ M2 Cell Model, CSV/XLSX minimum ve Basic Formula Engine parcalari aktiftir:
 - Formula dependency recursion, cycle/depth/division/non-finite guardlari.
 - Empty referenced cell numeric 0 kabul edilir; text/boolean numeric coercion yapilmaz.
 - CSV/XLSX minimum profile canonical formulayi sessiz downgrade etmez ve exportta typed UnsupportedFormula ile reddeder.
+- Sparse canonical CellFormat metadata: bold/italic/underline/horizontal alignment/decimal places.
+- Format mutation revision-aware'dir ve default format sparse mapte tutulmaz.
+- Filter/sort query'leri Service katmaninda formula-aware ve non-mutating calisir.
+- Tek kolon ascending/descending sort deterministic row-index tie-break kullanir.
+- Query range 100000 satir ile sinirlidir.
 
-Siradaki M2 parcasi format/filter/sort'tur. Basic charts ve 100000-cell benchmark sonraki roadmap adimlari olarak korunur.
+Siradaki M2 parcasi Basic Charts'tir. 100000-cell benchmark sonraki roadmap adimi olarak korunur.
 
 ## Monorepo
 

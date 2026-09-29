@@ -142,7 +142,8 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
                 )]),
             },
         ],
-    };
+        cell_formats: BTreeMap::new(),
+};
 
     let bytes = SheetXlsxService::export(&document).expect("xlsx export");
     let ids = SequentialSheetIdTool::new();
@@ -198,7 +199,8 @@ fn xlsx_export_rejects_duplicate_worksheet_names_case_insensitively() {
                 cells: BTreeMap::new(),
             },
         ],
-    };
+        cell_formats: BTreeMap::new(),
+};
 
     assert_eq!(
         SheetXlsxService::export(&document),
@@ -221,7 +223,8 @@ fn xlsx_export_rejects_xml_invalid_cell_text() {
                 CellValue::Text("bad\u{0000}text".to_owned()),
             )]),
         }],
-    };
+        cell_formats: BTreeMap::new(),
+};
 
     assert_eq!(
         SheetXlsxService::export(&document),
@@ -308,7 +311,8 @@ fn csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile() 
         schema_version: DocumentSchemaVersion::current(),
         revision: 1,
         worksheets: vec![worksheet],
-    };
+        cell_formats: BTreeMap::new(),
+};
     assert_eq!(
         SheetXlsxService::export(&document),
         Err(SheetXlsxError::UnsupportedFormula)

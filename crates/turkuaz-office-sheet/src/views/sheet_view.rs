@@ -5,7 +5,32 @@
 // Aciklama: Document/worksheet/cell/value alanlarini sparse BTreeMap sirasini koruyarak presentation katmanina tasir
 // Bagimli Oldugu Katman: View -> Service
 
-use crate::services::sheet_types::{Cell, CellValue, SheetDocument, Worksheet};
+use crate::services::sheet_types::{
+    Cell, CellFormat, CellValue, HorizontalAlignment, SheetDocument, Worksheet,
+};
+
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum HorizontalAlignmentView {
+    General,
+    Left,
+    Center,
+    Right,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct CellFormatView {
+    pub bold: bool,
+    pub italic: bool,
+    pub underline: bool,
+    pub horizontal_alignment: HorizontalAlignmentView,
+    pub decimal_places: Option<u8>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetRowQueryView {
+    pub rows: Vec<u32>,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum CellValueView {
@@ -36,6 +61,36 @@ pub struct SheetDocumentView {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<WorksheetView>,
+}
+
+
+impl From<HorizontalAlignment> for HorizontalAlignmentView {
+    fn from(value: HorizontalAlignment) -> Self {
+        match value {
+            HorizontalAlignment::General => Self::General,
+            HorizontalAlignment::Left => Self::Left,
+            HorizontalAlignment::Center => Self::Center,
+            HorizontalAlignment::Right => Self::Right,
+        }
+    }
+}
+
+impl From<CellFormat> for CellFormatView {
+    fn from(value: CellFormat) -> Self {
+        Self {
+            bold: value.bold,
+            italic: value.italic,
+            underline: value.underline,
+            horizontal_alignment: value.horizontal_alignment.into(),
+            decimal_places: value.decimal_places,
+        }
+    }
+}
+
+impl From<Vec<u32>> for SheetRowQueryView {
+    fn from(rows: Vec<u32>) -> Self {
+        Self { rows }
+    }
 }
 
 impl From<CellValue> for CellValueView {

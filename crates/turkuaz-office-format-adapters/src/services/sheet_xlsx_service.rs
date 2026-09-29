@@ -131,6 +131,7 @@ impl SheetXlsxService {
             schema_version: DocumentSchemaVersion::current(),
             revision: 0,
             worksheets,
+            cell_formats: BTreeMap::new(),
         })
     }
 

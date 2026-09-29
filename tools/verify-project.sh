@@ -223,6 +223,10 @@ required_files=(
   "docs/07-quality/sheet-formula-engine-test-matrix.md"
   "docs/08-implementation/m2-sheet-formula-engine-v0.3.0.md"
   "docs/08-implementation/m2-sheet-formula-engine-validation.md"
+  "crates/turkuaz-office-sheet/tests/sheet_format_filter_sort_tests.rs"
+  "docs/07-quality/sheet-format-filter-sort-test-matrix.md"
+  "docs/08-implementation/m2-sheet-format-filter-sort-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-format-filter-sort-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -602,4 +606,19 @@ grep -q 'CellValue::Formula' "$ROOT/crates/turkuaz-office-format-adapters/src/se
 grep -q 'formula_evaluation_respects_operator_precedence_and_revision_no_op' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
 grep -q 'formula_cycle_division_and_non_numeric_reference_are_typed_errors' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
 
-echo "Turkuaz Office v0.3.0 M2 Sheet Formula Engine verification BASARILI."
+
+
+grep -q 'sheet_format_filter_sort:' "$ROOT/config/project.yml"
+grep -q 'max_query_rows: 100000' "$ROOT/config/project.yml"
+grep -q 'pub struct CellFormat' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub enum SheetFilterCondition' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct SheetRange' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'MAX_CELL_DECIMAL_PLACES' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'MAX_SHEET_QUERY_ROWS' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'pub fn set_cell_format_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub fn query_rows' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub struct CellFormatView' "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"
+grep -q 'cell_format_is_canonical_sparse_and_revision_aware' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_format_filter_sort_tests.rs"
+grep -q 'filter_and_sort_query_is_formula_aware_and_does_not_mutate_document' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_format_filter_sort_tests.rs"
+
+echo "Turkuaz Office v0.3.0 M2 Sheet Format Filter Sort verification BASARILI."

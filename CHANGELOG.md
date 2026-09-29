@@ -10,6 +10,16 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.3.0 - M2 Sheet Development
 
+- Format / Filter / Sort baseline eklendi.
+- SheetDocument icinde worksheet+CellAddress keyed sparse canonical CellFormat metadata eklendi.
+- Bold, italic, underline, horizontal alignment ve 0..12 decimal places format profili eklendi.
+- SheetService format mutationunda same-value revision no-op ve default-format sparse cleanup uygular.
+- Non-empty/text contains/number compare/boolean equals filter baseline'i eklendi.
+- Tek kolon ascending/descending deterministic sort ve 100000-row query limiti eklendi.
+- Formula hucreleri filter/sort query sirasinda mevcut Formula Engine ile evaluate edilir.
+- Query sonucu row-index View olarak doner; canonical hucre adresleri fiziksel olarak mutate edilmez.
+- Format/filter/sort regression, implementation ve validation dokumanlari eklendi.
+
 - Basic Formula Engine eklendi.
 - Canonical CellValue formula varyanti ve FormulaCell source modeli eklendi.
 - FormulaTool numeric literal, same-worksheet A1/absolute-mixed A1, parentheses, unary +/-, + - * / operatorlerini parse eder.
