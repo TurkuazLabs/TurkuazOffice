@@ -19,9 +19,13 @@ pub use repositories::sheet_document_repository::{
 };
 pub use services::sheet_service::{SheetError, SheetService};
 pub use services::sheet_types::{
-    Cell, CellAddress, CellValue, SheetDocument, Worksheet, WorksheetId,
+    Cell, CellAddress, CellValue, FormulaCell, SheetDocument, Worksheet, WorksheetId,
 };
 pub use tools::cell_reference_tool::{CellReferenceError, CellReferenceTool};
+pub use tools::formula_tool::{
+    FormulaBinaryOperator, FormulaExpression, FormulaTool, FormulaToolError,
+    FormulaUnaryOperator, ParsedFormula,
+};
 pub use tools::sheet_id_tool::{SequentialSheetIdTool, SheetIdTool};
 pub use views::sheet_view::{
     CellValueView, CellView, SheetDocumentView, WorksheetView,

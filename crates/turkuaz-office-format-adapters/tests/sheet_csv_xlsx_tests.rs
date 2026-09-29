@@ -9,11 +9,13 @@ use std::collections::BTreeMap;
 
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use turkuaz_office_format_adapters::{
-    SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError, SheetXlsxService,
+    SheetCsvError, SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError,
+    SheetXlsxService,
 };
 use turkuaz_office_sheet::config::constants::{MAX_SHEET_COLUMNS, MAX_SHEET_ROWS};
 use turkuaz_office_sheet::{
-    CellAddress, CellValue, SequentialSheetIdTool, SheetDocument, Worksheet, WorksheetId,
+    CellAddress, CellValue, FormulaCell, SequentialSheetIdTool, SheetDocument, Worksheet,
+    WorksheetId,
 };
 
 #[test]
@@ -283,7 +285,38 @@ fn xlsx_import_rejects_missing_root_workbook_relationship() {
 }
 
 #[test]
-fn xlsx_import_rejects_formula_cells_until_formula_engine_phase() {
+fn csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile() {
+    let worksheet = Worksheet {
+        id: WorksheetId::new("worksheet-formula-export"),
+        name: "Sheet1".to_owned(),
+        cells: BTreeMap::from([(
+            CellAddress { row: 0, column: 0 },
+            CellValue::Formula(FormulaCell {
+                expression: "=1+2".to_owned(),
+            }),
+        )]),
+    };
+
+    assert_eq!(
+        SheetCsvService::export_worksheet(&worksheet),
+        Err(SheetCsvError::UnsupportedFormula)
+    );
+
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-formula-export"),
+        title: "Formula Export".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 1,
+        worksheets: vec![worksheet],
+    };
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::UnsupportedFormula)
+    );
+}
+
+#[test]
+fn xlsx_import_rejects_formula_cells_until_adapter_formula_profile() {
     let bytes = workbook_package(
         br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1"><f>1+2</f><v>3</v></c></row></sheetData></worksheet>"#,
         None,

@@ -2,7 +2,7 @@
 // # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell address ve value canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
 // Version: 0.3.0
-// Aciklama: Sparse BTreeMap cell storage ile text/number/boolean hucre degerlerini ve workbook revision modelini tasir
+// Aciklama: Sparse BTreeMap cell storage ile text/number/boolean/formula hucre degerlerini ve workbook revision modelini tasir
 // Bagimli Oldugu Katman: Service
 
 use std::collections::BTreeMap;
@@ -15,11 +15,17 @@ pub struct CellAddress {
     pub column: u32,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FormulaCell {
+    pub expression: String,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum CellValue {
     Text(String),
     Number(f64),
     Boolean(bool),
+    Formula(FormulaCell),
 }
 
 #[derive(Clone, Debug, PartialEq)]

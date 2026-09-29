@@ -14,3 +14,9 @@ pub const MAX_SHEET_ROWS: u32 = 1_048_576;
 pub const MAX_SHEET_COLUMNS: u32 = 16_384;
 pub const MAX_CELL_TEXT_LENGTH: usize = 32_767;
 pub const MAX_WORKSHEET_NAME_LENGTH: usize = 31;
+
+pub const FORMULA_PREFIX: char = '=';
+pub const MAX_FORMULA_LENGTH: usize = 4_096;
+pub const MAX_FORMULA_PARSE_DEPTH: usize = 64;
+pub const MAX_FORMULA_OPERATIONS: usize = 128;
+pub const MAX_FORMULA_EVALUATION_DEPTH: usize = 64;

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.3.0
-# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX static contract kontrollerini uygular
+# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX + Formula Engine static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -217,6 +217,12 @@ required_files=(
   "docs/07-quality/sheet-csv-xlsx-test-matrix.md"
   "docs/08-implementation/m2-sheet-csv-xlsx-v0.3.0.md"
   "docs/08-implementation/m2-sheet-csv-xlsx-validation.md"
+  "crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+  "crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
+  "docs/06-adr/0020-sheet-basic-formula-evaluation.md"
+  "docs/07-quality/sheet-formula-engine-test-matrix.md"
+  "docs/08-implementation/m2-sheet-formula-engine-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-formula-engine-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -565,7 +571,8 @@ grep -q 'xlsx_import_reads_shared_string_cells' "$ROOT/crates/turkuaz-office-for
 grep -q 'xlsx_import_rejects_missing_root_workbook_relationship' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_export_rejects_duplicate_worksheet_names_case_insensitively' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'xlsx_export_rejects_xml_invalid_cell_text' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
-grep -q 'xlsx_import_rejects_formula_cells_until_formula_engine_phase' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_import_rejects_formula_cells_until_adapter_formula_profile' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 
 for sheet_format_file in \
   "$ROOT/crates/turkuaz-office-format-adapters/Cargo.toml" \
@@ -580,4 +587,19 @@ for sheet_format_file in \
   grep -q "Version: $CURRENT_VERSION" "$sheet_format_file"
 done
 
-echo "Turkuaz Office v0.3.0 M2 Sheet CSV XLSX verification BASARILI."
+grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
+grep -q 'formula_engine: true' "$ROOT/config/project.yml"
+grep -q 'pub struct FormulaCell' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct FormulaTool' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+grep -q 'MAX_FORMULA_PARSE_DEPTH' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'MAX_FORMULA_OPERATIONS' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'TooComplex' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+grep -q 'pub fn set_formula_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'FormulaCycle' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub fn evaluated_cell_by_a1' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'CellValue::Formula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs"
+grep -q 'CellValue::Formula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+grep -q 'formula_evaluation_respects_operator_precedence_and_revision_no_op' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
+grep -q 'formula_cycle_division_and_non_numeric_reference_are_typed_errors' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
+
+echo "Turkuaz Office v0.3.0 M2 Sheet Formula Engine verification BASARILI."
