@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_types.rs
-// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell address ve value canonical modelini tanimlar
+// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format ve table-query canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
 // Version: 0.3.0
-// Aciklama: Sparse BTreeMap cell storage ile text/number/boolean/formula hucre degerlerini ve workbook revision modelini tasir
+// Aciklama: Sparse cell storage, canonical cell format metadata ve non-mutating filter/sort query tiplerini tasir
 // Bagimli Oldugu Katman: Service
 
 use std::collections::BTreeMap;
@@ -34,7 +34,60 @@ pub struct Cell {
     pub value: CellValue,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum HorizontalAlignment {
+    #[default]
+    General,
+    Left,
+    Center,
+    Right,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct CellFormat {
+    pub bold: bool,
+    pub italic: bool,
+    pub underline: bool,
+    pub horizontal_alignment: HorizontalAlignment,
+    pub decimal_places: Option<u8>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SheetFilterCondition {
+    NonEmpty,
+    TextContains(String),
+    NumberGreaterThan(f64),
+    NumberLessThan(f64),
+    BooleanEquals(bool),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SheetFilter {
+    pub column: u32,
+    pub condition: SheetFilterCondition,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SheetSortDirection {
+    Ascending,
+    Descending,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SheetSort {
+    pub column: u32,
+    pub direction: SheetSortDirection,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SheetRange {
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct WorksheetId(String);
 
 impl WorksheetId {
@@ -61,4 +114,5 @@ pub struct SheetDocument {
     pub schema_version: DocumentSchemaVersion,
     pub revision: u64,
     pub worksheets: Vec<Worksheet>,
+    pub cell_formats: BTreeMap<WorksheetId, BTreeMap<CellAddress, CellFormat>>,
 }
