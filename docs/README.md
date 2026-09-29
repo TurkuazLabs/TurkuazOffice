@@ -99,6 +99,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/sheet-cell-model-test-matrix.md`
 - `07-quality/sheet-csv-xlsx-test-matrix.md`
 - `07-quality/sheet-formula-engine-test-matrix.md`
+- `07-quality/sheet-format-filter-sort-test-matrix.md`
 
 ## 08 Implementation
 
@@ -141,6 +142,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m2-sheet-csv-xlsx-validation.md`
 - `08-implementation/m2-sheet-formula-engine-v0.3.0.md`
 - `08-implementation/m2-sheet-formula-engine-validation.md`
+- `08-implementation/m2-sheet-format-filter-sort-v0.3.0.md`
+- `08-implementation/m2-sheet-format-filter-sort-validation.md`
 
 ## Kural
 
