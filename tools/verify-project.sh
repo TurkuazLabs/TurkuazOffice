@@ -231,6 +231,10 @@ required_files=(
   "docs/07-quality/sheet-basic-charts-test-matrix.md"
   "docs/08-implementation/m2-sheet-basic-charts-v0.3.0.md"
   "docs/08-implementation/m2-sheet-basic-charts-validation.md"
+  "crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
+  "docs/07-quality/sheet-100k-benchmark-profile.md"
+  "docs/08-implementation/m2-sheet-100k-benchmark-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-100k-benchmark-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -642,4 +646,15 @@ grep -q 'pub struct ChartDataView' "$ROOT/crates/turkuaz-office-sheet/src/views/
 grep -q 'chart_creation_is_canonical_and_revision_aware' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
 grep -q 'chart_data_supports_formula_values' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
 
-echo "Turkuaz Office v0.3.0 M2 Sheet Basic Charts verification BASARILI."
+
+
+grep -q 'sheet_100k_benchmark:' "$ROOT/config/project.yml"
+grep -q 'cell_count: 100000' "$ROOT/config/project.yml"
+grep -q 'fixed_ci_latency_threshold: false' "$ROOT/config/project.yml"
+grep -q 'const BENCHMARK_CELL_COUNT: u32 = 100_000' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
+grep -q 'benchmark_100k_sparse_build_and_view_projection' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
+grep -q 'benchmark_100k_sorted_row_query' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
+grep -q '#\[ignore = "performance profile; run explicitly with --ignored --nocapture"\]' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
+grep -q 'M2 feature kapsaminda planlanan alt fazlar tamamlandi' "$ROOT/docs/05-roadmap/roadmap.md"
+
+echo "Turkuaz Office v0.3.0 M2 Sheet feature contract verification BASARILI."
