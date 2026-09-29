@@ -87,7 +87,10 @@ M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine, Format/Filter/Sort ve Bas
 - Chart data projection mevcut Formula Engine'i kullanir; render kutuphanesi canonical katmana gomulmez.
 - Chart source range maksimum 1000 point ile sinirlidir.
 
-Siradaki M2 parcasi 100000-cell benchmark profile'dir.
+- 100000-cell benchmark profile aktiftir: sparse build, View projection ve descending numeric row query explicit ignored workload olarak olculur.
+- Hosted CI varyansi nedeniyle sabit millisecond threshold yoktur; timing ayni donanim/toolchain uzerinde karsilastirilir.
+
+M2 feature kapsami tamamlanmistir. Siradaki roadmap milestone'u M3 Web v0.4.0'dir.
 
 ## Monorepo
 
