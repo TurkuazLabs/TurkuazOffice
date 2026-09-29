@@ -358,3 +358,30 @@ sheet_csv_xlsx:
     formula_import: strict_reject
     max_package_bytes: 67108864
     max_worksheets: 256
+
+
+sheet_format_filter_sort:
+  active: true
+  format:
+    sparse: true
+    bold: true
+    italic: true
+    underline: true
+    horizontal_alignment:
+      - general
+      - left
+      - center
+      - right
+    max_decimal_places: 12
+  filter:
+    non_empty: true
+    text_contains: true
+    number_compare: true
+    boolean_equals: true
+    formula_evaluation: true
+  sort:
+    single_column: true
+    ascending: true
+    descending: true
+    mutates_canonical_rows: false
+  max_query_rows: 100000
