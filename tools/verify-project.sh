@@ -227,6 +227,10 @@ required_files=(
   "docs/07-quality/sheet-format-filter-sort-test-matrix.md"
   "docs/08-implementation/m2-sheet-format-filter-sort-v0.3.0.md"
   "docs/08-implementation/m2-sheet-format-filter-sort-validation.md"
+  "crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
+  "docs/07-quality/sheet-basic-charts-test-matrix.md"
+  "docs/08-implementation/m2-sheet-basic-charts-v0.3.0.md"
+  "docs/08-implementation/m2-sheet-basic-charts-validation.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -621,4 +625,21 @@ grep -q 'pub struct CellFormatView' "$ROOT/crates/turkuaz-office-sheet/src/views
 grep -q 'cell_format_is_canonical_sparse_and_revision_aware' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_format_filter_sort_tests.rs"
 grep -q 'filter_and_sort_query_is_formula_aware_and_does_not_mutate_document' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_format_filter_sort_tests.rs"
 
-echo "Turkuaz Office v0.3.0 M2 Sheet Format Filter Sort verification BASARILI."
+
+
+grep -q 'sheet_basic_charts:' "$ROOT/config/project.yml"
+grep -q 'max_points: 1000' "$ROOT/config/project.yml"
+grep -q 'pub struct ChartId' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub enum ChartType' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct SheetChart' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub struct ChartDataPoint' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'CHART_ID_PREFIX' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'MAX_CHART_POINTS' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'fn next_chart_id' "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"
+grep -q 'pub fn create_chart' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub fn chart_data' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub struct ChartDataView' "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"
+grep -q 'chart_creation_is_canonical_and_revision_aware' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
+grep -q 'chart_data_supports_formula_values' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
+
+echo "Turkuaz Office v0.3.0 M2 Sheet Basic Charts verification BASARILI."
