@@ -400,3 +400,15 @@ sheet_basic_charts:
     - formula_numeric
   max_points: 1000
   render_engine: none
+
+
+sheet_100k_benchmark:
+  active: true
+  cell_count: 100000
+  storage: sparse_btree_map
+  workloads:
+    - sparse_build
+    - view_projection
+    - sorted_row_query
+  explicit_only: true
+  fixed_ci_latency_threshold: false
