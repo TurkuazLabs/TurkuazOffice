@@ -132,6 +132,7 @@ impl SheetXlsxService {
             revision: 0,
             worksheets,
             cell_formats: BTreeMap::new(),
+            charts: BTreeMap::new(),
         })
     }
 

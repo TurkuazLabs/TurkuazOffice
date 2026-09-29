@@ -385,3 +385,18 @@ sheet_format_filter_sort:
     descending: true
     mutates_canonical_rows: false
   max_query_rows: 100000
+
+
+sheet_basic_charts:
+  active: true
+  canonical_definition: true
+  types:
+    - bar
+    - line
+    - pie
+  category_type: text
+  value_types:
+    - number
+    - formula_numeric
+  max_points: 1000
+  render_engine: none

@@ -10,6 +10,17 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.3.0 - M2 Sheet Development
 
+- Basic Charts baseline eklendi.
+- Canonical ChartId, ChartType ve SheetChart modelleri eklendi.
+- Bar, Line ve Pie chart tipleri desteklenir.
+- Chart definition worksheet, title, row range, category column ve value column metadata'sini tasir.
+- SequentialSheetIdTool deterministic chart kimligi uretir.
+- SheetService chart create/remove lifecycle, typed validation ve chart data projection kurallarini uygular.
+- Chart value kolonunda finite number ve mevcut Formula Engine ile evaluate edilen numeric formula desteklenir.
+- Chart source range maksimum 1000 point ile sinirlidir.
+- Render motoru canonical katmana baglanmadi; ChartDataView render-independent kalir.
+- Basic Charts regression, implementation ve validation dokumanlari eklendi.
+
 - Format / Filter / Sort baseline eklendi.
 - SheetDocument icinde worksheet+CellAddress keyed sparse canonical CellFormat metadata eklendi.
 - Bold, italic, underline, horizontal alignment ve 0..12 decimal places format profili eklendi.

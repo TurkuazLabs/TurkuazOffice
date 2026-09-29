@@ -98,7 +98,7 @@ Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compil
 
 ## M2 - Sheet v0.3.0
 
-Durum: Devam ediyor. Cell Model, CSV/XLSX, Basic Formula Engine ve Format/Filter/Sort implementation parcalari tamamlandi. Compiler-backed validation hosted runner steps=null sorunu nedeniyle pending tutuluyor.
+Durum: Devam ediyor. Cell Model, CSV/XLSX, Basic Formula Engine, Format/Filter/Sort ve Basic Charts implementation parcalari tamamlandi. Compiler-backed validation hosted runner steps=null sorunu nedeniyle pending tutuluyor.
 
 ### Tamamlanan M2 parcasi
 
@@ -126,10 +126,12 @@ Durum: Devam ediyor. Cell Model, CSV/XLSX, Basic Formula Engine ve Format/Filter
 - Canonical sparse cell format metadata ve revision-aware format mutation.
 - Formula-aware non-mutating filter/sort row query baseline.
 - Format/filter/sort regression test matrisi.
+- Canonical Bar/Line/Pie chart definition modeli ve deterministic ChartId.
+- Formula-aware chart data projection ve typed chart validation.
+- Basic Charts regression test matrisi.
 
 ### Siradaki M2 parcasi
 
-- Basic charts.
 - 100000-cell benchmark profile.
 
 ## M3 - Web v0.4.0

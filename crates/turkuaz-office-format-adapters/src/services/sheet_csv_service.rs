@@ -71,6 +71,7 @@ impl SheetCsvService {
                 cells,
             }],
             cell_formats: BTreeMap::new(),
+            charts: BTreeMap::new(),
         })
     }
 

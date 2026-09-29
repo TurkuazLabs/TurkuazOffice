@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_types.rs
-// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format ve table-query canonical modelini tanimlar
+// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, query ve chart canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
 // Version: 0.3.0
-// Aciklama: Sparse cell storage, canonical cell format metadata ve non-mutating filter/sort query tiplerini tasir
+// Aciklama: Sparse cell storage, canonical format metadata, table-query ve basic chart tiplerini tasir
 // Bagimli Oldugu Katman: Service
 
 use std::collections::BTreeMap;
@@ -87,6 +87,45 @@ pub struct SheetRange {
     pub end_column: u32,
 }
 
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ChartId(String);
+
+impl ChartId {
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ChartType {
+    Bar,
+    Line,
+    Pie,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetChart {
+    pub id: ChartId,
+    pub worksheet_id: WorksheetId,
+    pub chart_type: ChartType,
+    pub title: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub category_column: u32,
+    pub value_column: u32,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ChartDataPoint {
+    pub category: String,
+    pub value: f64,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct WorksheetId(String);
 
@@ -115,4 +154,5 @@ pub struct SheetDocument {
     pub revision: u64,
     pub worksheets: Vec<Worksheet>,
     pub cell_formats: BTreeMap<WorksheetId, BTreeMap<CellAddress, CellFormat>>,
+    pub charts: BTreeMap<ChartId, SheetChart>,
 }

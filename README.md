@@ -63,7 +63,7 @@ Desktop + Writer M1 feature kapsami tamamlanmistir. Roadmap sirasi geregi aktif 
 
 ## Sheet M2 v0.3.0 durumu
 
-M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine ve Format/Filter/Sort parcalari aktiftir:
+M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine, Format/Filter/Sort ve Basic Charts parcalari aktiftir:
 
 - `turkuaz-office-sheet` workspace crate.
 - Sparse `SheetDocument -> Worksheet -> CellAddress/CellValue` model.
@@ -82,8 +82,12 @@ M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine ve Format/Filter/Sort parc
 - Filter/sort query'leri Service katmaninda formula-aware ve non-mutating calisir.
 - Tek kolon ascending/descending sort deterministic row-index tie-break kullanir.
 - Query range 100000 satir ile sinirlidir.
+- Canonical Bar/Line/Pie chart definition modeli ve stable ChartId baseline'i aktiftir.
+- Chart kategori kaynagi text, deger kaynagi finite number veya numeric formula olabilir.
+- Chart data projection mevcut Formula Engine'i kullanir; render kutuphanesi canonical katmana gomulmez.
+- Chart source range maksimum 1000 point ile sinirlidir.
 
-Siradaki M2 parcasi Basic Charts'tir. 100000-cell benchmark sonraki roadmap adimi olarak korunur.
+Siradaki M2 parcasi 100000-cell benchmark profile'dir.
 
 ## Monorepo
 
