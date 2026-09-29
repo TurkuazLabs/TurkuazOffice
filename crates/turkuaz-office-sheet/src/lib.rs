@@ -19,9 +19,9 @@ pub use repositories::sheet_document_repository::{
 };
 pub use services::sheet_service::{SheetError, SheetService};
 pub use services::sheet_types::{
-    Cell, CellAddress, CellFormat, CellValue, FormulaCell, HorizontalAlignment, SheetDocument,
-    SheetFilter, SheetFilterCondition, SheetRange, SheetSort, SheetSortDirection, Worksheet,
-    WorksheetId,
+    Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
+    HorizontalAlignment, SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange,
+    SheetSort, SheetSortDirection, Worksheet, WorksheetId,
 };
 pub use tools::cell_reference_tool::{CellReferenceError, CellReferenceTool};
 pub use tools::formula_tool::{
@@ -30,6 +30,6 @@ pub use tools::formula_tool::{
 };
 pub use tools::sheet_id_tool::{SequentialSheetIdTool, SheetIdTool};
 pub use views::sheet_view::{
-    CellFormatView, CellValueView, CellView, HorizontalAlignmentView, SheetDocumentView,
-    SheetRowQueryView, WorksheetView,
+    CellFormatView, CellValueView, CellView, ChartDataPointView, ChartDataView, ChartTypeView,
+    HorizontalAlignmentView, SheetChartView, SheetDocumentView, SheetRowQueryView, WorksheetView,
 };
