@@ -33,4 +33,4 @@ sheet_format_filter_sort_tests.rs:
 
 ## Compiler-backed durum
 
-GitHub hosted runner checkout oncesi steps=null failure verirse compiler-backed sonuc onaylanmis sayilmaz. Basarili iddia icin gercek cargo test ve static verify step logu gerekir.
+workspace-ci run #49 dort job'da da checkout/source step'i baslatmadan steps=null failure verdi. Bu nedenle compiler-backed sonuc onaylanmis sayilmaz; basarili iddia icin gercek cargo test ve static verify step logu gerekir.
