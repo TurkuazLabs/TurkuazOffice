@@ -70,6 +70,7 @@ impl SheetCsvService {
                 name: DEFAULT_WORKSHEET_NAME.to_owned(),
                 cells,
             }],
+            cell_formats: BTreeMap::new(),
         })
     }
 
