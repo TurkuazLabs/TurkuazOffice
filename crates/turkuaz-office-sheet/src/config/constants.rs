@@ -7,6 +7,7 @@
 
 pub const SHEET_DOCUMENT_ID_PREFIX: &str = "sheet-document";
 pub const WORKSHEET_ID_PREFIX: &str = "worksheet";
+pub const CHART_ID_PREFIX: &str = "chart";
 
 pub const DEFAULT_WORKSHEET_NAME: &str = "Sheet1";
 
@@ -23,3 +24,6 @@ pub const MAX_FORMULA_EVALUATION_DEPTH: usize = 64;
 
 pub const MAX_CELL_DECIMAL_PLACES: u8 = 12;
 pub const MAX_SHEET_QUERY_ROWS: usize = 100_000;
+
+pub const MAX_CHART_TITLE_LENGTH: usize = 128;
+pub const MAX_CHART_POINTS: usize = 1_000;
