@@ -6,9 +6,41 @@
 // Bagimli Oldugu Katman: View -> Service
 
 use crate::services::sheet_types::{
-    Cell, CellFormat, CellValue, HorizontalAlignment, SheetDocument, Worksheet,
+    Cell, CellFormat, CellValue, ChartDataPoint, ChartType, HorizontalAlignment, SheetChart,
+    SheetDocument, Worksheet,
 };
 
+
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ChartTypeView {
+    Bar,
+    Line,
+    Pie,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetChartView {
+    pub id: String,
+    pub worksheet_id: String,
+    pub chart_type: ChartTypeView,
+    pub title: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub category_column: u32,
+    pub value_column: u32,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ChartDataPointView {
+    pub category: String,
+    pub value: f64,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ChartDataView {
+    pub points: Vec<ChartDataPointView>,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HorizontalAlignmentView {
@@ -61,8 +93,52 @@ pub struct SheetDocumentView {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<WorksheetView>,
+    pub charts: Vec<SheetChartView>,
 }
 
+
+
+impl From<ChartType> for ChartTypeView {
+    fn from(value: ChartType) -> Self {
+        match value {
+            ChartType::Bar => Self::Bar,
+            ChartType::Line => Self::Line,
+            ChartType::Pie => Self::Pie,
+        }
+    }
+}
+
+impl From<SheetChart> for SheetChartView {
+    fn from(chart: SheetChart) -> Self {
+        Self {
+            id: chart.id.as_str().to_owned(),
+            worksheet_id: chart.worksheet_id.as_str().to_owned(),
+            chart_type: chart.chart_type.into(),
+            title: chart.title,
+            start_row: chart.start_row,
+            end_row: chart.end_row,
+            category_column: chart.category_column,
+            value_column: chart.value_column,
+        }
+    }
+}
+
+impl From<ChartDataPoint> for ChartDataPointView {
+    fn from(point: ChartDataPoint) -> Self {
+        Self {
+            category: point.category,
+            value: point.value,
+        }
+    }
+}
+
+impl From<Vec<ChartDataPoint>> for ChartDataView {
+    fn from(points: Vec<ChartDataPoint>) -> Self {
+        Self {
+            points: points.into_iter().map(ChartDataPointView::from).collect(),
+        }
+    }
+}
 
 impl From<HorizontalAlignment> for HorizontalAlignmentView {
     fn from(value: HorizontalAlignment) -> Self {
@@ -144,6 +220,11 @@ impl From<SheetDocument> for SheetDocumentView {
                 .worksheets
                 .into_iter()
                 .map(WorksheetView::from)
+                .collect(),
+            charts: document
+                .charts
+                .into_values()
+                .map(SheetChartView::from)
                 .collect(),
         }
     }
