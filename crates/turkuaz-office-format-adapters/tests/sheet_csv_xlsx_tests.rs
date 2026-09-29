@@ -143,6 +143,7 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
             },
         ],
         cell_formats: BTreeMap::new(),
+charts: BTreeMap::new(),
 };
 
     let bytes = SheetXlsxService::export(&document).expect("xlsx export");
@@ -200,6 +201,7 @@ fn xlsx_export_rejects_duplicate_worksheet_names_case_insensitively() {
             },
         ],
         cell_formats: BTreeMap::new(),
+charts: BTreeMap::new(),
 };
 
     assert_eq!(
@@ -224,6 +226,7 @@ fn xlsx_export_rejects_xml_invalid_cell_text() {
             )]),
         }],
         cell_formats: BTreeMap::new(),
+charts: BTreeMap::new(),
 };
 
     assert_eq!(
@@ -312,6 +315,7 @@ fn csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile() 
         revision: 1,
         worksheets: vec![worksheet],
         cell_formats: BTreeMap::new(),
+charts: BTreeMap::new(),
 };
     assert_eq!(
         SheetXlsxService::export(&document),
