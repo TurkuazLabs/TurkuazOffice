@@ -9,9 +9,11 @@ use turkuaz_office_core::DocumentId;
 
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
-use crate::services::sheet_types::{CellValue, WorksheetId};
+use crate::services::sheet_types::{
+    CellFormat, CellValue, SheetFilter, SheetRange, SheetSort, WorksheetId,
+};
 use crate::tools::sheet_id_tool::SheetIdTool;
-use crate::views::sheet_view::{CellView, SheetDocumentView};
+use crate::views::sheet_view::{CellFormatView, CellView, SheetDocumentView, SheetRowQueryView};
 
 pub struct SheetController<R, I>
 where
@@ -72,6 +74,57 @@ where
                 expression,
             )
             .map(SheetDocumentView::from)
+    }
+
+    pub fn set_cell_format_a1(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+        format: CellFormat,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .set_cell_format_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+                format,
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn cell_format_a1(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+    ) -> Result<CellFormatView, SheetError> {
+        self.service
+            .cell_format_by_a1(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                reference,
+            )
+            .map(CellFormatView::from)
+    }
+
+    pub fn query_rows(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+        filter: Option<&SheetFilter>,
+        sort: Option<SheetSort>,
+    ) -> Result<SheetRowQueryView, SheetError> {
+        self.service
+            .query_rows(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                range,
+                filter,
+                sort,
+            )
+            .map(SheetRowQueryView::from)
     }
 
     pub fn clear_cell_a1(
