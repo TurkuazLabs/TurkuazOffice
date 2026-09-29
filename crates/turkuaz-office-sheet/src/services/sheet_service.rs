@@ -13,12 +13,14 @@ use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 
 use crate::config::constants::{
     DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES, MAX_CELL_TEXT_LENGTH,
-    MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
+    MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS,
+    MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
-    Cell, CellAddress, CellFormat, CellValue, FormulaCell, SheetDocument, SheetFilter,
-    SheetFilterCondition, SheetRange, SheetSort, SheetSortDirection, Worksheet, WorksheetId,
+    Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
+    SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetSort,
+    SheetSortDirection, Worksheet, WorksheetId,
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::formula_tool::{
@@ -44,6 +46,12 @@ pub enum SheetError {
     InvalidRange,
     QueryTooLarge,
     InvalidFilter,
+    ChartNotFound,
+    InvalidChartTitle,
+    InvalidChartRange,
+    ChartTooManyPoints,
+    ChartCategoryNotText,
+    ChartValueNotNumeric,
 }
 
 pub struct SheetService<R, I>
@@ -87,6 +95,7 @@ where
                 cells: BTreeMap::new(),
             }],
             cell_formats: BTreeMap::new(),
+            charts: BTreeMap::new(),
         };
         self.repository.save(document.clone());
         document
@@ -443,6 +452,158 @@ where
         }
 
         Ok(rows)
+    }
+
+    pub fn create_chart(
+        &mut self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        chart_type: ChartType,
+        title: &str,
+        start_row: u32,
+        end_row: u32,
+        category_column: u32,
+        value_column: u32,
+    ) -> Result<SheetDocument, SheetError> {
+        Self::validate_chart_definition(
+            title,
+            start_row,
+            end_row,
+            category_column,
+            value_column,
+        )?;
+
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if !document
+            .worksheets
+            .iter()
+            .any(|worksheet| &worksheet.id == worksheet_id)
+        {
+            return Err(SheetError::WorksheetNotFound);
+        }
+
+        let chart = SheetChart {
+            id: self.id_tool.next_chart_id(),
+            worksheet_id: worksheet_id.clone(),
+            chart_type,
+            title: title.trim().to_owned(),
+            start_row,
+            end_row,
+            category_column,
+            value_column,
+        };
+        document.charts.insert(chart.id.clone(), chart);
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
+    }
+
+    pub fn remove_chart(
+        &mut self,
+        document_id: &DocumentId,
+        chart_id: &ChartId,
+    ) -> Result<SheetDocument, SheetError> {
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if document.charts.remove(chart_id).is_none() {
+            return Err(SheetError::ChartNotFound);
+        }
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
+    }
+
+    pub fn chart_data(
+        &self,
+        document_id: &DocumentId,
+        chart_id: &ChartId,
+    ) -> Result<Vec<ChartDataPoint>, SheetError> {
+        let document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        let chart = document
+            .charts
+            .get(chart_id)
+            .ok_or(SheetError::ChartNotFound)?;
+        let worksheet = document
+            .worksheets
+            .iter()
+            .find(|worksheet| worksheet.id == chart.worksheet_id)
+            .ok_or(SheetError::WorksheetNotFound)?;
+
+        let mut points = Vec::new();
+        for row in chart.start_row..=chart.end_row {
+            let category_address = CellAddress {
+                row,
+                column: chart.category_column,
+            };
+            let value_address = CellAddress {
+                row,
+                column: chart.value_column,
+            };
+            let category = worksheet.cells.get(&category_address);
+            let value = worksheet.cells.get(&value_address);
+
+            if category.is_none() && value.is_none() {
+                continue;
+            }
+
+            let category = match category {
+                Some(CellValue::Text(text)) => text.clone(),
+                _ => return Err(SheetError::ChartCategoryNotText),
+            };
+            let value = match value {
+                Some(raw) => Self::evaluate_value(
+                    worksheet,
+                    value_address,
+                    raw,
+                    &mut BTreeSet::new(),
+                    0,
+                )?,
+                None => return Err(SheetError::ChartValueNotNumeric),
+            };
+            let CellValue::Number(value) = value else {
+                return Err(SheetError::ChartValueNotNumeric);
+            };
+            points.push(ChartDataPoint { category, value });
+        }
+        Ok(points)
+    }
+
+    fn validate_chart_definition(
+        title: &str,
+        start_row: u32,
+        end_row: u32,
+        category_column: u32,
+        value_column: u32,
+    ) -> Result<(), SheetError> {
+        let normalized_title = title.trim();
+        if normalized_title.is_empty()
+            || normalized_title.chars().count() > MAX_CHART_TITLE_LENGTH
+        {
+            return Err(SheetError::InvalidChartTitle);
+        }
+        if start_row > end_row
+            || end_row >= MAX_SHEET_ROWS
+            || category_column >= MAX_SHEET_COLUMNS
+            || value_column >= MAX_SHEET_COLUMNS
+            || category_column == value_column
+        {
+            return Err(SheetError::InvalidChartRange);
+        }
+        let point_count = u64::from(end_row)
+            .saturating_sub(u64::from(start_row))
+            .saturating_add(1);
+        if point_count > MAX_CHART_POINTS as u64 {
+            return Err(SheetError::ChartTooManyPoints);
+        }
+        Ok(())
     }
 
     fn query_value(
