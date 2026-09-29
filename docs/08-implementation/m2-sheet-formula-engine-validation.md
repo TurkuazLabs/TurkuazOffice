@@ -27,6 +27,8 @@ Covered:
 - parentheses.
 - unary operators.
 - simple/absolute/mixed A1.
+- nesting depth limit.
+- binary operation count limit.
 - recursive dependency.
 - empty reference = 0.
 - raw formula preservation.

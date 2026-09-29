@@ -13,6 +13,7 @@ Bagimli Oldugu Katman: Documentation
 - Basic Formula Engine eklendi.
 - Canonical CellValue formula varyanti ve FormulaCell source modeli eklendi.
 - FormulaTool numeric literal, same-worksheet A1/absolute-mixed A1, parentheses, unary +/-, + - * / operatorlerini parse eder.
+- Formula parser merkezi nesting ve operator-count limitleriyle adversarial recursion derinligini sinirlar.
 - SheetService recursive formula dependency evaluation, cycle/depth/division/non-finite ve non-numeric reference guardlarini uygular.
 - Empty referenced cell numeric 0 kabul edilir; text/boolean implicit numeric coercion yapilmaz.
 - Thin Controller raw formula ve evaluated cell request yuzeylerini acar.

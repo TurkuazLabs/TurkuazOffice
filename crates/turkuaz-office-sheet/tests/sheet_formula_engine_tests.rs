@@ -5,6 +5,7 @@
 // Aciklama: Same-sheet arithmetic, absolute A1, empty reference, cycle, division ve Controller/View akislarini kabul testi yapar
 // Bagimli Oldugu Katman: Controller -> Service -> Repo -> Tool -> View
 
+use turkuaz_office_sheet::config::constants::{MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH};
 use turkuaz_office_sheet::{
     CellValue, CellValueView, FormulaCell, FormulaTool, FormulaToolError,
     InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetController, SheetError,
@@ -34,6 +35,26 @@ fn formula_tool_accepts_precedence_parentheses_and_absolute_references() {
     assert_eq!(
         FormulaTool::parse("=1+"),
         Err(FormulaToolError::UnexpectedToken)
+    );
+}
+
+#[test]
+fn formula_tool_rejects_excessive_nesting_and_operator_count() {
+    let nesting = MAX_FORMULA_PARSE_DEPTH + 1;
+    let nested = format!(
+        "={}1{}",
+        "(".repeat(nesting),
+        ")".repeat(nesting)
+    );
+    assert_eq!(FormulaTool::parse(&nested), Err(FormulaToolError::TooComplex));
+
+    let mut operation_heavy = "=1".to_owned();
+    for _ in 0..=MAX_FORMULA_OPERATIONS {
+        operation_heavy.push_str("+1");
+    }
+    assert_eq!(
+        FormulaTool::parse(&operation_heavy),
+        Err(FormulaToolError::TooComplex)
     );
 }
 

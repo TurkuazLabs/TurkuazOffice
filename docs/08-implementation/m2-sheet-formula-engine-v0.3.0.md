@@ -34,6 +34,14 @@ Typed AST:
 
 Reference parser simple/absolute/mixed A1'i canonical zero-based CellAddress'e indirger.
 
+Parser kaynak limitleri Config katmanindan gelir:
+
+- max expression length: 4096.
+- max nesting depth: 64.
+- max binary operation count: 128.
+
+Bu limitler adversarial parenthesis/unary ve left-deep binary expression recursion riskini sinirlar.
+
 FormulaTool Repo veya SheetDocument okumaz.
 
 ## Service

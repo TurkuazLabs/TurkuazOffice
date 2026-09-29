@@ -2,10 +2,12 @@
 // # 📌 Amac: Basic Sheet formula metnini typed expression agacina parse eder
 // # 📌 Modul - FileType: Tool - Rust
 // Version: 0.3.0
-// Aciklama: Same-sheet A1/absolute references, numeric literal, parentheses ve + - * / operatorlerini guvenli parse eder
+// Aciklama: Same-sheet A1/absolute references, arithmetic ve merkezi parse complexity limitlerini guvenli uygular
 // Bagimli Oldugu Katman: Tool -> Config -> Service
 
-use crate::config::constants::{FORMULA_PREFIX, MAX_FORMULA_LENGTH};
+use crate::config::constants::{
+    FORMULA_PREFIX, MAX_FORMULA_LENGTH, MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH,
+};
 use crate::services::sheet_types::CellAddress;
 use crate::tools::cell_reference_tool::CellReferenceTool;
 
@@ -53,6 +55,7 @@ pub enum FormulaToolError {
     InvalidNumber,
     InvalidReference,
     NonFiniteNumber,
+    TooComplex,
 }
 
 pub struct FormulaTool;
@@ -92,6 +95,8 @@ struct FormulaParser<'a> {
     source: &'a str,
     bytes: &'a [u8],
     position: usize,
+    nested_depth: usize,
+    operation_count: usize,
 }
 
 impl<'a> FormulaParser<'a> {
@@ -100,6 +105,8 @@ impl<'a> FormulaParser<'a> {
             source,
             bytes: source.as_bytes(),
             position: 0,
+            nested_depth: 0,
+            operation_count: 0,
         }
     }
 
@@ -116,6 +123,7 @@ impl<'a> FormulaParser<'a> {
                 Some(b'-') => FormulaBinaryOperator::Subtract,
                 _ => break,
             };
+            self.record_operation()?;
             self.position += 1;
             let right = self.parse_multiplicative()?;
             left = FormulaExpression::Binary {
@@ -136,6 +144,7 @@ impl<'a> FormulaParser<'a> {
                 Some(b'/') => FormulaBinaryOperator::Divide,
                 _ => break,
             };
+            self.record_operation()?;
             self.position += 1;
             let right = self.parse_unary()?;
             left = FormulaExpression::Binary {
@@ -156,10 +165,13 @@ impl<'a> FormulaParser<'a> {
         };
 
         if let Some(operator) = operator {
+            self.enter_nested()?;
             self.position += 1;
+            let operand = self.parse_unary();
+            self.exit_nested();
             return Ok(FormulaExpression::Unary {
                 operator,
-                operand: Box::new(self.parse_unary()?),
+                operand: Box::new(operand?),
             });
         }
 
@@ -170,8 +182,11 @@ impl<'a> FormulaParser<'a> {
         self.skip_whitespace();
         match self.current() {
             Some(b'(') => {
+                self.enter_nested()?;
                 self.position += 1;
-                let expression = self.parse_expression()?;
+                let expression = self.parse_expression();
+                self.exit_nested();
+                let expression = expression?;
                 self.skip_whitespace();
                 if self.current() != Some(b')') {
                     return Err(FormulaToolError::UnexpectedToken);
@@ -266,6 +281,27 @@ impl<'a> FormulaParser<'a> {
         {
             self.position += 1;
         }
+    }
+
+    fn record_operation(&mut self) -> Result<(), FormulaToolError> {
+        self.operation_count = self.operation_count.saturating_add(1);
+        if self.operation_count > MAX_FORMULA_OPERATIONS {
+            return Err(FormulaToolError::TooComplex);
+        }
+        Ok(())
+    }
+
+    fn enter_nested(&mut self) -> Result<(), FormulaToolError> {
+        self.nested_depth = self.nested_depth.saturating_add(1);
+        if self.nested_depth > MAX_FORMULA_PARSE_DEPTH {
+            self.nested_depth = self.nested_depth.saturating_sub(1);
+            return Err(FormulaToolError::TooComplex);
+        }
+        Ok(())
+    }
+
+    fn exit_nested(&mut self) {
+        self.nested_depth = self.nested_depth.saturating_sub(1);
     }
 
     fn current(&self) -> Option<u8> {

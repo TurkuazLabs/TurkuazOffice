@@ -28,6 +28,8 @@ Rejected:
 - invalid A1.
 - incomplete expression.
 - expression over 4096 Unicode scalar.
+- nesting depth over 64.
+- operator count over 128.
 - non-finite numeric literal.
 
 ## Evaluation
@@ -65,6 +67,7 @@ XLSX formula import mevcut minimum profile icinde UnsupportedFormula kalir.
 sheet_formula_engine_tests.rs:
 
 - parser precedence + absolute/mixed reference.
+- parser nesting/operator complexity limits.
 - formula revision no-op.
 - raw vs evaluated cell.
 - dependency chain + empty reference.

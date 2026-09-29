@@ -323,6 +323,8 @@ sheet_formula_engine:
   text_boolean_numeric_coercion: false
   cycle_detection: true
   max_expression_length: 4096
+  max_parse_depth: 64
+  max_operations: 128
   max_dependency_depth: 64
 
 
