@@ -299,7 +299,31 @@ sheet_cell_model:
     - text
     - number
     - boolean
-  formula_engine: false
+    - formula
+  formula_engine: true
+
+
+sheet_formula_engine:
+  active: true
+  prefix: "="
+  references:
+    scope: same_worksheet
+    simple_a1: true
+    absolute_and_mixed_a1: true
+    cross_worksheet: false
+    empty_cell_numeric_value: 0
+  operators:
+    - add
+    - subtract
+    - multiply
+    - divide
+  parentheses: true
+  unary_plus_minus: true
+  functions: false
+  text_boolean_numeric_coercion: false
+  cycle_detection: true
+  max_expression_length: 4096
+  max_dependency_depth: 64
 
 
 sheet_csv_xlsx:

@@ -71,6 +71,7 @@ Bagimli Oldugu Katman: Documentation
 - `06-adr/0017-autosave-recovery-snapshot.md`
 - `06-adr/0018-external-change-cooperative-lock.md`
 - `06-adr/0019-twip-page-layout-font-fallback.md`
+- `06-adr/0020-sheet-basic-formula-evaluation.md`
 
 ## 07 Quality
 
@@ -97,6 +98,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/keyboard-only-smoke-test.md`
 - `07-quality/sheet-cell-model-test-matrix.md`
 - `07-quality/sheet-csv-xlsx-test-matrix.md`
+- `07-quality/sheet-formula-engine-test-matrix.md`
 
 ## 08 Implementation
 
@@ -137,6 +139,8 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m2-sheet-cell-model-validation.md`
 - `08-implementation/m2-sheet-csv-xlsx-v0.3.0.md`
 - `08-implementation/m2-sheet-csv-xlsx-validation.md`
+- `08-implementation/m2-sheet-formula-engine-v0.3.0.md`
+- `08-implementation/m2-sheet-formula-engine-validation.md`
 
 ## Kural
 
@@ -217,3 +221,7 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/sheet-csv-xlsx-test-matrix.md`
 - `08-implementation/m2-sheet-csv-xlsx-v0.3.0.md`
 - `08-implementation/m2-sheet-csv-xlsx-validation.md`
+- `06-adr/0020-sheet-basic-formula-evaluation.md`
+- `07-quality/sheet-formula-engine-test-matrix.md`
+- `08-implementation/m2-sheet-formula-engine-v0.3.0.md`
+- `08-implementation/m2-sheet-formula-engine-validation.md`

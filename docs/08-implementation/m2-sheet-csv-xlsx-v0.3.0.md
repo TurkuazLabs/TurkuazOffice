@@ -65,7 +65,7 @@ Import:
 
 SheetXlsxError::UnsupportedFormula
 
-Formula engine roadmap'in sonraki M2 parcasinda ele alinacaktir.
+Canonical Basic Formula Engine artik Sheet domain'de aktiftir; ancak bu value-only CSV/XLSX minimum profile formula import/export eklemez. Formula exportu typed UnsupportedFormula ile reddedilir.
 
 ## Package boundary
 
@@ -91,7 +91,7 @@ Canonical XLSX grid limitleri Sheet config'ten yeniden kullanilir.
 
 Bu fazda yok:
 
-- formula.
+- formula import/export.
 - cell style.
 - number format.
 - date/time type.

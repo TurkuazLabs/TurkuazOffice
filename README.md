@@ -63,18 +63,22 @@ Desktop + Writer M1 feature kapsami tamamlanmistir. Roadmap sirasi geregi aktif 
 
 ## Sheet M2 v0.3.0 durumu
 
-M2'nin ilk parcasi olan Cell Model aktiftir:
+M2 Cell Model, CSV/XLSX minimum ve Basic Formula Engine parcalari aktiftir:
 
 - `turkuaz-office-sheet` workspace crate.
 - Sparse `SheetDocument -> Worksheet -> CellAddress/CellValue` model.
 - Deterministik `BTreeMap` cell storage.
-- Text / finite number / boolean value baseline.
+- Text / finite number / boolean / formula value baseline.
 - Simple A1 reference Tool.
 - XLSX grid sinirlari: 1048576 satir x 16384 kolon.
 - Sparse set/get/clear ve revision no-op kurallari.
 - Thin Controller, Repo, Tool, View ve Language katmanlari.
+- Basic same-worksheet formula parser/evaluator: numeric literal, A1/absolute-mixed A1, + - * /, parentheses ve unary +/-.
+- Formula dependency recursion, cycle/depth/division/non-finite guardlari.
+- Empty referenced cell numeric 0 kabul edilir; text/boolean numeric coercion yapilmaz.
+- CSV/XLSX minimum profile canonical formulayi sessiz downgrade etmez ve exportta typed UnsupportedFormula ile reddeder.
 
-Siradaki M2 parcasi CSV/XLSX adapteridir. Formula engine, format/filter/sort, chart ve 100000-cell benchmark sonraki roadmap adimlari olarak korunur.
+Siradaki M2 parcasi format/filter/sort'tur. Basic charts ve 100000-cell benchmark sonraki roadmap adimlari olarak korunur.
 
 ## Monorepo
 
