@@ -31,4 +31,4 @@ sheet_basic_charts_tests.rs:
 
 ## Compiler-backed durum
 
-Hosted runner kaynak kod adimlarini baslatmadan steps=null failure verirse compiler-backed sonuc pending tutulur. Basarili iddia icin gercek cargo test ve static verify logu gerekir.
+workspace-ci run #52 dort job'da da checkout/source step'i baslatmadan steps=null failure verdi. Bu nedenle compiler-backed sonuc pending tutulur; basarili iddia icin gercek cargo test ve static verify logu gerekir.
