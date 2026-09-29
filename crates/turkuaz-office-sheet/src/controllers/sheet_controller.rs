@@ -10,10 +10,12 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
 use crate::services::sheet_types::{
-    CellFormat, CellValue, SheetFilter, SheetRange, SheetSort, WorksheetId,
+    CellFormat, CellValue, ChartId, ChartType, SheetFilter, SheetRange, SheetSort, WorksheetId,
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
-use crate::views::sheet_view::{CellFormatView, CellView, SheetDocumentView, SheetRowQueryView};
+use crate::views::sheet_view::{
+    CellFormatView, CellView, ChartDataView, SheetDocumentView, SheetRowQueryView,
+};
 
 pub struct SheetController<R, I>
 where
@@ -125,6 +127,51 @@ where
                 sort,
             )
             .map(SheetRowQueryView::from)
+    }
+
+    pub fn create_chart(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        chart_type: ChartType,
+        title: &str,
+        start_row: u32,
+        end_row: u32,
+        category_column: u32,
+        value_column: u32,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .create_chart(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                chart_type,
+                title,
+                start_row,
+                end_row,
+                category_column,
+                value_column,
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn remove_chart(
+        &mut self,
+        document_id: &str,
+        chart_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .remove_chart(&DocumentId::new(document_id), &ChartId::new(chart_id))
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn chart_data(
+        &self,
+        document_id: &str,
+        chart_id: &str,
+    ) -> Result<ChartDataView, SheetError> {
+        self.service
+            .chart_data(&DocumentId::new(document_id), &ChartId::new(chart_id))
+            .map(ChartDataView::from)
     }
 
     pub fn clear_cell_a1(
