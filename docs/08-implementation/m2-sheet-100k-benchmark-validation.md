@@ -24,4 +24,4 @@ cargo test -p turkuaz-office-sheet --test sheet_100k_benchmark -- --ignored --no
 
 ## Compiler-backed durum
 
-Hosted runner source step'lerini baslatmadan steps=null failure verirse benchmark binary'si calismis sayilmaz. Gercek cargo test logu veya local explicit benchmark ciktisi olmadan latency sonucu iddia edilmez.
+workspace-ci run #55 dort job'da da checkout/source step'i baslatmadan steps=null failure verdi. Benchmark binary'si calismis sayilmaz; gercek cargo test logu veya local explicit benchmark ciktisi olmadan latency sonucu iddia edilmez.
