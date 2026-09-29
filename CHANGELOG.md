@@ -10,6 +10,14 @@ Bagimli Oldugu Katman: Documentation
 
 ## v0.3.0 - M2 Sheet Development
 
+- 100000-cell benchmark profile eklendi.
+- 100000 numeric cell sparse BTreeMap build workload'u eklendi.
+- SheetDocumentView deterministic 100000-cell projection workload'u eklendi.
+- SheetService uzerinden 100000-row descending numeric sort query workload'u eklendi.
+- Benchmarklar normal regression suite'inden ignored ayrildi ve explicit nocapture komutuyla calistirilir.
+- Hosted CI donanim varyansi nedeniyle sabit millisecond pass/fail threshold uygulanmaz.
+- M2 Sheet v0.3.0 source feature kapsami tamamlandi; compiler-backed final validation runner altyapisi nedeniyle pending kalabilir.
+
 - Basic Charts baseline eklendi.
 - Canonical ChartId, ChartType ve SheetChart modelleri eklendi.
 - Bar, Line ve Pie chart tipleri desteklenir.
