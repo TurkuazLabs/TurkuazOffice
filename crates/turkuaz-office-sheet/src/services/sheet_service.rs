@@ -306,11 +306,14 @@ where
         }
 
         if format == CellFormat::default() {
-            if let Some(formats) = document.cell_formats.get_mut(worksheet_id) {
+            let remove_worksheet_entry = if let Some(formats) = document.cell_formats.get_mut(worksheet_id) {
                 formats.remove(&address);
-                if formats.is_empty() {
-                    document.cell_formats.remove(worksheet_id);
-                }
+                formats.is_empty()
+            } else {
+                false
+            };
+            if remove_worksheet_entry {
+                document.cell_formats.remove(worksheet_id);
             }
         } else {
             document
