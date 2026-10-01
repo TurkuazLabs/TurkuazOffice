@@ -1,12 +1,12 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/tauri.conf.json5
 // # 📌 Amac: Turkuaz Office Desktop Tauri pencere, build ve security konfigurasyonunu tanimlar
 // # 📌 Modul - FileType: Config - JSON5
-// # Version: 0.3.0
+// # Version: 0.3.1
 // # Aciklama: Windows/Linux Writer shell icin tek main window, production/dev CSP ve capability secimini sabitler
 // Bagimli Oldugu Katman: Config
 {
   productName: "Turkuaz Office",
-  version: "0.3.0",
+  version: "0.3.1",
   identifier: "com.turkuazlabs.office",
   build: {
     beforeDevCommand: "npm run dev",
