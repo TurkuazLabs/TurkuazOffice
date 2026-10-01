@@ -3,13 +3,14 @@
 # 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.3.1
-# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX + Formula Engine static contract kontrollerini uygular
+# Aciklama: Umbrella release version ile modul source versionlarini ayirir; M1/M2 static contract ve Community Preview release metadata kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CURRENT_VERSION="0.3.1"
+SHEET_MODULE_VERSION="0.3.0"
 
 required_files=(
   "README.md"
@@ -563,7 +564,7 @@ grep -q 'a1_reference_tool_parses_and_formats_grid_boundaries' "$ROOT/crates/tur
 grep -q 'sparse_set_get_and_clear_mutate_revision_only_when_data_changes' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
 
 for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/src/language/mod.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"; do
-  grep -q "Version: $CURRENT_VERSION" "$sheet_file"
+  grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_file"
 done
 
 
@@ -599,7 +600,7 @@ for sheet_format_file in \
   "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"; do
-  grep -q "Version: $CURRENT_VERSION" "$sheet_format_file"
+  grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_format_file"
 done
 
 grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
