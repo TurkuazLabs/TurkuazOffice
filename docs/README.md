@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/README.md
 # 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Product, architecture, development, operations, roadmap, ADR ve quality dokumanlarini indeksler
 
 Bagimli Oldugu Katman: Documentation
