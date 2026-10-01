@@ -1,14 +1,14 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/config/project.yml
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Platform, schema, guvenlik ve kalite kararlarini tek merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
 project:
   name: TurkuazOffice
   owner: TurkuazLabs
-  version: 0.3.0
+  version: 0.3.1
 
 platforms:
   active:
@@ -412,3 +412,31 @@ sheet_100k_benchmark:
     - sorted_row_query
   explicit_only: true
   fixed_ci_latency_threshold: false
+
+
+community_preview:
+  version: 0.3.1
+  channel: preview
+  signed_release: false
+  windows_bundle: nsis
+  linux_bundles:
+    - deb
+    - appimage
+  writer_desktop:
+    active: true
+    release_candidate: true
+  sheet_engine:
+    active: true
+    desktop_ui_integrated: false
+  required_gates:
+    - frontend_build
+    - frontend_tests
+    - cargo_check
+    - cargo_fmt
+    - cargo_clippy
+    - rust_tests_windows
+    - rust_tests_linux
+    - windows_nsis_bundle
+    - linux_deb_bundle
+    - linux_appimage_bundle
+    - sha256_checksums
