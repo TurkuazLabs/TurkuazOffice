@@ -2,14 +2,14 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX + Formula Engine static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CURRENT_VERSION="0.3.0"
+CURRENT_VERSION="0.3.1"
 
 required_files=(
   "README.md"
@@ -274,12 +274,15 @@ grep -q "Version: $CURRENT_VERSION" "$ROOT/config/project.yml"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/README.md"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/05-roadmap/roadmap.md"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/CHANGELOG.md"
-grep -q 'version = "0.3.0"' "$ROOT/Cargo.toml"
-grep -q 'version: 0.3.0' "$ROOT/config/project.yml"
-grep -q '"version": "0.3.0"' "$ROOT/apps/desktop/package.json"
-grep -q 'version: "0.3.0"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'version = "0.3.1"' "$ROOT/Cargo.toml"
+grep -q 'version: 0.3.1' "$ROOT/config/project.yml"
+grep -q '"version": "0.3.1"' "$ROOT/apps/desktop/package.json"
+grep -q 'version: "0.3.1"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
 grep -q '"crates/turkuaz-office-sheet"' "$ROOT/Cargo.toml"
 grep -q '"apps/desktop/src-tauri"' "$ROOT/Cargo.toml"
+grep -q 'community_preview:' "$ROOT/config/project.yml"
+grep -q 'release_candidate: true' "$ROOT/config/project.yml"
+grep -q 'desktop_ui_integrated: false' "$ROOT/config/project.yml"
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
@@ -657,4 +660,4 @@ grep -q 'benchmark_100k_sorted_row_query' "$ROOT/crates/turkuaz-office-sheet/tes
 grep -q '#\[ignore = "performance profile; run explicitly with --ignored --nocapture"\]' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
 grep -q 'M2 feature kapsaminda planlanan alt fazlar tamamlandi' "$ROOT/docs/05-roadmap/roadmap.md"
 
-echo "Turkuaz Office v0.3.0 M2 Sheet feature contract verification BASARILI."
+echo "Turkuaz Office v0.3.1 Community Preview contract verification BASARILI."
