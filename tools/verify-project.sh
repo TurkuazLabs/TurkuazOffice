@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+trap 'echo "verify_contract_failed line=$LINENO command=$BASH_COMMAND" >&2' ERR
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CURRENT_VERSION="0.3.1"
 SHEET_MODULE_VERSION="0.3.0"
