@@ -73,16 +73,14 @@ impl SheetCsvTool {
                     ended_row = false;
                     Self::validate_columns(&row)?;
                 }
-                '
-' => {
+                '\n' => {
                     row.push(std::mem::take(&mut field));
                     field_started = false;
                     Self::push_row(&mut rows, &mut row)?;
                     ended_row = true;
                 }
-                '' => {
-                    if chars.peek() == Some(&'
-') {
+                '\r' => {
+                    if chars.peek() == Some(&'\n') {
                         chars.next();
                     }
                     row.push(std::mem::take(&mut field));
@@ -220,9 +218,8 @@ impl SheetCsvTool {
     fn write_field(output: &mut String, value: &str) {
         let requires_quotes = value.contains(',')
             || value.contains('"')
-            || value.contains('')
-            || value.contains('
-');
+            || value.contains('\r')
+            || value.contains('\n');
         if !requires_quotes {
             output.push_str(value);
             return;
