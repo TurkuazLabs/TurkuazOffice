@@ -1,12 +1,23 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/CHANGELOG.md
 # 📌 Amac: Turkuaz Office surum degisikliklerini kullanici ve gelistirici seviyesinde izler
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Foundation, Writer M1 ve Sheet M2 degisiklik kaydini tutar
 
 Bagimli Oldugu Katman: Documentation
 
 # Changelog
+
+## v0.3.1 - Community Preview Hardening
+
+- GitHub Actions pipeline stable action surumlerine tasindi.
+- Frontend build ve Vitest validation aktif release gate oldu.
+- Rust workspace cargo check, fmt, clippy ve Windows/Linux test matrix'i release gate oldu.
+- Windows NSIS ve Linux DEB/AppImage gercek bundle workflow'u eklendi.
+- Preview artifactlari icin SHA-256 checksum uretimi eklendi.
+- Writer desktop Community Preview adayi olarak tanimlandi.
+- Sheet engine Community'de aktif kalir; desktop Sheet UI entegrasyonu henuz release-ready degildir.
+- Public stable release imza gerektirdigi icin v0.3.1 unsigned artifactlari preview kanalinda tutulur.
 
 ## v0.3.0 - M2 Sheet Development
 
