@@ -412,7 +412,7 @@ grep -q 'openPrintPreview' "$ROOT/apps/desktop/src/services/writer-session.servi
 grep -q 'printDocument' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
 grep -q 'printPreviewLayout' "$ROOT/apps/desktop/src/repositories/writer-session.repository.ts"
 grep -q 'KEYBOARD_KEYS.p' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.ts"
-grep -q 'KEYBOARD_KEYS.escape' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'KEYBOARD_KEYS.escape' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.ts"
 grep -q 'WriterPrintPreview' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
 grep -q '@media print' "$ROOT/apps/desktop/src/views/app.css"
 grep -q 'maps canonical twip page size to physical print inches' "$ROOT/apps/desktop/src/tools/print.tool.test.ts"
