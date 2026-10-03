@@ -47,7 +47,7 @@ export class SheetSessionService {
       const document = this.requireDocument();
       const worksheet = document.worksheets[0];
       if (worksheet === undefined) {
-        this.repository.setError("sheet.worksheet_not_found");
+        this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
         return;
       }
 
