@@ -163,7 +163,7 @@ impl PdfWriterTool {
         let mut lines = vec![LayoutLine::default()];
         for run in runs {
             let loaded = fonts.get(&run.font).ok_or(PdfWriterError::FontMissing)?;
-            let size_pt = run.font_size_half_points as f32 / 2.0;
+            let size_pt = f32::from(run.font_size_half_points) / 2.0;
             for character in run.text.chars() {
                 if character == '\r' {
                     continue;
@@ -213,15 +213,14 @@ impl PdfWriterTool {
         let current = lines.last_mut().expect("layout always has line");
         current.height_pt = current.height_pt.max(size_pt * PDF_LINE_HEIGHT_MULTIPLIER);
         current.width_pt += width_pt;
-        if let Some(fragment) = current.fragments.last_mut() {
-            if fragment.font == run.font
-                && fragment.size_pt == size_pt
-                && fragment.underline == run.underline
-            {
-                fragment.text.push(character);
-                fragment.width_pt += width_pt;
-                return Ok(());
-            }
+        if let Some(fragment) = current.fragments.last_mut()
+            && fragment.font == run.font
+            && fragment.size_pt == size_pt
+            && fragment.underline == run.underline
+        {
+            fragment.text.push(character);
+            fragment.width_pt += width_pt;
+            return Ok(());
         }
         current.fragments.push(LineFragment {
             text: character.to_string(),
@@ -233,6 +232,7 @@ impl PdfWriterTool {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_line(
         ops: &mut Vec<Op>,
         line: &LayoutLine,
