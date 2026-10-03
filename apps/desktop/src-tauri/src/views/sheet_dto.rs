@@ -2,11 +2,11 @@
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
 // Version: 0.4.0
-// Aciklama: Sheet belge, worksheet ve cell degerlerini camelCase IPC read-model olarak sunar
+// Aciklama: Sheet belge, worksheet, raw cell ve evaluated cell degerlerini camelCase IPC read-model olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::Serialize;
-use turkuaz_office_sheet::{CellValueView, SheetDocumentView, WorksheetView};
+use turkuaz_office_sheet::{CellValueView, CellView, SheetDocumentView, WorksheetView};
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -55,6 +55,16 @@ impl From<CellValueView> for SheetCellValueDto {
     }
 }
 
+impl From<CellView> for SheetCellDto {
+    fn from(cell: CellView) -> Self {
+        Self {
+            row: cell.row,
+            column: cell.column,
+            value: cell.value.into(),
+        }
+    }
+}
+
 impl From<WorksheetView> for SheetWorksheetDto {
     fn from(worksheet: WorksheetView) -> Self {
         Self {
@@ -64,11 +74,7 @@ impl From<WorksheetView> for SheetWorksheetDto {
             cells: worksheet
                 .cells
                 .into_iter()
-                .map(|cell| SheetCellDto {
-                    row: cell.row,
-                    column: cell.column,
-                    value: cell.value.into(),
-                })
+                .map(SheetCellDto::from)
                 .collect(),
         }
     }
