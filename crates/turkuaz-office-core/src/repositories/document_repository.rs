@@ -20,6 +20,7 @@ pub struct InMemoryDocumentRepository {
 }
 
 impl InMemoryDocumentRepository {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
