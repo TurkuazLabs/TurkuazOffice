@@ -30,12 +30,7 @@ fn csv_parser_handles_quotes_crlf_and_service_import_is_text_only() {
     assert_eq!(rows[2][1], "A \"quoted\" value");
 
     let ids = SequentialSheetIdTool::new();
-    let document = SheetCsvService::import(
-        &ids,
-        "CSV",
-        b"001,42,TRUE",
-    )
-    .expect("csv import");
+    let document = SheetCsvService::import(&ids, "CSV", b"001,42,TRUE").expect("csv import");
 
     let worksheet = &document.worksheets[0];
     assert_eq!(
@@ -62,14 +57,8 @@ fn csv_export_quotes_text_and_serializes_typed_values() {
                 CellAddress { row: 0, column: 0 },
                 CellValue::Text("A,B".to_owned()),
             ),
-            (
-                CellAddress { row: 0, column: 1 },
-                CellValue::Number(42.5),
-            ),
-            (
-                CellAddress { row: 0, column: 2 },
-                CellValue::Boolean(true),
-            ),
+            (CellAddress { row: 0, column: 1 }, CellValue::Number(42.5)),
+            (CellAddress { row: 0, column: 2 }, CellValue::Boolean(true)),
             (
                 CellAddress { row: 1, column: 0 },
                 CellValue::Text("A \"quote\"".to_owned()),
@@ -98,8 +87,7 @@ fn csv_sparse_export_handles_max_grid_address_without_rectangular_allocation() {
     };
 
     let bytes = SheetCsvService::export_worksheet(&worksheet).expect("sparse csv export");
-    let expected_length =
-        usize::try_from(MAX_SHEET_ROWS - 1).expect("rows") * 2
+    let expected_length = usize::try_from(MAX_SHEET_ROWS - 1).expect("rows") * 2
         + usize::try_from(MAX_SHEET_COLUMNS - 1).expect("columns")
         + "TRUE".len();
 
@@ -123,14 +111,8 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
                         CellAddress { row: 0, column: 0 },
                         CellValue::Text("Sivas & Turkuaz".to_owned()),
                     ),
-                    (
-                        CellAddress { row: 1, column: 1 },
-                        CellValue::Number(1234.5),
-                    ),
-                    (
-                        CellAddress { row: 2, column: 2 },
-                        CellValue::Boolean(true),
-                    ),
+                    (CellAddress { row: 1, column: 1 }, CellValue::Number(1234.5)),
+                    (CellAddress { row: 2, column: 2 }, CellValue::Boolean(true)),
                 ]),
             },
             Worksheet {
@@ -143,13 +125,12 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
             },
         ],
         cell_formats: BTreeMap::new(),
-charts: BTreeMap::new(),
-};
+        charts: BTreeMap::new(),
+    };
 
     let bytes = SheetXlsxService::export(&document).expect("xlsx export");
     let ids = SequentialSheetIdTool::new();
-    let restored =
-        SheetXlsxService::import(&ids, "Restored", &bytes).expect("xlsx import");
+    let restored = SheetXlsxService::import(&ids, "Restored", &bytes).expect("xlsx import");
 
     assert_eq!(restored.revision, 0);
     assert_eq!(restored.worksheets.len(), 2);
@@ -201,8 +182,8 @@ fn xlsx_export_rejects_duplicate_worksheet_names_case_insensitively() {
             },
         ],
         cell_formats: BTreeMap::new(),
-charts: BTreeMap::new(),
-};
+        charts: BTreeMap::new(),
+    };
 
     assert_eq!(
         SheetXlsxService::export(&document),
@@ -226,8 +207,8 @@ fn xlsx_export_rejects_xml_invalid_cell_text() {
             )]),
         }],
         cell_formats: BTreeMap::new(),
-charts: BTreeMap::new(),
-};
+        charts: BTreeMap::new(),
+    };
 
     assert_eq!(
         SheetXlsxService::export(&document),
@@ -245,8 +226,7 @@ fn xlsx_import_reads_shared_string_cells() {
     );
 
     let ids = SequentialSheetIdTool::new();
-    let document =
-        SheetXlsxService::import(&ids, "Shared", &bytes).expect("shared strings import");
+    let document = SheetXlsxService::import(&ids, "Shared", &bytes).expect("shared strings import");
 
     assert_eq!(
         document.worksheets[0]
@@ -287,7 +267,6 @@ fn xlsx_import_rejects_missing_root_workbook_relationship() {
         SheetXlsxService::import(&ids, "Invalid Root", &bytes),
         Err(SheetXlsxError::InvalidPackage)
     );
-
 }
 
 #[test]
@@ -315,8 +294,8 @@ fn csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile() 
         revision: 1,
         worksheets: vec![worksheet],
         cell_formats: BTreeMap::new(),
-charts: BTreeMap::new(),
-};
+        charts: BTreeMap::new(),
+    };
     assert_eq!(
         SheetXlsxService::export(&document),
         Err(SheetXlsxError::UnsupportedFormula)

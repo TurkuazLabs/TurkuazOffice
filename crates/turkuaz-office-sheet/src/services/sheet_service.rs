@@ -12,9 +12,9 @@ use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 
 use crate::config::constants::{
-    DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES, MAX_CELL_TEXT_LENGTH,
-    MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS,
-    MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
+    DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES, MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS,
+    MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS,
+    MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
@@ -227,10 +227,11 @@ where
             .iter()
             .find(|worksheet| &worksheet.id == worksheet_id)
             .ok_or(SheetError::WorksheetNotFound)?;
-        Ok(worksheet.cells.get(&address).cloned().map(|value| Cell {
-            address,
-            value,
-        }))
+        Ok(worksheet
+            .cells
+            .get(&address)
+            .cloned()
+            .map(|value| Cell { address, value }))
     }
 
     pub fn evaluated_cell_by_a1(
@@ -265,8 +266,7 @@ where
             return Ok(None);
         };
 
-        let value =
-            Self::evaluate_value(worksheet, address, value, &mut BTreeSet::new(), 0)?;
+        let value = Self::evaluate_value(worksheet, address, value, &mut BTreeSet::new(), 0)?;
         Ok(Some(Cell { address, value }))
     }
 
@@ -315,12 +315,13 @@ where
         }
 
         if format == CellFormat::default() {
-            let remove_worksheet_entry = if let Some(formats) = document.cell_formats.get_mut(worksheet_id) {
-                formats.remove(&address);
-                formats.is_empty()
-            } else {
-                false
-            };
+            let remove_worksheet_entry =
+                if let Some(formats) = document.cell_formats.get_mut(worksheet_id) {
+                    formats.remove(&address);
+                    formats.is_empty()
+                } else {
+                    false
+                };
             if remove_worksheet_entry {
                 document.cell_formats.remove(worksheet_id);
             }
@@ -465,13 +466,7 @@ where
         category_column: u32,
         value_column: u32,
     ) -> Result<SheetDocument, SheetError> {
-        Self::validate_chart_definition(
-            title,
-            start_row,
-            end_row,
-            category_column,
-            value_column,
-        )?;
+        Self::validate_chart_definition(title, start_row, end_row, category_column, value_column)?;
 
         let mut document = self
             .repository
@@ -559,13 +554,9 @@ where
                 _ => return Err(SheetError::ChartCategoryNotText),
             };
             let value = match value {
-                Some(raw) => Self::evaluate_value(
-                    worksheet,
-                    value_address,
-                    raw,
-                    &mut BTreeSet::new(),
-                    0,
-                )?,
+                Some(raw) => {
+                    Self::evaluate_value(worksheet, value_address, raw, &mut BTreeSet::new(), 0)?
+                }
                 None => return Err(SheetError::ChartValueNotNumeric),
             };
             let CellValue::Number(value) = value else {
@@ -584,8 +575,7 @@ where
         value_column: u32,
     ) -> Result<(), SheetError> {
         let normalized_title = title.trim();
-        if normalized_title.is_empty()
-            || normalized_title.chars().count() > MAX_CHART_TITLE_LENGTH
+        if normalized_title.is_empty() || normalized_title.chars().count() > MAX_CHART_TITLE_LENGTH
         {
             return Err(SheetError::InvalidChartTitle);
         }
@@ -650,7 +640,9 @@ where
                     left.partial_cmp(right).unwrap_or(Ordering::Equal)
                 }
                 (Some(CellValue::Text(left)), Some(CellValue::Text(right))) => left.cmp(right),
-                (Some(CellValue::Boolean(left)), Some(CellValue::Boolean(right))) => left.cmp(right),
+                (Some(CellValue::Boolean(left)), Some(CellValue::Boolean(right))) => {
+                    left.cmp(right)
+                }
                 (Some(CellValue::Formula(left)), Some(CellValue::Formula(right))) => {
                     left.expression.cmp(&right.expression)
                 }
@@ -788,7 +780,9 @@ where
             return Err(SheetError::InvalidRange);
         }
         match &filter.condition {
-            SheetFilterCondition::TextContains(text) if text.chars().count() > MAX_CELL_TEXT_LENGTH => {
+            SheetFilterCondition::TextContains(text)
+                if text.chars().count() > MAX_CELL_TEXT_LENGTH =>
+            {
                 Err(SheetError::InvalidFilter)
             }
             SheetFilterCondition::NumberGreaterThan(value)
@@ -813,7 +807,9 @@ where
             CellValue::Text(text) if text.chars().count() > MAX_CELL_TEXT_LENGTH => {
                 Err(SheetError::CellTextTooLong)
             }
-            CellValue::Number(number) if !number.is_finite() => Err(SheetError::CellNumberNotFinite),
+            CellValue::Number(number) if !number.is_finite() => {
+                Err(SheetError::CellNumberNotFinite)
+            }
             CellValue::Formula(formula) => FormulaTool::parse(&formula.expression)
                 .map(|_| ())
                 .map_err(|_| SheetError::InvalidFormula),
