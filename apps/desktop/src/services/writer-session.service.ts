@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.0
+// # Version: 0.2.1
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -59,6 +59,10 @@ export class WriterSessionService {
   ) {}
 
   public async initializeSession(): Promise<void> {
+    if (this.repository.document() !== null) {
+      return;
+    }
+
     await this.refreshTemplates();
     await this.refreshRecentFiles();
     try {
