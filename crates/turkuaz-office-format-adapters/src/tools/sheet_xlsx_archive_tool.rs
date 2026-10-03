@@ -37,8 +37,7 @@ impl SheetXlsxArchiveTool {
 
         let cursor = Cursor::new(Vec::new());
         let mut writer = ZipWriter::new(cursor);
-        let options =
-            SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
+        let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
         for (name, data) in entries {
             Self::validate_entry_name(name)?;
@@ -63,9 +62,7 @@ impl SheetXlsxArchiveTool {
         Ok(bytes)
     }
 
-    pub fn decode(
-        bytes: &[u8],
-    ) -> Result<HashMap<String, Vec<u8>>, SheetXlsxArchiveError> {
+    pub fn decode(bytes: &[u8]) -> Result<HashMap<String, Vec<u8>>, SheetXlsxArchiveError> {
         if bytes.len() as u64 > MAX_XLSX_PACKAGE_BYTES {
             return Err(SheetXlsxArchiveError::PackageTooLarge);
         }

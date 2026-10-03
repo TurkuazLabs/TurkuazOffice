@@ -7,12 +7,10 @@
 
 use std::collections::BTreeMap;
 
-use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::DocumentSchemaVersion;
+use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_sheet::config::constants::DEFAULT_WORKSHEET_NAME;
-use turkuaz_office_sheet::{
-    CellAddress, CellValue, SheetDocument, SheetIdTool, Worksheet,
-};
+use turkuaz_office_sheet::{CellAddress, CellValue, SheetDocument, SheetIdTool, Worksheet};
 
 use crate::tools::sheet_csv_tool::{SheetCsvField, SheetCsvTool, SheetCsvToolError};
 
@@ -45,10 +43,7 @@ impl SheetCsvService {
                 let row = u32::try_from(row_index).map_err(|_| SheetCsvError::ResourceLimit)?;
                 let column =
                     u32::try_from(column_index).map_err(|_| SheetCsvError::ResourceLimit)?;
-                cells.insert(
-                    CellAddress { row, column },
-                    CellValue::Text(value),
-                );
+                cells.insert(CellAddress { row, column }, CellValue::Text(value));
             }
         }
 
@@ -81,8 +76,7 @@ impl SheetCsvService {
             .iter()
             .map(|(address, value)| {
                 Ok(SheetCsvField {
-                    row: usize::try_from(address.row)
-                        .map_err(|_| SheetCsvError::ResourceLimit)?,
+                    row: usize::try_from(address.row).map_err(|_| SheetCsvError::ResourceLimit)?,
                     column: usize::try_from(address.column)
                         .map_err(|_| SheetCsvError::ResourceLimit)?,
                     value: Self::value_text(value)?,

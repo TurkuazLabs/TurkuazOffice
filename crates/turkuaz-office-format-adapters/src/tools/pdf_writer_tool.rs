@@ -13,9 +13,9 @@ use printpdf::{
 };
 
 use crate::config::pdf_constants::{
-    MAX_PDF_OUTPUT_BYTES, MAX_PDF_PAGES, PDF_LINE_HEIGHT_MULTIPLIER,
-    PDF_PARAGRAPH_GAP_POINTS, PDF_TAB_SPACES, PDF_UNDERLINE_OFFSET_MULTIPLIER,
-    PDF_UNDERLINE_THICKNESS_MULTIPLIER, TWIPS_PER_POINT,
+    MAX_PDF_OUTPUT_BYTES, MAX_PDF_PAGES, PDF_LINE_HEIGHT_MULTIPLIER, PDF_PARAGRAPH_GAP_POINTS,
+    PDF_TAB_SPACES, PDF_UNDERLINE_OFFSET_MULTIPLIER, PDF_UNDERLINE_THICKNESS_MULTIPLIER,
+    TWIPS_PER_POINT,
 };
 use crate::models::pdf_model::{
     PdfAlignment, PdfDocumentModel, PdfFontData, PdfFontKey, PdfRunModel,
@@ -120,15 +120,13 @@ impl PdfWriterTool {
         }
 
         let mut warnings = Vec::new();
-        let bytes = document
-            .with_pages(pages)
-            .save(
-                &PdfSaveOptions {
-                    subset_fonts: true,
-                    ..Default::default()
-                },
-                &mut warnings,
-            );
+        let bytes = document.with_pages(pages).save(
+            &PdfSaveOptions {
+                subset_fonts: true,
+                ..Default::default()
+            },
+            &mut warnings,
+        );
         if bytes.len() > MAX_PDF_OUTPUT_BYTES {
             return Err(PdfWriterError::OutputTooLarge);
         }
@@ -142,12 +140,9 @@ impl PdfWriterTool {
         let mut loaded = BTreeMap::new();
         for font in fonts {
             let mut warnings = Vec::new();
-            let parsed = ParsedFont::from_bytes(
-                &font.bytes,
-                font.face_index as usize,
-                &mut warnings,
-            )
-            .ok_or(PdfWriterError::FontInvalid)?;
+            let parsed =
+                ParsedFont::from_bytes(&font.bytes, font.face_index as usize, &mut warnings)
+                    .ok_or(PdfWriterError::FontInvalid)?;
             let id = document.add_font(&parsed);
             loaded.insert(
                 font.key.clone(),
@@ -190,14 +185,7 @@ impl PdfWriterTool {
                     }
                     continue;
                 }
-                Self::append_character(
-                    &mut lines,
-                    run,
-                    loaded,
-                    character,
-                    size_pt,
-                    max_width_pt,
-                )?;
+                Self::append_character(&mut lines, run, loaded, character, size_pt, max_width_pt)?;
             }
         }
 
@@ -223,9 +211,7 @@ impl PdfWriterTool {
             lines.push(LayoutLine::default());
         }
         let current = lines.last_mut().expect("layout always has line");
-        current.height_pt = current
-            .height_pt
-            .max(size_pt * PDF_LINE_HEIGHT_MULTIPLIER);
+        current.height_pt = current.height_pt.max(size_pt * PDF_LINE_HEIGHT_MULTIPLIER);
         current.width_pt += width_pt;
         if let Some(fragment) = current.fragments.last_mut() {
             if fragment.font == run.font
@@ -275,9 +261,7 @@ impl PdfWriterTool {
             PdfAlignment::Center => {
                 margin_left_pt + ((content_width_pt - line.width_pt) / 2.0).max(0.0)
             }
-            PdfAlignment::Right => {
-                margin_left_pt + (content_width_pt - line.width_pt).max(0.0)
-            }
+            PdfAlignment::Right => margin_left_pt + (content_width_pt - line.width_pt).max(0.0),
         };
         let baseline_y_pt = page_height_pt - y_top_pt - line.height_pt * 0.78;
         let mut x_pt = start_x_pt;
@@ -307,7 +291,11 @@ impl PdfWriterTool {
             });
             ops.push(Op::EndTextSection);
 
-            let spaces = fragment.text.chars().filter(|character| *character == ' ').count();
+            let spaces = fragment
+                .text
+                .chars()
+                .filter(|character| *character == ' ')
+                .count();
             let rendered_width = fragment.width_pt + extra_space_pt * spaces as f32;
             if fragment.underline && rendered_width > 0.0 {
                 let underline_y =
@@ -316,9 +304,7 @@ impl PdfWriterTool {
                     col: Color::Rgb(Rgb::new(0.0, 0.0, 0.0, None)),
                 });
                 ops.push(Op::SetOutlineThickness {
-                    pt: Pt(
-                        fragment.size_pt * PDF_UNDERLINE_THICKNESS_MULTIPLIER,
-                    ),
+                    pt: Pt(fragment.size_pt * PDF_UNDERLINE_THICKNESS_MULTIPLIER),
                 });
                 ops.push(Op::DrawLine {
                     line: Line {
@@ -362,11 +348,7 @@ impl PdfWriterTool {
     }
 
     fn page(width_pt: f32, height_pt: f32, ops: Vec<Op>) -> PdfPage {
-        PdfPage::new(
-            Mm(width_pt / 72.0 * 25.4),
-            Mm(height_pt / 72.0 * 25.4),
-            ops,
-        )
+        PdfPage::new(Mm(width_pt / 72.0 * 25.4), Mm(height_pt / 72.0 * 25.4), ops)
     }
 
     fn twips_to_points(value: u32) -> f32 {
