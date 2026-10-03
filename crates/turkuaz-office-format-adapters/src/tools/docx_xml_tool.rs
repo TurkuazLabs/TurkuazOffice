@@ -145,36 +145,28 @@ impl DocxXmlTool {
                     }
                 }
                 Event::Text(text) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            let value = text.xml_content(XmlVersion::Implicit1_0);
-                            current.text.push_str(&value);
-                        }
+                    if in_text && let Some(current) = run.as_mut() {
+                        let value = text.xml_content(XmlVersion::Implicit1_0);
+                        current.text.push_str(&value);
                     }
                 }
                 Event::CData(text) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            let value = text.xml_content(XmlVersion::Implicit1_0);
-                            current.text.push_str(&value);
-                        }
+                    if in_text && let Some(current) = run.as_mut() {
+                        let value = text.xml_content(XmlVersion::Implicit1_0);
+                        current.text.push_str(&value);
                     }
                 }
                 Event::GeneralRef(reference) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            if let Some(character) = reference
-                                .resolve_char_ref()
-                                .map_err(|_| DocxXmlError::InvalidXml)?
-                            {
-                                current.text.push(character);
-                            } else if let Some(value) =
-                                resolve_predefined_entity(reference.as_ref())
-                            {
-                                current.text.push_str(value);
-                            } else {
-                                return Err(DocxXmlError::InvalidXml);
-                            }
+                    if in_text && let Some(current) = run.as_mut() {
+                        if let Some(character) = reference
+                            .resolve_char_ref()
+                            .map_err(|_| DocxXmlError::InvalidXml)?
+                        {
+                            current.text.push(character);
+                        } else if let Some(value) = resolve_predefined_entity(reference.as_ref()) {
+                            current.text.push_str(value);
+                        } else {
+                            return Err(DocxXmlError::InvalidXml);
                         }
                     }
                 }
@@ -186,10 +178,9 @@ impl DocxXmlTool {
                         TAG_RUN => {
                             if let (Some(current_paragraph), Some(current_run)) =
                                 (paragraph.as_mut(), run.take())
+                                && !current_run.text.is_empty()
                             {
-                                if !current_run.text.is_empty() {
-                                    current_paragraph.runs.push(current_run);
-                                }
+                                current_paragraph.runs.push(current_run);
                             }
                         }
                         TAG_PARAGRAPH => {
