@@ -121,10 +121,12 @@ impl WriterTemplateService {
             .paragraphs
             .into_iter()
             .map(|paragraph| {
-                let mut character_style = CharacterStyle::default();
-                character_style.bold = paragraph.bold;
-                character_style.italic = paragraph.italic;
-                character_style.underline = paragraph.underline;
+                let mut character_style = CharacterStyle {
+                    bold: paragraph.bold,
+                    italic: paragraph.italic,
+                    underline: paragraph.underline,
+                    ..CharacterStyle::default()
+                };
                 if let Some(font_family) = paragraph.font_family {
                     character_style.font_family = font_family;
                 }
