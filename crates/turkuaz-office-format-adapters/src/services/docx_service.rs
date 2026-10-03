@@ -115,10 +115,12 @@ impl DocxService {
         for source_paragraph in model.paragraphs {
             let mut runs = Vec::new();
             for source_run in source_paragraph.runs {
-                let mut style = CharacterStyle::default();
-                style.bold = source_run.bold;
-                style.italic = source_run.italic;
-                style.underline = source_run.underline;
+                let mut style = CharacterStyle {
+                    bold: source_run.bold,
+                    italic: source_run.italic,
+                    underline: source_run.underline,
+                    ..CharacterStyle::default()
+                };
                 if let Some(font_family) = source_run.font_family {
                     if font_family.is_empty() || font_family.len() > MAX_FONT_FAMILY_LENGTH {
                         return Err(DocxError::InvalidCharacterStyle);
