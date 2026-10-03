@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/Cargo.toml
 # 📌 Amac: Turkuaz Office Desktop Tauri Rust shell crate bagimliliklarini tanimlar
 # 📌 Modul - FileType: Config - TOML
-# Version: 0.2.0
-# Aciklama: Tauri 2.11.x shell, serde DTO ve Writer domain bagimliliklarini workspace'e baglar
+# Version: 0.4.0
+# Aciklama: Tauri 2.11.x shell, serde DTO, Writer ve Sheet domain bagimliliklarini workspace'e baglar
 # Bagimli Oldugu Katman: Config
 
 [package]
@@ -30,6 +30,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "2.11.5", features = ["config-json5"] }
 tauri-plugin-dialog = "=2.7.3"
 turkuaz-office-writer = { path = "../../../crates/turkuaz-office-writer" }
+turkuaz-office-sheet = { path = "../../../crates/turkuaz-office-sheet" }
 turkuaz-office-format-adapters = { path = "../../../crates/turkuaz-office-format-adapters" }
 
 [lints]
