@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/community-preview.yml
 # 📌 Amac: Community Writer Preview icin Windows NSIS ve Linux DEB/AppImage paketlerini gercek CI runner'larinda uretir
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.1
+# Version: 0.3.2
 # Aciklama: Pull request ve manuel calistirmalarda imzasiz preview bundle, SHA-256 checksum ve GitHub Actions artifactlari uretir
 # Bagimli Oldugu Katman: CI | Distribution
 
@@ -109,16 +109,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cd target/release/bundle
           shopt -s nullglob
           files=(
-            target/release/bundle/deb/*.deb
-            target/release/bundle/appimage/*.AppImage
+            deb/*.deb
+            appimage/*.AppImage
           )
           if [ "${#files[@]}" -eq 0 ]; then
             echo "Linux bundle artifacts were not produced." >&2
             exit 1
           fi
-          sha256sum "${files[@]}" > target/release/bundle/SHA256SUMS.txt
+          sha256sum "${files[@]}" > SHA256SUMS.txt
 
       - name: Upload Linux Preview
         uses: actions/upload-artifact@v4
