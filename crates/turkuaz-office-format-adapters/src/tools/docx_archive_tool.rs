@@ -81,8 +81,8 @@ impl DocxArchiveTool {
             let mut file = archive
                 .by_index(index)
                 .map_err(|_| DocxArchiveError::ReadFailed)?;
-            let raw_name = file.name().trim_end_matches('/');
-            Self::validate_entry_name(raw_name)?;
+            let raw_name = file.name().trim_end_matches('/').to_owned();
+            Self::validate_entry_name(&raw_name)?;
 
             if file.is_dir() {
                 continue;
@@ -108,7 +108,7 @@ impl DocxArchiveTool {
             if data.len() as u64 > MAX_DOCX_ENTRY_BYTES {
                 return Err(DocxArchiveError::EntryTooLarge);
             }
-            if entries.insert(raw_name.to_owned(), data).is_some() {
+            if entries.insert(raw_name, data).is_some() {
                 return Err(DocxArchiveError::DuplicateEntry);
             }
         }
