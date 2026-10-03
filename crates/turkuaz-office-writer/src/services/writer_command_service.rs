@@ -477,7 +477,7 @@ impl WriterCommandService {
         let mut left_paragraph = paragraph.clone();
         left_paragraph.runs = left_runs;
 
-        let mut right_paragraph = Paragraph {
+        let right_paragraph = Paragraph {
             id: id_tool.next_node_id(),
             style: paragraph.style,
             runs: right_runs,
