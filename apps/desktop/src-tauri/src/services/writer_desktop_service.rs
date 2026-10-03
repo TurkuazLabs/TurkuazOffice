@@ -399,6 +399,7 @@ impl WriterDesktopService {
             .ok_or_else(|| DesktopErrorDto::new(ERROR_ASSET_NOT_FOUND))
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn insert_image_data(
         &mut self,
         document_id: &str,
