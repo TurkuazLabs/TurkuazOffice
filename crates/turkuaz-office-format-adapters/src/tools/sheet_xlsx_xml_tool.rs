@@ -291,13 +291,13 @@ impl SheetXlsxXmlTool {
                     match Self::local_name(end.name().as_ref()) {
                         TAG_VALUE | TAG_TEXT => target = TextTarget::None,
                         TAG_CELL => {
-                            if let Some(cell) = current.take() {
-                                if let Some(value) = Self::cell_value(&cell, shared_strings)? {
-                                    cells.push(XlsxCellModel {
-                                        reference: cell.reference,
-                                        value,
-                                    });
-                                }
+                            if let Some(cell) = current.take()
+                                && let Some(value) = Self::cell_value(&cell, shared_strings)?
+                            {
+                                cells.push(XlsxCellModel {
+                                    reference: cell.reference,
+                                    value,
+                                });
                             }
                             target = TextTarget::None;
                         }
