@@ -8,6 +8,7 @@
 export const IPC_COMMANDS = {
   sheetCreateDocument: "sheet_create_document",
   sheetGetDocument: "sheet_get_document",
+  sheetGetEvaluatedCell: "sheet_get_evaluated_cell",
   sheetSetText: "sheet_set_text",
   sheetSetNumber: "sheet_set_number",
   sheetSetBoolean: "sheet_set_boolean",
