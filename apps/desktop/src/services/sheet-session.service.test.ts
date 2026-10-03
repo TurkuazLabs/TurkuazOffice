@@ -1,0 +1,88 @@
+// # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
+// # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
+// # 📌 Modul - FileType: Test - TypeScript
+// Version: 0.4.0
+// Aciklama: Bos, formula, boolean, number ve text inputlarinin dogru Tauri Tool metoduna yonlendirildigini dogrular
+// Bagimli Oldugu Katman: Service -> Repo -> Tool
+
+import { describe, expect, it } from "vitest";
+
+import { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
+import type { SheetDocumentView } from "../views/sheet-types";
+import { SheetSessionService } from "./sheet-session.service";
+
+const DOCUMENT: SheetDocumentView = {
+  id: "sheet-document-1",
+  title: "Sheet",
+  revision: 0,
+  worksheets: [
+    {
+      id: "worksheet-1",
+      name: "Sheet1",
+      cellCount: 0,
+      cells: [],
+    },
+  ],
+  chartCount: 0,
+};
+
+function toolWithCalls(calls: string[]): TauriSheetTool {
+  return {
+    createDocument: async () => DOCUMENT,
+    getDocument: async () => DOCUMENT,
+    clearCell: async () => {
+      calls.push("clear");
+      return DOCUMENT;
+    },
+    setFormula: async (_input, expression) => {
+      calls.push(`formula:${expression}`);
+      return DOCUMENT;
+    },
+    setBoolean: async (_input, value) => {
+      calls.push(`boolean:${String(value)}`);
+      return DOCUMENT;
+    },
+    setNumber: async (_input, value) => {
+      calls.push(`number:${String(value)}`);
+      return DOCUMENT;
+    },
+    setText: async (_input, value) => {
+      calls.push(`text:${value}`);
+      return DOCUMENT;
+    },
+  } as TauriSheetTool;
+}
+
+describe("SheetSessionService", () => {
+  it("creates the first document during initialization", async () => {
+    const repository = new SheetSessionRepository();
+    const service = new SheetSessionService(repository, toolWithCalls([]));
+
+    await service.initializeSession();
+
+    expect(repository.document()?.id).toBe(DOCUMENT.id);
+    expect(repository.status()).toBe("ready");
+  });
+
+  it("routes typed cell inputs without moving parsing into the View", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    await service.initializeSession();
+
+    await service.commitCell("A1", "");
+    await service.commitCell("A2", "=A1+1");
+    await service.commitCell("A3", "TRUE");
+    await service.commitCell("A4", "12.5");
+    await service.commitCell("A5", "  metin  ");
+
+    expect(calls).toEqual([
+      "clear",
+      "formula:=A1+1",
+      "boolean:true",
+      "number:12.5",
+      "text:  metin  ",
+    ]);
+  });
+});
