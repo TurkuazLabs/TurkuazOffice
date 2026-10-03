@@ -117,11 +117,7 @@ impl RecentFilesService {
                 })
             })
             .collect::<Vec<_>>();
-        entries.sort_by(|left, right| {
-            right
-                .last_accessed_unix_ms
-                .cmp(&left.last_accessed_unix_ms)
-        });
+        entries.sort_by(|left, right| right.last_accessed_unix_ms.cmp(&left.last_accessed_unix_ms));
         let mut unique = Vec::new();
         for entry in entries {
             if unique

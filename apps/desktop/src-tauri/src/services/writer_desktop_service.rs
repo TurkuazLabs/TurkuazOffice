@@ -11,26 +11,26 @@ use turkuaz_office_format_adapters::DocxCompatibilityReport;
 use turkuaz_office_writer::{
     CharacterStyle, CharacterStylePatch, InMemoryWriterDocumentRepository, NodeId,
     ParagraphStylePatch, SequentialWriterIdTool, StyledTextRun, TextAlignment, TextPosition,
-    TextRange, WriterAsset, WriterCommand, WriterController, WriterDocumentView,
-    WriterEditorError, WriterTemplateSummary,
+    TextRange, WriterAsset, WriterCommand, WriterController, WriterDocumentView, WriterEditorError,
+    WriterTemplateSummary,
 };
 
+use crate::config::constants::RECENT_FILES_METADATA_NAME;
 use crate::config::constants::{
     ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
 };
-use crate::services::writer_docx_service::WriterDocxService;
 use crate::repositories::recent_files_repository::RecentFilesRepository;
 use crate::services::recent_files_service::{RecentFileEntry, RecentFilesService};
 use crate::services::startup_file_service::StartupFileService;
-use crate::services::writer_pdf_service::WriterPdfService;
+use crate::services::writer_docx_service::WriterDocxService;
 use crate::services::writer_file_session_service::{
     WriterFileSessionService, WriterFileSessionStatus,
 };
+use crate::services::writer_pdf_service::WriterPdfService;
 use crate::services::writer_recovery_service::{
     RecoveryComparison, RecoverySnapshot, WriterRecoveryService,
 };
 use crate::services::writer_storage_service::WriterStorageService;
-use crate::config::constants::RECENT_FILES_METADATA_NAME;
 use crate::tools::app_state_path_tool::AppStatePathTool;
 use crate::tools::recovery_path_tool::RecoveryPathTool;
 use crate::tools::startup_arguments_tool::StartupArgumentsTool;
@@ -152,11 +152,7 @@ impl WriterDesktopService {
         Ok((view, compatibility))
     }
 
-    pub fn export_docx(
-        &self,
-        document_id: &str,
-        path: &str,
-    ) -> Result<String, DesktopErrorDto> {
+    pub fn export_docx(&self, document_id: &str, path: &str) -> Result<String, DesktopErrorDto> {
         let document = self
             .controller
             .snapshot(document_id)
@@ -164,11 +160,7 @@ impl WriterDesktopService {
         WriterDocxService::export(&document, path).map_err(DesktopErrorDto::from)
     }
 
-    pub fn export_pdf(
-        &self,
-        document_id: &str,
-        path: &str,
-    ) -> Result<String, DesktopErrorDto> {
+    pub fn export_pdf(&self, document_id: &str, path: &str) -> Result<String, DesktopErrorDto> {
         let document = self
             .controller
             .snapshot(document_id)

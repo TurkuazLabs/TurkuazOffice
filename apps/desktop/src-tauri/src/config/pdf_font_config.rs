@@ -6,14 +6,11 @@
 // Bagimli Oldugu Katman: Config
 
 pub const PDF_FALLBACK_ARIAL: &[&str] = &["Liberation Sans", "Nimbus Sans", "Noto Sans"];
-pub const PDF_FALLBACK_CALIBRI: &[&str] =
-    &["Carlito", "Arial", "Liberation Sans", "Noto Sans"];
+pub const PDF_FALLBACK_CALIBRI: &[&str] = &["Carlito", "Arial", "Liberation Sans", "Noto Sans"];
 pub const PDF_FALLBACK_TIMES_NEW_ROMAN: &[&str] =
     &["Liberation Serif", "Nimbus Roman", "Noto Serif"];
-pub const PDF_FALLBACK_GEORGIA: &[&str] =
-    &["Liberation Serif", "Nimbus Roman", "Noto Serif"];
-pub const PDF_FALLBACK_VERDANA: &[&str] =
-    &["DejaVu Sans", "Liberation Sans", "Noto Sans"];
+pub const PDF_FALLBACK_GEORGIA: &[&str] = &["Liberation Serif", "Nimbus Roman", "Noto Serif"];
+pub const PDF_FALLBACK_VERDANA: &[&str] = &["DejaVu Sans", "Liberation Sans", "Noto Sans"];
 pub const PDF_FALLBACK_COURIER_NEW: &[&str] =
     &["Liberation Mono", "Nimbus Mono PS", "Noto Sans Mono"];
 pub const PDF_FALLBACK_DEFAULT: &[&str] =
