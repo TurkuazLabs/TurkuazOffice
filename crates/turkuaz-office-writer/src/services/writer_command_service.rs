@@ -615,11 +615,11 @@ impl WriterCommandService {
         Self::validate_character_style(&style)?;
         for section in &mut document.sections {
             for block in &mut section.blocks {
-                if let Block::Paragraph(paragraph) = block {
-                    if let Some(run) = paragraph.runs.iter_mut().find(|run| run.id == *run_id) {
-                        run.style = style;
-                        return Ok(());
-                    }
+                if let Block::Paragraph(paragraph) = block
+                    && let Some(run) = paragraph.runs.iter_mut().find(|run| run.id == *run_id)
+                {
+                    run.style = style;
+                    return Ok(());
                 }
             }
         }
@@ -671,10 +671,10 @@ impl WriterCommandService {
                 return Err(WriterCommandError::InvalidCharacterStyle);
             }
         }
-        if let Some(size) = patch.font_size_half_points {
-            if !(MIN_FONT_SIZE_HALF_POINTS..=MAX_FONT_SIZE_HALF_POINTS).contains(&size) {
-                return Err(WriterCommandError::InvalidCharacterStyle);
-            }
+        if let Some(size) = patch.font_size_half_points
+            && !(MIN_FONT_SIZE_HALF_POINTS..=MAX_FONT_SIZE_HALF_POINTS).contains(&size)
+        {
+            return Err(WriterCommandError::InvalidCharacterStyle);
         }
         Ok(())
     }
@@ -709,6 +709,7 @@ impl WriterCommandService {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn insert_image_data<I>(
         document: &mut WriterDocument,
         after_paragraph_id: &crate::services::writer_types::NodeId,
@@ -885,11 +886,11 @@ impl WriterCommandService {
     fn merge_adjacent_runs(runs: Vec<TextRun>) -> Vec<TextRun> {
         let mut merged: Vec<TextRun> = Vec::with_capacity(runs.len());
         for run in runs.into_iter().filter(|run| !run.text.is_empty()) {
-            if let Some(previous) = merged.last_mut() {
-                if previous.style == run.style {
-                    previous.text.push_str(&run.text);
-                    continue;
-                }
+            if let Some(previous) = merged.last_mut()
+                && previous.style == run.style
+            {
+                previous.text.push_str(&run.text);
+                continue;
             }
             merged.push(run);
         }
@@ -915,10 +916,10 @@ impl WriterCommandService {
     ) -> Result<&'a mut Paragraph, WriterCommandError> {
         for section in &mut document.sections {
             for block in &mut section.blocks {
-                if let Block::Paragraph(paragraph) = block {
-                    if paragraph.id == *paragraph_id {
-                        return Ok(paragraph);
-                    }
+                if let Block::Paragraph(paragraph) = block
+                    && paragraph.id == *paragraph_id
+                {
+                    return Ok(paragraph);
                 }
             }
         }
