@@ -106,7 +106,7 @@ impl DocxXmlTool {
                     node_count = node_count.saturating_add(1);
                     Self::validate_limits(depth, node_count)?;
                     let name = start.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     Self::mark_unsupported(local, &mut unsupported);
                     match local {
                         TAG_PARAGRAPH => paragraph = Some(DocxParagraphModel::default()),
@@ -125,7 +125,7 @@ impl DocxXmlTool {
                     node_count = node_count.saturating_add(1);
                     Self::validate_limits(depth, node_count)?;
                     let name = empty.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     Self::mark_unsupported(local, &mut unsupported);
                     match local {
                         TAG_TAB => {
@@ -183,7 +183,7 @@ impl DocxXmlTool {
                 }
                 Event::End(end) => {
                     let name = end.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     match local {
                         TAG_TEXT => in_text = false,
                         TAG_RUN => {
@@ -418,7 +418,7 @@ impl DocxXmlTool {
         for attribute in element.attributes() {
             let attribute = attribute.map_err(|_| DocxXmlError::InvalidAttribute)?;
             let name = attribute.key;
-            if Self::local_name(name.as_ref()) != key {
+            if Self::local_name(name.as_ref().as_bytes()) != key {
                 continue;
             }
             let value = unescape(attribute.value.as_ref())
