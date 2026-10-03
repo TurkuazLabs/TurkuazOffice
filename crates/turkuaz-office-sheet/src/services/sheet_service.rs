@@ -387,10 +387,10 @@ where
         if let Some(filter) = filter {
             Self::validate_filter(range, filter)?;
         }
-        if let Some(sort) = sort {
-            if sort.column < range.start_column || sort.column > range.end_column {
-                return Err(SheetError::InvalidRange);
-            }
+        if let Some(sort) = sort
+            && (sort.column < range.start_column || sort.column > range.end_column)
+        {
+            return Err(SheetError::InvalidRange);
         }
 
         let document = self
@@ -455,6 +455,7 @@ where
         Ok(rows)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn create_chart(
         &mut self,
         document_id: &DocumentId,
