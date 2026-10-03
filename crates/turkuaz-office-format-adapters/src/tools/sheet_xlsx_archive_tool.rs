@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs
 // # 📌 Amac: XLSX ZIP paketlerini traversal, duplicate ve zip-bomb limitleriyle guvenli okur/yazar
 // # 📌 Modul - FileType: Tool - Rust
-// Version: 0.3.1
+// Version: 0.3.0
 // Aciklama: Stored/Deflate entry destegi, package/entry boyut limiti ve safe entry-name validation uygular
 // Bagimli Oldugu Katman: Tool -> Config
 
@@ -82,8 +82,8 @@ impl SheetXlsxArchiveTool {
             let mut file = archive
                 .by_index(index)
                 .map_err(|_| SheetXlsxArchiveError::ReadFailed)?;
-            let raw_name = file.name().trim_end_matches('/');
-            Self::validate_entry_name(raw_name)?;
+            let raw_name = file.name().trim_end_matches('/').to_owned();
+            Self::validate_entry_name(&raw_name)?;
 
             if file.is_dir() {
                 continue;
@@ -109,7 +109,7 @@ impl SheetXlsxArchiveTool {
             if data.len() as u64 > MAX_XLSX_ENTRY_BYTES {
                 return Err(SheetXlsxArchiveError::EntryTooLarge);
             }
-            if entries.insert(raw_name.to_owned(), data).is_some() {
+            if entries.insert(raw_name, data).is_some() {
                 return Err(SheetXlsxArchiveError::DuplicateEntry);
             }
         }
