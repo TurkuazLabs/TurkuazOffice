@@ -42,6 +42,6 @@ export class TauriSheetTool {
   }
 
   public clearCell(input: SheetCellCommandInput): Promise<SheetDocumentView> {
-    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetClearCell, input);
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetClearCell, { ...input });
   }
 }
