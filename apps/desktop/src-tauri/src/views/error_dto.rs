@@ -1,12 +1,13 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/error_dto.rs
 // # 📌 Amac: Desktop backend hatalarini Tauri frontend icin stabil error code DTO'suna map eder
 // # 📌 Modul - FileType: View - Rust
-// # Version: 0.2.0
-// # Aciklama: Rust Debug metni veya implementation detayini UI kontratina sizdirmadan serializable hata kodu verir
+// # Version: 0.4.0
+// # Aciklama: Writer ve Sheet domain hatalarini implementation detayini sizdirmadan stabil serializable hata koduna map eder
 // Bagimli Oldugu Katman: View
 
 use serde::Serialize;
 use turkuaz_office_format_adapters::{DocxError, PdfError, PdfWriterError};
+use turkuaz_office_sheet::SheetError;
 use turkuaz_office_writer::{
     TkoPackageError, TkoProfileError, WriterCommandError, WriterEditorError, WriterTemplateError,
 };
@@ -19,9 +20,18 @@ use crate::config::constants::{
     ERROR_PDF_EXPORT_FAILED, ERROR_PDF_FONT_UNAVAILABLE, ERROR_PDF_UNSUPPORTED,
     ERROR_RECENT_FILES_INVALID, ERROR_RECENT_FILES_READ_FAILED, ERROR_RECENT_FILES_WRITE_FAILED,
     ERROR_RECOVERY_INVALID, ERROR_RECOVERY_NOT_FOUND, ERROR_RECOVERY_READ_FAILED,
-    ERROR_RECOVERY_WRITE_FAILED, ERROR_RUN_NOT_FOUND, ERROR_TEMPLATE_INVALID,
-    ERROR_TEMPLATE_NOT_FOUND, ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID,
-    ERROR_TKO_MIGRATION_REQUIRED,
+    ERROR_RECOVERY_WRITE_FAILED, ERROR_RUN_NOT_FOUND, ERROR_SHEET_CELL_NUMBER_NOT_FINITE,
+    ERROR_SHEET_CELL_TEXT_TOO_LONG, ERROR_SHEET_CHART_CATEGORY_NOT_TEXT,
+    ERROR_SHEET_CHART_NOT_FOUND, ERROR_SHEET_CHART_TOO_MANY_POINTS,
+    ERROR_SHEET_CHART_VALUE_NOT_NUMERIC, ERROR_SHEET_DOCUMENT_NOT_FOUND,
+    ERROR_SHEET_FORMULA_CYCLE, ERROR_SHEET_FORMULA_DEPTH_EXCEEDED,
+    ERROR_SHEET_FORMULA_DIVISION_BY_ZERO, ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE,
+    ERROR_SHEET_FORMULA_RESULT_NOT_FINITE, ERROR_SHEET_INVALID_CELL_FORMAT,
+    ERROR_SHEET_INVALID_CELL_REFERENCE, ERROR_SHEET_INVALID_CHART_RANGE,
+    ERROR_SHEET_INVALID_CHART_TITLE, ERROR_SHEET_INVALID_FILTER, ERROR_SHEET_INVALID_FORMULA,
+    ERROR_SHEET_INVALID_RANGE, ERROR_SHEET_QUERY_TOO_LARGE, ERROR_SHEET_WORKSHEET_NOT_FOUND,
+    ERROR_TEMPLATE_INVALID, ERROR_TEMPLATE_NOT_FOUND, ERROR_TKO_FUTURE_SCHEMA,
+    ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
 };
 use crate::services::recent_files_service::RecentFilesError;
 use crate::services::writer_docx_service::WriterDocxError;
@@ -39,6 +49,38 @@ impl DesktopErrorDto {
     pub fn new(code: &str) -> Self {
         Self {
             code: code.to_owned(),
+        }
+    }
+}
+
+impl From<SheetError> for DesktopErrorDto {
+    fn from(error: SheetError) -> Self {
+        match error {
+            SheetError::DocumentNotFound => Self::new(ERROR_SHEET_DOCUMENT_NOT_FOUND),
+            SheetError::WorksheetNotFound => Self::new(ERROR_SHEET_WORKSHEET_NOT_FOUND),
+            SheetError::InvalidCellReference | SheetError::CellOutOfBounds => {
+                Self::new(ERROR_SHEET_INVALID_CELL_REFERENCE)
+            }
+            SheetError::CellTextTooLong => Self::new(ERROR_SHEET_CELL_TEXT_TOO_LONG),
+            SheetError::CellNumberNotFinite => Self::new(ERROR_SHEET_CELL_NUMBER_NOT_FINITE),
+            SheetError::InvalidFormula => Self::new(ERROR_SHEET_INVALID_FORMULA),
+            SheetError::FormulaCycle => Self::new(ERROR_SHEET_FORMULA_CYCLE),
+            SheetError::FormulaDepthExceeded => Self::new(ERROR_SHEET_FORMULA_DEPTH_EXCEEDED),
+            SheetError::FormulaDivisionByZero => Self::new(ERROR_SHEET_FORMULA_DIVISION_BY_ZERO),
+            SheetError::FormulaNonNumericReference => {
+                Self::new(ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE)
+            }
+            SheetError::FormulaResultNotFinite => Self::new(ERROR_SHEET_FORMULA_RESULT_NOT_FINITE),
+            SheetError::InvalidCellFormat => Self::new(ERROR_SHEET_INVALID_CELL_FORMAT),
+            SheetError::InvalidRange => Self::new(ERROR_SHEET_INVALID_RANGE),
+            SheetError::QueryTooLarge => Self::new(ERROR_SHEET_QUERY_TOO_LARGE),
+            SheetError::InvalidFilter => Self::new(ERROR_SHEET_INVALID_FILTER),
+            SheetError::ChartNotFound => Self::new(ERROR_SHEET_CHART_NOT_FOUND),
+            SheetError::InvalidChartTitle => Self::new(ERROR_SHEET_INVALID_CHART_TITLE),
+            SheetError::InvalidChartRange => Self::new(ERROR_SHEET_INVALID_CHART_RANGE),
+            SheetError::ChartTooManyPoints => Self::new(ERROR_SHEET_CHART_TOO_MANY_POINTS),
+            SheetError::ChartCategoryNotText => Self::new(ERROR_SHEET_CHART_CATEGORY_NOT_TEXT),
+            SheetError::ChartValueNotNumeric => Self::new(ERROR_SHEET_CHART_VALUE_NOT_NUMERIC),
         }
     }
 }
