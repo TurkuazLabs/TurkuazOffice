@@ -10,6 +10,6 @@ pub mod error_dto;
 pub mod file_session_dto;
 pub mod writer_dto;
 
-pub mod recovery_dto;
 pub mod recent_file_dto;
+pub mod recovery_dto;
 pub mod template_dto;

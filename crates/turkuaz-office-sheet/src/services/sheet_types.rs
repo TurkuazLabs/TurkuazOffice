@@ -87,7 +87,6 @@ pub struct SheetRange {
     pub end_column: u32,
 }
 
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ChartId(String);
 

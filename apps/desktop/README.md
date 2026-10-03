@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/README.md
 # 📌 Amac: Windows, Linux ve ileride macOS istemcisinin teknoloji, katman ve calistirma sinirlarini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.3.1
 # Aciklama: Tauri 2 + SolidJS Writer shell, rich-text, typography, ribbon ve local TKO Open/Save baseline'ini belgeler
 
 Bagimli Oldugu Katman: Documentation
@@ -48,4 +48,23 @@ Rust, Node.js ve Windows icin WebView2 build prerequisite'leri kurulu olmalidir.
 - Dirty revision guard ve discard confirmation.
 - Ctrl/Cmd+O, Ctrl/Cmd+S ve Ctrl/Cmd+N file operation flow.
 
-Autosave/recovery, external-change protection, Print, DOCX ve PDF M1 roadmap'inde sonraki parcalardir.
+Autosave/recovery, external-change protection, Print, DOCX, PDF, Recent Files, file associations, templates ve tr-TR/en-US runtime UI Writer M1 kapsaminda aktiftir.
+
+
+## Community Preview paketleri
+
+Windows:
+
+```powershell
+npm run tauri:build:windows
+```
+
+Linux:
+
+```bash
+npm run tauri:build:linux
+```
+
+CI ayni hedefleri gercek Windows/Linux runner'larinda derler ve SHA-256 checksum ile artifact olarak saklar.
+
+Bu desktop shell su anda Writer yuzeyidir. Sheet engine workspace icinde aktif olmasina ragmen Sheet desktop UI henuz bu shell'e baglanmamistir.

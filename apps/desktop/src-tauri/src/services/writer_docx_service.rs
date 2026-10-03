@@ -55,10 +55,7 @@ impl WriterDocxService {
         DocxService::import(&bytes, title, &SequentialWriterIdTool::new()).map_err(Into::into)
     }
 
-    pub fn export(
-        document: &WriterDocument,
-        path_text: &str,
-    ) -> Result<String, WriterDocxError> {
+    pub fn export(document: &WriterDocument, path_text: &str) -> Result<String, WriterDocxError> {
         let path = Self::resolve_save_path(path_text)?;
         let bytes = DocxService::export(document)?;
         LocalFileTool::write_safe_replace(&path, &bytes)?;

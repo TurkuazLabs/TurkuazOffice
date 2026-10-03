@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Desktop ve SolidJS frontend kalite kontrollerini Windows ve Linux uzerinde calistirir
+# 📌 Amac: Rust Core/Writer/Sheet/Desktop ve SolidJS frontend kalite kontrollerini Windows ve Linux uzerinde calistirir
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.2.0
-# Aciklama: Project contract, frontend build, Rust format/clippy ve iki platformlu test matrix'i uygular
+# Version: 0.3.1
+# Aciklama: Stable GitHub Actions surumleriyle frontend build/test, project contract, Rust check/format/clippy ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -13,18 +13,27 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: workspace-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   frontend-quality:
+    name: Frontend quality
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: apps/desktop
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: 24
 
@@ -38,24 +47,17 @@ jobs:
         run: npm test
 
   rust-quality:
+    name: Rust quality
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
       - name: Install Tauri Linux Prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
+          sudo apt-get install -y             libwebkit2gtk-4.1-dev             build-essential             curl             wget             file             libxdo-dev             libssl-dev             libayatana-appindicator3-dev             librsvg2-dev
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -66,6 +68,9 @@ jobs:
       - name: Project Contract
         run: ./tools/verify-project.sh
 
+      - name: Cargo Check
+        run: cargo check --workspace --all-targets
+
       - name: Format
         run: cargo fmt --all -- --check
 
@@ -73,6 +78,7 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D clippy::all
 
   rust-test:
+    name: Rust tests (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -80,24 +86,16 @@ jobs:
           - ubuntu-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
       - name: Install Tauri Linux Prerequisites
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
-            libssl-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev
+          sudo apt-get install -y             libwebkit2gtk-4.1-dev             build-essential             curl             wget             file             libxdo-dev             libssl-dev             libayatana-appindicator3-dev             librsvg2-dev
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable

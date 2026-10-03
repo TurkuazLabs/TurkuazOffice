@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/README.md
 # 📌 Amac: Turkuaz Office monorepo giris dokumani ve gelistirme yonlendirmesi
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Tamamlanan Writer M1 ile aktif Sheet M2 cell-model gelisim durumunu ve monorepo giris yolunu tanimlar
 
 Bagimli Oldugu Katman: Documentation
@@ -16,7 +16,7 @@ Microsoft Office ile ozellik sayisi yarisi yapmak hedef degildir. Hedef; gunluk 
 
 ## Writer M1 v0.2.0 durumu
 
-Writer M1 feature kapsami tamamlanmistir. Tauri 2 + SolidJS shell, rich-text/IME, typography/ribbon, native Open/Save, autosave/recovery, file protection, font/layout, Clipboard Minimum, Print Preview + Print, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations, Template Foundation, tr-TR/en-US runtime UI ve Keyboard-Only Smoke calisma agacinda aktiftir. Hosted GitHub runner job'larinin checkout oncesi steps=null ile dusmesi nedeniyle final compiler-backed M1 validation pending olarak izlenir.
+Writer M1 feature kapsami tamamlanmistir. Tauri 2 + SolidJS shell, rich-text/IME, typography/ribbon, native Open/Save, autosave/recovery, file protection, font/layout, Clipboard Minimum, Print Preview + Print, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations, Template Foundation, tr-TR/en-US runtime UI ve Keyboard-Only Smoke calisma agacinda aktiftir. v0.3.1 Community Preview hardening, gercek Windows/Linux CI ve bundle artifactlari ile bu kapsami release seviyesinde dogrular.
 
 Foundation Hardening ve tamamlanan Writer M1 kontratlari kod ile temsil edilir:
 
@@ -90,7 +90,19 @@ M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine, Format/Filter/Sort ve Bas
 - 100000-cell benchmark profile aktiftir: sparse build, View projection ve descending numeric row query explicit ignored workload olarak olculur.
 - Hosted CI varyansi nedeniyle sabit millisecond threshold yoktur; timing ayni donanim/toolchain uzerinde karsilastirilir.
 
-M2 feature kapsami tamamlanmistir. Siradaki roadmap milestone'u M3 Web v0.4.0'dir.
+M2 engine feature kapsami tamamlanmistir. Sheet desktop UI bu preview'da henuz entegre degildir; Community 0.3.1 Writer desktop preview + Sheet engine validation olarak konumlanir. Siradaki urun fazlarindan once Sheet desktop entegrasyonu ayri olarak ele alinabilir.
+
+## Community Preview v0.3.1
+
+Preview release kapsami:
+
+- Windows: NSIS installer.
+- Linux: DEB + AppImage.
+- Writer desktop: release candidate.
+- Sheet engine: CI ile dogrulanan headless/core katman.
+- Sheet desktop UI: henuz entegre degil.
+- Preview artifactlari unsigned'dir; stable release etiketi icin platform signing gerekir.
+- CI artifactlari SHA-256 checksum ile birlikte uretilir.
 
 ## Monorepo
 

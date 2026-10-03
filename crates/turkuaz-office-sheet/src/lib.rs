@@ -25,8 +25,8 @@ pub use services::sheet_types::{
 };
 pub use tools::cell_reference_tool::{CellReferenceError, CellReferenceTool};
 pub use tools::formula_tool::{
-    FormulaBinaryOperator, FormulaExpression, FormulaTool, FormulaToolError,
-    FormulaUnaryOperator, ParsedFormula,
+    FormulaBinaryOperator, FormulaExpression, FormulaTool, FormulaToolError, FormulaUnaryOperator,
+    ParsedFormula,
 };
 pub use tools::sheet_id_tool::{SequentialSheetIdTool, SheetIdTool};
 pub use views::sheet_view::{

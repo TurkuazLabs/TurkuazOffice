@@ -2,14 +2,17 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.3.0
-# Aciklama: Mixed source-version header, current release metadata, M1 regression ve M2 Sheet cell-model + CSV/XLSX + Formula Engine static contract kontrollerini uygular
+# Version: 0.3.1
+# Aciklama: Umbrella release version ile modul source versionlarini ayirir; M1/M2 static contract ve Community Preview release metadata kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
 
+trap 'echo "verify_contract_failed line=$LINENO command=$BASH_COMMAND" >&2' ERR
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CURRENT_VERSION="0.3.0"
+CURRENT_VERSION="0.3.1"
+SHEET_MODULE_VERSION="0.3.0"
 
 required_files=(
   "README.md"
@@ -274,12 +277,15 @@ grep -q "Version: $CURRENT_VERSION" "$ROOT/config/project.yml"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/README.md"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/docs/05-roadmap/roadmap.md"
 grep -q "Version: $CURRENT_VERSION" "$ROOT/CHANGELOG.md"
-grep -q 'version = "0.3.0"' "$ROOT/Cargo.toml"
-grep -q 'version: 0.3.0' "$ROOT/config/project.yml"
-grep -q '"version": "0.3.0"' "$ROOT/apps/desktop/package.json"
-grep -q 'version: "0.3.0"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'version = "0.3.1"' "$ROOT/Cargo.toml"
+grep -q 'version: 0.3.1' "$ROOT/config/project.yml"
+grep -q '"version": "0.3.1"' "$ROOT/apps/desktop/package.json"
+grep -q 'version: "0.3.1"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
 grep -q '"crates/turkuaz-office-sheet"' "$ROOT/Cargo.toml"
 grep -q '"apps/desktop/src-tauri"' "$ROOT/Cargo.toml"
+grep -q 'community_preview:' "$ROOT/config/project.yml"
+grep -q 'release_candidate: true' "$ROOT/config/project.yml"
+grep -q 'desktop_ui_integrated: false' "$ROOT/config/project.yml"
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
@@ -405,8 +411,8 @@ grep -q 'window.print' "$ROOT/apps/desktop/src/tools/print.tool.ts"
 grep -q 'openPrintPreview' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
 grep -q 'printDocument' "$ROOT/apps/desktop/src/controllers/writer.controller.ts"
 grep -q 'printPreviewLayout' "$ROOT/apps/desktop/src/repositories/writer-session.repository.ts"
-grep -q 'KEYBOARD_KEYS.p' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
-grep -q 'KEYBOARD_KEYS.escape' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'KEYBOARD_KEYS.p' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.ts"
+grep -q 'KEYBOARD_KEYS.escape' "$ROOT/apps/desktop/src/services/keyboard-shortcut.service.ts"
 grep -q 'WriterPrintPreview' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
 grep -q '@media print' "$ROOT/apps/desktop/src/views/app.css"
 grep -q 'maps canonical twip page size to physical print inches' "$ROOT/apps/desktop/src/tools/print.tool.test.ts"
@@ -560,7 +566,7 @@ grep -q 'a1_reference_tool_parses_and_formats_grid_boundaries' "$ROOT/crates/tur
 grep -q 'sparse_set_get_and_clear_mutate_revision_only_when_data_changes' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
 
 for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/src/language/mod.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"; do
-  grep -q "Version: $CURRENT_VERSION" "$sheet_file"
+  grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_file"
 done
 
 
@@ -596,7 +602,7 @@ for sheet_format_file in \
   "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"; do
-  grep -q "Version: $CURRENT_VERSION" "$sheet_format_file"
+  grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_format_file"
 done
 
 grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
@@ -657,4 +663,4 @@ grep -q 'benchmark_100k_sorted_row_query' "$ROOT/crates/turkuaz-office-sheet/tes
 grep -q '#\[ignore = "performance profile; run explicitly with --ignored --nocapture"\]' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_100k_benchmark.rs"
 grep -q 'M2 feature kapsaminda planlanan alt fazlar tamamlandi' "$ROOT/docs/05-roadmap/roadmap.md"
 
-echo "Turkuaz Office v0.3.0 M2 Sheet feature contract verification BASARILI."
+echo "Turkuaz Office v0.3.1 Community Preview contract verification BASARILI."

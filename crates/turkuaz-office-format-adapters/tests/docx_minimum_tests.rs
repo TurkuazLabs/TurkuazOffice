@@ -6,13 +6,10 @@
 // Bagimli Oldugu Katman: Service -> Tool -> Model
 
 use turkuaz_office_format_adapters::{
-    DocxArchiveTool, DocxError, DocxService, DocxUnsupportedFeature, DocxXmlError,
-    DocxXmlTool,
+    DocxArchiveTool, DocxError, DocxService, DocxUnsupportedFeature, DocxXmlError, DocxXmlTool,
 };
 use turkuaz_office_writer::services::writer_document_factory_service::WriterDocumentFactoryService;
-use turkuaz_office_writer::{
-    Block, SequentialWriterIdTool, TextAlignment, WriterAsset,
-};
+use turkuaz_office_writer::{Block, SequentialWriterIdTool, TextAlignment, WriterAsset};
 
 #[test]
 fn docx_minimum_round_trip_preserves_text_typography_alignment_and_page_geometry() {
@@ -39,15 +36,15 @@ fn docx_minimum_round_trip_preserves_text_typography_alignment_and_page_geometry
     run.style.font_size_half_points = 24;
 
     let bytes = DocxService::export(&document).expect("docx export");
-    let imported = DocxService::import(
-        &bytes,
-        "Imported DOCX",
-        &SequentialWriterIdTool::new(),
-    )
-    .expect("docx import");
+    let imported = DocxService::import(&bytes, "Imported DOCX", &SequentialWriterIdTool::new())
+        .expect("docx import");
 
     assert!(imported.compatibility.unsupported_features.is_empty());
-    let imported_section = imported.document.sections.first().expect("imported section");
+    let imported_section = imported
+        .document
+        .sections
+        .first()
+        .expect("imported section");
     assert_eq!(imported_section.page_settings.width_twips, 12_000);
     assert_eq!(imported_section.page_settings.height_twips, 16_000);
     assert_eq!(imported_section.page_settings.margin_left_twips, 1_500);
@@ -86,12 +83,8 @@ fn docx_import_reports_table_and_hyperlink_structure_loss() {
     ])
     .expect("fixture package");
 
-    let imported = DocxService::import(
-        &bytes,
-        "Compatibility",
-        &SequentialWriterIdTool::new(),
-    )
-    .expect("docx import");
+    let imported = DocxService::import(&bytes, "Compatibility", &SequentialWriterIdTool::new())
+        .expect("docx import");
 
     assert!(
         imported
@@ -108,7 +101,6 @@ fn docx_import_reports_table_and_hyperlink_structure_loss() {
     assert_eq!(imported.document.plain_text(), "Cell\nLink text");
 }
 
-
 #[test]
 fn docx_export_rejects_canonical_assets_in_minimum_profile() {
     let ids = SequentialWriterIdTool::new();
@@ -119,7 +111,10 @@ fn docx_export_rejects_canonical_assets_in_minimum_profile() {
         bytes: vec![0x89, b'P', b'N', b'G'],
     });
 
-    assert_eq!(DocxService::export(&document), Err(DocxError::UnsupportedAsset));
+    assert_eq!(
+        DocxService::export(&document),
+        Err(DocxError::UnsupportedAsset)
+    );
 }
 
 #[test]

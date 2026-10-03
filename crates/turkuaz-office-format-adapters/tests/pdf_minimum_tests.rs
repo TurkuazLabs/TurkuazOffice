@@ -45,5 +45,8 @@ fn pdf_export_rejects_canonical_assets_in_minimum_profile() {
         bytes: vec![0x89, b'P', b'N', b'G'],
     });
 
-    assert_eq!(PdfService::font_requests(&document), Err(PdfError::UnsupportedAsset));
+    assert_eq!(
+        PdfService::font_requests(&document),
+        Err(PdfError::UnsupportedAsset)
+    );
 }

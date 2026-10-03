@@ -30,8 +30,16 @@ fn desktop_template_catalog_and_create_keep_native_session_untracked() {
 
     let catalog = service.list_templates().expect("template catalog");
     assert_eq!(catalog.len(), 3);
-    assert!(catalog.iter().any(|item| item.id == "letter" && item.quick_create));
-    assert!(catalog.iter().any(|item| item.id == "report" && item.quick_create));
+    assert!(
+        catalog
+            .iter()
+            .any(|item| item.id == "letter" && item.quick_create)
+    );
+    assert!(
+        catalog
+            .iter()
+            .any(|item| item.id == "report" && item.quick_create)
+    );
 
     let document = service
         .create_document_from_template("report")

@@ -294,6 +294,7 @@ pub fn writer_get_asset(
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub fn writer_insert_image_data(
     state: State<'_, WriterDesktopState>,
     document_id: String,
@@ -365,6 +366,7 @@ pub fn writer_replace_range_with_styled_runs(
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub fn writer_apply_character_style(
     state: State<'_, WriterDesktopState>,
     document_id: String,

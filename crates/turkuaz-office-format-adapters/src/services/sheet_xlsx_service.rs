@@ -7,14 +7,10 @@
 
 use std::collections::{BTreeMap, HashSet};
 
-use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::DocumentSchemaVersion;
-use turkuaz_office_sheet::config::constants::{
-    MAX_CELL_TEXT_LENGTH, MAX_WORKSHEET_NAME_LENGTH,
-};
-use turkuaz_office_sheet::{
-    CellAddress, CellReferenceTool, CellValue, SheetDocument, SheetIdTool, Worksheet,
-};
+use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
+use turkuaz_office_sheet::config::constants::{MAX_CELL_TEXT_LENGTH, MAX_WORKSHEET_NAME_LENGTH};
+use turkuaz_office_sheet::{CellReferenceTool, CellValue, SheetDocument, SheetIdTool, Worksheet};
 
 use crate::config::sheet_constants::{
     MAX_XLSX_WORKSHEETS, XLSX_CONTENT_TYPES_ENTRY, XLSX_ROOT_RELATIONSHIPS_ENTRY,
@@ -24,9 +20,7 @@ use crate::config::sheet_constants::{
 use crate::models::sheet_xlsx_model::{
     XlsxCellModel, XlsxCellValue, XlsxWorkbookModel, XlsxWorksheetModel,
 };
-use crate::tools::sheet_xlsx_archive_tool::{
-    SheetXlsxArchiveError, SheetXlsxArchiveTool,
-};
+use crate::tools::sheet_xlsx_archive_tool::{SheetXlsxArchiveError, SheetXlsxArchiveTool};
 use crate::tools::sheet_xlsx_xml_tool::{SheetXlsxXmlError, SheetXlsxXmlTool};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -108,12 +102,9 @@ impl SheetXlsxService {
             let worksheet_xml = entries
                 .get(&entry_name)
                 .ok_or(SheetXlsxError::InvalidPackage)?;
-            let model = SheetXlsxXmlTool::parse_worksheet(
-                descriptor.name,
-                worksheet_xml,
-                &shared_strings,
-            )
-            .map_err(Self::map_xml_error)?;
+            let model =
+                SheetXlsxXmlTool::parse_worksheet(descriptor.name, worksheet_xml, &shared_strings)
+                    .map_err(Self::map_xml_error)?;
             worksheets.push(Self::to_canonical_worksheet(id_tool, model)?);
         }
 
@@ -272,7 +263,10 @@ impl SheetXlsxService {
         if value.chars().count() > MAX_CELL_TEXT_LENGTH {
             return Err(SheetXlsxError::CellTextTooLong);
         }
-        if value.chars().any(|character| !Self::is_xml_1_0_character(character)) {
+        if value
+            .chars()
+            .any(|character| !Self::is_xml_1_0_character(character))
+        {
             return Err(SheetXlsxError::InvalidCellText);
         }
         Ok(())

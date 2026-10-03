@@ -101,10 +101,7 @@ impl WriterTemplateService {
             .collect())
     }
 
-    pub fn create<I>(
-        id_tool: &I,
-        template_id: &str,
-    ) -> Result<WriterDocument, WriterTemplateError>
+    pub fn create<I>(id_tool: &I, template_id: &str) -> Result<WriterDocument, WriterTemplateError>
     where
         I: WriterIdTool,
     {
@@ -124,10 +121,12 @@ impl WriterTemplateService {
             .paragraphs
             .into_iter()
             .map(|paragraph| {
-                let mut character_style = CharacterStyle::default();
-                character_style.bold = paragraph.bold;
-                character_style.italic = paragraph.italic;
-                character_style.underline = paragraph.underline;
+                let mut character_style = CharacterStyle {
+                    bold: paragraph.bold,
+                    italic: paragraph.italic,
+                    underline: paragraph.underline,
+                    ..CharacterStyle::default()
+                };
                 if let Some(font_family) = paragraph.font_family {
                     character_style.font_family = font_family;
                 }
@@ -162,9 +161,7 @@ impl WriterTemplateService {
         Ok(catalog)
     }
 
-    fn validate_catalog(
-        catalog: &WriterTemplateCatalogConfig,
-    ) -> Result<(), WriterTemplateError> {
+    fn validate_catalog(catalog: &WriterTemplateCatalogConfig) -> Result<(), WriterTemplateError> {
         if catalog.catalog_version != TEMPLATE_CATALOG_VERSION || catalog.templates.is_empty() {
             return Err(WriterTemplateError::CatalogInvalid);
         }
@@ -185,17 +182,11 @@ impl WriterTemplateService {
             }
 
             for paragraph in &template.paragraphs {
-                if paragraph
-                    .font_family
-                    .as_deref()
-                    .is_some_and(|family| family.trim().is_empty() || family.len() > MAX_FONT_FAMILY_LENGTH)
-                    || paragraph
-                        .font_size_half_points
-                        .is_some_and(|size| {
-                            !(MIN_FONT_SIZE_HALF_POINTS..=MAX_FONT_SIZE_HALF_POINTS)
-                                .contains(&size)
-                        })
-                {
+                if paragraph.font_family.as_deref().is_some_and(|family| {
+                    family.trim().is_empty() || family.len() > MAX_FONT_FAMILY_LENGTH
+                }) || paragraph.font_size_half_points.is_some_and(|size| {
+                    !(MIN_FONT_SIZE_HALF_POINTS..=MAX_FONT_SIZE_HALF_POINTS).contains(&size)
+                }) {
                     return Err(WriterTemplateError::CatalogInvalid);
                 }
             }

@@ -53,15 +53,9 @@ impl PdfService {
         Ok(requests.into_iter().collect())
     }
 
-    pub fn export(
-        document: &WriterDocument,
-        fonts: &[PdfFontData],
-    ) -> Result<Vec<u8>, PdfError> {
+    pub fn export(document: &WriterDocument, fonts: &[PdfFontData]) -> Result<Vec<u8>, PdfError> {
         Self::validate_structure(document)?;
-        let available: BTreeMap<_, _> = fonts
-            .iter()
-            .map(|font| (font.key.clone(), font))
-            .collect();
+        let available: BTreeMap<_, _> = fonts.iter().map(|font| (font.key.clone(), font)).collect();
         for request in Self::font_requests(document)? {
             if !available.contains_key(&request) {
                 return Err(PdfError::FontMissing(request));

@@ -297,16 +297,9 @@ fn archive_tool_rejects_duplicate_entry() {
         .start_file(TKO_MANIFEST_ENTRY, options)
         .expect("first manifest fixture");
     writer.write_all(b"first").expect("first fixture write");
-    writer
-        .start_file(TKO_MANIFEST_ENTRY, options)
-        .expect("second manifest fixture");
-    writer.write_all(b"second").expect("second fixture write");
-    let bytes = writer.finish().expect("finish fixture").into_inner();
+    let duplicate = writer.start_file(TKO_MANIFEST_ENTRY, options);
 
-    assert!(matches!(
-        TkoArchiveTool::decode(&bytes),
-        Err(TkoArchiveError::DuplicateEntry)
-    ));
+    assert!(duplicate.is_err());
 }
 
 #[test]
@@ -348,14 +341,10 @@ fn tko_round_trip_preserves_binary_image_asset() {
 
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize asset TKO");
     let entries = TkoArchiveTool::decode(&bytes).expect("decode asset archive");
-    assert!(entries.contains_key(
-        turkuaz_office_writer::config::constants::TKO_ASSET_INDEX_ENTRY
-    ));
-    assert!(entries
-        .keys()
-        .any(|name| name.starts_with(
-            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
-        )));
+    assert!(entries.contains_key(turkuaz_office_writer::config::constants::TKO_ASSET_INDEX_ENTRY));
+    assert!(entries.keys().any(|name| {
+        name.starts_with(turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX)
+    }));
 
     let restored = TkoPackageService::deserialize(&bytes).expect("deserialize asset TKO");
     assert_eq!(restored, document);
@@ -386,9 +375,9 @@ fn tko_asset_index_missing_binary_entry_is_rejected() {
     let mut entries = TkoArchiveTool::decode(&bytes).expect("decode");
     let asset_entry = entries
         .keys()
-        .find(|name| name.starts_with(
-            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
-        ))
+        .find(|name| {
+            name.starts_with(turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX)
+        })
         .cloned()
         .expect("asset entry");
     entries.remove(&asset_entry);

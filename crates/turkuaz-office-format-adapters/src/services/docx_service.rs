@@ -21,8 +21,8 @@ use crate::config::constants::{
     DOCX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE, DOCX_ROOT_RELATIONSHIPS_ENTRY,
 };
 use crate::models::docx_model::{
-    DocxAlignment, DocxDocumentModel, DocxImportResult, DocxPageSettingsModel,
-    DocxParagraphModel, DocxRunModel,
+    DocxAlignment, DocxDocumentModel, DocxImportResult, DocxPageSettingsModel, DocxParagraphModel,
+    DocxRunModel,
 };
 use crate::tools::docx_archive_tool::{DocxArchiveError, DocxArchiveTool};
 use crate::tools::docx_xml_tool::{DocxXmlError, DocxXmlTool};
@@ -115,10 +115,12 @@ impl DocxService {
         for source_paragraph in model.paragraphs {
             let mut runs = Vec::new();
             for source_run in source_paragraph.runs {
-                let mut style = CharacterStyle::default();
-                style.bold = source_run.bold;
-                style.italic = source_run.italic;
-                style.underline = source_run.underline;
+                let mut style = CharacterStyle {
+                    bold: source_run.bold,
+                    italic: source_run.italic,
+                    underline: source_run.underline,
+                    ..CharacterStyle::default()
+                };
                 if let Some(font_family) = source_run.font_family {
                     if font_family.is_empty() || font_family.len() > MAX_FONT_FAMILY_LENGTH {
                         return Err(DocxError::InvalidCharacterStyle);
@@ -244,9 +246,7 @@ impl DocxService {
         PageSettings {
             width_twips: source.width_twips.unwrap_or(default.width_twips),
             height_twips: source.height_twips.unwrap_or(default.height_twips),
-            margin_top_twips: source
-                .margin_top_twips
-                .unwrap_or(default.margin_top_twips),
+            margin_top_twips: source.margin_top_twips.unwrap_or(default.margin_top_twips),
             margin_right_twips: source
                 .margin_right_twips
                 .unwrap_or(default.margin_right_twips),

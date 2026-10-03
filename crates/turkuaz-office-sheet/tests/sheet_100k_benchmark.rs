@@ -10,9 +10,9 @@ use std::time::Instant;
 
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use turkuaz_office_sheet::{
-    CellAddress, CellValue, InMemorySheetDocumentRepository, SequentialSheetIdTool,
-    SheetDocument, SheetDocumentRepository, SheetDocumentView, SheetRange, SheetService,
-    SheetSort, SheetSortDirection, Worksheet, WorksheetId,
+    CellAddress, CellValue, InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetDocument,
+    SheetDocumentRepository, SheetDocumentView, SheetRange, SheetService, SheetSort,
+    SheetSortDirection, Worksheet, WorksheetId,
 };
 
 const BENCHMARK_CELL_COUNT: u32 = 100_000;
@@ -61,10 +61,7 @@ fn benchmark_100k_sparse_build_and_view_projection() {
     let view = SheetDocumentView::from(document);
     let view_elapsed = view_started.elapsed();
 
-    assert_eq!(
-        view.worksheets[0].cell_count,
-        BENCHMARK_CELL_COUNT as usize
-    );
+    assert_eq!(view.worksheets[0].cell_count, BENCHMARK_CELL_COUNT as usize);
     assert_eq!(view.worksheets[0].cells.first().expect("first").row, 0);
     assert_eq!(
         view.worksheets[0].cells.last().expect("last").row,

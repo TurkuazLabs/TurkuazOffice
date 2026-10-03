@@ -8,16 +8,15 @@
 use std::collections::BTreeSet;
 use std::str;
 
+use quick_xml::XmlVersion;
 use quick_xml::escape::{escape, resolve_predefined_entity, unescape};
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::reader::Reader;
-use quick_xml::XmlVersion;
 
 use crate::config::constants::{
     DOCX_CONTENT_TYPES_NAMESPACE, DOCX_DOCUMENT_CONTENT_TYPE,
     DOCX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE, DOCX_PACKAGE_RELATIONSHIPS_NAMESPACE,
-    DOCX_WORD_NAMESPACE, MAX_DOCX_DOCUMENT_XML_BYTES, MAX_DOCX_XML_DEPTH,
-    MAX_DOCX_XML_NODES,
+    DOCX_WORD_NAMESPACE, MAX_DOCX_DOCUMENT_XML_BYTES, MAX_DOCX_XML_DEPTH, MAX_DOCX_XML_NODES,
 };
 use crate::models::docx_model::{
     DocxAlignment, DocxCompatibilityReport, DocxDocumentModel, DocxPageSettingsModel,
@@ -97,16 +96,14 @@ impl DocxXmlTool {
         let mut node_count = 0_usize;
 
         loop {
-            let event = reader
-                .read_event()
-                .map_err(|_| DocxXmlError::InvalidXml)?;
+            let event = reader.read_event().map_err(|_| DocxXmlError::InvalidXml)?;
             match event {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     node_count = node_count.saturating_add(1);
                     Self::validate_limits(depth, node_count)?;
                     let name = start.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     Self::mark_unsupported(local, &mut unsupported);
                     match local {
                         TAG_PARAGRAPH => paragraph = Some(DocxParagraphModel::default()),
@@ -125,7 +122,7 @@ impl DocxXmlTool {
                     node_count = node_count.saturating_add(1);
                     Self::validate_limits(depth, node_count)?;
                     let name = empty.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     Self::mark_unsupported(local, &mut unsupported);
                     match local {
                         TAG_TAB => {
@@ -148,51 +145,42 @@ impl DocxXmlTool {
                     }
                 }
                 Event::Text(text) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            let value = text.xml_content(XmlVersion::Implicit1_0);
-                            current.text.push_str(&value);
-                        }
+                    if in_text && let Some(current) = run.as_mut() {
+                        let value = text.xml_content(XmlVersion::Implicit1_0);
+                        current.text.push_str(&value);
                     }
                 }
                 Event::CData(text) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            let value = text.xml_content(XmlVersion::Implicit1_0);
-                            current.text.push_str(&value);
-                        }
+                    if in_text && let Some(current) = run.as_mut() {
+                        let value = text.xml_content(XmlVersion::Implicit1_0);
+                        current.text.push_str(&value);
                     }
                 }
                 Event::GeneralRef(reference) => {
-                    if in_text {
-                        if let Some(current) = run.as_mut() {
-                            if let Some(character) = reference
-                                .resolve_char_ref()
-                                .map_err(|_| DocxXmlError::InvalidXml)?
-                            {
-                                current.text.push(character);
-                            } else if let Some(value) =
-                                resolve_predefined_entity(reference.as_ref())
-                            {
-                                current.text.push_str(value);
-                            } else {
-                                return Err(DocxXmlError::InvalidXml);
-                            }
+                    if in_text && let Some(current) = run.as_mut() {
+                        if let Some(character) = reference
+                            .resolve_char_ref()
+                            .map_err(|_| DocxXmlError::InvalidXml)?
+                        {
+                            current.text.push(character);
+                        } else if let Some(value) = resolve_predefined_entity(reference.as_ref()) {
+                            current.text.push_str(value);
+                        } else {
+                            return Err(DocxXmlError::InvalidXml);
                         }
                     }
                 }
                 Event::End(end) => {
                     let name = end.name();
-                    let local = Self::local_name(name.as_ref());
+                    let local = Self::local_name(name.as_ref().as_bytes());
                     match local {
                         TAG_TEXT => in_text = false,
                         TAG_RUN => {
                             if let (Some(current_paragraph), Some(current_run)) =
                                 (paragraph.as_mut(), run.take())
+                                && !current_run.text.is_empty()
                             {
-                                if !current_run.text.is_empty() {
-                                    current_paragraph.runs.push(current_run);
-                                }
+                                current_paragraph.runs.push(current_run);
                             }
                         }
                         TAG_PARAGRAPH => {
@@ -217,9 +205,7 @@ impl DocxXmlTool {
     }
 
     pub fn encode_document(model: &DocxDocumentModel) -> String {
-        let mut xml = String::from(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",
-        );
+        let mut xml = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         xml.push_str("<w:document xmlns:w=\"");
         xml.push_str(DOCX_WORD_NAMESPACE);
         xml.push_str("\"><w:body>");
@@ -288,10 +274,8 @@ impl DocxXmlTool {
             }
             TAG_UNDERLINE => {
                 if let Some(current) = run {
-                    current.underline = Self::underline_enabled(Self::attribute(
-                        element,
-                        ATTR_VALUE,
-                    )?);
+                    current.underline =
+                        Self::underline_enabled(Self::attribute(element, ATTR_VALUE)?);
                 }
             }
             TAG_RUN_FONTS => {
@@ -313,20 +297,14 @@ impl DocxXmlTool {
                 }
             }
             TAG_PAGE_SIZE => {
-                page.width_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_WIDTH)?)?;
-                page.height_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_HEIGHT)?)?;
+                page.width_twips = Self::parse_u32(Self::attribute(element, ATTR_WIDTH)?)?;
+                page.height_twips = Self::parse_u32(Self::attribute(element, ATTR_HEIGHT)?)?;
             }
             TAG_PAGE_MARGIN => {
-                page.margin_top_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_TOP)?)?;
-                page.margin_right_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_RIGHT)?)?;
-                page.margin_bottom_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_BOTTOM)?)?;
-                page.margin_left_twips =
-                    Self::parse_u32(Self::attribute(element, ATTR_LEFT)?)?;
+                page.margin_top_twips = Self::parse_u32(Self::attribute(element, ATTR_TOP)?)?;
+                page.margin_right_twips = Self::parse_u32(Self::attribute(element, ATTR_RIGHT)?)?;
+                page.margin_bottom_twips = Self::parse_u32(Self::attribute(element, ATTR_BOTTOM)?)?;
+                page.margin_left_twips = Self::parse_u32(Self::attribute(element, ATTR_LEFT)?)?;
             }
             _ => {}
         }
@@ -411,18 +389,15 @@ impl DocxXmlTool {
         buffer.clear();
     }
 
-    fn attribute(
-        element: &BytesStart<'_>,
-        key: &[u8],
-    ) -> Result<Option<String>, DocxXmlError> {
+    fn attribute(element: &BytesStart<'_>, key: &[u8]) -> Result<Option<String>, DocxXmlError> {
         for attribute in element.attributes() {
             let attribute = attribute.map_err(|_| DocxXmlError::InvalidAttribute)?;
             let name = attribute.key;
-            if Self::local_name(name.as_ref()) != key {
+            if Self::local_name(name.as_ref().as_bytes()) != key {
                 continue;
             }
-            let value = unescape(attribute.value.as_ref())
-                .map_err(|_| DocxXmlError::InvalidAttribute)?;
+            let value =
+                unescape(attribute.value.as_ref()).map_err(|_| DocxXmlError::InvalidAttribute)?;
             return Ok(Some(value.into_owned()));
         }
         Ok(None)

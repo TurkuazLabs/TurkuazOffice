@@ -260,17 +260,23 @@ impl<'a> FormulaParser<'a> {
         }
 
         let mut normalized = String::with_capacity(self.position - column_start);
-        for byte in self.source.as_bytes()[column_start..row_start].iter().copied() {
+        for byte in self.source.as_bytes()[column_start..row_start]
+            .iter()
+            .copied()
+        {
             if byte != b'$' {
                 normalized.push(char::from(byte.to_ascii_uppercase()));
             }
         }
-        for byte in self.source.as_bytes()[row_start..self.position].iter().copied() {
+        for byte in self.source.as_bytes()[row_start..self.position]
+            .iter()
+            .copied()
+        {
             normalized.push(char::from(byte));
         }
 
-        let address =
-            CellReferenceTool::parse(&normalized).map_err(|_| FormulaToolError::InvalidReference)?;
+        let address = CellReferenceTool::parse(&normalized)
+            .map_err(|_| FormulaToolError::InvalidReference)?;
         Ok(FormulaExpression::Reference(address))
     }
 

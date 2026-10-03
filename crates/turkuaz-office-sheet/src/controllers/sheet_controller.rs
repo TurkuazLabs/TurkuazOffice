@@ -129,6 +129,7 @@ where
             .map(SheetRowQueryView::from)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn create_chart(
         &mut self,
         document_id: &str,

@@ -15,6 +15,7 @@ impl DocumentId {
         Self(value.into())
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -24,14 +25,17 @@ impl DocumentId {
 pub struct DocumentSchemaVersion(u32);
 
 impl DocumentSchemaVersion {
+    #[must_use]
     pub const fn new(value: u32) -> Self {
         Self(value)
     }
 
+    #[must_use]
     pub const fn current() -> Self {
         Self(CURRENT_DOCUMENT_SCHEMA_VERSION)
     }
 
+    #[must_use]
     pub const fn value(self) -> u32 {
         self.0
     }

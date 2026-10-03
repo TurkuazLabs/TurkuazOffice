@@ -10,7 +10,9 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::writer_document_repository::WriterDocumentRepository;
 use crate::services::writer_command::WriterCommand;
 use crate::services::writer_editor_service::{WriterEditorError, WriterEditorService};
-use crate::services::writer_template_service::{WriterTemplateError, WriterTemplateService, WriterTemplateSummary};
+use crate::services::writer_template_service::{
+    WriterTemplateError, WriterTemplateService, WriterTemplateSummary,
+};
 use crate::services::writer_types::WriterDocument;
 use crate::tools::writer_id_tool::WriterIdTool;
 use crate::views::writer_view::WriterDocumentView;

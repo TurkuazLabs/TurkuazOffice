@@ -37,8 +37,7 @@ impl SheetXlsxArchiveTool {
 
         let cursor = Cursor::new(Vec::new());
         let mut writer = ZipWriter::new(cursor);
-        let options =
-            SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
+        let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
         for (name, data) in entries {
             Self::validate_entry_name(name)?;
@@ -63,9 +62,7 @@ impl SheetXlsxArchiveTool {
         Ok(bytes)
     }
 
-    pub fn decode(
-        bytes: &[u8],
-    ) -> Result<HashMap<String, Vec<u8>>, SheetXlsxArchiveError> {
+    pub fn decode(bytes: &[u8]) -> Result<HashMap<String, Vec<u8>>, SheetXlsxArchiveError> {
         if bytes.len() as u64 > MAX_XLSX_PACKAGE_BYTES {
             return Err(SheetXlsxArchiveError::PackageTooLarge);
         }
@@ -82,8 +79,8 @@ impl SheetXlsxArchiveTool {
             let mut file = archive
                 .by_index(index)
                 .map_err(|_| SheetXlsxArchiveError::ReadFailed)?;
-            let raw_name = file.name().trim_end_matches('/');
-            Self::validate_entry_name(raw_name)?;
+            let raw_name = file.name().trim_end_matches('/').to_owned();
+            Self::validate_entry_name(&raw_name)?;
 
             if file.is_dir() {
                 continue;
@@ -109,7 +106,7 @@ impl SheetXlsxArchiveTool {
             if data.len() as u64 > MAX_XLSX_ENTRY_BYTES {
                 return Err(SheetXlsxArchiveError::EntryTooLarge);
             }
-            if entries.insert(raw_name.to_owned(), data).is_some() {
+            if entries.insert(raw_name, data).is_some() {
                 return Err(SheetXlsxArchiveError::DuplicateEntry);
             }
         }
@@ -120,8 +117,8 @@ impl SheetXlsxArchiveTool {
     fn validate_entry_name(name: &str) -> Result<(), SheetXlsxArchiveError> {
         if name.is_empty()
             || name.starts_with('/')
-            || name.starts_with('\')
-            || name.contains('\')
+            || name.starts_with('\\')
+            || name.contains('\\')
             || name
                 .split('/')
                 .any(|part| part.is_empty() || part == "." || part == "..")

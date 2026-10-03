@@ -7,16 +7,15 @@
 
 use std::collections::HashMap;
 
+use quick_xml::XmlVersion;
 use quick_xml::escape::{escape, resolve_predefined_entity, unescape};
 use quick_xml::events::{BytesStart, Event};
 use quick_xml::reader::Reader;
-use quick_xml::XmlVersion;
 
 use crate::config::sheet_constants::{
-    MAX_XLSX_XML_BYTES, MAX_XLSX_XML_DEPTH, MAX_XLSX_XML_NODES,
-    XLSX_CONTENT_TYPES_NAMESPACE, XLSX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE,
-    XLSX_OFFICE_RELATIONSHIPS_NAMESPACE, XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE,
-    XLSX_SPREADSHEET_NAMESPACE, XLSX_WORKBOOK_CONTENT_TYPE,
+    MAX_XLSX_XML_BYTES, MAX_XLSX_XML_DEPTH, MAX_XLSX_XML_NODES, XLSX_CONTENT_TYPES_NAMESPACE,
+    XLSX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE, XLSX_OFFICE_RELATIONSHIPS_NAMESPACE,
+    XLSX_PACKAGE_RELATIONSHIPS_NAMESPACE, XLSX_SPREADSHEET_NAMESPACE, XLSX_WORKBOOK_CONTENT_TYPE,
     XLSX_WORKSHEET_CONTENT_TYPE, XLSX_WORKSHEET_RELATIONSHIP_TYPE,
 };
 use crate::models::sheet_xlsx_model::{
@@ -32,7 +31,8 @@ const TAG_TEXT: &str = "t";
 const TAG_FORMULA: &str = "f";
 
 const ATTR_NAME: &str = "name";
-const ATTR_ID: &str = "id";
+const ATTR_SHEET_RELATIONSHIP_ID: &str = "id";
+const ATTR_PACKAGE_RELATIONSHIP_ID: &str = "Id";
 const ATTR_TARGET: &str = "Target";
 const ATTR_TYPE: &str = "Type";
 const ATTR_REFERENCE: &str = "r";
@@ -80,7 +80,10 @@ impl SheetXlsxXmlTool {
         let mut nodes = 0_usize;
 
         loop {
-            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+            match reader
+                .read_event()
+                .map_err(|_| SheetXlsxXmlError::InvalidXml)?
+            {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
@@ -112,7 +115,10 @@ impl SheetXlsxXmlTool {
         let mut valid = false;
 
         loop {
-            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+            match reader
+                .read_event()
+                .map_err(|_| SheetXlsxXmlError::InvalidXml)?
+            {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
@@ -147,7 +153,10 @@ impl SheetXlsxXmlTool {
         let mut nodes = 0_usize;
 
         loop {
-            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+            match reader
+                .read_event()
+                .map_err(|_| SheetXlsxXmlError::InvalidXml)?
+            {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
@@ -177,7 +186,10 @@ impl SheetXlsxXmlTool {
         let mut nodes = 0_usize;
 
         loop {
-            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+            match reader
+                .read_event()
+                .map_err(|_| SheetXlsxXmlError::InvalidXml)?
+            {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
@@ -236,7 +248,10 @@ impl SheetXlsxXmlTool {
         let mut nodes = 0_usize;
 
         loop {
-            match reader.read_event().map_err(|_| SheetXlsxXmlError::InvalidXml)? {
+            match reader
+                .read_event()
+                .map_err(|_| SheetXlsxXmlError::InvalidXml)?
+            {
                 Event::Start(start) => {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
@@ -276,13 +291,13 @@ impl SheetXlsxXmlTool {
                     match Self::local_name(end.name().as_ref()) {
                         TAG_VALUE | TAG_TEXT => target = TextTarget::None,
                         TAG_CELL => {
-                            if let Some(cell) = current.take() {
-                                if let Some(value) = Self::cell_value(&cell, shared_strings)? {
-                                    cells.push(XlsxCellModel {
-                                        reference: cell.reference,
-                                        value,
-                                    });
-                                }
+                            if let Some(cell) = current.take()
+                                && let Some(value) = Self::cell_value(&cell, shared_strings)?
+                            {
+                                cells.push(XlsxCellModel {
+                                    reference: cell.reference,
+                                    value,
+                                });
                             }
                             target = TextTarget::None;
                         }
@@ -407,11 +422,13 @@ impl SheetXlsxXmlTool {
         Ok(reader)
     }
 
-    fn sheet_descriptor(element: &BytesStart<'_>) -> Result<XlsxSheetDescriptor, SheetXlsxXmlError> {
+    fn sheet_descriptor(
+        element: &BytesStart<'_>,
+    ) -> Result<XlsxSheetDescriptor, SheetXlsxXmlError> {
         Ok(XlsxSheetDescriptor {
             name: Self::attribute(element, ATTR_NAME)?
                 .ok_or(SheetXlsxXmlError::MissingAttribute)?,
-            relationship_id: Self::attribute(element, ATTR_ID)?
+            relationship_id: Self::attribute(element, ATTR_SHEET_RELATIONSHIP_ID)?
                 .ok_or(SheetXlsxXmlError::MissingAttribute)?,
         })
     }
@@ -443,10 +460,10 @@ impl SheetXlsxXmlTool {
         if relation_type.as_deref() != Some(XLSX_WORKSHEET_RELATIONSHIP_TYPE) {
             return Ok(());
         }
-        let id = Self::attribute(element, ATTR_ID)?
+        let id = Self::attribute(element, ATTR_PACKAGE_RELATIONSHIP_ID)?
             .ok_or(SheetXlsxXmlError::MissingAttribute)?;
-        let target = Self::attribute(element, ATTR_TARGET)?
-            .ok_or(SheetXlsxXmlError::MissingAttribute)?;
+        let target =
+            Self::attribute(element, ATTR_TARGET)?.ok_or(SheetXlsxXmlError::MissingAttribute)?;
         relationships.insert(id, target);
         Ok(())
     }
@@ -521,10 +538,7 @@ impl SheetXlsxXmlTool {
         Err(SheetXlsxXmlError::InvalidXml)
     }
 
-    fn attribute(
-        element: &BytesStart<'_>,
-        key: &str,
-    ) -> Result<Option<String>, SheetXlsxXmlError> {
+    fn attribute(element: &BytesStart<'_>, key: &str) -> Result<Option<String>, SheetXlsxXmlError> {
         for attribute in element.attributes() {
             let attribute = attribute.map_err(|_| SheetXlsxXmlError::InvalidAttribute)?;
             if Self::local_name(attribute.key.as_ref()) != key {

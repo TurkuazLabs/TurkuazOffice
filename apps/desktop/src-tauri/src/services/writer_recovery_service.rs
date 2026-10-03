@@ -136,7 +136,7 @@ impl WriterRecoveryService {
 
     pub fn list_snapshots(&self) -> Result<Vec<RecoverySnapshot>, WriterRecoveryError> {
         let mut snapshots = self.read_snapshots()?;
-        snapshots.sort_by(|left, right| right.created_at_unix_ms.cmp(&left.created_at_unix_ms));
+        snapshots.sort_by_key(|snapshot| std::cmp::Reverse(snapshot.created_at_unix_ms));
         let now_ms = Self::now_unix_ms()?;
         let max_age_ms = RECOVERY_MAX_AGE_SECONDS.saturating_mul(1_000);
         let mut document_counts = std::collections::HashMap::<String, usize>::new();

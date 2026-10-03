@@ -132,10 +132,9 @@ impl WriterFileSessionService {
             .current
             .as_ref()
             .filter(|item| item.document_id == document_id)
+            && session.read_only
         {
-            if session.read_only {
-                return Err(WriterFileSessionError::FileLocked);
-            }
+            return Err(WriterFileSessionError::FileLocked);
         }
         Ok(())
     }
@@ -190,15 +189,14 @@ impl WriterFileSessionService {
         prepared: PreparedFileSave,
     ) -> Result<(), WriterFileSessionError> {
         let fingerprint = Some(Self::fingerprint(&prepared.target_path)?);
-        if prepared.same_path {
-            if let Some(session) = self
+        if prepared.same_path
+            && let Some(session) = self
                 .current
                 .as_mut()
                 .filter(|item| item.document_id == document_id)
-            {
-                session.fingerprint = fingerprint;
-                return Ok(());
-            }
+        {
+            session.fingerprint = fingerprint;
+            return Ok(());
         }
 
         let lease = prepared.new_lease;

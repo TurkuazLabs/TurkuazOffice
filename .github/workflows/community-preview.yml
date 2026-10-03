@@ -1,0 +1,132 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/community-preview.yml
+# 📌 Amac: Community Writer Preview icin Windows NSIS ve Linux DEB/AppImage paketlerini gercek CI runner'larinda uretir
+# 📌 Modul - FileType: Config - YAML
+# Version: 0.3.2
+# Aciklama: Pull request ve manuel calistirmalarda imzasiz preview bundle, SHA-256 checksum ve GitHub Actions artifactlari uretir
+# Bagimli Oldugu Katman: CI | Distribution
+
+name: community-preview
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/community-preview.yml"
+      - "apps/desktop/**"
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-preview:
+    name: Windows NSIS preview
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Install Frontend Dependencies
+        working-directory: apps/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Build Windows NSIS
+        working-directory: apps/desktop
+        run: npm run tauri:build:windows
+
+      - name: Create Windows Checksums
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path "target/release/bundle/nsis" -Filter "*.exe"
+          if (-not $files) {
+            throw "Windows NSIS artifact was not produced."
+          }
+          $lines = foreach ($file in $files) {
+            $hash = (Get-FileHash -Algorithm SHA256 -Path $file.FullName).Hash.ToLowerInvariant()
+            "$hash  $($file.Name)"
+          }
+          $lines | Set-Content -Path "target/release/bundle/nsis/SHA256SUMS.txt"
+
+      - name: Upload Windows Preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: turkuaz-office-community-windows-preview
+          path: |
+            target/release/bundle/nsis/*.exe
+            target/release/bundle/nsis/SHA256SUMS.txt
+          if-no-files-found: error
+
+  linux-preview:
+    name: Linux DEB AppImage preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Tauri Linux Prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y             libwebkit2gtk-4.1-dev             build-essential             curl             wget             file             libxdo-dev             libssl-dev             libayatana-appindicator3-dev             librsvg2-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Install Frontend Dependencies
+        working-directory: apps/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Build Linux Bundles
+        working-directory: apps/desktop
+        run: npm run tauri:build:linux
+
+      - name: Create Linux Checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd target/release/bundle
+          shopt -s nullglob
+          files=(
+            deb/*.deb
+            appimage/*.AppImage
+          )
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "Linux bundle artifacts were not produced." >&2
+            exit 1
+          fi
+          sha256sum "${files[@]}" > SHA256SUMS.txt
+
+      - name: Upload Linux Preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: turkuaz-office-community-linux-preview
+          path: |
+            target/release/bundle/deb/*.deb
+            target/release/bundle/appimage/*.AppImage
+            target/release/bundle/SHA256SUMS.txt
+          if-no-files-found: error

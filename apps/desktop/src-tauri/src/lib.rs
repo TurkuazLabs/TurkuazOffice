@@ -11,14 +11,13 @@ use controllers::writer_desktop_controller::{
     writer_acknowledge_external_change, writer_apply_character_style,
     writer_apply_paragraph_alignment, writer_clear_document_recovery,
     writer_compare_recovery_snapshot, writer_create_document, writer_create_document_from_template,
-    writer_create_recovery_snapshot,
-    writer_discard_recovery_snapshot, writer_export_docx, writer_export_pdf, writer_get_asset,
-    writer_get_file_session,
-    writer_import_docx, writer_insert_image_data, writer_list_recent_files, writer_list_templates,
-    writer_list_recovery_snapshots, writer_record_recent_file, writer_take_startup_file,
-    writer_merge_with_previous, writer_open_document, writer_redo, writer_reload_from_disk,
-    writer_replace_paragraph_text, writer_replace_range_with_styled_runs,
-    writer_restore_recovery_snapshot, writer_save_document, writer_split_paragraph, writer_undo,
+    writer_create_recovery_snapshot, writer_discard_recovery_snapshot, writer_export_docx,
+    writer_export_pdf, writer_get_asset, writer_get_file_session, writer_import_docx,
+    writer_insert_image_data, writer_list_recent_files, writer_list_recovery_snapshots,
+    writer_list_templates, writer_merge_with_previous, writer_open_document,
+    writer_record_recent_file, writer_redo, writer_reload_from_disk, writer_replace_paragraph_text,
+    writer_replace_range_with_styled_runs, writer_restore_recovery_snapshot, writer_save_document,
+    writer_split_paragraph, writer_take_startup_file, writer_undo,
 };
 use services::writer_desktop_service::WriterDesktopService;
 

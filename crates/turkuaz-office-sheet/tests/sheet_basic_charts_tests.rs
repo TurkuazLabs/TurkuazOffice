@@ -6,8 +6,8 @@
 // Bagimli Oldugu Katman: Controller -> Service -> Repo -> Tool -> View
 
 use turkuaz_office_sheet::{
-    CellValue, ChartType, ChartTypeView, InMemorySheetDocumentRepository,
-    SequentialSheetIdTool, SheetController, SheetError, SheetService,
+    CellValue, ChartType, ChartTypeView, InMemorySheetDocumentRepository, SequentialSheetIdTool,
+    SheetController, SheetError, SheetService,
 };
 
 fn service() -> SheetService<InMemorySheetDocumentRepository, SequentialSheetIdTool> {
@@ -107,16 +107,7 @@ fn chart_validation_rejects_invalid_title_range_and_types() {
     let worksheet_id = document.worksheets[0].id.clone();
 
     assert_eq!(
-        service.create_chart(
-            &document.id,
-            &worksheet_id,
-            ChartType::Pie,
-            " ",
-            0,
-            1,
-            0,
-            1,
-        ),
+        service.create_chart(&document.id, &worksheet_id, ChartType::Pie, " ", 0, 1, 0, 1,),
         Err(SheetError::InvalidChartTitle)
     );
 
@@ -135,12 +126,7 @@ fn chart_validation_rejects_invalid_title_range_and_types() {
     );
 
     let document = service
-        .set_cell_by_a1(
-            &document.id,
-            &worksheet_id,
-            "A1",
-            CellValue::Number(1.0),
-        )
+        .set_cell_by_a1(&document.id, &worksheet_id, "A1", CellValue::Number(1.0))
         .expect("category");
     let document = service
         .set_cell_by_a1(
@@ -185,12 +171,7 @@ fn controller_exposes_chart_definition_and_data_view() {
         )
         .expect("category");
     let document = controller
-        .set_cell_a1(
-            &document.id,
-            &worksheet_id,
-            "B1",
-            CellValue::Number(42.0),
-        )
+        .set_cell_a1(&document.id, &worksheet_id, "B1", CellValue::Number(42.0))
         .expect("value");
     let document = controller
         .create_chart(

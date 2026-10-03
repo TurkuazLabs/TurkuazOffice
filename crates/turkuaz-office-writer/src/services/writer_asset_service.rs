@@ -53,10 +53,7 @@ impl WriterAssetService {
         Ok(format!("{TKO_ASSET_DATA_PREFIX}{id}.bin"))
     }
 
-    pub fn validate_image_payload(
-        media_type: &str,
-        data: &[u8],
-    ) -> Result<(), WriterAssetError> {
+    pub fn validate_image_payload(media_type: &str, data: &[u8]) -> Result<(), WriterAssetError> {
         if data.is_empty() {
             return Err(WriterAssetError::EmptyData);
         }

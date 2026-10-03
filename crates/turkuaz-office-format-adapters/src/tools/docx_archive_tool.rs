@@ -37,8 +37,7 @@ impl DocxArchiveTool {
 
         let cursor = Cursor::new(Vec::new());
         let mut writer = ZipWriter::new(cursor);
-        let options =
-            SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
+        let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
         for (name, data) in entries {
             Self::validate_entry_name(name)?;
@@ -53,9 +52,7 @@ impl DocxArchiveTool {
                 .map_err(|_| DocxArchiveError::WriteFailed)?;
         }
 
-        let cursor = writer
-            .finish()
-            .map_err(|_| DocxArchiveError::WriteFailed)?;
+        let cursor = writer.finish().map_err(|_| DocxArchiveError::WriteFailed)?;
         let bytes = cursor.into_inner();
         if bytes.len() as u64 > MAX_DOCX_PACKAGE_BYTES {
             return Err(DocxArchiveError::PackageTooLarge);
@@ -69,8 +66,7 @@ impl DocxArchiveTool {
         }
 
         let cursor = Cursor::new(bytes);
-        let mut archive =
-            ZipArchive::new(cursor).map_err(|_| DocxArchiveError::ReadFailed)?;
+        let mut archive = ZipArchive::new(cursor).map_err(|_| DocxArchiveError::ReadFailed)?;
         if archive.len() > MAX_DOCX_ARCHIVE_ENTRIES {
             return Err(DocxArchiveError::TooManyEntries);
         }
@@ -81,8 +77,8 @@ impl DocxArchiveTool {
             let mut file = archive
                 .by_index(index)
                 .map_err(|_| DocxArchiveError::ReadFailed)?;
-            let raw_name = file.name().trim_end_matches('/');
-            Self::validate_entry_name(raw_name)?;
+            let raw_name = file.name().trim_end_matches('/').to_owned();
+            Self::validate_entry_name(&raw_name)?;
 
             if file.is_dir() {
                 continue;
@@ -108,7 +104,7 @@ impl DocxArchiveTool {
             if data.len() as u64 > MAX_DOCX_ENTRY_BYTES {
                 return Err(DocxArchiveError::EntryTooLarge);
             }
-            if entries.insert(raw_name.to_owned(), data).is_some() {
+            if entries.insert(raw_name, data).is_some() {
                 return Err(DocxArchiveError::DuplicateEntry);
             }
         }

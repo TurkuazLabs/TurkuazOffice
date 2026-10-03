@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/05-roadmap/roadmap.md
 # 📌 Amac: Turkuaz Office milestone sirasini ve roadmap deviation yasagini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Foundation Hardening sonrasi Desktop Writer ve takip eden platform milestone sirasini sabitler
 
 Bagimli Oldugu Katman: Documentation
@@ -34,7 +34,7 @@ Durum: Foundation Hardening tamamlandi.
 
 ## M1 - Desktop Writer v0.2.0
 
-Durum: Feature kapsaminda tamamlandi; compiler-backed final validation pending. Headless Writer Domain, Desktop Shell, rich-text/IME, typography/ribbon, local Open/Save, autosave/recovery, external-change protection, font/layout, Clipboard Minimum, Print Preview + Print Minimum, DOCX Minimum, PDF Export Minimum, Recent Files, File Associations Minimum, Template Foundation, Turkish + English UI ve Keyboard-Only Smoke implementation alt fazlari tamamlandi. Compiler-backed son M1 validationlari GitHub hosted runner tahsis sorunu nedeniyle pending tutuluyor.
+Durum: Feature kapsami tamamlandi. v0.3.1 Community Preview hardening ile compiler-backed Windows/Linux CI ve gercek desktop bundle dogrulamasi yeniden acilmistir.
 
 ### Tamamlanan M1 parcasi
 
@@ -94,11 +94,11 @@ Durum: Feature kapsaminda tamamlandi; compiler-backed final validation pending. 
 
 M1 feature kapsaminda planlanan alt fazlar tamamlandi.
 
-Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compiler-backed final validation pending tutulur. Bu altyapi durumu M1 source kapsamindan ayri izlenir.
+v0.3.1 Community Preview release gate; frontend build/test, Rust check/fmt/clippy/test ve Windows/Linux bundle artifactlari ile kapanir.
 
 ## M2 - Sheet v0.3.0
 
-Durum: Feature kapsaminda tamamlandi; compiler-backed final validation pending. Cell Model, CSV/XLSX, Basic Formula Engine, Format/Filter/Sort, Basic Charts ve 100000-cell benchmark profile tamamlandi. Hosted runner steps=null sorunu nedeniyle compiler-backed final validation pending tutuluyor.
+Durum: Engine feature kapsami tamamlandi. v0.3.1 Community Preview hardening bu engine'i compiler-backed CI ile dogrular; Sheet desktop UI entegrasyonu ayri sonraki fazdir.
 
 ### Tamamlanan M2 parcasi
 
@@ -136,7 +136,22 @@ Durum: Feature kapsaminda tamamlandi; compiler-backed final validation pending. 
 
 M2 feature kapsaminda planlanan alt fazlar tamamlandi.
 
-Hosted GitHub runner job'lari steps=null ile checkout oncesi dustugu icin compiler-backed final validation pending tutulur. Bu altyapi durumu M2 source kapsamindan ayri izlenir.
+M2 engine CI ile dogrulanir. Sheet'in desktop kullanici yuzeyi Community Preview 0.3.1 kapsaminda aktif degildir.
+
+## R1 - Community Preview Hardening v0.3.1
+
+- Stable GitHub Actions action surumleri.
+- Frontend build + unit test.
+- Rust workspace check/fmt/clippy.
+- Windows + Linux workspace test.
+- Windows NSIS gercek bundle.
+- Linux DEB + AppImage gercek bundle.
+- SHA-256 artifact checksum.
+- Writer desktop preview release gate.
+- Sheet engine compiler validation.
+- Sheet desktop UI durumu explicit olarak not-ready.
+
+Bu release-hardening fazi yeni urun ozelligi degil; mevcut Community kapsamini indir-kur-test edilebilir preview haline getirir.
 
 ## M3 - Web v0.4.0
 

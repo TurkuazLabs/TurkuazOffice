@@ -10,8 +10,6 @@ use crate::services::sheet_types::{
     SheetDocument, Worksheet,
 };
 
-
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ChartTypeView {
     Bar,
@@ -95,8 +93,6 @@ pub struct SheetDocumentView {
     pub worksheets: Vec<WorksheetView>,
     pub charts: Vec<SheetChartView>,
 }
-
-
 
 impl From<ChartType> for ChartTypeView {
     fn from(value: ChartType) -> Self {

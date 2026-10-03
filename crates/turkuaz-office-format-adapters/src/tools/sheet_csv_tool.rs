@@ -73,16 +73,14 @@ impl SheetCsvTool {
                     ended_row = false;
                     Self::validate_columns(&row)?;
                 }
-                '
-' => {
+                '\n' => {
                     row.push(std::mem::take(&mut field));
                     field_started = false;
                     Self::push_row(&mut rows, &mut row)?;
                     ended_row = true;
                 }
-                '' => {
-                    if chars.peek() == Some(&'
-') {
+                '\r' => {
+                    if chars.peek() == Some(&'\n') {
                         chars.next();
                     }
                     row.push(std::mem::take(&mut field));
@@ -117,6 +115,11 @@ impl SheetCsvTool {
 
         let mut ordered = fields.iter().collect::<Vec<_>>();
         ordered.sort_by_key(|field| (field.row, field.column));
+        let max_column = ordered
+            .iter()
+            .map(|field| field.column)
+            .max()
+            .ok_or(SheetCsvToolError::InvalidCsv)?;
 
         let mut output = String::new();
         let mut current_row = 0_usize;
@@ -135,6 +138,12 @@ impl SheetCsvTool {
             }
 
             while current_row < field.row {
+                if let Some(previous) = last_column {
+                    for _ in previous..max_column {
+                        output.push(',');
+                        Self::validate_output_size(&output)?;
+                    }
+                }
                 output.push_str("\r\n");
                 Self::validate_output_size(&output)?;
                 current_row += 1;
@@ -159,6 +168,13 @@ impl SheetCsvTool {
             last_address = Some((field.row, field.column));
         }
 
+        if let Some(previous) = last_column {
+            for _ in previous..max_column {
+                output.push(',');
+                Self::validate_output_size(&output)?;
+            }
+        }
+
         Ok(output.into_bytes())
     }
 
@@ -171,8 +187,7 @@ impl SheetCsvTool {
         for (row_index, row) in rows.iter().enumerate() {
             Self::validate_columns(row)?;
             if row_index > 0 {
-                output.push_str("
-");
+                output.push('\n');
             }
             for (column_index, value) in row.iter().enumerate() {
                 if column_index > 0 {
@@ -220,9 +235,8 @@ impl SheetCsvTool {
     fn write_field(output: &mut String, value: &str) {
         let requires_quotes = value.contains(',')
             || value.contains('"')
-            || value.contains('')
-            || value.contains('
-');
+            || value.contains('\r')
+            || value.contains('\n');
         if !requires_quotes {
             output.push_str(value);
             return;

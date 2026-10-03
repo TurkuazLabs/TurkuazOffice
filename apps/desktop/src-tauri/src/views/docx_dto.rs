@@ -6,9 +6,7 @@
 // Bagimli Oldugu Katman: View
 
 use serde::Serialize;
-use turkuaz_office_format_adapters::{
-    DocxCompatibilityReport, DocxUnsupportedFeature,
-};
+use turkuaz_office_format_adapters::{DocxCompatibilityReport, DocxUnsupportedFeature};
 
 use crate::views::writer_dto::WriterDocumentDto;
 

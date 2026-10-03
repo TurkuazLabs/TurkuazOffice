@@ -81,19 +81,34 @@ fn filter_and_sort_query_is_formula_aware_and_does_not_mutate_document() {
     let worksheet_id = document.worksheets[0].id.clone();
 
     let document = service
-        .set_cell_by_a1(&document.id, &worksheet_id, "A1", CellValue::Text("Alpha".to_owned()))
+        .set_cell_by_a1(
+            &document.id,
+            &worksheet_id,
+            "A1",
+            CellValue::Text("Alpha".to_owned()),
+        )
         .expect("A1");
     let document = service
         .set_cell_by_a1(&document.id, &worksheet_id, "B1", CellValue::Number(30.0))
         .expect("B1");
     let document = service
-        .set_cell_by_a1(&document.id, &worksheet_id, "A2", CellValue::Text("Beta".to_owned()))
+        .set_cell_by_a1(
+            &document.id,
+            &worksheet_id,
+            "A2",
+            CellValue::Text("Beta".to_owned()),
+        )
         .expect("A2");
     let document = service
         .set_cell_by_a1(&document.id, &worksheet_id, "B2", CellValue::Number(10.0))
         .expect("B2");
     let document = service
-        .set_cell_by_a1(&document.id, &worksheet_id, "A3", CellValue::Text("Gamma".to_owned()))
+        .set_cell_by_a1(
+            &document.id,
+            &worksheet_id,
+            "A3",
+            CellValue::Text("Gamma".to_owned()),
+        )
         .expect("A3");
     let document = service
         .set_formula_by_a1(&document.id, &worksheet_id, "B3", "=B2+10")
@@ -123,7 +138,10 @@ fn filter_and_sort_query_is_formula_aware_and_does_not_mutate_document() {
 
     assert_eq!(rows, vec![2, 0]);
     assert_eq!(
-        service.get_document(&document.id).expect("document").revision,
+        service
+            .get_document(&document.id)
+            .expect("document")
+            .revision,
         revision_before_query
     );
 }

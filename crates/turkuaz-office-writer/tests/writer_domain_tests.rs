@@ -77,7 +77,7 @@ fn insert_text_uses_unicode_scalar_offset_and_undo_redo_is_monotonic() {
             &document.id,
             WriterCommand::InsertText {
                 position: TextPosition {
-                    offset: 7,
+                    offset: 8,
                     ..position
                 },
                 text: "Turkuaz ".to_owned(),
