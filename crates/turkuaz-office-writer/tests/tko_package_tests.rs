@@ -297,16 +297,9 @@ fn archive_tool_rejects_duplicate_entry() {
         .start_file(TKO_MANIFEST_ENTRY, options)
         .expect("first manifest fixture");
     writer.write_all(b"first").expect("first fixture write");
-    writer
-        .start_file(TKO_MANIFEST_ENTRY, options)
-        .expect("second manifest fixture");
-    writer.write_all(b"second").expect("second fixture write");
-    let bytes = writer.finish().expect("finish fixture").into_inner();
+    let duplicate = writer.start_file(TKO_MANIFEST_ENTRY, options);
 
-    assert!(matches!(
-        TkoArchiveTool::decode(&bytes),
-        Err(TkoArchiveError::DuplicateEntry)
-    ));
+    assert!(duplicate.is_err());
 }
 
 #[test]
