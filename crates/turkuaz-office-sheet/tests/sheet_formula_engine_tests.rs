@@ -41,12 +41,11 @@ fn formula_tool_accepts_precedence_parentheses_and_absolute_references() {
 #[test]
 fn formula_tool_rejects_excessive_nesting_and_operator_count() {
     let nesting = MAX_FORMULA_PARSE_DEPTH + 1;
-    let nested = format!(
-        "={}1{}",
-        "(".repeat(nesting),
-        ")".repeat(nesting)
+    let nested = format!("={}1{}", "(".repeat(nesting), ")".repeat(nesting));
+    assert_eq!(
+        FormulaTool::parse(&nested),
+        Err(FormulaToolError::TooComplex)
     );
-    assert_eq!(FormulaTool::parse(&nested), Err(FormulaToolError::TooComplex));
 
     let mut operation_heavy = "=1".to_owned();
     for _ in 0..=MAX_FORMULA_OPERATIONS {

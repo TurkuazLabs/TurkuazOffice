@@ -23,7 +23,9 @@ pub use services::writer_asset_service::{WriterAssetError, WriterAssetService};
 pub use services::writer_command::{WriterCommand, WriterCommandError};
 pub use services::writer_editor_service::{WriterEditorError, WriterEditorService};
 pub use services::writer_selection_service::{SelectionError, WriterSelectionService};
-pub use services::writer_template_service::{WriterTemplateError, WriterTemplateService, WriterTemplateSummary};
+pub use services::writer_template_service::{
+    WriterTemplateError, WriterTemplateService, WriterTemplateSummary,
+};
 pub use services::writer_types::{
     Block, CharacterStyle, CharacterStylePatch, ImageBlock, NodeId, PageSettings, Paragraph,
     ParagraphStyle, ParagraphStylePatch, Section, Selection, StyledTextRun, Table, TableCell,
@@ -32,6 +34,5 @@ pub use services::writer_types::{
 pub use tools::tko_archive_tool::TkoArchiveError;
 pub use tools::writer_id_tool::{SequentialWriterIdTool, WriterIdTool};
 pub use views::writer_view::{
-    WriterDocumentView, WriterImageView, WriterPageSettingsView, WriterParagraphView,
-    WriterRunView,
+    WriterDocumentView, WriterImageView, WriterPageSettingsView, WriterParagraphView, WriterRunView,
 };

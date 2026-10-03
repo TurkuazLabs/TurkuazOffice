@@ -62,10 +62,7 @@ fn a1_reference_tool_parses_and_formats_grid_boundaries() {
 
 #[test]
 fn a1_reference_tool_rejects_invalid_or_out_of_bounds_values() {
-    assert_eq!(
-        CellReferenceTool::parse(""),
-        Err(CellReferenceError::Empty)
-    );
+    assert_eq!(CellReferenceTool::parse(""), Err(CellReferenceError::Empty));
     assert_eq!(
         CellReferenceTool::parse("A0"),
         Err(CellReferenceError::InvalidFormat)
@@ -144,7 +141,10 @@ fn cell_validation_rejects_oversized_text_non_finite_number_and_grid_overflow() 
         service.set_cell(
             &document.id,
             &worksheet_id,
-            CellAddress { row: MAX_SHEET_ROWS, column: 0 },
+            CellAddress {
+                row: MAX_SHEET_ROWS,
+                column: 0
+            },
             CellValue::Boolean(true),
         ),
         Err(SheetError::CellOutOfBounds)
@@ -179,12 +179,7 @@ fn controller_returns_deterministic_sparse_cell_view() {
     let worksheet_id = document.worksheets[0].id.clone();
 
     let document = controller
-        .set_cell_a1(
-            &document.id,
-            &worksheet_id,
-            "C3",
-            CellValue::Number(42.5),
-        )
+        .set_cell_a1(&document.id, &worksheet_id, "C3", CellValue::Number(42.5))
         .expect("controller set");
     assert_eq!(document.revision, 1);
     assert_eq!(document.worksheets[0].cell_count, 1);
