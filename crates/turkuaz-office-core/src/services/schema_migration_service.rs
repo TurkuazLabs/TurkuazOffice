@@ -22,6 +22,13 @@ pub enum SchemaMigrationError {
 pub struct SchemaMigrationService;
 
 impl SchemaMigrationService {
+    /// Ensures that a document uses the current canonical schema version.
+    ///
+    /// # Errors
+    ///
+    /// Returns `SchemaMigrationError::FutureVersion` when the document was created
+    /// with a newer schema, or `SchemaMigrationError::UnsupportedOlderVersion` when
+    /// an older schema has no supported migration path yet.
     pub fn ensure_current(document: Document) -> Result<Document, SchemaMigrationError> {
         let document_version = document.schema_version.value();
         let current_version = DocumentSchemaVersion::current().value();
