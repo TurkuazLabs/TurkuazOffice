@@ -169,8 +169,10 @@ impl SheetCsvTool {
         for (row_index, row) in rows.iter().enumerate() {
             Self::validate_columns(row)?;
             if row_index > 0 {
-                output.push_str("
-");
+                output.push_str(
+                    "
+",
+                );
             }
             for (column_index, value) in row.iter().enumerate() {
                 if column_index > 0 {

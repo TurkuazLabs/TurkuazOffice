@@ -709,7 +709,6 @@ impl WriterCommandService {
         Ok(())
     }
 
-
     fn insert_image_data<I>(
         document: &mut WriterDocument,
         after_paragraph_id: &crate::services::writer_types::NodeId,

@@ -348,14 +348,10 @@ fn tko_round_trip_preserves_binary_image_asset() {
 
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize asset TKO");
     let entries = TkoArchiveTool::decode(&bytes).expect("decode asset archive");
-    assert!(entries.contains_key(
-        turkuaz_office_writer::config::constants::TKO_ASSET_INDEX_ENTRY
-    ));
-    assert!(entries
-        .keys()
-        .any(|name| name.starts_with(
-            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
-        )));
+    assert!(entries.contains_key(turkuaz_office_writer::config::constants::TKO_ASSET_INDEX_ENTRY));
+    assert!(entries.keys().any(|name| {
+        name.starts_with(turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX)
+    }));
 
     let restored = TkoPackageService::deserialize(&bytes).expect("deserialize asset TKO");
     assert_eq!(restored, document);
@@ -386,9 +382,9 @@ fn tko_asset_index_missing_binary_entry_is_rejected() {
     let mut entries = TkoArchiveTool::decode(&bytes).expect("decode");
     let asset_entry = entries
         .keys()
-        .find(|name| name.starts_with(
-            turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX
-        ))
+        .find(|name| {
+            name.starts_with(turkuaz_office_writer::config::constants::TKO_ASSET_DATA_PREFIX)
+        })
         .cloned()
         .expect("asset entry");
     entries.remove(&asset_entry);

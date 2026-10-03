@@ -174,11 +174,7 @@ where
         Ok(document)
     }
 
-    fn rekey_block(
-        id_tool: &I,
-        asset_ids: &HashMap<String, String>,
-        block: &mut Block,
-    ) {
+    fn rekey_block(id_tool: &I, asset_ids: &HashMap<String, String>, block: &mut Block) {
         match block {
             Block::Paragraph(paragraph) => Self::rekey_paragraph(id_tool, paragraph),
             Block::Table(table) => {
