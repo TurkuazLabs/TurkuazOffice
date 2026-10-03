@@ -1,14 +1,24 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/tr.ts
 // # 📌 Amac: Turkuaz Office Desktop Turkce UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.2.0
-// # Aciklama: Writer ribbon, typography ve paragraph komutlari icin ASCII Turkce label kaynagidir
+// # Version: 0.4.0
+// # Aciklama: Writer ve Sheet modul, ribbon, grid ve status alanlari icin ASCII Turkce label kaynagidir
 // Bagimli Oldugu Katman: Language
 
 import type { DesktopLabelKey } from "./labels";
 
 export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
+  moduleSwitcherLabel: "Uygulama modulu",
+  writerModule: "Writer",
+  sheetModule: "Sheet",
+  sheetToolbarLabel: "Sheet arac cubugu",
+  sheetGridLabel: "Sheet tablo alani",
+  sheetNewDocument: "Yeni Sheet",
+  sheetReady: "Sheet hazir",
+  sheetLoading: "Sheet yukleniyor",
+  sheetError: "Sheet islemi tamamlanamadi",
+  sheetCells: "Hucre",
   newDocument: "Yeni Belge",
   undo: "Geri Al",
   redo: "Yinele",
