@@ -115,6 +115,11 @@ impl SheetCsvTool {
 
         let mut ordered = fields.iter().collect::<Vec<_>>();
         ordered.sort_by_key(|field| (field.row, field.column));
+        let max_column = ordered
+            .iter()
+            .map(|field| field.column)
+            .max()
+            .ok_or(SheetCsvToolError::InvalidCsv)?;
 
         let mut output = String::new();
         let mut current_row = 0_usize;
@@ -133,6 +138,12 @@ impl SheetCsvTool {
             }
 
             while current_row < field.row {
+                if let Some(previous) = last_column {
+                    for _ in previous..max_column {
+                        output.push(',');
+                        Self::validate_output_size(&output)?;
+                    }
+                }
                 output.push_str("\r\n");
                 Self::validate_output_size(&output)?;
                 current_row += 1;
@@ -155,6 +166,13 @@ impl SheetCsvTool {
             Self::validate_output_size(&output)?;
             last_column = Some(field.column);
             last_address = Some((field.row, field.column));
+        }
+
+        if let Some(previous) = last_column {
+            for _ in previous..max_column {
+                output.push(',');
+                Self::validate_output_size(&output)?;
+            }
         }
 
         Ok(output.into_bytes())
