@@ -31,7 +31,8 @@ const TAG_TEXT: &str = "t";
 const TAG_FORMULA: &str = "f";
 
 const ATTR_NAME: &str = "name";
-const ATTR_ID: &str = "id";
+const ATTR_SHEET_RELATIONSHIP_ID: &str = "id";
+const ATTR_PACKAGE_RELATIONSHIP_ID: &str = "Id";
 const ATTR_TARGET: &str = "Target";
 const ATTR_TYPE: &str = "Type";
 const ATTR_REFERENCE: &str = "r";
@@ -427,7 +428,7 @@ impl SheetXlsxXmlTool {
         Ok(XlsxSheetDescriptor {
             name: Self::attribute(element, ATTR_NAME)?
                 .ok_or(SheetXlsxXmlError::MissingAttribute)?,
-            relationship_id: Self::attribute(element, ATTR_ID)?
+            relationship_id: Self::attribute(element, ATTR_SHEET_RELATIONSHIP_ID)?
                 .ok_or(SheetXlsxXmlError::MissingAttribute)?,
         })
     }
@@ -459,7 +460,8 @@ impl SheetXlsxXmlTool {
         if relation_type.as_deref() != Some(XLSX_WORKSHEET_RELATIONSHIP_TYPE) {
             return Ok(());
         }
-        let id = Self::attribute(element, ATTR_ID)?.ok_or(SheetXlsxXmlError::MissingAttribute)?;
+        let id = Self::attribute(element, ATTR_PACKAGE_RELATIONSHIP_ID)?
+            .ok_or(SheetXlsxXmlError::MissingAttribute)?;
         let target =
             Self::attribute(element, ATTR_TARGET)?.ok_or(SheetXlsxXmlError::MissingAttribute)?;
         relationships.insert(id, target);
