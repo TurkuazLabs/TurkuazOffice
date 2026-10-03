@@ -74,7 +74,10 @@ fn writer_desktop_exposes_startup_file_as_one_shot_state() {
         .to_string_lossy()
         .into_owned();
 
-    assert_eq!(service.take_startup_file().as_deref(), Some(expected.as_str()));
+    assert_eq!(
+        service.take_startup_file().as_deref(),
+        Some(expected.as_str())
+    );
     assert_eq!(service.take_startup_file(), None);
 
     let _ = fs::remove_dir_all(root);

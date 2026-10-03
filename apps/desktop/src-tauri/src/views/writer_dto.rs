@@ -7,9 +7,8 @@
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_writer::{
-    CharacterStyle, ParagraphStyle, StyledTextRun, TextAlignment, WriterAsset,
-    WriterDocumentView, WriterImageView, WriterPageSettingsView, WriterParagraphView,
-    WriterRunView,
+    CharacterStyle, ParagraphStyle, StyledTextRun, TextAlignment, WriterAsset, WriterDocumentView,
+    WriterImageView, WriterPageSettingsView, WriterParagraphView, WriterRunView,
 };
 
 #[derive(Clone, Debug, Serialize)]
@@ -255,11 +254,7 @@ impl From<WriterDocumentView> for WriterDocumentDto {
                 .into_iter()
                 .map(WriterParagraphDto::from)
                 .collect(),
-            images: view
-                .images
-                .into_iter()
-                .map(WriterImageDto::from)
-                .collect(),
+            images: view.images.into_iter().map(WriterImageDto::from).collect(),
         }
     }
 }

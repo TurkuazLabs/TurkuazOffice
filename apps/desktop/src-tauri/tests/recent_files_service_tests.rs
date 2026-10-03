@@ -70,9 +70,7 @@ fn recent_files_are_canonical_deduplicated_limited_and_pruned() {
         format!("document-{}", RECENT_FILES_MAX_ENTRIES)
     );
 
-    let removed = paths
-        .get(RECENT_FILES_MAX_ENTRIES)
-        .expect("removed path");
+    let removed = paths.get(RECENT_FILES_MAX_ENTRIES).expect("removed path");
     fs::remove_file(removed).expect("remove");
     let list = service.list().expect("pruned list");
     assert!(

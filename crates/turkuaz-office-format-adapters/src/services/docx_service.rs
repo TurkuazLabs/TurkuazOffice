@@ -21,8 +21,8 @@ use crate::config::constants::{
     DOCX_OFFICE_DOCUMENT_RELATIONSHIP_TYPE, DOCX_ROOT_RELATIONSHIPS_ENTRY,
 };
 use crate::models::docx_model::{
-    DocxAlignment, DocxDocumentModel, DocxImportResult, DocxPageSettingsModel,
-    DocxParagraphModel, DocxRunModel,
+    DocxAlignment, DocxDocumentModel, DocxImportResult, DocxPageSettingsModel, DocxParagraphModel,
+    DocxRunModel,
 };
 use crate::tools::docx_archive_tool::{DocxArchiveError, DocxArchiveTool};
 use crate::tools::docx_xml_tool::{DocxXmlError, DocxXmlTool};
@@ -244,9 +244,7 @@ impl DocxService {
         PageSettings {
             width_twips: source.width_twips.unwrap_or(default.width_twips),
             height_twips: source.height_twips.unwrap_or(default.height_twips),
-            margin_top_twips: source
-                .margin_top_twips
-                .unwrap_or(default.margin_top_twips),
+            margin_top_twips: source.margin_top_twips.unwrap_or(default.margin_top_twips),
             margin_right_twips: source
                 .margin_right_twips
                 .unwrap_or(default.margin_right_twips),
