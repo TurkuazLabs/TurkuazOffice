@@ -1,14 +1,24 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.2.0
-// Aciklama: Writer ribbon, file/recovery, template, print, typography and status labels for en-US
+// Version: 0.4.0
+// Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
 import type { DesktopLabelKey } from "./labels";
 
 export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
+  moduleSwitcherLabel: "Application module",
+  writerModule: "Writer",
+  sheetModule: "Sheet",
+  sheetToolbarLabel: "Sheet toolbar",
+  sheetGridLabel: "Sheet grid",
+  sheetNewDocument: "New Sheet",
+  sheetReady: "Sheet ready",
+  sheetLoading: "Sheet loading",
+  sheetError: "Sheet operation failed",
+  sheetCells: "Cells",
   newDocument: "New Document",
   open: "Open",
   undo: "Undo",

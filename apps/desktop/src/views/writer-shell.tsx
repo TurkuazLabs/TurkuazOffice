@@ -1,13 +1,14 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Writer ana pencere kompozisyonunu render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.2.0
-// # Aciklama: Ribbon, local file shortcut, rich-text page, loading/error ve statusbar View'larini birlestirir
+// # Version: 0.4.0
+// # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
 import { Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
 import { WRITER_PARAGRAPH_MARKER_VALUE } from "../config/dom-contract";
+import { OFFICE_MODULES, type OfficeModule } from "../config/office-modules";
 import { WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
 import { WRITER_AUTOSAVE_INTERVAL_MS, WRITER_EXTERNAL_CHANGE_POLL_MS } from "../config/runtime-config";
 import type { WriterController } from "../controllers/writer.controller";
@@ -19,12 +20,14 @@ import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banne
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
+import { OfficeModuleSwitcher } from "./office-module-switcher";
 import { WriterRibbon } from "./writer-ribbon";
 
 interface WriterShellProps {
   readonly controller: WriterController;
   readonly repository: WriterSessionRepository;
   readonly language: LanguageService;
+  readonly onSelectModule: (module: OfficeModule) => void;
 }
 
 export function WriterShell(props: WriterShellProps) {
@@ -145,7 +148,14 @@ export function WriterShell(props: WriterShellProps) {
     <div class="office-shell">
       <header class="office-titlebar">
         <strong>{props.language.text("appName")}</strong>
-        <span>{props.repository.filePath() ?? props.language.text("untitledDocument")}</span>
+        <span class="office-titlebar__document">
+          {props.repository.filePath() ?? props.language.text("untitledDocument")}
+        </span>
+        <OfficeModuleSwitcher
+          activeModule={OFFICE_MODULES.writer}
+          language={props.language}
+          onSelectModule={props.onSelectModule}
+        />
       </header>
       <div class="office-command-area">
         <Show when={props.repository.document() !== null || props.repository.recoveryCandidates().length === 0}>

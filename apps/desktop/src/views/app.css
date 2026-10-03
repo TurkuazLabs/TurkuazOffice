@@ -1,9 +1,9 @@
 /*
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
-# 📌 Amac: Turkuaz Office Desktop Writer shell, ribbon, page ve statusbar stillerini tanimlar
+# 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.2.0
-# Aciklama: UI tokenlariyla typography ve paragraph commandlarini tasiyan iki katmanli ribbon yuzeyi olusturur
+# Version: 0.4.0
+# Aciklama: UI tokenlariyla Writer ribbon ve Sheet grid yuzeylerini ortak desktop gorunumunde tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
 
@@ -29,7 +29,8 @@ body {
 }
 
 button,
-select {
+select,
+input {
   font: inherit;
 }
 
@@ -643,4 +644,158 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+
+.office-titlebar__document {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.office-module-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-toolbar);
+}
+
+.office-module-switcher__button {
+  min-width: 62px;
+  height: 26px;
+  padding: 0 var(--to-space-2);
+  border: 0;
+  border-radius: var(--to-radius-sm);
+  background: transparent;
+  color: var(--to-text-secondary);
+  cursor: pointer;
+}
+
+.office-module-switcher__button:hover,
+.office-module-switcher__button:focus-visible {
+  background: var(--to-bg-toolbar-hover);
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.office-module-switcher__button:focus-visible {
+  box-shadow: 0 0 0 2px var(--to-border-focus);
+}
+
+.office-module-switcher__button--active {
+  background: var(--to-accent);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.sheet-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--to-space-3);
+  min-height: 48px;
+  padding: var(--to-space-2) var(--to-space-3);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.sheet-workspace {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--to-bg-app);
+}
+
+.sheet-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: max-content;
+  background: var(--to-bg-surface);
+  table-layout: fixed;
+}
+
+.sheet-grid__corner,
+.sheet-grid__column-header,
+.sheet-grid__row-header {
+  position: sticky;
+  z-index: 2;
+  border-right: 1px solid var(--to-border-soft);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.sheet-grid__corner {
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 44px;
+  min-width: 44px;
+}
+
+.sheet-grid__column-header {
+  top: 0;
+  width: 120px;
+  min-width: 120px;
+  height: 28px;
+}
+
+.sheet-grid__row-header {
+  left: 0;
+  z-index: 3;
+  width: 44px;
+  min-width: 44px;
+  height: 30px;
+}
+
+.sheet-grid__cell {
+  width: 120px;
+  min-width: 120px;
+  height: 30px;
+  padding: 0;
+  border-right: 1px solid var(--to-border-soft);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+}
+
+.sheet-grid__input {
+  display: block;
+  width: 100%;
+  height: 29px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.sheet-grid__input:focus {
+  position: relative;
+  z-index: 1;
+  box-shadow: inset 0 0 0 2px var(--to-accent);
+}
+
+.sheet-statusbar {
+  display: flex;
+  align-items: center;
+  gap: var(--to-space-4);
+  min-width: 0;
+  padding: 0 var(--to-space-3);
+  border-top: 1px solid var(--to-border-soft);
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.sheet-statusbar__spacer {
+  flex: 1;
 }

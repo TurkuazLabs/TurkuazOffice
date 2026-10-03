@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/config/constants.rs
 // # 📌 Amac: Desktop Rust shell error code ve state sabitlerini merkezi tutar
 // # 📌 Modul - FileType: Config - Rust
-// # Version: 0.2.0
-// # Aciklama: Controller, storage, recovery ve Service katmanlarinda magic string kullanilmasini engeller
+// # Version: 0.4.0
+// # Aciklama: Writer, Sheet, storage, recovery ve Service katmanlarinda magic string kullanilmasini engeller
 // Bagimli Oldugu Katman: Config
 
 pub const ERROR_STATE_LOCK: &str = "desktop.state_lock";
@@ -31,6 +31,28 @@ pub const ERROR_PDF_UNSUPPORTED: &str = "writer.pdf_unsupported";
 pub const ERROR_RECENT_FILES_READ_FAILED: &str = "writer.recent_files_read_failed";
 pub const ERROR_RECENT_FILES_WRITE_FAILED: &str = "writer.recent_files_write_failed";
 pub const ERROR_RECENT_FILES_INVALID: &str = "writer.recent_files_invalid";
+
+pub const ERROR_SHEET_DOCUMENT_NOT_FOUND: &str = "sheet.document_not_found";
+pub const ERROR_SHEET_WORKSHEET_NOT_FOUND: &str = "sheet.worksheet_not_found";
+pub const ERROR_SHEET_INVALID_CELL_REFERENCE: &str = "sheet.invalid_cell_reference";
+pub const ERROR_SHEET_CELL_TEXT_TOO_LONG: &str = "sheet.cell_text_too_long";
+pub const ERROR_SHEET_CELL_NUMBER_NOT_FINITE: &str = "sheet.cell_number_not_finite";
+pub const ERROR_SHEET_INVALID_FORMULA: &str = "sheet.invalid_formula";
+pub const ERROR_SHEET_FORMULA_CYCLE: &str = "sheet.formula_cycle";
+pub const ERROR_SHEET_FORMULA_DEPTH_EXCEEDED: &str = "sheet.formula_depth_exceeded";
+pub const ERROR_SHEET_FORMULA_DIVISION_BY_ZERO: &str = "sheet.formula_division_by_zero";
+pub const ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE: &str = "sheet.formula_non_numeric_reference";
+pub const ERROR_SHEET_FORMULA_RESULT_NOT_FINITE: &str = "sheet.formula_result_not_finite";
+pub const ERROR_SHEET_INVALID_CELL_FORMAT: &str = "sheet.invalid_cell_format";
+pub const ERROR_SHEET_INVALID_RANGE: &str = "sheet.invalid_range";
+pub const ERROR_SHEET_QUERY_TOO_LARGE: &str = "sheet.query_too_large";
+pub const ERROR_SHEET_INVALID_FILTER: &str = "sheet.invalid_filter";
+pub const ERROR_SHEET_CHART_NOT_FOUND: &str = "sheet.chart_not_found";
+pub const ERROR_SHEET_INVALID_CHART_TITLE: &str = "sheet.invalid_chart_title";
+pub const ERROR_SHEET_INVALID_CHART_RANGE: &str = "sheet.invalid_chart_range";
+pub const ERROR_SHEET_CHART_TOO_MANY_POINTS: &str = "sheet.chart_too_many_points";
+pub const ERROR_SHEET_CHART_CATEGORY_NOT_TEXT: &str = "sheet.chart_category_not_text";
+pub const ERROR_SHEET_CHART_VALUE_NOT_NUMERIC: &str = "sheet.chart_value_not_numeric";
 
 pub const ERROR_FILE_LOCKED: &str = "writer.file_locked";
 pub const ERROR_EXTERNAL_CHANGE_CONFLICT: &str = "writer.external_change_conflict";

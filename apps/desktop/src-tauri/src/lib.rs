@@ -1,12 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/lib.rs
 // # 📌 Amac: Turkuaz Office Desktop Tauri runtime composition rootunu kurar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.2.0
-// # Aciklama: Writer state, IPC controller ve Tauri Builder kaydini merkezi baslatir
+// # Version: 0.4.0
+// # Aciklama: Writer ve Sheet state, IPC controller ve Tauri Builder kaydini merkezi baslatir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
 
+use controllers::sheet_desktop_controller::{
+    sheet_clear_cell, sheet_create_document, sheet_get_document, sheet_set_boolean,
+    sheet_set_formula, sheet_set_number, sheet_set_text,
+};
 use controllers::writer_desktop_controller::{
     writer_acknowledge_external_change, writer_apply_character_style,
     writer_apply_paragraph_alignment, writer_clear_document_recovery,
@@ -19,6 +23,7 @@ use controllers::writer_desktop_controller::{
     writer_replace_range_with_styled_runs, writer_restore_recovery_snapshot, writer_save_document,
     writer_split_paragraph, writer_take_startup_file, writer_undo,
 };
+use services::sheet_desktop_service::SheetDesktopService;
 use services::writer_desktop_service::WriterDesktopService;
 
 pub mod config;
@@ -33,7 +38,15 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(Mutex::new(WriterDesktopService::new()))
+        .manage(Mutex::new(SheetDesktopService::new()))
         .invoke_handler(tauri::generate_handler![
+            sheet_create_document,
+            sheet_get_document,
+            sheet_set_text,
+            sheet_set_number,
+            sheet_set_boolean,
+            sheet_set_formula,
+            sheet_clear_cell,
             writer_take_startup_file,
             writer_list_recent_files,
             writer_record_recent_file,

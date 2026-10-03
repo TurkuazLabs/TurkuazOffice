@@ -4,7 +4,7 @@
     "# 📌 Amac: Desktop SolidJS ve Tauri frontend bagimliliklarini ve scriptlerini tanimlar",
     "# 📌 Modul - FileType: Desktop - JSON",
     "# Version: 0.3.1",
-    "# Aciklama: SolidJS, TypeScript, Vite, Vitest ve Tauri CLI build/test kontratini sabitler",
+    "# Aciklama: SolidJS, TypeScript, Vite, Vitest ve Tauri CLI Writer/Sheet build-test kontratini sabitler",
     "# Bagimli Oldugu Katman: Config"
   ],
   "name": "turkuaz-office-desktop",
