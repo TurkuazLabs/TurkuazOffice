@@ -15,4 +15,5 @@ export const WEB_TR = {
   nativeFileSystem: "Native dosya sistemi",
   enabled: "Aktif",
   disabled: "Kapali",
+  wasmBootstrapError: "Rust Web Core yuklenemedi.",
 } as const;
