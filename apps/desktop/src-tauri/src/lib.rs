@@ -8,8 +8,9 @@
 use std::sync::Mutex;
 
 use controllers::sheet_desktop_controller::{
-    sheet_clear_cell, sheet_create_document, sheet_get_document, sheet_get_evaluated_cell,
-    sheet_set_boolean, sheet_set_formula, sheet_set_number, sheet_set_text,
+    sheet_clear_cell, sheet_create_document, sheet_get_cell_format, sheet_get_document,
+    sheet_get_evaluated_cell, sheet_set_boolean, sheet_set_cell_format, sheet_set_formula,
+    sheet_set_number, sheet_set_text,
 };
 use controllers::writer_desktop_controller::{
     writer_acknowledge_external_change, writer_apply_character_style,
@@ -42,6 +43,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             sheet_create_document,
             sheet_get_document,
+            sheet_get_cell_format,
+            sheet_set_cell_format,
             sheet_get_evaluated_cell,
             sheet_set_text,
             sheet_set_number,
