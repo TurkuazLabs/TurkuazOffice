@@ -78,7 +78,9 @@ web_client:
   framework: solidjs
   language: typescript
   build_tool: vite
-  storage_adapter: browser_storage
+  metadata_index_adapter: local_storage
+  document_storage_adapter: indexed_db_planned
+  canonical_document_payload_in_local_storage: false
   native_file_system_access: false
   core_bridge: tool_boundary
   wasm_core: planned
