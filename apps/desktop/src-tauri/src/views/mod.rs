@@ -5,6 +5,7 @@
 // # Aciklama: Writer, Sheet, recovery ve error DTO erisim noktasidir
 // Bagimli Oldugu Katman: View
 
+pub mod desktop_launch_dto;
 pub mod docx_dto;
 pub mod error_dto;
 pub mod file_session_dto;
