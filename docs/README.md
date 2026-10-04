@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.3.1
-# Aciklama: Product, architecture, development, operations, roadmap, ADR, quality ve R2 Sheet Desktop dokumanlarini indeksler
+# Aciklama: Product, architecture, development, operations, roadmap, ADR, quality, R2 Sheet Desktop ve M3 Web dokumanlarini indeksler
 
 Bagimli Oldugu Katman: Documentation
 
