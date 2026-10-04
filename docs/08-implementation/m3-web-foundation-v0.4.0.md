@@ -2,7 +2,7 @@
 # 📌 Amac: M3 Web v0.4.0 ilk foundation diliminin kapsam, mimari sinir ve dogrulama kurallarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.1.0
-# Aciklama: Browser shell, local-first storage, Core Tool boundary ve CI gate baseline'ini dokumante eder
+# Aciklama: Browser shell, metadata index, Core Tool boundary ve CI gate baseline'ini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
 
@@ -21,7 +21,7 @@ View -> Controller -> Service -> Repo/Tool -> Core boundary
 - View storage veya native API kullanmaz.
 - Controller yalnizca Service cagirir.
 - Service bootstrap ve ileride belge session is kurallarini yonetir.
-- Repository browser persistence adapteridir.
+- Repository bu dilimde yalniz browser document metadata index adapteridir.
 - Tool Rust/WASM veya API core erisim siniridir.
 - Language gorunur metinleri merkezi olarak tasir.
 - Native filesystem web istemcisinin kontrati degildir.
@@ -30,10 +30,11 @@ View -> Controller -> Service -> Repo/Tool -> Core boundary
 
 - SolidJS + TypeScript + Vite web application shell.
 - Merkezi runtime config.
-- Typed WebDocumentSnapshot ve WebBootstrapViewModel.
-- Browser Storage tabanli Repository.
+- Typed WebDocumentIndexEntry ve WebBootstrapViewModel.
+- localStorage tabanli metadata/index Repository.
+- Index yalniz `id`, `title` ve `revision` saklar; canonical document payload saklamaz.
 - Deterministic replace/list/remove davranisi.
-- Corrupt storage girdisinde fail-safe davranis.
+- Corrupt metadata girdisinde fail-safe davranis.
 - Typed Core capability Tool boundary.
 - Thin WebController ve WebBootstrapService.
 - Turkce Language paketi.
@@ -46,6 +47,7 @@ View -> Controller -> Service -> Repo/Tool -> Core boundary
 Bu ilk dilimde asagidakiler tamamlanmis sayilmaz:
 
 - Rust Core'un gercek WASM export/binding katmani.
+- IndexedDB tabanli canonical document persistence adapteri.
 - TKO/DOCX/XLSX browser import-export.
 - Service Worker veya Cache Storage offline cache.
 - Writer editor web yuzeyi.
@@ -54,4 +56,4 @@ Bu ilk dilimde asagidakiler tamamlanmis sayilmaz:
 
 ## Sonraki dilim
 
-Siradaki M3 adimi gercek Rust WASM-compatible core slice ve onun Tool adapteridir. Browser storage canonical domain modeli yerine gecmez; yalniz platform persistence adapteri olarak kalir.
+Siradaki M3 adimi gercek Rust WASM-compatible core slice ve onun Tool adapteridir. localStorage yalniz metadata indexidir; canonical document payload persistence'i mevcut storage mimarisine uygun olarak IndexedDB adapter diliminde ele alinir.
