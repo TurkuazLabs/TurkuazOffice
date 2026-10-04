@@ -2,7 +2,7 @@
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Platform, schema, guvenlik, kalite ve aktif Sheet Desktop preview kararlarini tek merkezi proje konfigurasyonunda toplar
+# Aciklama: Platform, schema, guvenlik, kalite, Sheet Desktop ve M3 Web foundation kararlarini merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
 project:
@@ -70,6 +70,22 @@ desktop_ui:
   build_tool: vite
   canonical_state_in_frontend: false
   ipc_thin_bridge_required: true
+
+web_client:
+  active: true
+  milestone: m3_foundation
+  target_version: 0.4.0
+  framework: solidjs
+  language: typescript
+  build_tool: vite
+  metadata_index_adapter: local_storage
+  document_storage_adapter: indexed_db_planned
+  canonical_document_payload_in_local_storage: false
+  native_file_system_access: false
+  core_bridge: tool_boundary
+  wasm_core: planned
+  import_export: planned
+  offline_cache: planned
 
 writer_input:
   surface: contenteditable

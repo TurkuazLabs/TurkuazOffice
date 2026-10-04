@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.3.1
-# Aciklama: Product, architecture, development, operations, roadmap, ADR, quality ve R2 Sheet Desktop dokumanlarini indeksler
+# Aciklama: Product, architecture, development, operations, roadmap, ADR, quality, R2 Sheet Desktop ve M3 Web dokumanlarini indeksler
 
 Bagimli Oldugu Katman: Documentation
 
@@ -151,6 +151,7 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m2-sheet-100k-benchmark-v0.3.0.md`
 - `08-implementation/m2-sheet-100k-benchmark-validation.md`
 - `08-implementation/r2-sheet-desktop-integration.md`
+- `08-implementation/m3-web-foundation-v0.4.0.md`
 
 ## Kural
 
@@ -244,3 +245,10 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/sheet-cell-model-test-matrix.md`
 - `07-quality/sheet-formula-engine-test-matrix.md`
 - `07-quality/sheet-format-filter-sort-test-matrix.md`
+
+
+## M3 Web ekleri
+
+- `06-adr/0003-web-compatible-core.md`
+- `02-architecture/platform-strategy.md`
+- `08-implementation/m3-web-foundation-v0.4.0.md`

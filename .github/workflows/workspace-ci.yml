@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Sheet/Desktop ve SolidJS frontend kalite kontrollerini Windows ve Linux uzerinde calistirir
+# 📌 Amac: Rust Core/Writer/Sheet, Desktop ve M3 Web frontend kalite kontrollerini Windows ve Linux uzerinde calistirir
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Stable GitHub Actions surumleriyle frontend build/test, project contract, Rust check/format/clippy ve iki platformlu workspace testlerini dogrular
+# Aciklama: Desktop ve Web build/test, project contract, Rust check/format/clippy ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -44,6 +44,31 @@ jobs:
         run: npm run build
 
       - name: Frontend Unit Tests
+        run: npm test
+
+  web-quality:
+    name: Web quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Web Dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck And Build
+        run: npm run build
+
+      - name: Web Unit Tests
         run: npm test
 
   rust-quality:

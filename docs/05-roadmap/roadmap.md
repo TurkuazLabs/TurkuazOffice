@@ -188,11 +188,23 @@ Bu kapsam disi maddeler sessizce R2'ye eklenmez. Yeni Sheet urun ozelligi gereki
 
 ## M3 - Web v0.4.0
 
-- Browser client.
-- WASM-compatible core slice.
-- Browser storage.
-- Import/export.
+Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
+
+### Tamamlanan ilk foundation parcasi
+
+- SolidJS + TypeScript + Vite browser client shell.
+- Controller -> Service -> Repo/Tool -> View -> Language web katman iskeleti.
+- Browser Storage tabanli local-first Repository baseline'i.
+- Typed Core Tool boundary.
+- Native filesystem erisiminin web kontrati disinda tutulmasi.
+- Web frontend build/test CI gate'i.
+
+### M3 kalan kapsam
+
+- Gercek WASM-compatible Rust Core slice.
+- Browser import/export.
 - Offline cache boundary.
+- Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
 
 ## M4 - Cloud/API v0.5.0
 

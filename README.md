@@ -59,7 +59,7 @@ Foundation Hardening ve tamamlanan Writer M1 kontratlari kod ile temsil edilir:
 - Font fallback render katmaninda cozulur; requested font family canonical belgede korunur.
 - Windows/Linux icin Arial/Calibri/Times New Roman/Georgia/Verdana/Courier New fallback profilleri merkezi configte tutulur.
 
-Desktop + Writer M1 feature kapsami tamamlanmistir. M2 Sheet engine ve R2 Sheet Desktop integration baseline'i tamamlanmistir; roadmap sirasi geregi siradaki urun milestone'u M3 Web v0.4.0'dir.
+Desktop + Writer M1 feature kapsami tamamlanmistir. M2 Sheet engine ve R2 Sheet Desktop integration baseline'i tamamlanmistir. M3 Web v0.4.0 gelistirmesi browser foundation dilimiyle baslamistir.
 
 ## Sheet M2 v0.3.0 durumu
 
@@ -121,7 +121,7 @@ R1 sonrasinda tamamlanan R2 ile mevcut `main` dalinda Sheet desktop UI aktiftir:
 TurkuazOffice/
 |-- apps/
 |   |-- desktop/        # Tauri 2 + SolidJS aktif Writer + Sheet shell
-|   |-- web/
+|   |-- web/            # SolidJS M3 browser foundation
 |   `-- mobile/
 |-- services/
 |   |-- api/
@@ -163,3 +163,15 @@ npm run tauri:dev
 ```
 
 Frontend canonical document state tutmaz; Rust Writer Domain tek dogruluk kaynagidir.
+
+
+## Web Foundation kontrolu
+
+```powershell
+cd E:\\Projects\\TurkuazOffice\\apps\\web
+npm install --no-audit --no-fund
+npm run build
+npm test
+```
+
+Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Web document payload persistence'i IndexedDB adapteri icin planlidir. Core erisimi Tool siniri arkasindadir.

@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/02-architecture/storage.md
 # 📌 Amac: Local ve cloud storage abstraction stratejisini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.2.1
 # Aciklama: Local safe-replace implementation ile cloud/browser storage abstraction stratejisini tanimlar
 
 Bagimli Oldugu Katman: Documentation
@@ -15,7 +15,8 @@ Core hicbir zaman `C:\\` veya `/home` varsayimi yapmaz. Belge storage bir Reposi
 ## Adaptor durumu
 
 - Desktop `LocalFileTool` + `WriterStorageService`: M1 aktif.
-- BrowserIndexedDbRepository: planli.
+- BrowserDocumentIndexRepository: M3 foundation'da localStorage metadata indexi olarak aktif; canonical document payload saklamaz.
+- BrowserIndexedDbRepository: canonical Web document persistence icin planli.
 - MobileAppStorageRepository: planli.
 - CloudDocumentRepository: planli.
 
