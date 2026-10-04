@@ -136,7 +136,7 @@ describe("SheetSessionService", () => {
   it("ignores a row-query response after the query is cleared", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    let resolveQuery: ((value: { rows: number[] }) => void) | null = null;
+    let resolveQuery!: (value: { rows: number[] }) => void;
     const sheetTool = toolWithCalls([]);
     sheetTool.queryRows = async () =>
       new Promise<{ rows: number[] }>((resolve) => {
@@ -147,7 +147,7 @@ describe("SheetSessionService", () => {
     await service.selectCell("A1", 0, 0);
     const pending = service.applyRowQuery("nonEmpty", "", "ascending");
     service.clearRowQuery();
-    resolveQuery?.({ rows: [4, 2, 0] });
+    resolveQuery({ rows: [4, 2, 0] });
     await pending;
 
     expect(repository.rowQuery()).toBeNull();
@@ -251,7 +251,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    let resolveMutation: ((value: SheetDocumentView) => void) | null = null;
+    let resolveMutation!: (value: SheetDocumentView) => void;
     const sheetTool = toolWithCalls(calls);
     sheetTool.setText = async () =>
       new Promise<SheetDocumentView>((resolve) => {
@@ -264,7 +264,7 @@ describe("SheetSessionService", () => {
     const pending = service.commitCell("A1", "5");
     await Promise.resolve();
     await service.selectCell("B1", 0, 1);
-    resolveMutation?.(DOCUMENT);
+    resolveMutation(DOCUMENT);
     await pending;
 
     expect(calls.filter((call) => call === "evaluate:B1")).toHaveLength(2);
@@ -275,7 +275,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    let resolveFormat: ((value: SheetDocumentView) => void) | null = null;
+    let resolveFormat!: (value: SheetDocumentView) => void;
     const sheetTool = toolWithCalls(calls);
     sheetTool.setCellFormat = async () =>
       new Promise<SheetDocumentView>((resolve) => {
@@ -287,7 +287,7 @@ describe("SheetSessionService", () => {
     const pending = service.toggleBold();
     await Promise.resolve();
     await service.selectCell("B1", 0, 1);
-    resolveFormat?.(DOCUMENT);
+    resolveFormat(DOCUMENT);
     await pending;
 
     expect(repository.selection()?.reference).toBe("B1");
