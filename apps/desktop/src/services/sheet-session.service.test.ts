@@ -253,7 +253,7 @@ describe("SheetSessionService", () => {
     repository.setDocument(DOCUMENT);
     let resolveMutation!: (value: SheetDocumentView) => void;
     const sheetTool = toolWithCalls(calls);
-    sheetTool.setText = async () =>
+    sheetTool.setNumber = async () =>
       new Promise<SheetDocumentView>((resolve) => {
         resolveMutation = resolve;
       });
