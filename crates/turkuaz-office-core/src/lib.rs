@@ -19,8 +19,8 @@ pub use services::document_service::DocumentService;
 pub use services::document_types::{Document, DocumentId, DocumentSchemaVersion};
 pub use services::schema_migration_service::{SchemaMigrationError, SchemaMigrationService};
 pub use services::web_core_service::{
-    WebCoreService, web_core_abi_version, web_core_bridge_kind,
-    web_core_document_schema_version, web_core_native_file_system_access,
+    WebCoreService, web_core_abi_version, web_core_bridge_kind, web_core_document_schema_version,
+    web_core_native_file_system_access,
 };
 pub use views::document_view::DocumentView;
 pub use views::web_core_view::WebCoreCapabilitiesView;
