@@ -16,28 +16,32 @@ import "./views/app.css";
 import { SheetShell } from "./views/sheet-shell";
 import { WriterShell } from "./views/writer-shell";
 
-const root = document.getElementById("app");
-if (root === null) {
-  throw new Error(ERROR_CODES.appRootMissing);
+async function bootstrapDesktopSuite(): Promise<void> {
+  const root = document.getElementById("app");
+  if (root === null) {
+    throw new Error(ERROR_CODES.appRootMissing);
+  }
+
+  const launchTool = new DesktopLaunchTool();
+  const activeModule = await launchTool.getModule();
+
+  render(
+    () =>
+      activeModule === OFFICE_MODULES.sheet ? (
+        <SheetShell
+          controller={APP_CONTAINER.sheetController}
+          repository={APP_CONTAINER.sheetSessionRepository}
+          language={APP_CONTAINER.languageService}
+        />
+      ) : (
+        <WriterShell
+          controller={APP_CONTAINER.writerController}
+          repository={APP_CONTAINER.writerSessionRepository}
+          language={APP_CONTAINER.languageService}
+        />
+      ),
+    root,
+  );
 }
 
-const launchTool = new DesktopLaunchTool();
-const activeModule = await launchTool.getModule();
-
-render(
-  () =>
-    activeModule === OFFICE_MODULES.sheet ? (
-      <SheetShell
-        controller={APP_CONTAINER.sheetController}
-        repository={APP_CONTAINER.sheetSessionRepository}
-        language={APP_CONTAINER.languageService}
-      />
-    ) : (
-      <WriterShell
-        controller={APP_CONTAINER.writerController}
-        repository={APP_CONTAINER.writerSessionRepository}
-        language={APP_CONTAINER.languageService}
-      />
-    ),
-  root,
-);
+void bootstrapDesktopSuite();
