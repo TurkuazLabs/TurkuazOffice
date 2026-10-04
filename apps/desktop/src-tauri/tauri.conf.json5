@@ -42,12 +42,6 @@
         installerHooks: "./windows/hooks.nsh",
       },
     },
-    windows: {
-      nsis: {
-        startMenuFolder: "Turkuaz Office",
-        installerHooks: "./windows/hooks.nsh",
-      },
-    },
     fileAssociations: [
       {
         ext: ["tko"],
