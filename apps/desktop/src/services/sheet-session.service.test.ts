@@ -1,13 +1,14 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.4.0
-// Aciklama: Zero-based koordinat, format cache, filter-sort validation, decimal-format ve typed mutation davranislarini dogrular
+// Version: 0.4.1
+// Aciklama: Dirty-state, discard onayi, stale query korumasi, format cache, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
 
 import { ERROR_CODES } from "../config/error-codes";
+import { LanguageService } from "../language/language-service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type { SheetCellFormatView, SheetDocumentView } from "../views/sheet-types";
@@ -88,15 +89,69 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
   } as TauriSheetTool;
 }
 
+function createService(
+  repository: SheetSessionRepository,
+  sheetTool: TauriSheetTool,
+  confirmDiscard: () => Promise<boolean> = async () => true,
+): SheetSessionService {
+  return new SheetSessionService(
+    repository,
+    sheetTool,
+    { confirmDiscard: async () => confirmDiscard() },
+    new LanguageService(),
+  );
+}
+
 describe("SheetSessionService", () => {
   it("creates the first document during initialization", async () => {
     const repository = new SheetSessionRepository();
-    const service = new SheetSessionService(repository, toolWithCalls([]));
+    const service = createService(repository, toolWithCalls([]));
 
     await service.initializeSession();
 
     expect(repository.document()?.id).toBe(DOCUMENT.id);
     expect(repository.status()).toBe("ready");
+  });
+
+  it("keeps a dirty Sheet when new document discard is cancelled", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument({ ...DOCUMENT, revision: 3 });
+    repository.markDirty();
+    let createCalls = 0;
+    const sheetTool = toolWithCalls([]);
+    sheetTool.createDocument = async () => {
+      createCalls += 1;
+      return { ...DOCUMENT, id: "sheet-document-2" };
+    };
+    const service = createService(repository, sheetTool, async () => false);
+
+    const created = await service.createDocument();
+
+    expect(created).toBe(false);
+    expect(createCalls).toBe(0);
+    expect(repository.document()?.id).toBe(DOCUMENT.id);
+    expect(repository.dirty()).toBe(true);
+  });
+
+  it("ignores a row-query response after the query is cleared", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    let resolveQuery: ((value: { rows: number[] }) => void) | null = null;
+    const sheetTool = toolWithCalls([]);
+    sheetTool.queryRows = async () =>
+      new Promise<{ rows: number[] }>((resolve) => {
+        resolveQuery = resolve;
+      });
+    const service = createService(repository, sheetTool);
+
+    await service.selectCell("A1", 0, 0);
+    const pending = service.applyRowQuery("nonEmpty", "", "ascending");
+    service.clearRowQuery();
+    resolveQuery?.({ rows: [4, 2, 0] });
+    await pending;
+
+    expect(repository.rowQuery()).toBeNull();
+    expect(repository.rowQueryErrorCode()).toBeNull();
   });
 
   it("loads raw formula and evaluated value for the selected cell", async () => {
@@ -118,7 +173,7 @@ describe("SheetSessionService", () => {
         },
       ],
     });
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
 
     await service.selectCell("C1", 0, 2);
 
@@ -144,7 +199,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
 
     await service.selectCell("A1", 0, 0);
     calls.length = 0;
@@ -171,7 +226,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
 
     await service.selectCell("A1", 0, 0);
     await service.toggleBold();
@@ -196,7 +251,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
 
     await service.selectCell("B1", 0, 1);
     calls.length = 0;
@@ -216,7 +271,7 @@ describe("SheetSessionService", () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
 
     await service.selectCell("B1", 0, 1);
     calls.length = 0;
@@ -231,7 +286,7 @@ describe("SheetSessionService", () => {
   it("routes typed cell inputs without moving parsing into the View", async () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
-    const service = new SheetSessionService(repository, toolWithCalls(calls));
+    const service = createService(repository, toolWithCalls(calls));
     await service.initializeSession();
 
     await service.commitCell("A1", "");
@@ -247,5 +302,6 @@ describe("SheetSessionService", () => {
       "number:12.5",
       "text:  metin  ",
     ]);
+    expect(repository.dirty()).toBe(true);
   });
 });
