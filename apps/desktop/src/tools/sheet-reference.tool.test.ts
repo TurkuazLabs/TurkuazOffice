@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet A1 referans uretimini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Tek ve cok harfli kolon etiketleri ile satir birlesimini deterministic dogrular
+// Aciklama: One-based UI koordinat -> zero-based domain adresi ve A1 referans donusumlerini dogrular
 // Bagimli Oldugu Katman: Tool
 
 import { describe, expect, it } from "vitest";
@@ -10,6 +10,13 @@ import { describe, expect, it } from "vitest";
 import { SheetReferenceTool } from "./sheet-reference.tool";
 
 describe("SheetReferenceTool", () => {
+  it("maps one-based grid coordinates to zero-based domain addresses", () => {
+    const tool = new SheetReferenceTool();
+
+    expect(tool.domainAddress(1, 1)).toEqual({ row: 0, column: 0 });
+    expect(tool.domainAddress(12, 27)).toEqual({ row: 11, column: 26 });
+  });
+
   it("builds A1 references across column boundaries", () => {
     const tool = new SheetReferenceTool();
 
