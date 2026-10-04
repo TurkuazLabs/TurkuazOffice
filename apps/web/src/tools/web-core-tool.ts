@@ -2,7 +2,7 @@
 // # 📌 Amac: Browser UI ile gelecekteki Rust WASM core arasindaki Tool sinirini tanimlar
 // # 📌 Modul - FileType: Tool - TypeScript
 // # Version: 0.4.0
-// # Aciklama: Native API bagimliligi olmadan typed core capability handshake baseline'i saglar
+// # Aciklama: Native API bagimliligi olmadan typed core ve metadata-storage capability handshake baseline'i saglar
 // Bagimli Oldugu Katman: Tool
 
 import {
@@ -20,7 +20,7 @@ export class BrowserCoreContractTool implements WebCoreTool {
     return {
       bridgeKind: WEB_CORE_BRIDGE_KIND,
       schemaVersion: WEB_CORE_SCHEMA_VERSION,
-      browserStorage: true,
+      browserMetadataStorage: true,
       nativeFileSystemAccess: false,
     };
   }
