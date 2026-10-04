@@ -4,7 +4,7 @@
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
 // Version: 0.4.1
-// Aciklama: Format/selection refresh sonrasinda kullanicinin commit edilmemis grid veya formula input degerinin ezilmedigini regression testiyle sabitler
+// Aciklama: Aktif draft korumasi ve yeni Sheet query-control reset davranislarini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
 import { render } from "solid-js/web";
@@ -79,6 +79,34 @@ afterEach(() => {
 });
 
 describe("SheetShell active drafts", () => {
+  it("resets local query controls when a new Sheet is created", () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const root = mount(repository);
+
+    const filter = root.querySelector<HTMLSelectElement>('select[aria-label="Filter"]');
+    const sort = root.querySelector<HTMLSelectElement>('select[aria-label="Sort"]');
+    expect(filter).not.toBeNull();
+    expect(sort).not.toBeNull();
+
+    filter!.value = "nonEmpty";
+    filter!.dispatchEvent(new Event("change", { bubbles: true }));
+    sort!.value = "ascending";
+    sort!.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(filter!.value).toBe("nonEmpty");
+    expect(sort!.value).toBe("ascending");
+
+    const newSheet = Array.from(root.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "New Sheet",
+    );
+    expect(newSheet).not.toBeUndefined();
+    newSheet!.click();
+
+    expect(filter!.value).toBe("none");
+    expect(sort!.value).toBe("none");
+  });
+
   it("keeps uncommitted grid input when async format cache updates", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
