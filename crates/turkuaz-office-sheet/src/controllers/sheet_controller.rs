@@ -2,7 +2,7 @@
 // # 📌 Amac: Sheet request girdilerini alip yalnizca SheetService cagirir
 // # 📌 Modul - FileType: Controller - Rust
 // Version: 0.3.0
-// Aciklama: Create/get/set/formula/evaluate/clear/cell A1 request yuzeyini business logic tasimadan typed View modeline cevirir
+// Aciklama: Create/get/snapshot/set/formula/evaluate/query/format/chart requestlerini business logic tasimadan Service'e aktarir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use turkuaz_office_core::DocumentId;
@@ -10,7 +10,8 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
 use crate::services::sheet_types::{
-    CellFormat, CellValue, ChartId, ChartType, SheetFilter, SheetRange, SheetSort, WorksheetId,
+    CellFormat, CellValue, ChartId, ChartType, SheetDocument, SheetFilter, SheetRange, SheetSort,
+    WorksheetId,
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
 use crate::views::sheet_view::{
@@ -42,6 +43,12 @@ where
         self.service
             .get_document(&DocumentId::new(document_id))
             .map(SheetDocumentView::from)
+    }
+
+    pub fn snapshot(&self, document_id: &str) -> Result<SheetDocument, SheetError> {
+        self.service
+            .get_document(&DocumentId::new(document_id))
+            .ok_or(SheetError::DocumentNotFound)
     }
 
     pub fn set_cell_a1(
