@@ -2,11 +2,12 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Zero-based domain koordinati, secili hucre evaluation/format cache, decimal-format ve typed mutation davranislarini dogrular
+// Aciklama: Zero-based koordinat, format cache, filter-sort row query, decimal-format ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
 
+import { ERROR_CODES } from "../config/error-codes";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type { SheetCellFormatView, SheetDocumentView } from "../views/sheet-types";
@@ -57,6 +58,12 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
         `format:set:${input.reference}:${String(format.bold)}:${format.horizontalAlignment}:${String(format.decimalPlaces)}`,
       );
       return DOCUMENT;
+    },
+    queryRows: async (request) => {
+      calls.push(
+        `query:${String(request.filter?.column ?? -1)}:${request.filter?.condition.kind ?? "none"}:${request.sort?.direction ?? "none"}:${String(request.range.endRow)}:${String(request.range.endColumn)}`,
+      );
+      return { rows: [2, 0] };
     },
     clearCell: async () => {
       calls.push("clear");
@@ -183,6 +190,40 @@ describe("SheetSessionService", () => {
       horizontalAlignment: "general",
       decimalPlaces: 4,
     });
+  });
+
+  it("applies selected-column filter and sort as a non-mutating row query", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("B1", 0, 1);
+    calls.length = 0;
+    await service.applyRowQuery("numberGreaterThan", "15", "ascending");
+
+    expect(calls).toEqual(["query:1:numberGreaterThan:ascending:29:11"]);
+    expect(repository.rowQuery()).toEqual({
+      column: 1,
+      filterMode: "numberGreaterThan",
+      filterValue: "15",
+      sortDirection: "ascending",
+      rows: [2, 0],
+    });
+  });
+
+  it("rejects invalid numeric filter before invoking the backend", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("B1", 0, 1);
+    calls.length = 0;
+    await service.applyRowQuery("numberLessThan", "abc", "none");
+
+    expect(calls).toEqual([]);
+    expect(repository.rowQueryErrorCode()).toBe(ERROR_CODES.sheetInvalidFilter);
   });
 
   it("routes typed cell inputs without moving parsing into the View", async () => {
