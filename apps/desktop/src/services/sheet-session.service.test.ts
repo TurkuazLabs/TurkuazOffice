@@ -278,6 +278,7 @@ describe("SheetSessionService", () => {
     await service.applyRowQuery("numberLessThan", "", "none");
     await service.applyRowQuery("numberLessThan", "   ", "none");
     await service.applyRowQuery("numberLessThan", "abc", "none");
+    await service.applyRowQuery("numberLessThan", "0x10", "none");
 
     expect(calls).toEqual([]);
     expect(repository.rowQueryErrorCode()).toBe(ERROR_CODES.sheetInvalidFilter);
