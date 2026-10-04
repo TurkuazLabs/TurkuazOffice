@@ -103,15 +103,17 @@ Sheet native Open/Save, chart editor/render UI ve gelismis spreadsheet ozellikle
 
 ## Community Preview v0.3.1
 
-Preview release kapsami:
+R1 v0.3.1 tarihsel preview release kapsami:
 
 - Windows: NSIS installer.
 - Linux: DEB + AppImage.
 - Writer desktop: release candidate.
 - Sheet engine: CI ile dogrulanan headless/core katman.
-- Sheet desktop UI: R2 baseline'i ile aktif; typed edit, formula bar, format ve filter/sort yuzeyi mevcut.
+- Sheet desktop UI R1 release gate kapsaminda degildi.
 - Preview artifactlari unsigned'dir; stable release etiketi icin platform signing gerekir.
 - CI artifactlari SHA-256 checksum ile birlikte uretilir.
+
+R1 sonrasinda tamamlanan R2 ile mevcut `main` dalinda Sheet desktop UI aktiftir: typed edit, formula bar, format, filter/sort ve session-safety yuzeyi vardir. Bu R2 durumu, tarihsel v0.3.1 artifact kapsamiyla karistirilmaz.
 
 ## Monorepo
 
