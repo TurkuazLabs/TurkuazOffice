@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office milestone sirasini ve roadmap deviation yasagini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.3.1
-# Aciklama: Foundation Hardening sonrasi Desktop Writer ve takip eden platform milestone sirasini sabitler
+# Aciklama: Foundation, Writer, Sheet engine, Sheet Desktop baseline ve takip eden platform milestone sirasini sabitler
 
 Bagimli Oldugu Katman: Documentation
 
@@ -98,7 +98,7 @@ v0.3.1 Community Preview release gate; frontend build/test, Rust check/fmt/clipp
 
 ## M2 - Sheet v0.3.0
 
-Durum: Engine feature kapsami tamamlandi. v0.3.1 Community Preview hardening bu engine'i compiler-backed CI ile dogrular; Sheet desktop UI entegrasyonu ayri sonraki fazdir.
+Durum: Engine feature kapsami tamamlandi. Sheet Desktop entegrasyon baseline'i R2 kapsaminda tamamlandi; yeni Sheet urun ozellikleri roadmap guncellenmeden eklenmez.
 
 ### Tamamlanan M2 parcasi
 
@@ -136,7 +136,7 @@ Durum: Engine feature kapsami tamamlandi. v0.3.1 Community Preview hardening bu 
 
 M2 feature kapsaminda planlanan alt fazlar tamamlandi.
 
-M2 engine CI ile dogrulanir. Sheet'in desktop kullanici yuzeyi Community Preview 0.3.1 kapsaminda aktif degildir.
+M2 engine CI ile dogrulanir. Sheet Desktop kullanici yuzeyi mevcut calisma agacinda R2 baseline'i ile aktiftir.
 
 ## R1 - Community Preview Hardening v0.3.1
 
@@ -149,9 +149,42 @@ M2 engine CI ile dogrulanir. Sheet'in desktop kullanici yuzeyi Community Preview
 - SHA-256 artifact checksum.
 - Writer desktop preview release gate.
 - Sheet engine compiler validation.
-- Sheet desktop UI durumu explicit olarak not-ready.
+- R1 baslangic gate'inde Sheet desktop UI kapsam disiydi.
 
-Bu release-hardening fazi yeni urun ozelligi degil; mevcut Community kapsamini indir-kur-test edilebilir preview haline getirir.
+Bu release-hardening fazi yeni urun ozelligi degildir; R1'in tarihsel release gate kapsamidir. R1 sonrasinda eklenen Sheet Desktop entegrasyonu R2 altinda izlenir.
+
+## R2 - Sheet Desktop Integration Baseline
+
+Durum: Tamamlandi ve mevcut Desktop calisma agacinda aktiftir.
+
+### Tamamlanan R2 parcasi
+
+- Writer <-> Sheet modul gecisi.
+- Tauri 2 + SolidJS icinde 30x12 gorunur Sheet grid baseline'i.
+- Text / number / boolean / formula / clear cell mutation hatti.
+- Desktop View -> Controller -> Service -> Repo/Tool -> Rust backend katman siniri.
+- Secili hucre state'i ve formula bari.
+- Raw hucre degeri ile backend Formula Engine hesaplanan degerinin ayri gosterimi.
+- Bold / italic / underline ve general/left/center/right hizalama kontrolleri.
+- Canonical CellFormat decimalPlaces tabanli number display baseline'i.
+- Sparse frontend format cache.
+- Secili kolon icin non-mutating filter/sort UI.
+- Aktif grid/formula draft'larini async read-model guncellemelerinden koruma.
+- Dirty Sheet icin Yeni Sheet discard onayi.
+- Stale row-query response generation + document identity korumasi.
+- Geciken format mutation'inin yeni secimi geri almamasi.
+- Kuyruktaki cell mutation'larini kaynak document kimligine baglama.
+- Frontend build/test, Rust check/fmt/clippy/test ve Windows/Linux bundle CI dogrulamasi.
+
+### R2 kapsam disi
+
+- Sheet native dosya persistence / Open / Save.
+- Sheet chart render/editor UI.
+- Gelismis multi-range selection.
+- Sheet clipboard/copy-paste urun akisi.
+- Gelismis formula/autofill/pivot ozellikleri.
+
+Bu kapsam disi maddeler sessizce R2'ye eklenmez. Yeni Sheet urun ozelligi gerekiyorsa once roadmap ve gerekirse ADR guncellenir.
 
 ## M3 - Web v0.4.0
 

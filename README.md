@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office monorepo giris dokumani ve gelistirme yonlendirmesi
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.3.1
-# Aciklama: Tamamlanan Writer M1 ile aktif Sheet M2 cell-model gelisim durumunu ve monorepo giris yolunu tanimlar
+# Aciklama: Tamamlanan Writer, Sheet engine ve Sheet Desktop baseline durumunu monorepo girisinde ozetler
 
 Bagimli Oldugu Katman: Documentation
 
@@ -59,7 +59,7 @@ Foundation Hardening ve tamamlanan Writer M1 kontratlari kod ile temsil edilir:
 - Font fallback render katmaninda cozulur; requested font family canonical belgede korunur.
 - Windows/Linux icin Arial/Calibri/Times New Roman/Georgia/Verdana/Courier New fallback profilleri merkezi configte tutulur.
 
-Desktop + Writer M1 feature kapsami tamamlanmistir. Roadmap sirasi geregi aktif gelisim M2 Sheet v0.3.0 uzerindedir; Web, Mobile, API ve Collaboration mimari sinirlari korunur.
+Desktop + Writer M1 feature kapsami tamamlanmistir. M2 Sheet engine ve R2 Sheet Desktop integration baseline'i tamamlanmistir; roadmap sirasi geregi siradaki urun milestone'u M3 Web v0.4.0'dir.
 
 ## Sheet M2 v0.3.0 durumu
 
@@ -90,26 +90,37 @@ M2 Cell Model, CSV/XLSX minimum, Basic Formula Engine, Format/Filter/Sort ve Bas
 - 100000-cell benchmark profile aktiftir: sparse build, View projection ve descending numeric row query explicit ignored workload olarak olculur.
 - Hosted CI varyansi nedeniyle sabit millisecond threshold yoktur; timing ayni donanim/toolchain uzerinde karsilastirilir.
 
-M2 engine feature kapsami tamamlanmistir. Sheet desktop UI bu preview'da henuz entegre degildir; Community 0.3.1 Writer desktop preview + Sheet engine validation olarak konumlanir. Siradaki urun fazlarindan once Sheet desktop entegrasyonu ayri olarak ele alinabilir.
+M2 engine feature kapsami tamamlanmistir. R2 Sheet Desktop baseline'i de mevcut calisma agacinda aktiftir:
+
+- Writer <-> Sheet modul gecisi ve 30x12 editable grid.
+- Typed text/number/boolean/formula/clear mutation hatti.
+- Secili hucre + formula bari + backend evaluated value.
+- Bold/italic/underline, horizontal alignment ve decimal places.
+- Secili kolon non-mutating filter/sort.
+- Aktif edit draft korumasi, dirty New Sheet discard guard ve async stale-response korumalari.
+
+Sheet native Open/Save, chart editor/render UI ve gelismis spreadsheet ozellikleri R2 kapsamina dahil degildir. Bunlar roadmap guncellenmeden eklenmez.
 
 ## Community Preview v0.3.1
 
-Preview release kapsami:
+R1 v0.3.1 tarihsel preview release kapsami:
 
 - Windows: NSIS installer.
 - Linux: DEB + AppImage.
 - Writer desktop: release candidate.
 - Sheet engine: CI ile dogrulanan headless/core katman.
-- Sheet desktop UI: henuz entegre degil.
+- Sheet desktop UI R1 release gate kapsaminda degildi.
 - Preview artifactlari unsigned'dir; stable release etiketi icin platform signing gerekir.
 - CI artifactlari SHA-256 checksum ile birlikte uretilir.
+
+R1 sonrasinda tamamlanan R2 ile mevcut `main` dalinda Sheet desktop UI aktiftir: typed edit, formula bar, format, filter/sort ve session-safety yuzeyi vardir. Bu R2 durumu, tarihsel v0.3.1 artifact kapsamiyla karistirilmaz.
 
 ## Monorepo
 
 ```text
 TurkuazOffice/
 |-- apps/
-|   |-- desktop/        # Tauri 2 + SolidJS aktif M1 shell
+|   |-- desktop/        # Tauri 2 + SolidJS aktif Writer + Sheet shell
 |   |-- web/
 |   `-- mobile/
 |-- services/

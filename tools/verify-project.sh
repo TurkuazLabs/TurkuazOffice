@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.3.1
-# Aciklama: Umbrella release version ile modul source versionlarini ayirir; M1/M2 static contract ve Community Preview release metadata kontrollerini uygular
+# Version: 0.3.2
+# Aciklama: Umbrella release versionini korur; M1/M2/R2 static contract ve Community Preview Sheet Desktop metadata kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -238,6 +238,7 @@ required_files=(
   "docs/07-quality/sheet-100k-benchmark-profile.md"
   "docs/08-implementation/m2-sheet-100k-benchmark-v0.3.0.md"
   "docs/08-implementation/m2-sheet-100k-benchmark-validation.md"
+  "docs/08-implementation/r2-sheet-desktop-integration.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -285,7 +286,9 @@ grep -q '"crates/turkuaz-office-sheet"' "$ROOT/Cargo.toml"
 grep -q '"apps/desktop/src-tauri"' "$ROOT/Cargo.toml"
 grep -q 'community_preview:' "$ROOT/config/project.yml"
 grep -q 'release_candidate: true' "$ROOT/config/project.yml"
-grep -q 'desktop_ui_integrated: false' "$ROOT/config/project.yml"
+grep -q 'desktop_ui_integrated: true' "$ROOT/config/project.yml"
+grep -q '## R2 - Sheet Desktop Integration Baseline' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q 'R2 Sheet Desktop baseline' "$ROOT/README.md"
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
