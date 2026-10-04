@@ -2,10 +2,11 @@
 // # 📌 Amac: Desktop uygulama modul secim degerlerini merkezi kontrat olarak tanimlar
 // # 📌 Modul - FileType: Config - TypeScript
 // Version: 0.4.0
-// Aciklama: Writer ve Sheet modul anahtarlarinda magic string kullanimini engeller
+// Aciklama: Start Center, Writer ve Sheet modul anahtarlarinda magic string kullanimini engeller
 // Bagimli Oldugu Katman: Config
 
 export const OFFICE_MODULES = {
+  start: "start",
   writer: "writer",
   sheet: "sheet",
 } as const;

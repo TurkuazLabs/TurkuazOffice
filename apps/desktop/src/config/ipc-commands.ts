@@ -6,6 +6,8 @@
 // Bagimli Oldugu Katman: Config
 
 export const IPC_COMMANDS = {
+  desktopGetLaunchContext: "desktop_get_launch_context",
+  desktopLaunchModule: "desktop_launch_module",
   sheetCreateDocument: "sheet_create_document",
   sheetGetDocument: "sheet_get_document",
   sheetGetEvaluatedCell: "sheet_get_evaluated_cell",

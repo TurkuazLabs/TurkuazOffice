@@ -9,6 +9,16 @@ import type { DesktopLabelKey } from "./labels";
 
 export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
+  writerAppName: "Turkuaz Writer",
+  sheetAppName: "Turkuaz Sheet",
+  startCenterTitle: "Turkuaz Office",
+  startCenterDescription: "Belge turunu secin veya ayri uygulamayi baslatin.",
+  startCenterWriterDescription: "Metin belgeleri, DOCX ve PDF islemleri.",
+  startCenterSheetDescription: "Hesap tablolari, formul, filtre ve siralama.",
+  slidesModule: "Slides",
+  drawModule: "Draw",
+  plannedModule: "Yakinda",
+  launchModule: "Ac",
   moduleSwitcherLabel: "Uygulama modulu",
   writerModule: "Writer",
   sheetModule: "Sheet",

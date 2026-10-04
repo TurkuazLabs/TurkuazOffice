@@ -24,6 +24,7 @@ import { ImageAssetTool } from "../tools/image-asset.tool";
 import { LanguagePreferenceTool } from "../tools/language-preference.tool";
 import { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import { PrintTool } from "../tools/print.tool";
+import { TauriDesktopLaunchTool } from "../tools/tauri-desktop-launch.tool";
 import { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import { TauriWriterTool } from "../tools/tauri-writer.tool";
 import { TextOffsetTool } from "../tools/text-offset.tool";
@@ -74,6 +75,7 @@ const clipboardService = new ClipboardService(
 const keyboardShortcutService = new KeyboardShortcutService();
 
 export const APP_CONTAINER = {
+  desktopLaunchTool: new TauriDesktopLaunchTool(),
   sheetController: new SheetController(sheetSessionService),
   sheetSessionRepository,
   writerController: new WriterController(

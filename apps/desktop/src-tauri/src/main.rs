@@ -5,6 +5,8 @@
 // # Aciklama: Binary yalnizca library composition root run fonksiyonunu cagirir
 // Bagimli Oldugu Katman: Controller
 
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 fn main() {
     turkuaz_office_desktop_lib::run();
 }

@@ -62,7 +62,6 @@ function mount(repository: SheetSessionRepository): HTMLElement {
         controller={controllerStub()}
         repository={repository}
         language={new LanguageService("en-US")}
-        onSelectModule={() => undefined}
       />
     ),
     root,

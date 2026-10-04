@@ -7,7 +7,6 @@
 
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
 
-import { OFFICE_MODULES, type OfficeModule } from "../config/office-modules";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
@@ -24,13 +23,11 @@ import type {
   SheetHorizontalAlignmentView,
   SheetSortDirectionView,
 } from "./sheet-types";
-import { OfficeModuleSwitcher } from "./office-module-switcher";
 
 interface SheetShellProps {
   readonly controller: SheetController;
   readonly repository: SheetSessionRepository;
   readonly language: LanguageService;
-  readonly onSelectModule: (module: OfficeModule) => void;
 }
 
 const ROWS = Array.from({ length: SHEET_GRID_ROW_COUNT }, (_, index) => index + 1);
@@ -195,15 +192,10 @@ export function SheetShell(props: SheetShellProps) {
   return (
     <div class="office-shell">
       <header class="office-titlebar">
-        <strong>{props.language.text("appName")}</strong>
+        <strong>{props.language.text("sheetAppName")}</strong>
         <span class="office-titlebar__document">
           {props.repository.document()?.title ?? props.language.text("sheetModule")}
         </span>
-        <OfficeModuleSwitcher
-          activeModule={OFFICE_MODULES.sheet}
-          language={props.language}
-          onSelectModule={props.onSelectModule}
-        />
       </header>
 
       <div class="sheet-command-area">

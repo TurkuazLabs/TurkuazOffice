@@ -87,6 +87,15 @@ pub const SAFE_SAVE_BACKUP_SUFFIX: &str = "turkuaz-save.bak";
 
 pub const CURRENT_DIRECTORY_PATH: &str = ".";
 pub const STARTUP_ARGUMENT_FLAG_PREFIX: &str = "-";
+pub const DESKTOP_MODULE_ARGUMENT_PREFIX: &str = "--module=";
+pub const DESKTOP_MODULE_START: &str = "start";
+pub const DESKTOP_MODULE_WRITER: &str = "writer";
+pub const DESKTOP_MODULE_SHEET: &str = "sheet";
+pub const DESKTOP_TITLE_START: &str = "Turkuaz Office";
+pub const DESKTOP_TITLE_WRITER: &str = "Turkuaz Writer";
+pub const DESKTOP_TITLE_SHEET: &str = "Turkuaz Sheet";
+pub const ERROR_DESKTOP_MODULE_INVALID: &str = "desktop.module_invalid";
+pub const ERROR_DESKTOP_LAUNCH_FAILED: &str = "desktop.launch_failed";
 pub const WINDOWS_VERBATIM_PATH_PREFIX: &str = r"\\?\";
 pub const WINDOWS_VERBATIM_UNC_PATH_PREFIX: &str = r"\\?\UNC\";
 pub const WINDOWS_UNC_PATH_PREFIX: &str = r"\\";

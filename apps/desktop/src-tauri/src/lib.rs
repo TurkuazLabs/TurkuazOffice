@@ -7,6 +7,9 @@
 
 use std::sync::Mutex;
 
+use tauri::Manager;
+
+use controllers::desktop_launch_controller::{desktop_get_launch_context, desktop_launch_module};
 use controllers::sheet_desktop_controller::{
     sheet_clear_cell, sheet_create_document, sheet_get_cell_format, sheet_get_document,
     sheet_get_evaluated_cell, sheet_query_rows, sheet_set_boolean, sheet_set_cell_format,
@@ -24,8 +27,10 @@ use controllers::writer_desktop_controller::{
     writer_replace_range_with_styled_runs, writer_restore_recovery_snapshot, writer_save_document,
     writer_split_paragraph, writer_take_startup_file, writer_undo,
 };
+use services::desktop_launch_service::DesktopLaunchService;
 use services::sheet_desktop_service::SheetDesktopService;
 use services::writer_desktop_service::WriterDesktopService;
+use tools::startup_arguments_tool::StartupArgumentsTool;
 
 pub mod config;
 pub mod controllers;
@@ -36,11 +41,23 @@ pub mod views;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let launch_service = DesktopLaunchService::from_arguments(StartupArgumentsTool::arguments());
+    let launch_module = launch_service.module();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .setup(move |app| {
+            if let Some(window) = app.get_webview_window("main") {
+                window.set_title(launch_module.window_title())?;
+            }
+            Ok(())
+        })
+        .manage(launch_service)
         .manage(Mutex::new(WriterDesktopService::new()))
         .manage(Mutex::new(SheetDesktopService::new()))
         .invoke_handler(tauri::generate_handler![
+            desktop_get_launch_context,
+            desktop_launch_module,
             sheet_create_document,
             sheet_get_document,
             sheet_get_cell_format,
