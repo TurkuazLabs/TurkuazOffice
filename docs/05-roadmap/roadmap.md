@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/05-roadmap/roadmap.md
 # 📌 Amac: Turkuaz Office milestone sirasini ve roadmap deviation yasagini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.2
+# Version: 0.3.1
 # Aciklama: Foundation, Writer, Sheet engine, Sheet Desktop baseline ve takip eden platform milestone sirasini sabitler
 
 Bagimli Oldugu Katman: Documentation
