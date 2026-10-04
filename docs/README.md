@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/README.md
 # 📌 Amac: Turkuaz Office detayli dokumantasyon haritasini ve okuma sirasini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.1
-# Aciklama: Product, architecture, development, operations, roadmap, ADR ve quality dokumanlarini indeksler
+# Version: 0.3.2
+# Aciklama: Product, architecture, development, operations, roadmap, ADR, quality ve R2 Sheet Desktop dokumanlarini indeksler
 
 Bagimli Oldugu Katman: Documentation
 
@@ -150,6 +150,7 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m2-sheet-basic-charts-validation.md`
 - `08-implementation/m2-sheet-100k-benchmark-v0.3.0.md`
 - `08-implementation/m2-sheet-100k-benchmark-validation.md`
+- `08-implementation/r2-sheet-desktop-integration.md`
 
 ## Kural
 
@@ -234,3 +235,12 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/sheet-formula-engine-test-matrix.md`
 - `08-implementation/m2-sheet-formula-engine-v0.3.0.md`
 - `08-implementation/m2-sheet-formula-engine-validation.md`
+
+
+## R2 Sheet Desktop ekleri
+
+- `05-roadmap/roadmap.md`
+- `08-implementation/r2-sheet-desktop-integration.md`
+- `07-quality/sheet-cell-model-test-matrix.md`
+- `07-quality/sheet-formula-engine-test-matrix.md`
+- `07-quality/sheet-format-filter-sort-test-matrix.md`
