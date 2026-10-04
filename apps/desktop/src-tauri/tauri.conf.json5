@@ -2,7 +2,7 @@
 // # 📌 Amac: Turkuaz Office Desktop Tauri pencere, build ve security konfigurasyonunu tanimlar
 // # 📌 Modul - FileType: Config - JSON5
 // # Version: 0.3.1
-// # Aciklama: Windows/Linux Writer ve Sheet shell icin tek main window, production/dev CSP ve capability secimini sabitler
+// # Aciklama: Windows/Linux suite launch, Start Menu kisayollari, main window, CSP ve capability secimini sabitler
 // Bagimli Oldugu Katman: Config
 {
   productName: "Turkuaz Office",
@@ -36,6 +36,12 @@
   bundle: {
     active: true,
     icon: ["icons/icon.png", "icons/icon.ico"],
+    windows: {
+      nsis: {
+        startMenuFolder: "Turkuaz Office",
+        installerHooks: "./windows/hooks.nsh",
+      },
+    },
     fileAssociations: [
       {
         ext: ["tko"],
