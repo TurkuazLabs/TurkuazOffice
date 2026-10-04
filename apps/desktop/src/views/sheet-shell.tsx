@@ -2,7 +2,7 @@
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Zero-based domain adaptasyonu, grid/formula aktif draft korumasi, format toolbar, non-mutating row query, formula bari, grid ve statusbar View'larini birlestirir
+// Aciklama: Zero-based domain adaptasyonu, aktif draft korumasi, query-control reset, format toolbar, non-mutating row query, formula bari ve grid View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
@@ -135,10 +135,19 @@ export function SheetShell(props: SheetShellProps) {
     setFormulaDraft("");
   };
 
-  const clearQuery = (): void => {
+  const resetQueryControls = (): void => {
     setFilterMode("none");
     setFilterValue("");
     setSortDirection("none");
+  };
+
+  const createDocument = (): void => {
+    resetQueryControls();
+    void props.controller.createDocument();
+  };
+
+  const clearQuery = (): void => {
+    resetQueryControls();
     props.controller.clearRowQuery();
   };
 
@@ -201,7 +210,7 @@ export function SheetShell(props: SheetShellProps) {
           <button
             type="button"
             class="toolbar-button toolbar-button--primary"
-            onClick={() => void props.controller.createDocument()}
+            onClick={createDocument}
           >
             {props.language.text("sheetNewDocument")}
           </button>
@@ -317,6 +326,7 @@ export function SheetShell(props: SheetShellProps) {
             <span>{props.language.text("sheetFilter")}</span>
             <select
               class="ribbon-select"
+              aria-label={props.language.text("sheetFilter")}
               value={filterMode()}
               onChange={(event) => setFilterMode(event.currentTarget.value as SheetFilterModeView)}
             >
@@ -345,6 +355,7 @@ export function SheetShell(props: SheetShellProps) {
             <span>{props.language.text("sheetSort")}</span>
             <select
               class="ribbon-select"
+              aria-label={props.language.text("sheetSort")}
               value={sortDirection()}
               onChange={(event) =>
                 setSortDirection(event.currentTarget.value as SheetSortDirectionView)
