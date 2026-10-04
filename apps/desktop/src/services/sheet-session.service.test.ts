@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Bos, formula, boolean, number ve text inputlarinin dogru Tauri Tool metoduna yonlendirildigini dogrular
+// Aciklama: Secili hucre evaluation ile bos, formula, boolean, number ve text input routing davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -31,6 +31,14 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
   return {
     createDocument: async () => DOCUMENT,
     getDocument: async () => DOCUMENT,
+    getEvaluatedCell: async (input) => {
+      calls.push(`evaluate:${input.reference}`);
+      return {
+        row: 1,
+        column: 3,
+        value: { kind: "number", value: 2 },
+      };
+    },
     clearCell: async () => {
       calls.push("clear");
       return DOCUMENT;
@@ -63,6 +71,40 @@ describe("SheetSessionService", () => {
 
     expect(repository.document()?.id).toBe(DOCUMENT.id);
     expect(repository.status()).toBe("ready");
+  });
+
+  it("loads raw formula and evaluated value for the selected cell", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      worksheets: [
+        {
+          ...DOCUMENT.worksheets[0]!,
+          cellCount: 1,
+          cells: [
+            {
+              row: 1,
+              column: 3,
+              value: { kind: "formula", value: "=1+1" },
+            },
+          ],
+        },
+      ],
+    });
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("C1", 1, 3);
+
+    expect(calls).toEqual(["evaluate:C1"]);
+    expect(repository.selection()).toEqual({
+      reference: "C1",
+      row: 1,
+      column: 3,
+      rawValue: "=1+1",
+      evaluatedValue: { kind: "number", value: 2 },
+      evaluationErrorCode: null,
+    });
   });
 
   it("routes typed cell inputs without moving parsing into the View", async () => {

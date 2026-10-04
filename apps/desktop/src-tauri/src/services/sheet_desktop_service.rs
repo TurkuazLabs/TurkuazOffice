@@ -2,11 +2,11 @@
 // # 📌 Amac: Desktop Sheet requestlerini canonical Sheet Controller akisina cevirir
 // # 📌 Modul - FileType: Service - Rust
 // Version: 0.4.0
-// Aciklama: Create/get/cell/formula/clear islemlerini domain Controller uzerinden koordine eder
+// Aciklama: Create/get/cell/formula/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Controller -> Service -> Repo -> Tool
 
 use turkuaz_office_sheet::{
-    CellValue, InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetController,
+    CellValue, CellView, InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetController,
     SheetDocumentView, SheetError, SheetService,
 };
 
@@ -92,6 +92,16 @@ impl SheetDesktopService {
     ) -> Result<SheetDocumentView, SheetError> {
         self.controller
             .set_formula_a1(document_id, worksheet_id, reference, expression)
+    }
+
+    pub fn evaluated_cell(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        reference: &str,
+    ) -> Result<Option<CellView>, SheetError> {
+        self.controller
+            .evaluated_cell_a1(document_id, worksheet_id, reference)
     }
 
     pub fn clear_cell(

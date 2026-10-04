@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
-// # 📌 Amac: Turkuaz Office Desktop Sheet temel grid yuzeyini render eder
+// # 📌 Amac: Turkuaz Office Desktop Sheet temel grid ve formula bar yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Modul secimi, yeni Sheet komutu, 30x12 editable grid ve session statusbar View'larini birlestirir
+// Aciklama: Modul secimi, yeni Sheet komutu, secili hucre formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { For, Match, onMount, Switch } from "solid-js";
@@ -59,6 +59,25 @@ export function SheetShell(props: SheetShellProps) {
     void props.controller.commitCell(REFERENCE_TOOL.reference(row, column), value);
   };
 
+  const commitFormulaBar = (value: string): void => {
+    const selection = props.repository.selection();
+    if (selection === null || selection.rawValue === value) {
+      return;
+    }
+    void props.controller.commitCell(selection.reference, value);
+  };
+
+  const evaluatedText = (): string => {
+    const selection = props.repository.selection();
+    if (selection === null) {
+      return "-";
+    }
+    if (selection.evaluationErrorCode !== null) {
+      return selection.evaluationErrorCode;
+    }
+    return selection.evaluatedValue === null ? "" : valueText(selection.evaluatedValue);
+  };
+
   const statusText = () => {
     if (props.repository.status() === "loading") {
       return props.language.text("sheetLoading");
@@ -83,15 +102,38 @@ export function SheetShell(props: SheetShellProps) {
         />
       </header>
 
-      <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
-        <button
-          type="button"
-          class="toolbar-button toolbar-button--primary"
-          onClick={() => void props.controller.createDocument()}
-        >
-          {props.language.text("sheetNewDocument")}
-        </button>
-        <span>{activeWorksheet()?.name ?? "-"}</span>
+      <div class="sheet-command-area">
+        <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--primary"
+            onClick={() => void props.controller.createDocument()}
+          >
+            {props.language.text("sheetNewDocument")}
+          </button>
+          <span>{activeWorksheet()?.name ?? "-"}</span>
+        </div>
+
+        <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
+          <span class="sheet-formula-bar__reference" title={props.language.text("sheetSelectedCell")}>
+            {props.repository.selection()?.reference ?? "-"}
+          </span>
+          <input
+            class="sheet-formula-bar__input"
+            aria-label={props.language.text("sheetFormulaBarLabel")}
+            disabled={props.repository.selection() === null}
+            value={props.repository.selection()?.rawValue ?? ""}
+            onBlur={(event) => commitFormulaBar(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.currentTarget.blur();
+              }
+            }}
+          />
+          <span class="sheet-formula-bar__evaluated">
+            {props.language.text("sheetEvaluatedValue")}: {evaluatedText()}
+          </span>
+        </div>
       </div>
 
       <Switch>
@@ -121,11 +163,18 @@ export function SheetShell(props: SheetShellProps) {
                         {(column) => {
                           const reference = REFERENCE_TOOL.reference(row, column);
                           return (
-                            <td class="sheet-grid__cell">
+                            <td
+                              class="sheet-grid__cell"
+                              classList={{
+                                "sheet-grid__cell--selected":
+                                  props.repository.selection()?.reference === reference,
+                              }}
+                            >
                               <input
                                 class="sheet-grid__input"
                                 aria-label={reference}
                                 value={cellText(row, column)}
+                                onFocus={() => void props.controller.selectCell(reference, row, column)}
                                 onBlur={(event) => commitCell(row, column, event.currentTarget.value)}
                                 onKeyDown={(event) => {
                                   if (event.key === "Enter") {
@@ -153,6 +202,9 @@ export function SheetShell(props: SheetShellProps) {
 
       <footer class="sheet-statusbar">
         <span>{statusText()}</span>
+        <span>
+          {props.language.text("sheetSelectedCell")}: {props.repository.selection()?.reference ?? "-"}
+        </span>
         <span class="sheet-statusbar__spacer" />
         <span>
           {props.language.text("revision")}: {props.repository.document()?.revision ?? 0}

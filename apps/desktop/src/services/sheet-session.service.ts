@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // Version: 0.4.0
-// Aciklama: Repo ve Tauri Tool uzerinden yeni Sheet, typed cell input ve hata akisini business kurallariyla yonetir
+// Aciklama: Repo ve Tauri Tool uzerinden yeni Sheet, secili hucre evaluation, typed cell input ve hata akisini business kurallariyla yonetir
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -14,7 +14,11 @@ import {
 } from "../config/sheet";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
-import type { SheetDesktopErrorView, SheetDocumentView } from "../views/sheet-types";
+import type {
+  SheetCellValueView,
+  SheetDesktopErrorView,
+  SheetDocumentView,
+} from "../views/sheet-types";
 
 export class SheetSessionService {
   private mutationQueue: Promise<void> = Promise.resolve();
@@ -35,11 +39,34 @@ export class SheetSessionService {
     await this.enqueue(async () => {
       this.repository.setLoading();
       try {
+        this.repository.setSelection(null);
         this.repository.setDocument(await this.sheetTool.createDocument());
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  public async selectCell(reference: string, row: number, column: number): Promise<void> {
+    const document = this.requireDocument();
+    const worksheet = document.worksheets[0];
+    if (worksheet === undefined) {
+      this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
+      return;
+    }
+
+    const rawCell = worksheet.cells.find(
+      (cell) => cell.row === row && cell.column === column,
+    );
+    this.repository.setSelection({
+      reference,
+      row,
+      column,
+      rawValue: rawCell === undefined ? "" : this.valueText(rawCell.value),
+      evaluatedValue: null,
+      evaluationErrorCode: null,
+    });
+    await this.refreshSelectionEvaluation();
   }
 
   public commitCell(reference: string, rawValue: string): Promise<void> {
@@ -75,10 +102,56 @@ export class SheetSessionService {
           updated = await this.sheetTool.setText(input, rawValue);
         }
         this.repository.setDocument(updated);
+        const selection = this.repository.selection();
+        if (selection?.reference === reference) {
+          await this.selectCell(reference, selection.row, selection.column);
+        }
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  private async refreshSelectionEvaluation(): Promise<void> {
+    const selection = this.repository.selection();
+    const document = this.repository.document();
+    const worksheet = document?.worksheets[0];
+    if (selection === null || document === null || worksheet === undefined) {
+      return;
+    }
+
+    const input = {
+      documentId: document.id,
+      worksheetId: worksheet.id,
+      reference: selection.reference,
+    };
+    try {
+      const evaluated = await this.sheetTool.getEvaluatedCell(input);
+      const current = this.repository.selection();
+      if (current?.reference !== selection.reference) {
+        return;
+      }
+      this.repository.setSelection({
+        ...current,
+        evaluatedValue: evaluated?.value ?? null,
+        evaluationErrorCode: null,
+      });
+    } catch (error: unknown) {
+      if (this.repository.selection()?.reference === selection.reference) {
+        this.repository.setSelectionEvaluationError(this.errorCode(error));
+      }
+    }
+  }
+
+  private valueText(value: SheetCellValueView): string {
+    switch (value.kind) {
+      case "text":
+      case "formula":
+        return value.value;
+      case "number":
+      case "boolean":
+        return String(value.value);
+    }
   }
 
   private enqueue(operation: () => Promise<void>): Promise<void> {

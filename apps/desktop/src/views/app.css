@@ -799,3 +799,76 @@ input {
 .sheet-statusbar__spacer {
   flex: 1;
 }
+
+
+.sheet-command-area {
+  min-width: 0;
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-toolbar);
+}
+
+.sheet-command-area .sheet-toolbar {
+  border-bottom: 1px solid var(--to-border-soft);
+}
+
+.sheet-formula-bar {
+  display: grid;
+  grid-template-columns: 86px minmax(220px, 1fr) minmax(220px, auto);
+  align-items: center;
+  gap: var(--to-space-2);
+  min-height: 38px;
+  padding: var(--to-space-1) var(--to-space-3);
+  background: var(--to-bg-surface);
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.sheet-formula-bar__reference {
+  overflow: hidden;
+  color: var(--to-text-primary);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-formula-bar__input {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  padding: 0 var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.sheet-formula-bar__input:focus {
+  border-color: var(--to-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--to-border-focus) 30%, transparent);
+}
+
+.sheet-formula-bar__input:disabled {
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-secondary);
+}
+
+.sheet-formula-bar__evaluated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-grid__cell--selected {
+  box-shadow: inset 0 0 0 2px var(--to-accent);
+}
+
+@media (max-width: 900px) {
+  .sheet-formula-bar {
+    grid-template-columns: 72px minmax(180px, 1fr);
+  }
+
+  .sheet-formula-bar__evaluated {
+    grid-column: 1 / -1;
+  }
+}
