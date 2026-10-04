@@ -2,8 +2,13 @@
 // # 📌 Amac: Desktop Sheet grid koordinatlarini A1 referans metnine cevirir
 // # 📌 Modul - FileType: Tool - TypeScript
 // Version: 0.4.0
-// Aciklama: UI grid satir/sutun koordinatlarini domain IPC icin deterministic A1 referansina map eder
+// Aciklama: One-based UI grid koordinatlarini A1 referansina ve zero-based domain adresine deterministic map eder
 // Bagimli Oldugu Katman: Tool
+
+export interface SheetDomainAddress {
+  readonly row: number;
+  readonly column: number;
+}
 
 export class SheetReferenceTool {
   public columnLabel(column: number): string {
@@ -19,5 +24,12 @@ export class SheetReferenceTool {
 
   public reference(row: number, column: number): string {
     return `${this.columnLabel(column)}${row}`;
+  }
+
+  public domainAddress(row: number, column: number): SheetDomainAddress {
+    return {
+      row: row - 1,
+      column: column - 1,
+    };
   }
 }
