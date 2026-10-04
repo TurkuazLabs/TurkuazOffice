@@ -4,7 +4,7 @@
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
 // Version: 0.4.1
-// Aciklama: Aktif draft korumasi ve yeni Sheet query-control reset davranislarini jsdom regression testleriyle sabitler
+// Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
 import { render } from "solid-js/web";
@@ -40,7 +40,7 @@ const DOCUMENT: SheetDocumentView = {
 function controllerStub(): SheetController {
   return {
     initializeSession: async () => undefined,
-    createDocument: async () => undefined,
+    createDocument: async () => true,
     selectCell: async () => undefined,
     toggleBold: async () => undefined,
     toggleItalic: async () => undefined,
@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 describe("SheetShell active drafts", () => {
-  it("resets local query controls when a new Sheet is created", () => {
+  it("resets local query controls when a new Sheet is created", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
     const root = mount(repository);
@@ -102,6 +102,7 @@ describe("SheetShell active drafts", () => {
     );
     expect(newSheet).not.toBeUndefined();
     newSheet!.click();
+    await Promise.resolve();
 
     expect(filter!.value).toBe("none");
     expect(sort!.value).toBe("none");

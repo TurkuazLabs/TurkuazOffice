@@ -1,9 +1,9 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.4.0
-// Aciklama: Repo ve Tauri Tool uzerinden cell edit/format ile non-mutating filter-sort row query akislarini koordine eder
-// Bagimli Oldugu Katman: Service -> Repo -> Tool
+// Version: 0.4.1
+// Aciklama: Dirty-state korumali create, cell edit/format ve stale-response guvenli filter-sort akislarini koordine eder
+// Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
 import {
@@ -14,7 +14,9 @@ import {
   SHEET_GRID_ROW_COUNT,
   SHEET_NUMBER_PATTERN,
 } from "../config/sheet";
+import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type {
   SheetCellFormatView,
@@ -30,10 +32,13 @@ import type {
 
 export class SheetSessionService {
   private mutationQueue: Promise<void> = Promise.resolve();
+  private rowQueryGeneration = 0;
 
   public constructor(
     private readonly repository: SheetSessionRepository,
     private readonly sheetTool: TauriSheetTool,
+    private readonly fileDialogTool: Pick<NativeFileDialogTool, "confirmDiscard">,
+    private readonly language: LanguageService,
   ) {}
 
   public async initializeSession(): Promise<void> {
@@ -43,16 +48,25 @@ export class SheetSessionService {
     await this.createDocument();
   }
 
-  public async createDocument(): Promise<void> {
-    await this.enqueue(async () => {
+  public createDocument(): Promise<boolean> {
+    return this.enqueue(async () => {
+      if (!(await this.confirmDiscardIfNeeded())) {
+        return false;
+      }
+
       this.repository.setLoading();
       try {
+        const document = await this.sheetTool.createDocument();
+        this.invalidateRowQueryRequests();
         this.repository.setSelection(null);
         this.repository.clearCellFormats();
         this.repository.clearRowQuery();
-        this.repository.setDocument(await this.sheetTool.createDocument());
+        this.repository.setDocument(document);
+        this.repository.markClean();
+        return true;
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
+        return false;
       }
     });
   }
@@ -114,6 +128,7 @@ export class SheetSessionService {
     filterValue: string,
     sortDirection: SheetSortDirectionView,
   ): Promise<void> {
+    const generation = this.nextRowQueryGeneration();
     const selection = this.repository.selection();
     if (selection === null) {
       return;
@@ -122,16 +137,25 @@ export class SheetSessionService {
       this.repository.clearRowQuery();
       return;
     }
-    await this.runRowQuery(selection.column, filterMode, filterValue, sortDirection);
+    await this.runRowQuery(selection.column, filterMode, filterValue, sortDirection, generation);
   }
 
   public clearRowQuery(): void {
+    this.invalidateRowQueryRequests();
     this.repository.clearRowQuery();
   }
 
   public commitCell(reference: string, rawValue: string): Promise<void> {
+    const expectedDocumentId = this.repository.document()?.id;
+    if (expectedDocumentId === undefined) {
+      return Promise.resolve();
+    }
+
     return this.enqueue(async () => {
       const document = this.requireDocument();
+      if (document.id !== expectedDocumentId) {
+        return;
+      }
       const worksheet = document.worksheets[0];
       if (worksheet === undefined) {
         this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
@@ -162,9 +186,10 @@ export class SheetSessionService {
           updated = await this.sheetTool.setText(input, rawValue);
         }
         this.repository.setDocument(updated);
+        this.repository.markDirty();
         const selection = this.repository.selection();
-        if (selection?.reference === reference) {
-          await this.selectCell(reference, selection.row, selection.column);
+        if (selection !== null) {
+          await this.selectCell(selection.reference, selection.row, selection.column);
         }
         await this.refreshRowQuery();
       } catch (error: unknown) {
@@ -178,8 +203,10 @@ export class SheetSessionService {
     filterMode: SheetFilterModeView,
     filterValue: string,
     sortDirection: SheetSortDirectionView,
+    generation: number,
   ): Promise<void> {
     const document = this.requireDocument();
+    const documentId = document.id;
     const worksheet = document.worksheets[0];
     if (worksheet === undefined) {
       this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
@@ -199,7 +226,7 @@ export class SheetSessionService {
       case "numberGreaterThan":
       case "numberLessThan": {
         const normalized = filterValue.trim();
-        if (normalized.length === 0) {
+        if (normalized.length === 0 || !SHEET_NUMBER_PATTERN.test(normalized)) {
           this.repository.setRowQueryError(ERROR_CODES.sheetInvalidFilter);
           return;
         }
@@ -243,6 +270,9 @@ export class SheetSessionService {
 
     try {
       const result = await this.sheetTool.queryRows(request);
+      if (!this.isCurrentRowQueryRequest(generation, documentId)) {
+        return;
+      }
       this.repository.setRowQuery({
         column,
         filterMode,
@@ -251,7 +281,9 @@ export class SheetSessionService {
         rows: result.rows,
       });
     } catch (error: unknown) {
-      this.repository.setRowQueryError(this.errorCode(error));
+      if (this.isCurrentRowQueryRequest(generation, documentId)) {
+        this.repository.setRowQueryError(this.errorCode(error));
+      }
     }
   }
 
@@ -260,11 +292,13 @@ export class SheetSessionService {
     if (query === null) {
       return;
     }
+    const generation = this.nextRowQueryGeneration();
     await this.runRowQuery(
       query.column,
       query.filterMode,
       query.filterValue,
       query.sortDirection,
+      generation,
     );
   }
 
@@ -313,12 +347,18 @@ export class SheetSessionService {
         worksheetId: worksheet.id,
         reference: selection.reference,
       };
+      const nextFormat = transform(selection.format);
       this.repository.setLoading();
       try {
         this.repository.setDocument(
-          await this.sheetTool.setCellFormat(input, transform(selection.format)),
+          await this.sheetTool.setCellFormat(input, nextFormat),
         );
-        await this.selectCell(selection.reference, selection.row, selection.column);
+        this.repository.markDirty();
+        this.repository.setCellFormat(worksheet.id, selection.reference, nextFormat);
+        const current = this.repository.selection();
+        if (current?.reference === selection.reference) {
+          await this.selectCell(selection.reference, selection.row, selection.column);
+        }
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -367,9 +407,38 @@ export class SheetSessionService {
     }
   }
 
-  private enqueue(operation: () => Promise<void>): Promise<void> {
+  private confirmDiscardIfNeeded(): Promise<boolean> {
+    if (!this.repository.dirty()) {
+      return Promise.resolve(true);
+    }
+    return this.fileDialogTool.confirmDiscard(
+      this.language.text("unsavedChangesMessage"),
+      this.language.text("unsavedChangesTitle"),
+    );
+  }
+
+  private nextRowQueryGeneration(): number {
+    this.rowQueryGeneration += 1;
+    return this.rowQueryGeneration;
+  }
+
+  private invalidateRowQueryRequests(): void {
+    this.nextRowQueryGeneration();
+  }
+
+  private isCurrentRowQueryRequest(generation: number, documentId: string): boolean {
+    return (
+      generation === this.rowQueryGeneration &&
+      this.repository.document()?.id === documentId
+    );
+  }
+
+  private enqueue<T>(operation: () => Promise<T>): Promise<T> {
     const next = this.mutationQueue.then(operation, operation);
-    this.mutationQueue = next.catch(() => undefined);
+    this.mutationQueue = next.then(
+      () => undefined,
+      () => undefined,
+    );
     return next;
   }
 

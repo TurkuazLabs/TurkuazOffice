@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/app-container.ts
 // # 📌 Amac: Desktop katman bagimliliklarini tek composition root icinde kurar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.4.0
-// # Aciklama: Writer ve Sheet controller, repo, service ve Tauri IPC bagimliliklarini merkezi enjekte eder
+// # Version: 0.4.1
+// # Aciklama: Writer ve Sheet controller, repo, service, dialog ve Tauri IPC bagimliliklarini merkezi enjekte eder
 // Bagimli Oldugu Katman: Config
 
 import { SheetController } from "../controllers/sheet.controller";
@@ -37,12 +37,17 @@ const languagePreferenceService = new LanguagePreferenceService(
 languagePreferenceService.initialize();
 const sheetSessionRepository = new SheetSessionRepository();
 const sheetTool = new TauriSheetTool();
-const sheetSessionService = new SheetSessionService(sheetSessionRepository, sheetTool);
+const nativeFileDialogTool = new NativeFileDialogTool();
+const sheetSessionService = new SheetSessionService(
+  sheetSessionRepository,
+  sheetTool,
+  nativeFileDialogTool,
+  languageService,
+);
 const writerSessionRepository = new WriterSessionRepository();
 const writerTool = new TauriWriterTool();
 const textOffsetTool = new TextOffsetTool();
 const domSelectionTool = new DomSelectionTool(textOffsetTool);
-const nativeFileDialogTool = new NativeFileDialogTool();
 const imageAssetTool = new ImageAssetTool();
 const printTool = new PrintTool();
 const fontCapabilityTool = new FontCapabilityTool();

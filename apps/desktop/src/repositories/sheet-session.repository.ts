@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/sheet-session.repository.ts
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
-// Version: 0.4.0
-// Aciklama: Canonical Sheet belgesini degil backend snapshotini, secili hucreyi, sparse format cache ve row-query state'ini reactive saklar
+// Version: 0.4.1
+// Aciklama: Backend snapshot, dirty-state, secili hucre, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
@@ -19,6 +19,7 @@ export type SheetSessionStatus = "idle" | "loading" | "ready" | "error";
 export class SheetSessionRepository {
   private readonly documentSignal = createSignal<SheetDocumentView | null>(null);
   private readonly statusSignal = createSignal<SheetSessionStatus>("idle");
+  private readonly dirtySignal = createSignal(false);
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly selectionSignal = createSignal<SheetSelectionView | null>(null);
   private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
@@ -29,6 +30,7 @@ export class SheetSessionRepository {
 
   public readonly document: Accessor<SheetDocumentView | null> = this.documentSignal[0];
   public readonly status: Accessor<SheetSessionStatus> = this.statusSignal[0];
+  public readonly dirty: Accessor<boolean> = this.dirtySignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly selection: Accessor<SheetSelectionView | null> = this.selectionSignal[0];
   public readonly rowQuery: Accessor<SheetRowQueryStateView | null> = this.rowQuerySignal[0];
@@ -73,6 +75,14 @@ export class SheetSessionRepository {
 
   public setSelection(selection: SheetSelectionView | null): void {
     this.selectionSignal[1](selection);
+  }
+
+  public markDirty(): void {
+    this.dirtySignal[1](true);
+  }
+
+  public markClean(): void {
+    this.dirtySignal[1](false);
   }
 
   public setDocument(document: SheetDocumentView): void {

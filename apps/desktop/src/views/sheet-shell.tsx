@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.4.0
-// Aciklama: Zero-based domain adaptasyonu, aktif draft korumasi, query-control reset, format toolbar, non-mutating row query, formula bari ve grid View'larini birlestirir
+// Version: 0.4.1
+// Aciklama: Zero-based adaptasyon, aktif draft, dirty-safe create, query-control reset, format toolbar, row query, formula bari ve grid View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
@@ -141,9 +141,10 @@ export function SheetShell(props: SheetShellProps) {
     setSortDirection("none");
   };
 
-  const createDocument = (): void => {
-    resetQueryControls();
-    void props.controller.createDocument();
+  const createDocument = async (): Promise<void> => {
+    if (await props.controller.createDocument()) {
+      resetQueryControls();
+    }
   };
 
   const clearQuery = (): void => {
@@ -210,7 +211,7 @@ export function SheetShell(props: SheetShellProps) {
           <button
             type="button"
             class="toolbar-button toolbar-button--primary"
-            onClick={createDocument}
+            onClick={() => void createDocument()}
           >
             {props.language.text("sheetNewDocument")}
           </button>
