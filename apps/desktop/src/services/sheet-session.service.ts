@@ -146,8 +146,16 @@ export class SheetSessionService {
   }
 
   public commitCell(reference: string, rawValue: string): Promise<void> {
+    const expectedDocumentId = this.repository.document()?.id;
+    if (expectedDocumentId === undefined) {
+      return Promise.resolve();
+    }
+
     return this.enqueue(async () => {
       const document = this.requireDocument();
+      if (document.id !== expectedDocumentId) {
+        return;
+      }
       const worksheet = document.worksheets[0];
       if (worksheet === undefined) {
         this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
