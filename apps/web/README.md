@@ -21,9 +21,16 @@ M3 Web v0.4.0 gelistirmesi baslamistir.
 - Native filesystem erisimi kapali.
 - Frontend build ve Vitest regression testi CI gate'ine baglidir.
 
+## M3 icinde tamamlanan ek dilim
+
+- `turkuaz-office-core` wasm32 hedefinde compile-verified.
+- Typed Rust Core ABI/schema capability yuzeyi.
+- Generated WASM module'u adapte edecek `WasmCoreTool` kontrati.
+- Native filesystem capability icin fail-closed Web Tool davranisi.
+
 ## M3 icinde siradaki adimlar
 
-- Gercek WASM-compatible Rust Core slice.
+- Generated Rust/WASM JavaScript binding ve browser runtime loader.
 - IndexedDB tabanli canonical document persistence adapteri.
 - Browser import/export adapteri.
 - Offline cache boundary.

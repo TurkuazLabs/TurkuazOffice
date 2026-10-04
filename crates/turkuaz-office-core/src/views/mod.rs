@@ -6,3 +6,4 @@
 // Bagimli Oldugu Katman: View
 
 pub mod document_view;
+pub mod web_core_view;

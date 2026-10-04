@@ -30,6 +30,10 @@ export function App(props: AppProps) {
             <dd>{state().capabilities.bridgeKind}</dd>
           </div>
           <div>
+            <dt>{WEB_TR.coreAbi}</dt>
+            <dd>{state().capabilities.abiVersion}</dd>
+          </div>
+          <div>
             <dt>{WEB_TR.browserMetadataStorage}</dt>
             <dd>
               {state().capabilities.browserMetadataStorage ? WEB_TR.enabled : WEB_TR.disabled}

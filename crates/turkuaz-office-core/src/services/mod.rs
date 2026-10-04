@@ -8,3 +8,4 @@
 pub mod document_service;
 pub mod document_types;
 pub mod schema_migration_service;
+pub mod web_core_service;
