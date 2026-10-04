@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
-# 📌 Amac: Linux ve CI ortaminda M1 Writer kontratlari ile M2 Sheet Cell Model + CSV/XLSX + Formula Engine kontratlarini dogrular
+# 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
 # Version: 0.3.2
-# Aciklama: Umbrella release versionini korur; M1/M2/R2 static contract ve Community Preview Sheet Desktop metadata kontrollerini uygular
+# Aciklama: Umbrella release versionini korur; M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -239,6 +239,17 @@ required_files=(
   "docs/08-implementation/m2-sheet-100k-benchmark-v0.3.0.md"
   "docs/08-implementation/m2-sheet-100k-benchmark-validation.md"
   "docs/08-implementation/r2-sheet-desktop-integration.md"
+  "apps/web/package.json"
+  "apps/web/tsconfig.json"
+  "apps/web/vite.config.ts"
+  "apps/web/src/main.tsx"
+  "apps/web/src/controllers/web-controller.ts"
+  "apps/web/src/services/web-bootstrap-service.ts"
+  "apps/web/src/repositories/browser-document-repository.ts"
+  "apps/web/src/tools/web-core-tool.ts"
+  "apps/web/src/language/tr-TR.ts"
+  "apps/web/src/views/App.tsx"
+  "docs/08-implementation/m3-web-foundation-v0.4.0.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -263,6 +274,8 @@ done < <(
     -path "$ROOT/node_modules" -prune -o \
     -path "$ROOT/apps/desktop/node_modules" -prune -o \
     -path "$ROOT/apps/desktop/dist" -prune -o \
+    -path "$ROOT/apps/web/node_modules" -prune -o \
+    -path "$ROOT/apps/web/dist" -prune -o \
     -path "$ROOT/target" -prune -o \
     -type f \( \
       -name '*.md' -o -name '*.rs' -o -name '*.toml' -o -name '*.yml' -o -name '*.yaml' \
@@ -289,6 +302,15 @@ grep -q 'release_candidate: true' "$ROOT/config/project.yml"
 grep -q 'desktop_ui_integrated: true' "$ROOT/config/project.yml"
 grep -q '## R2 - Sheet Desktop Integration Baseline' "$ROOT/docs/05-roadmap/roadmap.md"
 grep -q 'R2 Sheet Desktop baseline' "$ROOT/README.md"
+grep -q 'web_client:' "$ROOT/config/project.yml"
+grep -q 'milestone: m3_foundation' "$ROOT/config/project.yml"
+grep -q 'native_file_system_access: false' "$ROOT/config/project.yml"
+grep -q '"version": "0.4.0"' "$ROOT/apps/web/package.json"
+grep -q 'BrowserDocumentRepository' "$ROOT/apps/web/src/repositories/browser-document-repository.ts"
+grep -q 'WebBootstrapService' "$ROOT/apps/web/src/services/web-bootstrap-service.ts"
+grep -q 'BrowserCoreContractTool' "$ROOT/apps/web/src/tools/web-core-tool.ts"
+grep -q '## M3 - Web v0.4.0' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q 'M3 Web Foundation v0.4.0' "$ROOT/docs/08-implementation/m3-web-foundation-v0.4.0.md"
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
