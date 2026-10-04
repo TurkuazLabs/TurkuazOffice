@@ -27,6 +27,13 @@ describe("BrowserDocumentRepository", () => {
     ]);
   });
 
+  it("corrupt storage degrades to an empty document list", () => {
+    window.localStorage.setItem("turkuaz-office:web:v1", "{broken");
+    const repository = new BrowserDocumentRepository(window.localStorage);
+
+    expect(repository.list()).toEqual([]);
+  });
+
   it("remove deletes only requested document", () => {
     const repository = new BrowserDocumentRepository(window.localStorage);
 
