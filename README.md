@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/README.md
 # 📌 Amac: Turkuaz Office monorepo giris dokumani ve gelistirme yonlendirmesi
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.2
+# Version: 0.3.1
 # Aciklama: Tamamlanan Writer, Sheet engine ve Sheet Desktop baseline durumunu monorepo girisinde ozetler
 
 Bagimli Oldugu Katman: Documentation
