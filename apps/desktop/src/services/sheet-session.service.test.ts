@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Secili hucre evaluation/format state ile typed cell input ve format mutation routing davranislarini dogrular
+// Aciklama: Secili hucre evaluation/format cache, decimal-format ve typed cell mutation routing davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -154,6 +154,34 @@ describe("SheetSessionService", () => {
       underline: false,
       horizontalAlignment: "general",
       decimalPlaces: 2,
+    });
+    expect(repository.cellFormat("worksheet-1", "A1")).toEqual(
+      repository.selection()?.format,
+    );
+  });
+
+  it("updates decimal places without dropping other selected format fields", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 1, 1);
+    await service.toggleBold();
+    calls.length = 0;
+    await service.setDecimalPlaces(4);
+
+    expect(calls).toEqual([
+      "format:set:A1:true:general:4",
+      "evaluate:A1",
+      "format:get:A1",
+    ]);
+    expect(repository.cellFormat("worksheet-1", "A1")).toEqual({
+      bold: true,
+      italic: false,
+      underline: false,
+      horizontalAlignment: "general",
+      decimalPlaces: 4,
     });
   });
 
