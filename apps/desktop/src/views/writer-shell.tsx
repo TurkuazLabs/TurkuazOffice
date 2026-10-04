@@ -144,7 +144,7 @@ export function WriterShell(props: WriterShellProps) {
   return (
     <div class="office-shell">
       <header class="office-titlebar">
-        <strong>{props.language.text("appName")}</strong>
+        <strong>{props.language.text("appName")} {props.language.text("writerModule")}</strong>
         <span class="office-titlebar__document">
           {props.repository.filePath() ?? props.language.text("untitledDocument")}
         </span>
