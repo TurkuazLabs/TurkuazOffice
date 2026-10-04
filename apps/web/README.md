@@ -2,7 +2,7 @@
 # 📌 Amac: M3 Web browser istemcisinin aktif foundation kapsam ve sinirlarini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.4.0
-# Aciklama: SolidJS browser shell, local-first storage ve Core Tool boundary baseline'ini dokumante eder
+# Aciklama: SolidJS browser shell, metadata index ve Core Tool boundary baseline'ini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
 
@@ -14,8 +14,9 @@ M3 Web v0.4.0 gelistirmesi baslamistir.
 
 - SolidJS + TypeScript + Vite browser shell.
 - Controller -> Service -> Repo/Tool -> View -> Language katman akisi.
-- Browser Storage tabanli local-first document snapshot Repository.
-- Corrupt storage girdisinde fail-safe empty-list davranisi.
+- localStorage tabanli hafif document metadata/index Repository.
+- Index yalniz `id`, `title` ve `revision` tutar; canonical belge payload'i localStorage'a yazilmaz.
+- Corrupt metadata girdisinde fail-safe empty-list davranisi.
 - Rust/WASM entegrasyonunun gelecekte baglanacagi typed Core Tool siniri.
 - Native filesystem erisimi kapali.
 - Frontend build ve Vitest regression testi CI gate'ine baglidir.
@@ -23,6 +24,7 @@ M3 Web v0.4.0 gelistirmesi baslamistir.
 ## M3 icinde siradaki adimlar
 
 - Gercek WASM-compatible Rust Core slice.
+- IndexedDB tabanli canonical document persistence adapteri.
 - Browser import/export adapteri.
 - Offline cache boundary.
 - Writer/Sheet web read-model entegrasyonu.
