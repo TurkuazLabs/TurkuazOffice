@@ -21,6 +21,7 @@ const root = document.getElementById("app");
 if (root === null) {
   throw new Error(ERROR_CODES.appRootMissing);
 }
+const appRoot = root;
 
 async function bootstrapDesktop(): Promise<void> {
   const launchContext = await APP_CONTAINER.desktopLaunchTool
@@ -55,7 +56,7 @@ async function bootstrapDesktop(): Promise<void> {
         </Match>
       </Switch>
     ),
-    root,
+    appRoot,
   );
 }
 
