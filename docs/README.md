@@ -154,8 +154,6 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/r2-sheet-desktop-integration.md`
 - `08-implementation/m3-web-foundation-v0.4.0.md`
 - `08-implementation/m3-web-wasm-core-v0.4.0.md`
-- `07-quality/m3-web-wasm-core-test-matrix.md`
-- `08-implementation/m3-web-wasm-core-v0.4.0.md`
 
 ## Kural
 
