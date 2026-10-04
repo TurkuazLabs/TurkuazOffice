@@ -218,7 +218,7 @@ export class SheetSessionService {
       case "numberGreaterThan":
       case "numberLessThan": {
         const normalized = filterValue.trim();
-        if (normalized.length === 0) {
+        if (normalized.length === 0 || !SHEET_NUMBER_PATTERN.test(normalized)) {
           this.repository.setRowQueryError(ERROR_CODES.sheetInvalidFilter);
           return;
         }
