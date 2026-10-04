@@ -1,12 +1,15 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/lib.rs
 // # 📌 Amac: Turkuaz Office Desktop Tauri runtime composition rootunu kurar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.4.0
-// # Aciklama: Writer ve Sheet state, IPC controller ve Tauri Builder kaydini merkezi baslatir
+// # Version: 0.5.0
+// # Aciklama: Suite launch hedefi, Writer/Sheet state, IPC controller ve Tauri Builder kaydini merkezi baslatir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
 
+use tauri::Manager;
+
+use controllers::desktop_launch_controller::desktop_get_launch_module;
 use controllers::sheet_desktop_controller::{
     sheet_clear_cell, sheet_create_document, sheet_get_cell_format, sheet_get_document,
     sheet_get_evaluated_cell, sheet_query_rows, sheet_set_boolean, sheet_set_cell_format,
@@ -26,6 +29,7 @@ use controllers::writer_desktop_controller::{
 };
 use services::sheet_desktop_service::SheetDesktopService;
 use services::writer_desktop_service::WriterDesktopService;
+use tools::desktop_launch_tool::DesktopLaunchTool;
 
 pub mod config;
 pub mod controllers;
@@ -40,7 +44,15 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(Mutex::new(WriterDesktopService::new()))
         .manage(Mutex::new(SheetDesktopService::new()))
+        .setup(|app| {
+            let launch_module = DesktopLaunchTool::from_environment();
+            if let Some(window) = app.get_webview_window("main") {
+                window.set_title(launch_module.window_title())?;
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
+            desktop_get_launch_module,
             sheet_create_document,
             sheet_get_document,
             sheet_get_cell_format,

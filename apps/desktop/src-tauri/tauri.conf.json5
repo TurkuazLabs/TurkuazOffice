@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/tauri.conf.json5
 // # 📌 Amac: Turkuaz Office Desktop Tauri pencere, build ve security konfigurasyonunu tanimlar
 // # 📌 Modul - FileType: Config - JSON5
-// # Version: 0.3.1
-// # Aciklama: Windows/Linux Writer ve Sheet shell icin tek main window, production/dev CSP ve capability secimini sabitler
+// # Version: 0.5.0
+// # Aciklama: Windows/Linux suite shell, Start Menu ayrimi, production/dev CSP ve capability secimini sabitler
 // Bagimli Oldugu Katman: Config
 {
   productName: "Turkuaz Office",
@@ -36,6 +36,12 @@
   bundle: {
     active: true,
     icon: ["icons/icon.png", "icons/icon.ico"],
+    windows: {
+      nsis: {
+        startMenuFolder: "Turkuaz Office",
+        installerHooks: "./windows/installer-hooks.nsh",
+      },
+    },
     fileAssociations: [
       {
         ext: ["tko"],

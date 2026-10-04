@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.4.1
+// Version: 0.5.0
 // Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
@@ -62,7 +62,6 @@ function mount(repository: SheetSessionRepository): HTMLElement {
         controller={controllerStub()}
         repository={repository}
         language={new LanguageService("en-US")}
-        onSelectModule={() => undefined}
       />
     ),
     root,
