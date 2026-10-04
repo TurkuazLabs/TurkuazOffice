@@ -22,6 +22,7 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetFormulaBarLabel: "Formula bar",
   sheetSelectedCell: "Selected cell",
   sheetEvaluatedValue: "Evaluated value",
+  sheetAlignGeneral: "General alignment",
   newDocument: "New Document",
   open: "Open",
   undo: "Undo",
