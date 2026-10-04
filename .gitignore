@@ -2,12 +2,13 @@
 # 📌 Amac: Build cache ve local editor artefactlarini Git takibinden haric tutar
 # 📌 Modul - FileType: Repo - GitIgnore
 # Version: 0.2.0
-# Aciklama: Monorepo ignore kurallari
+# Aciklama: Monorepo build, generated WASM ve local editor ignore kurallari
 # Bagimli Oldugu Katman: Tool
 
 /target/
 /node_modules/
 /dist/
+/apps/web/src/generated/wasm-core/
 .env
 .env.*
 !.env.example
