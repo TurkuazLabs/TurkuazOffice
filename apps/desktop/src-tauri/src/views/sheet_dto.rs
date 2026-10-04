@@ -2,14 +2,15 @@
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
 // Version: 0.4.0
-// Aciklama: Sheet belge, cell/format ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
+// Aciklama: Sheet belge, cell/format, row-query ve chart DTO'larini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_sheet::{
-    CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
-    HorizontalAlignmentView, SheetDocumentView, SheetFilter, SheetFilterCondition, SheetRange,
-    SheetRowQueryView, SheetSort, SheetSortDirection, WorksheetView,
+    CellFormat, CellFormatView, CellValueView, CellView, ChartDataView, ChartType, ChartTypeView,
+    HorizontalAlignment, HorizontalAlignmentView, SheetChartView, SheetDocumentView, SheetFilter,
+    SheetFilterCondition, SheetRange, SheetRowQueryView, SheetSort, SheetSortDirection,
+    WorksheetView,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -87,6 +88,53 @@ pub struct SheetRowQueryResultDto {
     pub rows: Vec<u32>,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SheetChartTypeDto {
+    Bar,
+    Line,
+    Pie,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetCreateChartRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub chart_type: SheetChartTypeDto,
+    pub title: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub category_column: u32,
+    pub value_column: u32,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetChartDto {
+    pub id: String,
+    pub worksheet_id: String,
+    pub chart_type: SheetChartTypeDto,
+    pub title: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub category_column: u32,
+    pub value_column: u32,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetChartDataPointDto {
+    pub category: String,
+    pub value: f64,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetChartDataDto {
+    pub points: Vec<SheetChartDataPointDto>,
+}
+
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SheetDocumentDto {
@@ -94,6 +142,7 @@ pub struct SheetDocumentDto {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<SheetWorksheetDto>,
+    pub charts: Vec<SheetChartDto>,
     pub chart_count: usize,
 }
 
@@ -176,6 +225,56 @@ impl From<SheetRangeDto> for SheetRange {
 impl From<SheetRowQueryView> for SheetRowQueryResultDto {
     fn from(result: SheetRowQueryView) -> Self {
         Self { rows: result.rows }
+    }
+}
+
+impl From<SheetChartTypeDto> for ChartType {
+    fn from(chart_type: SheetChartTypeDto) -> Self {
+        match chart_type {
+            SheetChartTypeDto::Bar => Self::Bar,
+            SheetChartTypeDto::Line => Self::Line,
+            SheetChartTypeDto::Pie => Self::Pie,
+        }
+    }
+}
+
+impl From<ChartTypeView> for SheetChartTypeDto {
+    fn from(chart_type: ChartTypeView) -> Self {
+        match chart_type {
+            ChartTypeView::Bar => Self::Bar,
+            ChartTypeView::Line => Self::Line,
+            ChartTypeView::Pie => Self::Pie,
+        }
+    }
+}
+
+impl From<SheetChartView> for SheetChartDto {
+    fn from(chart: SheetChartView) -> Self {
+        Self {
+            id: chart.id,
+            worksheet_id: chart.worksheet_id,
+            chart_type: chart.chart_type.into(),
+            title: chart.title,
+            start_row: chart.start_row,
+            end_row: chart.end_row,
+            category_column: chart.category_column,
+            value_column: chart.value_column,
+        }
+    }
+}
+
+impl From<ChartDataView> for SheetChartDataDto {
+    fn from(data: ChartDataView) -> Self {
+        Self {
+            points: data
+                .points
+                .into_iter()
+                .map(|point| SheetChartDataPointDto {
+                    category: point.category,
+                    value: point.value,
+                })
+                .collect(),
+        }
     }
 }
 
@@ -263,6 +362,11 @@ impl From<WorksheetView> for SheetWorksheetDto {
 
 impl From<SheetDocumentView> for SheetDocumentDto {
     fn from(document: SheetDocumentView) -> Self {
+        let charts = document
+            .charts
+            .into_iter()
+            .map(SheetChartDto::from)
+            .collect::<Vec<_>>();
         Self {
             id: document.id,
             title: document.title,
@@ -272,7 +376,8 @@ impl From<SheetDocumentView> for SheetDocumentDto {
                 .into_iter()
                 .map(SheetWorksheetDto::from)
                 .collect(),
-            chart_count: document.charts.len(),
+            chart_count: charts.len(),
+            charts,
         }
     }
 }
