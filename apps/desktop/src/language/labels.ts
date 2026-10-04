@@ -7,6 +7,16 @@
 
 export type DesktopLabelKey =
   | "appName"
+  | "writerAppName"
+  | "sheetAppName"
+  | "startCenterTitle"
+  | "startCenterDescription"
+  | "startCenterWriterDescription"
+  | "startCenterSheetDescription"
+  | "slidesModule"
+  | "drawModule"
+  | "plannedModule"
+  | "launchModule"
   | "moduleSwitcherLabel"
   | "writerModule"
   | "sheetModule"
