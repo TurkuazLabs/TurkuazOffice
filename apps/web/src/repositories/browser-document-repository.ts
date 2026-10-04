@@ -23,12 +23,16 @@ export class BrowserDocumentRepository implements WebDocumentRepository {
       return [];
     }
 
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter(isWebDocumentSnapshot);
+    } catch {
       return [];
     }
-
-    return parsed.filter(isWebDocumentSnapshot);
   }
 
   public save(document: WebDocumentSnapshot): void {
