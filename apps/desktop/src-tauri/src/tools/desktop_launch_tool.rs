@@ -49,10 +49,10 @@ impl DesktopLaunchTool {
             .collect::<Vec<_>>();
 
         for (index, value) in args.iter().enumerate() {
-            if value == "--module" {
-                if let Some(module) = args.get(index + 1) {
-                    return Self::parse_module(module);
-                }
+            if value == "--module"
+                && let Some(module) = args.get(index + 1)
+            {
+                return Self::parse_module(module);
             }
             if let Some(module) = value.strip_prefix("--module=") {
                 return Self::parse_module(module);
