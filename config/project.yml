@@ -83,7 +83,9 @@ web_client:
   canonical_document_payload_in_local_storage: false
   native_file_system_access: false
   core_bridge: tool_boundary
-  wasm_core: planned
+  wasm_core: compile_verified
+  wasm_target: wasm32-unknown-unknown
+  wasm_binding: planned
   import_export: planned
   offline_cache: planned
 
