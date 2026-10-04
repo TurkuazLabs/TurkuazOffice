@@ -2,7 +2,7 @@
 // # 📌 Amac: Tauri Sheet IPC requestlerini alip yalnizca SheetDesktopService cagirir
 // # 📌 Modul - FileType: Controller - Rust
 // Version: 0.4.0
-// Aciklama: Sheet create/get/cell/formula/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
+// Aciklama: Sheet create/get/cell/formula/format/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
@@ -12,7 +12,7 @@ use tauri::State;
 use crate::config::constants::ERROR_STATE_LOCK;
 use crate::services::sheet_desktop_service::SheetDesktopService;
 use crate::views::error_dto::DesktopErrorDto;
-use crate::views::sheet_dto::{SheetCellDto, SheetDocumentDto};
+use crate::views::sheet_dto::{SheetCellDto, SheetCellFormatDto, SheetDocumentDto};
 
 pub type SheetDesktopState = Mutex<SheetDesktopService>;
 
@@ -104,6 +104,39 @@ pub fn sheet_set_formula(
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service
         .set_formula(&document_id, &worksheet_id, &reference, &expression)
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_get_cell_format(
+    state: State<'_, SheetDesktopState>,
+    document_id: String,
+    worksheet_id: String,
+    reference: String,
+) -> Result<SheetCellFormatDto, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .cell_format(&document_id, &worksheet_id, &reference)
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_set_cell_format(
+    state: State<'_, SheetDesktopState>,
+    document_id: String,
+    worksheet_id: String,
+    reference: String,
+    format: SheetCellFormatDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .set_cell_format(&document_id, &worksheet_id, &reference, format.into())
         .map(Into::into)
         .map_err(Into::into)
 }

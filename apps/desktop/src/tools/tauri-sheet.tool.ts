@@ -2,13 +2,17 @@
 // # 📌 Amac: Desktop frontend ile Tauri Rust backend arasindaki Sheet IPC adaptasyonunu yapar
 // # 📌 Modul - FileType: Tool - TypeScript
 // Version: 0.4.0
-// Aciklama: Create/get/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
+// Aciklama: Create/get/format/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
 // Bagimli Oldugu Katman: Tool
 
 import { invoke } from "@tauri-apps/api/core";
 
 import { IPC_COMMANDS } from "../config/ipc-commands";
-import type { SheetCellView, SheetDocumentView } from "../views/sheet-types";
+import type {
+  SheetCellFormatView,
+  SheetCellView,
+  SheetDocumentView,
+} from "../views/sheet-types";
 
 interface SheetCellCommandInput {
   readonly documentId: string;
@@ -23,6 +27,17 @@ export class TauriSheetTool {
 
   public getDocument(documentId: string): Promise<SheetDocumentView> {
     return invoke<SheetDocumentView>(IPC_COMMANDS.sheetGetDocument, { documentId });
+  }
+
+  public getCellFormat(input: SheetCellCommandInput): Promise<SheetCellFormatView> {
+    return invoke<SheetCellFormatView>(IPC_COMMANDS.sheetGetCellFormat, { ...input });
+  }
+
+  public setCellFormat(
+    input: SheetCellCommandInput,
+    format: SheetCellFormatView,
+  ): Promise<SheetDocumentView> {
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetSetCellFormat, { ...input, format });
   }
 
   public getEvaluatedCell(input: SheetCellCommandInput): Promise<SheetCellView | null> {

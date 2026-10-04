@@ -2,11 +2,33 @@
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
 // Version: 0.4.0
-// Aciklama: Sheet belge, worksheet, raw cell ve evaluated cell degerlerini camelCase IPC read-model olarak sunar
+// Aciklama: Sheet belge, worksheet, raw/evaluated cell ve cell formatlarini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
-use serde::Serialize;
-use turkuaz_office_sheet::{CellValueView, CellView, SheetDocumentView, WorksheetView};
+use serde::{Deserialize, Serialize};
+use turkuaz_office_sheet::{
+    CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
+    HorizontalAlignmentView, SheetDocumentView, WorksheetView,
+};
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SheetHorizontalAlignmentDto {
+    General,
+    Left,
+    Center,
+    Right,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetCellFormatDto {
+    pub bold: bool,
+    pub italic: bool,
+    pub underline: bool,
+    pub horizontal_alignment: SheetHorizontalAlignmentDto,
+    pub decimal_places: Option<u8>,
+}
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -42,6 +64,52 @@ pub enum SheetCellValueDto {
     Number(f64),
     Boolean(bool),
     Formula(String),
+}
+
+impl From<HorizontalAlignmentView> for SheetHorizontalAlignmentDto {
+    fn from(value: HorizontalAlignmentView) -> Self {
+        match value {
+            HorizontalAlignmentView::General => Self::General,
+            HorizontalAlignmentView::Left => Self::Left,
+            HorizontalAlignmentView::Center => Self::Center,
+            HorizontalAlignmentView::Right => Self::Right,
+        }
+    }
+}
+
+impl From<SheetHorizontalAlignmentDto> for HorizontalAlignment {
+    fn from(value: SheetHorizontalAlignmentDto) -> Self {
+        match value {
+            SheetHorizontalAlignmentDto::General => Self::General,
+            SheetHorizontalAlignmentDto::Left => Self::Left,
+            SheetHorizontalAlignmentDto::Center => Self::Center,
+            SheetHorizontalAlignmentDto::Right => Self::Right,
+        }
+    }
+}
+
+impl From<CellFormatView> for SheetCellFormatDto {
+    fn from(format: CellFormatView) -> Self {
+        Self {
+            bold: format.bold,
+            italic: format.italic,
+            underline: format.underline,
+            horizontal_alignment: format.horizontal_alignment.into(),
+            decimal_places: format.decimal_places,
+        }
+    }
+}
+
+impl From<SheetCellFormatDto> for CellFormat {
+    fn from(format: SheetCellFormatDto) -> Self {
+        Self {
+            bold: format.bold,
+            italic: format.italic,
+            underline: format.underline,
+            horizontal_alignment: format.horizontal_alignment.into(),
+            decimal_places: format.decimal_places,
+        }
+    }
 }
 
 impl From<CellValueView> for SheetCellValueDto {

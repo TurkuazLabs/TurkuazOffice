@@ -20,6 +20,8 @@ export type DesktopLabelKey =
   | "sheetFormulaBarLabel"
   | "sheetSelectedCell"
   | "sheetEvaluatedValue"
+  | "sheetAlignGeneral"
+  | "sheetAlignGeneralShort"
   | "newDocument"
   | "open"
   | "undo"

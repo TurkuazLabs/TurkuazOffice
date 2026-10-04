@@ -2,14 +2,14 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Secili hucre evaluation ile bos, formula, boolean, number ve text input routing davranislarini dogrular
+// Aciklama: Secili hucre evaluation/format state ile typed cell input ve format mutation routing davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
 
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
-import type { SheetDocumentView } from "../views/sheet-types";
+import type { SheetCellFormatView, SheetDocumentView } from "../views/sheet-types";
 import { SheetSessionService } from "./sheet-session.service";
 
 const DOCUMENT: SheetDocumentView = {
@@ -28,6 +28,14 @@ const DOCUMENT: SheetDocumentView = {
 };
 
 function toolWithCalls(calls: string[]): TauriSheetTool {
+  let currentFormat: SheetCellFormatView = {
+    bold: false,
+    italic: false,
+    underline: false,
+    horizontalAlignment: "general",
+    decimalPlaces: 2,
+  };
+
   return {
     createDocument: async () => DOCUMENT,
     getDocument: async () => DOCUMENT,
@@ -38,6 +46,17 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
         column: 3,
         value: { kind: "number", value: 2 },
       };
+    },
+    getCellFormat: async (input) => {
+      calls.push(`format:get:${input.reference}`);
+      return currentFormat;
+    },
+    setCellFormat: async (input, format) => {
+      currentFormat = format;
+      calls.push(
+        `format:set:${input.reference}:${String(format.bold)}:${format.horizontalAlignment}:${String(format.decimalPlaces)}`,
+      );
+      return DOCUMENT;
     },
     clearCell: async () => {
       calls.push("clear");
@@ -96,7 +115,7 @@ describe("SheetSessionService", () => {
 
     await service.selectCell("C1", 1, 3);
 
-    expect(calls).toEqual(["evaluate:C1"]);
+    expect(calls).toEqual(["evaluate:C1", "format:get:C1"]);
     expect(repository.selection()).toEqual({
       reference: "C1",
       row: 1,
@@ -104,6 +123,37 @@ describe("SheetSessionService", () => {
       rawValue: "=1+1",
       evaluatedValue: { kind: "number", value: 2 },
       evaluationErrorCode: null,
+      format: {
+        bold: false,
+        italic: false,
+        underline: false,
+        horizontalAlignment: "general",
+        decimalPlaces: 2,
+      },
+    });
+  });
+
+  it("toggles selected formatting without dropping existing format fields", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 1, 1);
+    calls.length = 0;
+    await service.toggleBold();
+
+    expect(calls).toEqual([
+      "format:set:A1:true:general:2",
+      "evaluate:A1",
+      "format:get:A1",
+    ]);
+    expect(repository.selection()?.format).toEqual({
+      bold: true,
+      italic: false,
+      underline: false,
+      horizontalAlignment: "general",
+      decimalPlaces: 2,
     });
   });
 

@@ -2,7 +2,7 @@
 // # 📌 Amac: Turkuaz Office Desktop Sheet temel grid ve formula bar yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Modul secimi, yeni Sheet komutu, secili hucre formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
+// Aciklama: Modul secimi, yeni Sheet komutu, format toolbar, formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { For, Match, onMount, Switch } from "solid-js";
@@ -13,7 +13,7 @@ import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { SheetReferenceTool } from "../tools/sheet-reference.tool";
-import type { SheetCellValueView } from "./sheet-types";
+import type { SheetCellValueView, SheetHorizontalAlignmentView } from "./sheet-types";
 import { OfficeModuleSwitcher } from "./office-module-switcher";
 
 interface SheetShellProps {
@@ -67,6 +67,24 @@ export function SheetShell(props: SheetShellProps) {
     void props.controller.commitCell(selection.reference, value);
   };
 
+  const selectedFormat = () => props.repository.selection()?.format ?? null;
+
+  const selectedCellStyle = (reference: string): Record<string, string> => {
+    const selection = props.repository.selection();
+    const format = selection?.reference === reference ? selection.format : null;
+    if (format === null) {
+      return {};
+    }
+
+    const alignment: SheetHorizontalAlignmentView = format.horizontalAlignment;
+    return {
+      "font-weight": format.bold ? "700" : "400",
+      "font-style": format.italic ? "italic" : "normal",
+      "text-decoration": format.underline ? "underline" : "none",
+      "text-align": alignment === "general" ? "start" : alignment,
+    };
+  };
+
   const evaluatedText = (): string => {
     const selection = props.repository.selection();
     if (selection === null) {
@@ -112,6 +130,78 @@ export function SheetShell(props: SheetShellProps) {
             {props.language.text("sheetNewDocument")}
           </button>
           <span>{activeWorksheet()?.name ?? "-"}</span>
+          <span class="sheet-toolbar__separator" />
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format"
+            aria-label={props.language.text("bold")}
+            aria-pressed={selectedFormat()?.bold ?? false}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.toggleBold()}
+          >
+            {props.language.text("boldShort")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format toolbar-button--italic"
+            aria-label={props.language.text("italic")}
+            aria-pressed={selectedFormat()?.italic ?? false}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.toggleItalic()}
+          >
+            {props.language.text("italicShort")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format toolbar-button--underline"
+            aria-label={props.language.text("underline")}
+            aria-pressed={selectedFormat()?.underline ?? false}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.toggleUnderline()}
+          >
+            {props.language.text("underlineShort")}
+          </button>
+          <span class="sheet-toolbar__separator" />
+          <button
+            type="button"
+            class="toolbar-button"
+            aria-label={props.language.text("sheetAlignGeneral")}
+            aria-pressed={selectedFormat()?.horizontalAlignment === "general"}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.setHorizontalAlignment("general")}
+          >
+            {props.language.text("sheetAlignGeneralShort")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format"
+            aria-label={props.language.text("alignLeft")}
+            aria-pressed={selectedFormat()?.horizontalAlignment === "left"}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.setHorizontalAlignment("left")}
+          >
+            {props.language.text("alignLeftShort")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format"
+            aria-label={props.language.text("alignCenter")}
+            aria-pressed={selectedFormat()?.horizontalAlignment === "center"}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.setHorizontalAlignment("center")}
+          >
+            {props.language.text("alignCenterShort")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--format"
+            aria-label={props.language.text("alignRight")}
+            aria-pressed={selectedFormat()?.horizontalAlignment === "right"}
+            disabled={selectedFormat() === null}
+            onClick={() => void props.controller.setHorizontalAlignment("right")}
+          >
+            {props.language.text("alignRightShort")}
+          </button>
         </div>
 
         <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
@@ -174,6 +264,7 @@ export function SheetShell(props: SheetShellProps) {
                                 class="sheet-grid__input"
                                 aria-label={reference}
                                 value={cellText(row, column)}
+                                style={selectedCellStyle(reference)}
                                 onFocus={() => void props.controller.selectCell(reference, row, column)}
                                 onBlur={(event) => commitCell(row, column, event.currentTarget.value)}
                                 onKeyDown={(event) => {
