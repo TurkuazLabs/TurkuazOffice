@@ -11,3 +11,5 @@ export const WEB_DEV_PORT = 1430;
 export const WEB_STORAGE_NAMESPACE = "turkuaz-office:web:v1";
 export const WEB_CORE_BRIDGE_KIND = "browser-contract";
 export const WEB_CORE_SCHEMA_VERSION = 1;
+export const WEB_APP_ROOT_ID = "app";
+export const WEB_APP_ROOT_ERROR = "Turkuaz Office Web app root bulunamadi.";
