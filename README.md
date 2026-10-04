@@ -174,4 +174,4 @@ npm run build
 npm test
 ```
 
-Web View native filesystem kullanmaz; browser persistence Repository ve Core erisimi Tool siniri arkasindadir.
+Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Web document payload persistence'i IndexedDB adapteri icin planlidir. Core erisimi Tool siniri arkasindadir.
