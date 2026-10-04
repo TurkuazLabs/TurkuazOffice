@@ -247,6 +247,53 @@ describe("SheetSessionService", () => {
     });
   });
 
+  it("refreshes the currently selected cell after another cell mutation completes", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    let resolveMutation: ((value: SheetDocumentView) => void) | null = null;
+    const sheetTool = toolWithCalls(calls);
+    sheetTool.setText = async () =>
+      new Promise<SheetDocumentView>((resolve) => {
+        resolveMutation = resolve;
+      });
+    const service = createService(repository, sheetTool);
+
+    await service.selectCell("A1", 0, 0);
+    calls.length = 0;
+    const pending = service.commitCell("A1", "5");
+    await Promise.resolve();
+    await service.selectCell("B1", 0, 1);
+    resolveMutation?.(DOCUMENT);
+    await pending;
+
+    expect(calls.filter((call) => call === "evaluate:B1")).toHaveLength(2);
+    expect(repository.selection()?.reference).toBe("B1");
+  });
+
+  it("does not restore an older selection when format mutation completes late", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    let resolveFormat: ((value: SheetDocumentView) => void) | null = null;
+    const sheetTool = toolWithCalls(calls);
+    sheetTool.setCellFormat = async () =>
+      new Promise<SheetDocumentView>((resolve) => {
+        resolveFormat = resolve;
+      });
+    const service = createService(repository, sheetTool);
+
+    await service.selectCell("A1", 0, 0);
+    const pending = service.toggleBold();
+    await Promise.resolve();
+    await service.selectCell("B1", 0, 1);
+    resolveFormat?.(DOCUMENT);
+    await pending;
+
+    expect(repository.selection()?.reference).toBe("B1");
+    expect(repository.cellFormat("worksheet-1", "A1")?.bold).toBe(true);
+  });
+
   it("applies selected-column filter and sort as a non-mutating row query", async () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
