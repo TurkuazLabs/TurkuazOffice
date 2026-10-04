@@ -1,10 +1,10 @@
 {
   "_turkuaz_header": [
     "# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/package.json",
-    "# 📌 Amac: M3 Web SolidJS istemci bagimliliklarini ve build-test scriptlerini tanimlar",
+    "# 📌 Amac: M3 Web SolidJS istemci, Rust/WASM generated binding ve build-test scriptlerini tanimlar",
     "# 📌 Modul - FileType: Web - JSON",
     "# Version: 0.4.0",
-    "# Aciklama: Browser istemcisi icin SolidJS, TypeScript, Vite ve Vitest kontratini sabitler",
+    "# Aciklama: Browser istemcisi icin SolidJS, TypeScript, Vite, Vitest ve wasm-pack kontratini sabitler",
     "# Bagimli Oldugu Katman: Config"
   ],
   "name": "turkuaz-office-web",
@@ -12,10 +12,13 @@
   "version": "0.4.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "dev": "npm run wasm:build && vite",
+    "wasm:build": "wasm-pack build ../../crates/turkuaz-office-web-wasm --target web --out-dir ../../apps/web/src/generated/wasm-core --out-name turkuaz_office_web_wasm --release",
+    "build:web": "tsc --noEmit && vite build",
+    "build": "npm run wasm:build && npm run build:web",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test:web": "vitest run",
+    "test": "npm run wasm:build && npm run test:web"
   },
   "dependencies": {
     "solid-js": "1.9.15"
@@ -25,6 +28,7 @@
     "jsdom": "30.1.1",
     "vite": "8.3.0",
     "vite-plugin-solid": "2.11.14",
-    "vitest": "5.0.1"
+    "vitest": "5.0.1",
+    "wasm-pack": "0.15.0"
   }
 }
