@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Sheet, Desktop ve M3 Web frontend kalite kontrollerini Windows ve Linux uzerinde calistirir
+# 📌 Amac: Rust Core/Writer/Sheet, Desktop, M3 Web ve WASM Core kalite kontrollerini Windows/Linux ve wasm32 hedefinde calistirir
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Desktop ve Web build/test, project contract, Rust check/format/clippy ve iki platformlu workspace testlerini dogrular
+# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core check ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -89,12 +89,16 @@ jobs:
         with:
           toolchain: 1.98.1
           components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
 
       - name: Project Contract
         run: ./tools/verify-project.sh
 
       - name: Cargo Check
         run: cargo check --workspace --all-targets
+
+      - name: WASM Core Check
+        run: cargo check -p turkuaz-office-core --target wasm32-unknown-unknown
 
       - name: Format
         run: cargo fmt --all -- --check
