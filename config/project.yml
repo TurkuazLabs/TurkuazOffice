@@ -71,6 +71,20 @@ desktop_ui:
   canonical_state_in_frontend: false
   ipc_thin_bridge_required: true
 
+web_client:
+  active: true
+  milestone: m3_foundation
+  target_version: 0.4.0
+  framework: solidjs
+  language: typescript
+  build_tool: vite
+  storage_adapter: browser_storage
+  native_file_system_access: false
+  core_bridge: tool_boundary
+  wasm_core: planned
+  import_export: planned
+  offline_cache: planned
+
 writer_input:
   surface: contenteditable
   canonical_state_in_dom: false
