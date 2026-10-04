@@ -198,7 +198,12 @@ export class SheetSessionService {
         break;
       case "numberGreaterThan":
       case "numberLessThan": {
-        const value = Number(filterValue.trim());
+        const normalized = filterValue.trim();
+        if (normalized.length === 0) {
+          this.repository.setRowQueryError(ERROR_CODES.sheetInvalidFilter);
+          return;
+        }
+        const value = Number(normalized);
         if (!Number.isFinite(value)) {
           this.repository.setRowQueryError(ERROR_CODES.sheetInvalidFilter);
           return;
