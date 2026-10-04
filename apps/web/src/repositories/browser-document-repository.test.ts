@@ -7,6 +7,7 @@
 
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { WEB_STORAGE_NAMESPACE } from "../config/runtime-config";
 import { BrowserDocumentRepository } from "./browser-document-repository";
 
 describe("BrowserDocumentRepository", () => {
@@ -28,7 +29,7 @@ describe("BrowserDocumentRepository", () => {
   });
 
   it("corrupt storage degrades to an empty document list", () => {
-    window.localStorage.setItem("turkuaz-office:web:v1", "{broken");
+    window.localStorage.setItem(WEB_STORAGE_NAMESPACE, "{broken");
     const repository = new BrowserDocumentRepository(window.localStorage);
 
     expect(repository.list()).toEqual([]);
