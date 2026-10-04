@@ -2,7 +2,7 @@
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
 // Version: 0.4.0
-// Aciklama: Sheet belge, worksheet, cell, selection ve stabil desktop error read-model tiplerini tasir
+// Aciklama: Sheet belge, worksheet, cell, format, selection ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
 export type SheetCellValueView =
@@ -24,6 +24,16 @@ export interface SheetWorksheetView {
   readonly cells: readonly SheetCellView[];
 }
 
+export type SheetHorizontalAlignmentView = "general" | "left" | "center" | "right";
+
+export interface SheetCellFormatView {
+  readonly bold: boolean;
+  readonly italic: boolean;
+  readonly underline: boolean;
+  readonly horizontalAlignment: SheetHorizontalAlignmentView;
+  readonly decimalPlaces: number | null;
+}
+
 export interface SheetSelectionView {
   readonly reference: string;
   readonly row: number;
@@ -31,6 +41,7 @@ export interface SheetSelectionView {
   readonly rawValue: string;
   readonly evaluatedValue: SheetCellValueView | null;
   readonly evaluationErrorCode: string | null;
+  readonly format: SheetCellFormatView | null;
 }
 
 export interface SheetDocumentView {
