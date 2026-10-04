@@ -77,6 +77,12 @@ required_files=(
   "apps/desktop/src/config/file-format.ts"
   "apps/desktop/src/views/writer-ribbon.tsx"
   "apps/desktop/src/views/writer-shell.tsx"
+  "apps/desktop/src/views/sheet-shell.tsx"
+  "apps/desktop/src/tools/desktop-launch.tool.ts"
+  "apps/desktop/src-tauri/src/controllers/desktop_launch_controller.rs"
+  "apps/desktop/src-tauri/src/tools/desktop_launch_tool.rs"
+  "apps/desktop/src-tauri/windows/installer-hooks.nsh"
+  "docs/08-implementation/desktop-suite-entrypoints-v0.5.0.md"
   "apps/desktop/src-tauri/Cargo.toml"
   "apps/desktop/src-tauri/tauri.conf.json5"
   "apps/desktop/src-tauri/capabilities/main-capability.toml"
@@ -364,6 +370,22 @@ grep -q 'pub fn execute_batch' "$ROOT/crates/turkuaz-office-writer/src/services/
 grep -q 'TextOffsetTool' "$ROOT/apps/desktop/src/services/writer-session.service.ts"
 grep -q 'IPC_COMMANDS' "$ROOT/apps/desktop/src/tools/tauri-writer.tool.ts"
 grep -q 'capabilities: \["main-capability"\]' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'suite_entrypoints: start_menu_shortcuts' "$ROOT/config/project.yml"
+grep -q 'in_app_module_switcher: false' "$ROOT/config/project.yml"
+grep -q 'windows_console_window: false' "$ROOT/config/project.yml"
+grep -q 'installerHooks: "./windows/installer-hooks.nsh"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'startMenuFolder: "Turkuaz Office"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
+grep -q 'TURKUAZ_WRITER_SHORTCUT' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
+grep -q 'TURKUAZ_SHEET_SHORTCUT' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
+grep -q -- '--module writer' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
+grep -q -- '--module sheet' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
+grep -q 'windows_subsystem = "windows"' "$ROOT/apps/desktop/src-tauri/src/main.rs"
+grep -q 'desktop_get_launch_module' "$ROOT/apps/desktop/src-tauri/src/lib.rs"
+grep -q 'DesktopLaunchTool' "$ROOT/apps/desktop/src/main.tsx"
+if grep -q 'OfficeModuleSwitcher' "$ROOT/apps/desktop/src/views/writer-shell.tsx" "$ROOT/apps/desktop/src/views/sheet-shell.tsx"; then
+  echo "In-app module switcher suite kontratina aykiri." >&2
+  exit 1
+fi
 
 grep -q 'package_v1:' "$ROOT/config/project.yml"
 grep -q 'direct_target_truncate_allowed: false' "$ROOT/config/project.yml"
