@@ -7,6 +7,7 @@
 
 import { render } from "solid-js/web";
 
+import { WEB_APP_ROOT_ERROR, WEB_APP_ROOT_ID } from "./config/runtime-config";
 import { WebController } from "./controllers/web-controller";
 import { BrowserDocumentRepository } from "./repositories/browser-document-repository";
 import { WebBootstrapService } from "./services/web-bootstrap-service";
@@ -19,9 +20,9 @@ const coreTool = new BrowserCoreContractTool();
 const service = new WebBootstrapService(repository, coreTool);
 const controller = new WebController(service);
 
-const root = document.getElementById("app");
+const root = document.getElementById(WEB_APP_ROOT_ID);
 if (root === null) {
-  throw new Error("Turkuaz Office Web app root bulunamadi.");
+  throw new Error(WEB_APP_ROOT_ERROR);
 }
 
 render(() => <App controller={controller} />, root);
