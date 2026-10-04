@@ -133,6 +133,30 @@ describe("SheetSessionService", () => {
     expect(repository.dirty()).toBe(true);
   });
 
+  it("does not apply an old Sheet cell commit after a replacement document is installed", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    let resolveCreate!: (value: SheetDocumentView) => void;
+    const sheetTool = toolWithCalls(calls);
+    sheetTool.createDocument = async () =>
+      new Promise<SheetDocumentView>((resolve) => {
+        resolveCreate = resolve;
+      });
+    const service = createService(repository, sheetTool);
+
+    const replacing = service.createDocument();
+    await Promise.resolve();
+    const oldCommit = service.commitCell("A1", "5");
+    resolveCreate({ ...DOCUMENT, id: "sheet-document-2" });
+    await replacing;
+    await oldCommit;
+
+    expect(repository.document()?.id).toBe("sheet-document-2");
+    expect(calls).not.toContain("number:5");
+    expect(repository.dirty()).toBe(false);
+  });
+
   it("ignores a row-query response after the query is cleared", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
