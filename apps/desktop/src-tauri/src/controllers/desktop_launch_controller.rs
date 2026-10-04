@@ -23,7 +23,5 @@ pub fn desktop_launch_module(
     state: State<'_, DesktopLaunchService>,
     module: String,
 ) -> Result<(), DesktopErrorDto> {
-    state
-        .launch(&module)
-        .map_err(DesktopErrorDto::new)
+    state.launch(&module).map_err(DesktopErrorDto::new)
 }
