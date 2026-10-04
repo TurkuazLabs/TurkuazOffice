@@ -1,14 +1,13 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/models/web-models.ts
-// # 📌 Amac: M3 Web istemcisinin typed read-model ve browser document tiplerini tanimlar
+// # 📌 Amac: M3 Web istemcisinin typed read-model ve browser document index tiplerini tanimlar
 // # 📌 Modul - FileType: Model - TypeScript
 // # Version: 0.4.0
-// # Aciklama: View ile Service arasindaki platformdan bagimsiz web model kontratini tasir
+// # Aciklama: View ile Service arasindaki platformdan bagimsiz web read-model ve metadata kontratini tasir
 // Bagimli Oldugu Katman: Service
 
-export interface WebDocumentSnapshot {
+export interface WebDocumentIndexEntry {
   readonly id: string;
   readonly title: string;
-  readonly content: string;
   readonly revision: number;
 }
 
