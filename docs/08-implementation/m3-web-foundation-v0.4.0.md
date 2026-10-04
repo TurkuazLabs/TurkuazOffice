@@ -54,6 +54,8 @@ Bu ilk dilimde asagidakiler tamamlanmis sayilmaz:
 - Sheet grid web yuzeyi.
 - Cloud/API, hesap veya sync.
 
-## Sonraki dilim
+## Takip eden durum
 
-Siradaki M3 adimi gercek Rust WASM-compatible core slice ve onun Tool adapteridir. localStorage yalniz metadata indexidir; canonical document payload persistence'i mevcut storage mimarisine uygun olarak IndexedDB adapter diliminde ele alinir.
+Bu foundation sonrasindaki compile-verified Rust WASM Core slice ayri `m3-web-wasm-core-v0.4.0.md` dokumaninda tamamlanmistir.
+
+Siradaki M3 adimi generated Rust/WASM JavaScript binding ve browser runtime loader'dir. localStorage yalniz metadata indexidir; canonical document payload persistence'i mevcut storage mimarisine uygun olarak IndexedDB adapter diliminde ele alinir.
