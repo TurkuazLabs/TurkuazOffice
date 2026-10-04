@@ -5,7 +5,7 @@
 // # Aciklama: Web dev server ve SolidJS Vite plugin kontratini tanimlar
 // Bagimli Oldugu Katman: Config
 
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import solidPlugin from "vite-plugin-solid";
 
 import { WEB_DEV_HOST, WEB_DEV_PORT } from "./src/config/runtime-config";
