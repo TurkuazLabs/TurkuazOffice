@@ -1,13 +1,12 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.4.1
+// Version: 0.5.0
 // Aciklama: Zero-based adaptasyon, aktif draft, dirty-safe create, query-control reset, format toolbar, row query, formula bari ve grid View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
 
-import { OFFICE_MODULES, type OfficeModule } from "../config/office-modules";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
@@ -24,13 +23,11 @@ import type {
   SheetHorizontalAlignmentView,
   SheetSortDirectionView,
 } from "./sheet-types";
-import { OfficeModuleSwitcher } from "./office-module-switcher";
 
 interface SheetShellProps {
   readonly controller: SheetController;
   readonly repository: SheetSessionRepository;
   readonly language: LanguageService;
-  readonly onSelectModule: (module: OfficeModule) => void;
 }
 
 const ROWS = Array.from({ length: SHEET_GRID_ROW_COUNT }, (_, index) => index + 1);
@@ -199,11 +196,6 @@ export function SheetShell(props: SheetShellProps) {
         <span class="office-titlebar__document">
           {props.repository.document()?.title ?? props.language.text("sheetModule")}
         </span>
-        <OfficeModuleSwitcher
-          activeModule={OFFICE_MODULES.sheet}
-          language={props.language}
-          onSelectModule={props.onSelectModule}
-        />
       </header>
 
       <div class="sheet-command-area">
