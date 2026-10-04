@@ -1,11 +1,11 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.0
+// Version: 0.5.1
 // Aciklama: Zero-based adaptasyon, aktif draft, dirty-safe create, query-control reset, format toolbar, row query, formula bari ve grid View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
-import { createSignal, For, Match, onMount, Switch } from "solid-js";
+import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
@@ -17,6 +17,8 @@ import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { SheetReferenceTool } from "../tools/sheet-reference.tool";
+import { SheetMenubar } from "./sheet-menubar";
+import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
 import type {
   SheetCellValueView,
   SheetFilterModeView,
@@ -46,6 +48,8 @@ export function SheetShell(props: SheetShellProps) {
   const [filterMode, setFilterMode] = createSignal<SheetFilterModeView>("none");
   const [filterValue, setFilterValue] = createSignal("");
   const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
+  const [propertiesOpen, setPropertiesOpen] = createSignal(true);
+  const [queryOpen, setQueryOpen] = createSignal(false);
 
   onMount(() => {
     void props.controller.initializeSession();
@@ -199,6 +203,14 @@ export function SheetShell(props: SheetShellProps) {
       </header>
 
       <div class="sheet-command-area">
+        <SheetMenubar
+          language={props.language}
+          propertiesOpen={propertiesOpen()}
+          queryOpen={queryOpen()}
+          onNewDocument={() => void createDocument()}
+          onToggleProperties={() => setPropertiesOpen((value) => !value)}
+          onToggleQuery={() => setQueryOpen((value) => !value)}
+        />
         <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
           <button
             type="button"
@@ -311,7 +323,8 @@ export function SheetShell(props: SheetShellProps) {
           </label>
         </div>
 
-        <div class="sheet-query-bar">
+        <Show when={queryOpen()}>
+          <div class="sheet-query-bar">
           <span class="sheet-query-bar__column">
             {props.language.text("sheetQueryColumn")}: {queryColumnLabel()}
           </span>
@@ -380,7 +393,8 @@ export function SheetShell(props: SheetShellProps) {
           <span class="sheet-query-bar__error" aria-live="polite">
             {props.repository.rowQueryErrorCode() ?? ""}
           </span>
-        </div>
+          </div>
+        </Show>
 
         <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
           <span class="sheet-formula-bar__reference" title={props.language.text("sheetSelectedCell")}>
@@ -415,7 +429,8 @@ export function SheetShell(props: SheetShellProps) {
         </div>
       </div>
 
-      <Switch>
+      <div class="sheet-body">
+        <Switch>
         <Match when={props.repository.document() !== null}>
           <main class="sheet-workspace">
             <table class="sheet-grid" aria-label={props.language.text("sheetGridLabel")}>
@@ -498,7 +513,16 @@ export function SheetShell(props: SheetShellProps) {
             {statusText()}
           </main>
         </Match>
-      </Switch>
+        </Switch>
+        <Show when={propertiesOpen()}>
+          <SheetPropertiesSidebar
+            controller={props.controller}
+            repository={props.repository}
+            language={props.language}
+            onClose={() => setPropertiesOpen(false)}
+          />
+        </Show>
+      </div>
 
       <footer class="sheet-statusbar">
         <span>{statusText()}</span>
@@ -507,6 +531,9 @@ export function SheetShell(props: SheetShellProps) {
         </span>
         <span>
           {props.language.text("sheetVisibleRows")}: {visibleRows().length}
+        </span>
+        <span>
+          {props.language.text("sheetStatusValue")}: {evaluatedText()}
         </span>
         <span class="sheet-statusbar__spacer" />
         <span>

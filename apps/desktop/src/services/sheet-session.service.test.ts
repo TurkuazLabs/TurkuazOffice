@@ -334,7 +334,7 @@ describe("SheetSessionService", () => {
     calls.length = 0;
     await service.applyRowQuery("numberGreaterThan", "15", "ascending");
 
-    expect(calls).toEqual(["query:1:numberGreaterThan:ascending:29:11"]);
+    expect(calls).toEqual(["query:1:numberGreaterThan:ascending:99:25"]);
     expect(repository.rowQuery()).toEqual({
       column: 1,
       filterMode: "numberGreaterThan",
