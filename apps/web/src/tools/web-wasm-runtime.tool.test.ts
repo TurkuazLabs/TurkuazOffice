@@ -2,7 +2,7 @@
 // # 📌 Amac: Web WASM runtime loader Tool init ve adapter akislarini regression testleriyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // # Version: 0.4.0
-// # Aciklama: Init tamamlanmadan capability okunmadigini ve module degerlerinin WasmCoreTool'a aktarıldigini test eder
+// # Aciklama: Init tamamlanmadan capability okunmadigini ve module degerlerinin WasmCoreTool'a aktarildigini test eder
 // Bagimli Oldugu Katman: Tool
 
 import { describe, expect, it } from "vitest";
