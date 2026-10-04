@@ -1,0 +1,26 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-web-wasm/Cargo.toml
+# 📌 Amac: M3 Web icin Rust Core'u wasm-bindgen generated browser binding'ine adapte eden crate'i tanimlar
+# 📌 Modul - FileType: Config - TOML
+# Version: 0.4.0
+# Aciklama: Pure Core'dan ayrik cdylib/rlib adapteri ve pinned wasm-bindgen dependency kontratini tanimlar
+# Bagimli Oldugu Katman: Tool -> Core
+
+[package]
+name = "turkuaz-office-web-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+name = "turkuaz_office_web_wasm"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+turkuaz-office-core = { path = "../turkuaz-office-core" }
+wasm-bindgen = "=0.2.129"
+
+[lints]
+workspace = true
