@@ -2,13 +2,14 @@
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
 // Version: 0.4.0
-// Aciklama: Sheet belge, worksheet, raw/evaluated cell ve cell formatlarini camelCase IPC kontrati olarak sunar
+// Aciklama: Sheet belge, cell/format ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
-    HorizontalAlignmentView, SheetDocumentView, WorksheetView,
+    HorizontalAlignmentView, SheetDocumentView, SheetFilter, SheetFilterCondition, SheetRange,
+    SheetRowQueryView, SheetSort, SheetSortDirection, WorksheetView,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -28,6 +29,62 @@ pub struct SheetCellFormatDto {
     pub underline: bool,
     pub horizontal_alignment: SheetHorizontalAlignmentDto,
     pub decimal_places: Option<u8>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(tag = "kind", content = "value", rename_all = "camelCase")]
+pub enum SheetFilterConditionDto {
+    NonEmpty,
+    TextContains(String),
+    NumberGreaterThan(f64),
+    NumberLessThan(f64),
+    BooleanEquals(bool),
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetFilterDto {
+    pub column: u32,
+    pub condition: SheetFilterConditionDto,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SheetSortDirectionDto {
+    Ascending,
+    Descending,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetSortDto {
+    pub column: u32,
+    pub direction: SheetSortDirectionDto,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetRangeDto {
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetRowQueryRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub range: SheetRangeDto,
+    pub filter: Option<SheetFilterDto>,
+    pub sort: Option<SheetSortDto>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetRowQueryResultDto {
+    pub rows: Vec<u32>,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -64,6 +121,62 @@ pub enum SheetCellValueDto {
     Number(f64),
     Boolean(bool),
     Formula(String),
+}
+
+impl From<SheetFilterConditionDto> for SheetFilterCondition {
+    fn from(condition: SheetFilterConditionDto) -> Self {
+        match condition {
+            SheetFilterConditionDto::NonEmpty => Self::NonEmpty,
+            SheetFilterConditionDto::TextContains(value) => Self::TextContains(value),
+            SheetFilterConditionDto::NumberGreaterThan(value) => Self::NumberGreaterThan(value),
+            SheetFilterConditionDto::NumberLessThan(value) => Self::NumberLessThan(value),
+            SheetFilterConditionDto::BooleanEquals(value) => Self::BooleanEquals(value),
+        }
+    }
+}
+
+impl From<SheetFilterDto> for SheetFilter {
+    fn from(filter: SheetFilterDto) -> Self {
+        Self {
+            column: filter.column,
+            condition: filter.condition.into(),
+        }
+    }
+}
+
+impl From<SheetSortDirectionDto> for SheetSortDirection {
+    fn from(direction: SheetSortDirectionDto) -> Self {
+        match direction {
+            SheetSortDirectionDto::Ascending => Self::Ascending,
+            SheetSortDirectionDto::Descending => Self::Descending,
+        }
+    }
+}
+
+impl From<SheetSortDto> for SheetSort {
+    fn from(sort: SheetSortDto) -> Self {
+        Self {
+            column: sort.column,
+            direction: sort.direction.into(),
+        }
+    }
+}
+
+impl From<SheetRangeDto> for SheetRange {
+    fn from(range: SheetRangeDto) -> Self {
+        Self {
+            start_row: range.start_row,
+            end_row: range.end_row,
+            start_column: range.start_column,
+            end_column: range.end_column,
+        }
+    }
+}
+
+impl From<SheetRowQueryView> for SheetRowQueryResultDto {
+    fn from(result: SheetRowQueryView) -> Self {
+        Self { rows: result.rows }
+    }
 }
 
 impl From<HorizontalAlignmentView> for SheetHorizontalAlignmentDto {

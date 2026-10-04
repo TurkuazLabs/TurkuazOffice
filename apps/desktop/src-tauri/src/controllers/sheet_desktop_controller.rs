@@ -2,7 +2,7 @@
 // # 📌 Amac: Tauri Sheet IPC requestlerini alip yalnizca SheetDesktopService cagirir
 // # 📌 Modul - FileType: Controller - Rust
 // Version: 0.4.0
-// Aciklama: Sheet create/get/cell/formula/format/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
+// Aciklama: Sheet create/get/cell/formula/format/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
@@ -12,7 +12,10 @@ use tauri::State;
 use crate::config::constants::ERROR_STATE_LOCK;
 use crate::services::sheet_desktop_service::SheetDesktopService;
 use crate::views::error_dto::DesktopErrorDto;
-use crate::views::sheet_dto::{SheetCellDto, SheetCellFormatDto, SheetDocumentDto};
+use crate::views::sheet_dto::{
+    SheetCellDto, SheetCellFormatDto, SheetDocumentDto, SheetRowQueryRequestDto,
+    SheetRowQueryResultDto,
+};
 
 pub type SheetDesktopState = Mutex<SheetDesktopService>;
 
@@ -137,6 +140,27 @@ pub fn sheet_set_cell_format(
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service
         .set_cell_format(&document_id, &worksheet_id, &reference, format.into())
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_query_rows(
+    state: State<'_, SheetDesktopState>,
+    request: SheetRowQueryRequestDto,
+) -> Result<SheetRowQueryResultDto, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    let filter = request.filter.map(Into::into);
+    service
+        .query_rows(
+            &request.document_id,
+            &request.worksheet_id,
+            request.range.into(),
+            filter.as_ref(),
+            request.sort.map(Into::into),
+        )
         .map(Into::into)
         .map_err(Into::into)
 }

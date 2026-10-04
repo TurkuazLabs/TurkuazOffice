@@ -11,6 +11,7 @@ export const IPC_COMMANDS = {
   sheetGetEvaluatedCell: "sheet_get_evaluated_cell",
   sheetGetCellFormat: "sheet_get_cell_format",
   sheetSetCellFormat: "sheet_set_cell_format",
+  sheetQueryRows: "sheet_query_rows",
   sheetSetText: "sheet_set_text",
   sheetSetNumber: "sheet_set_number",
   sheetSetBoolean: "sheet_set_boolean",

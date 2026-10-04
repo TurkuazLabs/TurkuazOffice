@@ -893,3 +893,60 @@ input {
 .sheet-toolbar__decimal-format .ribbon-select {
   min-width: 78px;
 }
+
+
+.sheet-query-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--to-space-2);
+  min-width: 0;
+  min-height: 42px;
+  padding: var(--to-space-1) var(--to-space-3);
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  overflow-x: auto;
+}
+
+.sheet-query-bar label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--to-space-1);
+  white-space: nowrap;
+}
+
+.sheet-query-bar__column {
+  min-width: 88px;
+  color: var(--to-text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sheet-query-bar__value {
+  width: 150px;
+  height: 28px;
+  padding: 0 var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.sheet-query-bar__value:focus {
+  border-color: var(--to-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--to-border-focus) 30%, transparent);
+}
+
+.sheet-query-bar__value:disabled {
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-secondary);
+}
+
+.sheet-query-bar__error {
+  min-width: 0;
+  color: var(--to-text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
