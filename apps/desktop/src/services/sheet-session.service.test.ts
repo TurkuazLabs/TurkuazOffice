@@ -138,15 +138,21 @@ describe("SheetSessionService", () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
     let resolveCreate!: (value: SheetDocumentView) => void;
+    let signalCreateStarted!: () => void;
+    const createStarted = new Promise<void>((resolve) => {
+      signalCreateStarted = resolve;
+    });
     const sheetTool = toolWithCalls(calls);
-    sheetTool.createDocument = async () =>
-      new Promise<SheetDocumentView>((resolve) => {
+    sheetTool.createDocument = async () => {
+      signalCreateStarted();
+      return new Promise<SheetDocumentView>((resolve) => {
         resolveCreate = resolve;
       });
+    };
     const service = createService(repository, sheetTool);
 
     const replacing = service.createDocument();
-    await Promise.resolve();
+    await createStarted;
     const oldCommit = service.commitCell("A1", "5");
     resolveCreate({ ...DOCUMENT, id: "sheet-document-2" });
     await replacing;
