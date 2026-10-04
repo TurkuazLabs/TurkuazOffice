@@ -10,6 +10,7 @@ export const WEB_TR = {
   milestone: "M3 Web Foundation",
   browserMetadataStorage: "Browser metadata depolama",
   coreBridge: "Core bridge",
+  coreAbi: "Core ABI",
   storedDocuments: "Indekslenen belge",
   nativeFileSystem: "Native dosya sistemi",
   enabled: "Aktif",
