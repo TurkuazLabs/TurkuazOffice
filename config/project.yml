@@ -70,6 +70,13 @@ desktop_ui:
   build_tool: vite
   canonical_state_in_frontend: false
   ipc_thin_bridge_required: true
+  suite_launcher: start_center
+  in_app_module_switching: false
+  windows_release_console: false
+  windows_start_menu_folder: Turkuaz Office
+  component_shortcuts:
+    - writer
+    - sheet
 
 web_client:
   active: true
