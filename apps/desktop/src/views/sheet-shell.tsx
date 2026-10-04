@@ -1,11 +1,11 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
-// # 📌 Amac: Turkuaz Office Desktop Sheet temel grid ve formula bar yuzeyini render eder
+// # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Zero-based domain adres adaptasyonu, sparse format/number-format toolbar, formula bari, 30x12 editable grid ve statusbar View'larini birlestirir
+// Aciklama: Zero-based domain adaptasyonu, format toolbar, non-mutating row query, formula bari, 30x12 grid ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
-import { For, Match, onMount, Switch } from "solid-js";
+import { createSignal, For, Match, onMount, Switch } from "solid-js";
 
 import { OFFICE_MODULES, type OfficeModule } from "../config/office-modules";
 import {
@@ -18,7 +18,12 @@ import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { SheetReferenceTool } from "../tools/sheet-reference.tool";
-import type { SheetCellValueView, SheetHorizontalAlignmentView } from "./sheet-types";
+import type {
+  SheetCellValueView,
+  SheetFilterModeView,
+  SheetHorizontalAlignmentView,
+  SheetSortDirectionView,
+} from "./sheet-types";
 import { OfficeModuleSwitcher } from "./office-module-switcher";
 
 interface SheetShellProps {
@@ -37,11 +42,26 @@ const DECIMAL_PLACE_OPTIONS = Array.from(
 );
 
 export function SheetShell(props: SheetShellProps) {
+  const [filterMode, setFilterMode] = createSignal<SheetFilterModeView>("none");
+  const [filterValue, setFilterValue] = createSignal("");
+  const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
+
   onMount(() => {
     void props.controller.initializeSession();
   });
 
   const activeWorksheet = () => props.repository.document()?.worksheets[0] ?? null;
+  const selectedFormat = () => props.repository.selection()?.format ?? null;
+  const visibleRows = () => props.repository.rowQuery()?.rows.map((row) => row + 1) ?? ROWS;
+  const filterNeedsValue = () =>
+    filterMode() === "textContains" ||
+    filterMode() === "numberGreaterThan" ||
+    filterMode() === "numberLessThan";
+
+  const queryColumnLabel = (): string => {
+    const selection = props.repository.selection();
+    return selection === null ? "-" : REFERENCE_TOOL.columnLabel(selection.column + 1);
+  };
 
   const valueText = (value: SheetCellValueView): string => {
     switch (value.kind) {
@@ -66,7 +86,11 @@ export function SheetShell(props: SheetShellProps) {
 
     const reference = REFERENCE_TOOL.reference(row, column);
     const format = props.repository.cellFormat(worksheet.id, reference);
-    if (cell.value.kind === "number" && format?.decimalPlaces !== null && format?.decimalPlaces !== undefined) {
+    if (
+      cell.value.kind === "number" &&
+      format?.decimalPlaces !== null &&
+      format?.decimalPlaces !== undefined
+    ) {
       return cell.value.value.toFixed(format.decimalPlaces);
     }
     return valueText(cell.value);
@@ -87,7 +111,12 @@ export function SheetShell(props: SheetShellProps) {
     void props.controller.commitCell(selection.reference, value);
   };
 
-  const selectedFormat = () => props.repository.selection()?.format ?? null;
+  const clearQuery = (): void => {
+    setFilterMode("none");
+    setFilterValue("");
+    setSortDirection("none");
+    props.controller.clearRowQuery();
+  };
 
   const cellStyle = (reference: string): Record<string, string> => {
     const worksheet = activeWorksheet();
@@ -256,6 +285,75 @@ export function SheetShell(props: SheetShellProps) {
           </label>
         </div>
 
+        <div class="sheet-query-bar">
+          <span class="sheet-query-bar__column">
+            {props.language.text("sheetQueryColumn")}: {queryColumnLabel()}
+          </span>
+          <label>
+            <span>{props.language.text("sheetFilter")}</span>
+            <select
+              class="ribbon-select"
+              value={filterMode()}
+              onChange={(event) => setFilterMode(event.currentTarget.value as SheetFilterModeView)}
+            >
+              <option value="none">{props.language.text("sheetFilterNone")}</option>
+              <option value="nonEmpty">{props.language.text("sheetFilterNonEmpty")}</option>
+              <option value="textContains">{props.language.text("sheetFilterTextContains")}</option>
+              <option value="numberGreaterThan">
+                {props.language.text("sheetFilterNumberGreaterThan")}
+              </option>
+              <option value="numberLessThan">
+                {props.language.text("sheetFilterNumberLessThan")}
+              </option>
+              <option value="booleanTrue">{props.language.text("sheetFilterBooleanTrue")}</option>
+              <option value="booleanFalse">{props.language.text("sheetFilterBooleanFalse")}</option>
+            </select>
+          </label>
+          <input
+            class="sheet-query-bar__value"
+            aria-label={props.language.text("sheetFilterValue")}
+            placeholder={props.language.text("sheetFilterValue")}
+            disabled={!filterNeedsValue()}
+            value={filterValue()}
+            onInput={(event) => setFilterValue(event.currentTarget.value)}
+          />
+          <label>
+            <span>{props.language.text("sheetSort")}</span>
+            <select
+              class="ribbon-select"
+              value={sortDirection()}
+              onChange={(event) =>
+                setSortDirection(event.currentTarget.value as SheetSortDirectionView)
+              }
+            >
+              <option value="none">{props.language.text("sheetSortNone")}</option>
+              <option value="ascending">{props.language.text("sheetSortAscending")}</option>
+              <option value="descending">{props.language.text("sheetSortDescending")}</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            class="toolbar-button toolbar-button--primary"
+            disabled={props.repository.selection() === null}
+            onClick={() =>
+              void props.controller.applyRowQuery(filterMode(), filterValue(), sortDirection())
+            }
+          >
+            {props.language.text("sheetApplyQuery")}
+          </button>
+          <button
+            type="button"
+            class="toolbar-button"
+            disabled={props.repository.rowQuery() === null}
+            onClick={clearQuery}
+          >
+            {props.language.text("sheetClearQuery")}
+          </button>
+          <span class="sheet-query-bar__error" aria-live="polite">
+            {props.repository.rowQueryErrorCode() ?? ""}
+          </span>
+        </div>
+
         <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
           <span class="sheet-formula-bar__reference" title={props.language.text("sheetSelectedCell")}>
             {props.repository.selection()?.reference ?? "-"}
@@ -295,7 +393,7 @@ export function SheetShell(props: SheetShellProps) {
                 </tr>
               </thead>
               <tbody>
-                <For each={ROWS}>
+                <For each={visibleRows()}>
                   {(row) => (
                     <tr>
                       <th class="sheet-grid__row-header" scope="row">
@@ -354,6 +452,9 @@ export function SheetShell(props: SheetShellProps) {
         <span>{statusText()}</span>
         <span>
           {props.language.text("sheetSelectedCell")}: {props.repository.selection()?.reference ?? "-"}
+        </span>
+        <span>
+          {props.language.text("sheetVisibleRows")}: {visibleRows().length}
         </span>
         <span class="sheet-statusbar__spacer" />
         <span>
