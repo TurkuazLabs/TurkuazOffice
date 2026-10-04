@@ -11,4 +11,3 @@ pub const NATIVE_DOCUMENT_EXTENSION: &str = "tko";
 pub const CURRENT_DOCUMENT_SCHEMA_VERSION: u32 = 1;
 pub const WEB_CORE_ABI_VERSION: u32 = 1;
 pub const WEB_CORE_BRIDGE_KIND: &str = "rust-wasm";
-
