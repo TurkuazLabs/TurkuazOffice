@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
 // Version: 0.4.0
-// Aciklama: Canonical Sheet belgesini degil backend snapshotini, secili hucreyi, sparse format cache'ini, loading ve error durumunu reactive saklar
+// Aciklama: Canonical Sheet belgesini degil backend snapshotini, secili hucreyi, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
@@ -10,6 +10,7 @@ import { createSignal, type Accessor } from "solid-js";
 import type {
   SheetCellFormatView,
   SheetDocumentView,
+  SheetRowQueryStateView,
   SheetSelectionView,
 } from "../views/sheet-types";
 
@@ -23,11 +24,15 @@ export class SheetSessionRepository {
   private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
     new Map(),
   );
+  private readonly rowQuerySignal = createSignal<SheetRowQueryStateView | null>(null);
+  private readonly rowQueryErrorCodeSignal = createSignal<string | null>(null);
 
   public readonly document: Accessor<SheetDocumentView | null> = this.documentSignal[0];
   public readonly status: Accessor<SheetSessionStatus> = this.statusSignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly selection: Accessor<SheetSelectionView | null> = this.selectionSignal[0];
+  public readonly rowQuery: Accessor<SheetRowQueryStateView | null> = this.rowQuerySignal[0];
+  public readonly rowQueryErrorCode: Accessor<string | null> = this.rowQueryErrorCodeSignal[0];
 
   public cellFormat(worksheetId: string, reference: string): SheetCellFormatView | null {
     return this.cellFormatsSignal[0]().get(this.formatKey(worksheetId, reference)) ?? null;
@@ -45,6 +50,20 @@ export class SheetSessionRepository {
 
   public clearCellFormats(): void {
     this.cellFormatsSignal[1](new Map());
+  }
+
+  public setRowQuery(query: SheetRowQueryStateView): void {
+    this.rowQuerySignal[1](query);
+    this.rowQueryErrorCodeSignal[1](null);
+  }
+
+  public setRowQueryError(errorCode: string): void {
+    this.rowQueryErrorCodeSignal[1](errorCode);
+  }
+
+  public clearRowQuery(): void {
+    this.rowQuerySignal[1](null);
+    this.rowQueryErrorCodeSignal[1](null);
   }
 
   public setLoading(): void {
