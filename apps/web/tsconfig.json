@@ -1,0 +1,28 @@
+// # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/tsconfig.json
+// # 📌 Amac: M3 Web TypeScript ve SolidJS compiler kurallarini tanimlar
+// # 📌 Modul - FileType: Config - JSONC
+// # Version: 0.4.0
+// # Aciklama: Browser istemcisi icin strict typing ve Solid JSX kontratini etkinlestirir
+// Bagimli Oldugu Katman: Config
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

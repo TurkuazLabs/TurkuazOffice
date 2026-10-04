@@ -1,0 +1,30 @@
+{
+  "_turkuaz_header": [
+    "# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/package.json",
+    "# 📌 Amac: M3 Web SolidJS istemci bagimliliklarini ve build-test scriptlerini tanimlar",
+    "# 📌 Modul - FileType: Web - JSON",
+    "# Version: 0.4.0",
+    "# Aciklama: Browser istemcisi icin SolidJS, TypeScript, Vite ve Vitest kontratini sabitler",
+    "# Bagimli Oldugu Katman: Config"
+  ],
+  "name": "turkuaz-office-web",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "solid-js": "1.9.15"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "jsdom": "30.1.1",
+    "vite": "8.3.0",
+    "vite-plugin-solid": "2.11.14",
+    "vitest": "5.0.1"
+  }
+}

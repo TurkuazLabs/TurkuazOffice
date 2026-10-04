@@ -1,0 +1,62 @@
+/*
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/views/app.css
+# 📌 Amac: M3 Web foundation ana View stilini tanimlar
+# 📌 Modul - FileType: View - CSS
+# Version: 0.4.0
+# Aciklama: Basit responsive foundation durum karti gorunumunu saglar
+# Bagimli Oldugu Katman: View
+*/
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.status-card {
+  width: min(720px, 100%);
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0 0;
+}
+
+.status-grid div {
+  border-top: 1px solid currentColor;
+  padding-top: 0.75rem;
+}
+
+.status-grid dt {
+  font-weight: 600;
+}
+
+.status-grid dd {
+  margin: 0.35rem 0 0;
+}
