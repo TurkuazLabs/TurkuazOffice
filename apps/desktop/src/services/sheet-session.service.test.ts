@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Zero-based koordinat, format cache, filter-sort row query, decimal-format ve typed mutation davranislarini dogrular
+// Aciklama: Zero-based koordinat, format cache, filter-sort validation, decimal-format ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -220,6 +220,8 @@ describe("SheetSessionService", () => {
 
     await service.selectCell("B1", 0, 1);
     calls.length = 0;
+    await service.applyRowQuery("numberLessThan", "", "none");
+    await service.applyRowQuery("numberLessThan", "   ", "none");
     await service.applyRowQuery("numberLessThan", "abc", "none");
 
     expect(calls).toEqual([]);
