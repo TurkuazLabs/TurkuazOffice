@@ -28,8 +28,8 @@ use controllers::writer_desktop_controller::{
     writer_split_paragraph, writer_take_startup_file, writer_undo,
 };
 use services::sheet_desktop_service::SheetDesktopService;
-use tools::desktop_launch_tool::DesktopLaunchTool;
 use services::writer_desktop_service::WriterDesktopService;
+use tools::desktop_launch_tool::DesktopLaunchTool;
 
 pub mod config;
 pub mod controllers;
