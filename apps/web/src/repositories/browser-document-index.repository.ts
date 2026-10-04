@@ -29,7 +29,9 @@ export class BrowserDocumentIndexRepository implements WebDocumentIndexRepositor
         return [];
       }
 
-      return parsed.filter(isWebDocumentIndexEntry);
+      return parsed
+        .filter(isWebDocumentIndexEntry)
+        .map(({ id, title, revision }) => ({ id, title, revision }));
     } catch {
       return [];
     }
