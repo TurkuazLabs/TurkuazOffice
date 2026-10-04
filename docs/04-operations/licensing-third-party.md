@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/04-operations/licensing-third-party.md
 # 📌 Amac: Turkuaz Office lisans karari ve ucuncu taraf dependency lisans surecini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.2.1
 # Aciklama: Public release oncesi yanlis lisans verme riskini onleyen gecici politika ve dependency notice surecidir
 
 Bagimli Oldugu Katman: Documentation
@@ -22,6 +22,12 @@ Yeni dependency eklenirken en az su bilgiler review edilir:
 - Copyleft etkisi.
 - Native binary dagitim etkisi.
 - Security maintenance durumu.
+
+## M3 Web WASM dependencies
+
+- `wasm-bindgen 0.2.129`: Rust/WASM runtime binding dependency; MIT OR Apache-2.0.
+- `wasm-pack 0.15.0`: generated Web binding build araci; build-only dependency; MIT OR Apache-2.0.
+- Bu araclar native filesystem veya cloud capability politikasini degistirmez; yalniz Rust/WASM interop ve build zincirinde kullanilir.
 
 ## Third-party notice
 
