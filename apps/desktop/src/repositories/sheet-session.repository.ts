@@ -2,12 +2,16 @@
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
 // Version: 0.4.0
-// Aciklama: Canonical Sheet belgesini degil backend snapshotini, secili hucreyi, loading ve error durumunu reactive saklar
+// Aciklama: Canonical Sheet belgesini degil backend snapshotini, secili hucreyi, sparse format cache'ini, loading ve error durumunu reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
 
-import type { SheetDocumentView, SheetSelectionView } from "../views/sheet-types";
+import type {
+  SheetCellFormatView,
+  SheetDocumentView,
+  SheetSelectionView,
+} from "../views/sheet-types";
 
 export type SheetSessionStatus = "idle" | "loading" | "ready" | "error";
 
@@ -16,11 +20,32 @@ export class SheetSessionRepository {
   private readonly statusSignal = createSignal<SheetSessionStatus>("idle");
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly selectionSignal = createSignal<SheetSelectionView | null>(null);
+  private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
+    new Map(),
+  );
 
   public readonly document: Accessor<SheetDocumentView | null> = this.documentSignal[0];
   public readonly status: Accessor<SheetSessionStatus> = this.statusSignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly selection: Accessor<SheetSelectionView | null> = this.selectionSignal[0];
+
+  public cellFormat(worksheetId: string, reference: string): SheetCellFormatView | null {
+    return this.cellFormatsSignal[0]().get(this.formatKey(worksheetId, reference)) ?? null;
+  }
+
+  public setCellFormat(
+    worksheetId: string,
+    reference: string,
+    format: SheetCellFormatView,
+  ): void {
+    const next = new Map(this.cellFormatsSignal[0]());
+    next.set(this.formatKey(worksheetId, reference), format);
+    this.cellFormatsSignal[1](next);
+  }
+
+  public clearCellFormats(): void {
+    this.cellFormatsSignal[1](new Map());
+  }
 
   public setLoading(): void {
     this.statusSignal[1]("loading");
@@ -47,6 +72,10 @@ export class SheetSessionRepository {
       evaluatedValue: null,
       evaluationErrorCode: errorCode,
     });
+  }
+
+  private formatKey(worksheetId: string, reference: string): string {
+    return `${worksheetId}:${reference}`;
   }
 
   public setError(errorCode: string): void {

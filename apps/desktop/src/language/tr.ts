@@ -24,6 +24,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetEvaluatedValue: "Hesaplanan deger",
   sheetAlignGeneral: "Genel hizalama",
   sheetAlignGeneralShort: "Gen",
+  sheetDecimalPlaces: "Ondalik basamak",
+  sheetDecimalGeneral: "Otomatik",
   newDocument: "Yeni Belge",
   undo: "Geri Al",
   redo: "Yinele",

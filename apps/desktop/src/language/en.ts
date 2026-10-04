@@ -24,6 +24,8 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetEvaluatedValue: "Evaluated value",
   sheetAlignGeneral: "General alignment",
   sheetAlignGeneralShort: "Gen",
+  sheetDecimalPlaces: "Decimal places",
+  sheetDecimalGeneral: "Automatic",
   newDocument: "New Document",
   open: "Open",
   undo: "Undo",

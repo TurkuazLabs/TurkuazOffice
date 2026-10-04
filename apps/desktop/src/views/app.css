@@ -880,3 +880,16 @@ input {
   margin: 0 var(--to-space-1);
   background: var(--to-border-soft);
 }
+
+
+.sheet-toolbar__decimal-format {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--to-space-2);
+  color: var(--to-text-secondary);
+  font-size: 11px;
+}
+
+.sheet-toolbar__decimal-format .ribbon-select {
+  min-width: 78px;
+}

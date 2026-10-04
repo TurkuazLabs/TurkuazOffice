@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // Version: 0.4.0
-// Aciklama: Repo ve Tauri Tool uzerinden secili hucre evaluation/format, typed cell input ve hata akisini business kurallariyla yonetir
+// Aciklama: Repo ve Tauri Tool uzerinden secili hucre evaluation/format/number-format, typed cell input ve hata akisini business kurallariyla yonetir
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -42,6 +42,7 @@ export class SheetSessionService {
       this.repository.setLoading();
       try {
         this.repository.setSelection(null);
+        this.repository.clearCellFormats();
         this.repository.setDocument(await this.sheetTool.createDocument());
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
@@ -91,6 +92,13 @@ export class SheetSessionService {
     return this.updateSelectedFormat((format) => ({
       ...format,
       horizontalAlignment: alignment,
+    }));
+  }
+
+  public setDecimalPlaces(decimalPlaces: number | null): Promise<void> {
+    return this.updateSelectedFormat((format) => ({
+      ...format,
+      decimalPlaces,
     }));
   }
 
@@ -156,6 +164,7 @@ export class SheetSessionService {
       if (current?.reference !== selection.reference) {
         return;
       }
+      this.repository.setCellFormat(worksheet.id, selection.reference, format);
       this.repository.setSelection({
         ...current,
         format,

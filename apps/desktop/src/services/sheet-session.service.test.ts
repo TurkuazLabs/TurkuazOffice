@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Secili hucre evaluation/format state ile typed cell input ve format mutation routing davranislarini dogrular
+// Aciklama: Zero-based domain koordinati, secili hucre evaluation/format cache, decimal-format ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -42,8 +42,8 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
     getEvaluatedCell: async (input) => {
       calls.push(`evaluate:${input.reference}`);
       return {
-        row: 1,
-        column: 3,
+        row: 0,
+        column: 2,
         value: { kind: "number", value: 2 },
       };
     },
@@ -103,8 +103,8 @@ describe("SheetSessionService", () => {
           cellCount: 1,
           cells: [
             {
-              row: 1,
-              column: 3,
+              row: 0,
+              column: 2,
               value: { kind: "formula", value: "=1+1" },
             },
           ],
@@ -113,13 +113,13 @@ describe("SheetSessionService", () => {
     });
     const service = new SheetSessionService(repository, toolWithCalls(calls));
 
-    await service.selectCell("C1", 1, 3);
+    await service.selectCell("C1", 0, 2);
 
     expect(calls).toEqual(["evaluate:C1", "format:get:C1"]);
     expect(repository.selection()).toEqual({
       reference: "C1",
-      row: 1,
-      column: 3,
+      row: 0,
+      column: 2,
       rawValue: "=1+1",
       evaluatedValue: { kind: "number", value: 2 },
       evaluationErrorCode: null,
@@ -139,7 +139,7 @@ describe("SheetSessionService", () => {
     repository.setDocument(DOCUMENT);
     const service = new SheetSessionService(repository, toolWithCalls(calls));
 
-    await service.selectCell("A1", 1, 1);
+    await service.selectCell("A1", 0, 0);
     calls.length = 0;
     await service.toggleBold();
 
@@ -154,6 +154,34 @@ describe("SheetSessionService", () => {
       underline: false,
       horizontalAlignment: "general",
       decimalPlaces: 2,
+    });
+    expect(repository.cellFormat("worksheet-1", "A1")).toEqual(
+      repository.selection()?.format,
+    );
+  });
+
+  it("updates decimal places without dropping other selected format fields", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = new SheetSessionService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    await service.toggleBold();
+    calls.length = 0;
+    await service.setDecimalPlaces(4);
+
+    expect(calls).toEqual([
+      "format:set:A1:true:general:4",
+      "evaluate:A1",
+      "format:get:A1",
+    ]);
+    expect(repository.cellFormat("worksheet-1", "A1")).toEqual({
+      bold: true,
+      italic: false,
+      underline: false,
+      horizontalAlignment: "general",
+      decimalPlaces: 4,
     });
   });
 

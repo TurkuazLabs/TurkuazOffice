@@ -22,6 +22,8 @@ export type DesktopLabelKey =
   | "sheetEvaluatedValue"
   | "sheetAlignGeneral"
   | "sheetAlignGeneralShort"
+  | "sheetDecimalPlaces"
+  | "sheetDecimalGeneral"
   | "newDocument"
   | "open"
   | "undo"
