@@ -22,6 +22,7 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetFormulaBarLabel: "Formul cubugu",
   sheetSelectedCell: "Secili hucre",
   sheetEvaluatedValue: "Hesaplanan deger",
+  sheetAlignGeneral: "Genel hizalama",
   newDocument: "Yeni Belge",
   undo: "Geri Al",
   redo: "Yinele",
