@@ -8,9 +8,9 @@
 export const WEB_TR = {
   productName: "Turkuaz Office Web",
   milestone: "M3 Web Foundation",
-  browserStorage: "Browser depolama",
+  browserMetadataStorage: "Browser metadata depolama",
   coreBridge: "Core bridge",
-  storedDocuments: "Kayitli belge",
+  storedDocuments: "Indekslenen belge",
   nativeFileSystem: "Native dosya sistemi",
   enabled: "Aktif",
   disabled: "Kapali",
