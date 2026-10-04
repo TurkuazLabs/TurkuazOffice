@@ -9,9 +9,7 @@ use std::sync::Mutex;
 
 use tauri::Manager;
 
-use controllers::desktop_launch_controller::{
-    desktop_get_launch_context, desktop_launch_module,
-};
+use controllers::desktop_launch_controller::{desktop_get_launch_context, desktop_launch_module};
 use controllers::sheet_desktop_controller::{
     sheet_clear_cell, sheet_create_document, sheet_get_cell_format, sheet_get_document,
     sheet_get_evaluated_cell, sheet_query_rows, sheet_set_boolean, sheet_set_cell_format,
@@ -43,8 +41,7 @@ pub mod views;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let launch_service =
-        DesktopLaunchService::from_arguments(StartupArgumentsTool::arguments());
+    let launch_service = DesktopLaunchService::from_arguments(StartupArgumentsTool::arguments());
     let launch_module = launch_service.module();
 
     tauri::Builder::default()
