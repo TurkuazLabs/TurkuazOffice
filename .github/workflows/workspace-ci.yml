@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Sheet, Desktop, M3 Web ve WASM Core kalite kontrollerini Windows/Linux ve wasm32 hedefinde calistirir
+# 📌 Amac: Rust Core/Writer/Sheet, Desktop ve generated M3 Web WASM runtime kalite kontrollerini Windows/Linux ve wasm32 hedefinde calistirir
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core check ve iki platformlu workspace testlerini dogrular
+# Aciklama: Desktop/Web build-test, generated WASM binding, project contract, Rust quality ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -62,14 +62,23 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+          targets: wasm32-unknown-unknown
+
       - name: Install Web Dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Build Generated WASM Binding
+        run: npm run wasm:build
+
       - name: Typecheck And Build
-        run: npm run build
+        run: npm run build:web
 
       - name: Web Unit Tests
-        run: npm test
+        run: npm run test:web
 
   rust-quality:
     name: Rust quality
