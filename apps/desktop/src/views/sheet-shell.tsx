@@ -2,7 +2,7 @@
 // # 📌 Amac: Turkuaz Office Desktop Sheet temel grid ve formula bar yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Modul secimi, kalici sparse format/number-format toolbar, formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
+// Aciklama: Zero-based domain adres adaptasyonu, sparse format/number-format toolbar, formula bari, 30x12 editable grid ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { For, Match, onMount, Switch } from "solid-js";
@@ -56,8 +56,9 @@ export function SheetShell(props: SheetShellProps) {
 
   const cellText = (row: number, column: number): string => {
     const worksheet = activeWorksheet();
+    const address = REFERENCE_TOOL.domainAddress(row, column);
     const cell = worksheet?.cells.find(
-      (item) => item.row === row && item.column === column,
+      (item) => item.row === address.row && item.column === address.column,
     );
     if (cell === undefined || worksheet === null) {
       return "";
@@ -316,7 +317,14 @@ export function SheetShell(props: SheetShellProps) {
                                 aria-label={reference}
                                 value={cellText(row, column)}
                                 style={cellStyle(reference)}
-                                onFocus={() => void props.controller.selectCell(reference, row, column)}
+                                onFocus={() => {
+                                  const address = REFERENCE_TOOL.domainAddress(row, column);
+                                  void props.controller.selectCell(
+                                    reference,
+                                    address.row,
+                                    address.column,
+                                  );
+                                }}
                                 onBlur={(event) => commitCell(row, column, event.currentTarget.value)}
                                 onKeyDown={(event) => {
                                   if (event.key === "Enter") {
