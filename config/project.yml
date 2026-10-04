@@ -2,7 +2,7 @@
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Platform, schema, guvenlik, kalite, Sheet Desktop ve M3 Web foundation kararlarini merkezi proje konfigurasyonunda toplar
+# Aciklama: Platform, schema, guvenlik, kalite, Sheet Desktop ve M3 Web WASM runtime kararlarini merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
 project:
@@ -85,7 +85,12 @@ web_client:
   core_bridge: tool_boundary
   wasm_core: compile_verified
   wasm_target: wasm32-unknown-unknown
-  wasm_binding: planned
+  wasm_binding: generated_runtime
+  wasm_binding_crate: turkuaz-office-web-wasm
+  wasm_bindgen_version: 0.2.129
+  wasm_pack_version: 0.15.0
+  wasm_runtime: active
+  wasm_silent_fallback: false
   import_export: planned
   offline_cache: planned
 
