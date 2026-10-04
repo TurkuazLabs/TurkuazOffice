@@ -2,7 +2,7 @@
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Zero-based domain adaptasyonu, format toolbar, non-mutating row query, formula bari, 30x12 grid ve statusbar View'larini birlestirir
+// Aciklama: Zero-based domain adaptasyonu, aktif editor draft korumasi, format toolbar, non-mutating row query, formula bari, grid ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Switch } from "solid-js";
@@ -42,6 +42,8 @@ const DECIMAL_PLACE_OPTIONS = Array.from(
 );
 
 export function SheetShell(props: SheetShellProps) {
+  const [editingReference, setEditingReference] = createSignal<string | null>(null);
+  const [editingDraft, setEditingDraft] = createSignal("");
   const [filterMode, setFilterMode] = createSignal<SheetFilterModeView>("none");
   const [filterValue, setFilterValue] = createSignal("");
   const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
@@ -96,11 +98,27 @@ export function SheetShell(props: SheetShellProps) {
     return valueText(cell.value);
   };
 
-  const commitCell = (row: number, column: number, value: string): void => {
-    if (cellText(row, column) === value) {
-      return;
+  const beginCellEdit = (reference: string, value: string): void => {
+    setEditingReference(reference);
+    setEditingDraft(value);
+  };
+
+  const editorValue = (reference: string, row: number, column: number): string =>
+    editingReference() === reference ? editingDraft() : cellText(row, column);
+
+  const commitCell = async (
+    reference: string,
+    row: number,
+    column: number,
+    value: string,
+  ): Promise<void> => {
+    if (cellText(row, column) !== value) {
+      await props.controller.commitCell(reference, value);
     }
-    void props.controller.commitCell(REFERENCE_TOOL.reference(row, column), value);
+    if (editingReference() === reference) {
+      setEditingReference(null);
+      setEditingDraft("");
+    }
   };
 
   const commitFormulaBar = (value: string): void => {
@@ -413,9 +431,10 @@ export function SheetShell(props: SheetShellProps) {
                               <input
                                 class="sheet-grid__input"
                                 aria-label={reference}
-                                value={cellText(row, column)}
+                                value={editorValue(reference, row, column)}
                                 style={cellStyle(reference)}
-                                onFocus={() => {
+                                onFocus={(event) => {
+                                  beginCellEdit(reference, event.currentTarget.value);
                                   const address = REFERENCE_TOOL.domainAddress(row, column);
                                   void props.controller.selectCell(
                                     reference,
@@ -423,7 +442,19 @@ export function SheetShell(props: SheetShellProps) {
                                     address.column,
                                   );
                                 }}
-                                onBlur={(event) => commitCell(row, column, event.currentTarget.value)}
+                                onInput={(event) => {
+                                  if (editingReference() === reference) {
+                                    setEditingDraft(event.currentTarget.value);
+                                  }
+                                }}
+                                onBlur={(event) => {
+                                  void commitCell(
+                                    reference,
+                                    row,
+                                    column,
+                                    event.currentTarget.value,
+                                  );
+                                }}
                                 onKeyDown={(event) => {
                                   if (event.key === "Enter") {
                                     event.currentTarget.blur();
