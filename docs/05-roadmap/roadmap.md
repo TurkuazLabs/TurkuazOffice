@@ -194,7 +194,7 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 
 - SolidJS + TypeScript + Vite browser client shell.
 - Controller -> Service -> Repo/Tool -> View -> Language web katman iskeleti.
-- Browser Storage tabanli local-first Repository baseline'i.
+- localStorage tabanli metadata/index Repository baseline'i; canonical document payload persistence'i degildir.
 - Typed Core Tool boundary.
 - Native filesystem erisiminin web kontrati disinda tutulmasi.
 - Web frontend build/test CI gate'i.
