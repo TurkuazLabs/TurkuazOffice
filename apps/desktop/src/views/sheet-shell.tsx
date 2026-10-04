@@ -192,7 +192,7 @@ export function SheetShell(props: SheetShellProps) {
   return (
     <div class="office-shell">
       <header class="office-titlebar">
-        <strong>{props.language.text("appName")}</strong>
+        <strong>{props.language.text("appName")} {props.language.text("sheetModule")}</strong>
         <span class="office-titlebar__document">
           {props.repository.document()?.title ?? props.language.text("sheetModule")}
         </span>
