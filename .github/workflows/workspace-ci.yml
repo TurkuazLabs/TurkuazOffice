@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Sheet, Desktop, M3 Web ve WASM Core kalite kontrollerini Windows/Linux ve wasm32 hedefinde calistirir
+# 📌 Amac: Rust Core/Writer/Sheet, Desktop, M3 Web, WASM Core ve generated binding artifact kalite kontrollerini calistirir
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core check ve iki platformlu workspace testlerini dogrular
+# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core check, generated binding artifact ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -70,6 +70,33 @@ jobs:
 
       - name: Web Unit Tests
         run: npm test
+
+  wasm-artifact:
+    name: Web WASM artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen CLI
+        run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+
+      - name: Build Generated Web WASM
+        run: bash ./tools/build-web-wasm.sh
+
+      - name: Upload Web WASM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: turkuaz-office-web-wasm
+          path: apps/web/public/wasm/
+          if-no-files-found: error
 
   rust-quality:
     name: Rust quality
