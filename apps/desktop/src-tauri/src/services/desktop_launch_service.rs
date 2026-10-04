@@ -66,7 +66,10 @@ impl DesktopLaunchService {
                 .and_then(DesktopLaunchModule::from_value)
         });
         let module = explicit.unwrap_or_else(|| {
-            if arguments.iter().any(|argument| Self::is_native_document(argument)) {
+            if arguments
+                .iter()
+                .any(|argument| Self::is_native_document(argument))
+            {
                 DesktopLaunchModule::Writer
             } else {
                 DesktopLaunchModule::Start
@@ -85,7 +88,10 @@ impl DesktopLaunchService {
             .ok_or(ERROR_DESKTOP_MODULE_INVALID)?;
         let executable = env::current_exe().map_err(|_| ERROR_DESKTOP_LAUNCH_FAILED)?;
         Command::new(executable)
-            .arg(format!("{DESKTOP_MODULE_ARGUMENT_PREFIX}{}", module.as_str()))
+            .arg(format!(
+                "{DESKTOP_MODULE_ARGUMENT_PREFIX}{}",
+                module.as_str()
+            ))
             .spawn()
             .map_err(|_| ERROR_DESKTOP_LAUNCH_FAILED)?;
         Ok(())
