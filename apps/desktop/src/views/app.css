@@ -872,3 +872,11 @@ input {
     grid-column: 1 / -1;
   }
 }
+
+
+.sheet-toolbar__separator {
+  width: 1px;
+  height: 24px;
+  margin: 0 var(--to-space-1);
+  background: var(--to-border-soft);
+}
