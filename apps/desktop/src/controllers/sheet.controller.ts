@@ -2,11 +2,15 @@
 // # 📌 Amac: Sheet View requestlerini alip yalnizca SheetSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
 // Version: 0.4.0
-// Aciklama: Session baslatma, secili hucre, format/number-format, yeni Sheet ve cell commit requestleri icin ince Controller siniridir
+// Aciklama: Session, secili hucre, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
 import type { SheetSessionService } from "../services/sheet-session.service";
-import type { SheetHorizontalAlignmentView } from "../views/sheet-types";
+import type {
+  SheetFilterModeView,
+  SheetHorizontalAlignmentView,
+  SheetSortDirectionView,
+} from "../views/sheet-types";
 
 export class SheetController {
   public constructor(private readonly service: SheetSessionService) {}
@@ -41,6 +45,18 @@ export class SheetController {
 
   public setDecimalPlaces(decimalPlaces: number | null): Promise<void> {
     return this.service.setDecimalPlaces(decimalPlaces);
+  }
+
+  public applyRowQuery(
+    filterMode: SheetFilterModeView,
+    filterValue: string,
+    sortDirection: SheetSortDirectionView,
+  ): Promise<void> {
+    return this.service.applyRowQuery(filterMode, filterValue, sortDirection);
+  }
+
+  public clearRowQuery(): void {
+    this.service.clearRowQuery();
   }
 
   public commitCell(reference: string, value: string): Promise<void> {
