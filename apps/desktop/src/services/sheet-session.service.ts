@@ -2,7 +2,7 @@
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
 // Version: 0.4.0
-// Aciklama: Repo ve Tauri Tool uzerinden secili hucre evaluation/format/number-format, typed cell input ve hata akisini business kurallariyla yonetir
+// Aciklama: Repo ve Tauri Tool uzerinden cell edit/format ile non-mutating filter-sort row query akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -10,6 +10,8 @@ import {
   SHEET_BOOLEAN_FALSE,
   SHEET_BOOLEAN_TRUE,
   SHEET_FORMULA_PREFIX,
+  SHEET_GRID_COLUMN_COUNT,
+  SHEET_GRID_ROW_COUNT,
   SHEET_NUMBER_PATTERN,
 } from "../config/sheet";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
@@ -19,7 +21,11 @@ import type {
   SheetCellValueView,
   SheetDesktopErrorView,
   SheetDocumentView,
+  SheetFilterConditionView,
+  SheetFilterModeView,
   SheetHorizontalAlignmentView,
+  SheetRowQueryRequestView,
+  SheetSortDirectionView,
 } from "../views/sheet-types";
 
 export class SheetSessionService {
@@ -43,6 +49,7 @@ export class SheetSessionService {
       try {
         this.repository.setSelection(null);
         this.repository.clearCellFormats();
+        this.repository.clearRowQuery();
         this.repository.setDocument(await this.sheetTool.createDocument());
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
@@ -102,6 +109,26 @@ export class SheetSessionService {
     }));
   }
 
+  public async applyRowQuery(
+    filterMode: SheetFilterModeView,
+    filterValue: string,
+    sortDirection: SheetSortDirectionView,
+  ): Promise<void> {
+    const selection = this.repository.selection();
+    if (selection === null) {
+      return;
+    }
+    if (filterMode === "none" && sortDirection === "none") {
+      this.repository.clearRowQuery();
+      return;
+    }
+    await this.runRowQuery(selection.column, filterMode, filterValue, sortDirection);
+  }
+
+  public clearRowQuery(): void {
+    this.repository.clearRowQuery();
+  }
+
   public commitCell(reference: string, rawValue: string): Promise<void> {
     return this.enqueue(async () => {
       const document = this.requireDocument();
@@ -139,10 +166,101 @@ export class SheetSessionService {
         if (selection?.reference === reference) {
           await this.selectCell(reference, selection.row, selection.column);
         }
+        await this.refreshRowQuery();
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
     });
+  }
+
+  private async runRowQuery(
+    column: number,
+    filterMode: SheetFilterModeView,
+    filterValue: string,
+    sortDirection: SheetSortDirectionView,
+  ): Promise<void> {
+    const document = this.requireDocument();
+    const worksheet = document.worksheets[0];
+    if (worksheet === undefined) {
+      this.repository.setError(ERROR_CODES.sheetWorksheetNotFound);
+      return;
+    }
+
+    let condition: SheetFilterConditionView | null = null;
+    switch (filterMode) {
+      case "none":
+        break;
+      case "nonEmpty":
+        condition = { kind: "nonEmpty" };
+        break;
+      case "textContains":
+        condition = { kind: "textContains", value: filterValue };
+        break;
+      case "numberGreaterThan":
+      case "numberLessThan": {
+        const value = Number(filterValue.trim());
+        if (!Number.isFinite(value)) {
+          this.repository.setRowQueryError(ERROR_CODES.sheetInvalidFilter);
+          return;
+        }
+        condition =
+          filterMode === "numberGreaterThan"
+            ? { kind: "numberGreaterThan", value }
+            : { kind: "numberLessThan", value };
+        break;
+      }
+      case "booleanTrue":
+        condition = { kind: "booleanEquals", value: true };
+        break;
+      case "booleanFalse":
+        condition = { kind: "booleanEquals", value: false };
+        break;
+    }
+
+    const request: SheetRowQueryRequestView = {
+      documentId: document.id,
+      worksheetId: worksheet.id,
+      range: {
+        startRow: 0,
+        endRow: SHEET_GRID_ROW_COUNT - 1,
+        startColumn: 0,
+        endColumn: SHEET_GRID_COLUMN_COUNT - 1,
+      },
+      filter: condition === null ? null : { column, condition },
+      sort:
+        sortDirection === "none"
+          ? null
+          : {
+              column,
+              direction: sortDirection,
+            },
+    };
+
+    try {
+      const result = await this.sheetTool.queryRows(request);
+      this.repository.setRowQuery({
+        column,
+        filterMode,
+        filterValue,
+        sortDirection,
+        rows: result.rows,
+      });
+    } catch (error: unknown) {
+      this.repository.setRowQueryError(this.errorCode(error));
+    }
+  }
+
+  private async refreshRowQuery(): Promise<void> {
+    const query = this.repository.rowQuery();
+    if (query === null) {
+      return;
+    }
+    await this.runRowQuery(
+      query.column,
+      query.filterMode,
+      query.filterValue,
+      query.sortDirection,
+    );
   }
 
   private async refreshSelectionFormat(): Promise<void> {
