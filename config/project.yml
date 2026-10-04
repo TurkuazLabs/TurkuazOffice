@@ -85,8 +85,10 @@ web_client:
   core_bridge: tool_boundary
   wasm_core: compile_verified
   wasm_target: wasm32-unknown-unknown
-  wasm_binding: runtime_loader_foundation
+  wasm_binding: generated_artifact_ci
   wasm_binding_url: /wasm/turkuaz_office_core.js
+  wasm_bindgen_version: 0.2.129
+  wasm_artifact_ci: true
   import_export: planned
   offline_cache: planned
 

@@ -1,9 +1,9 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-core/Cargo.toml
-# 📌 Amac: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini tanimlar
+# 📌 Amac: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini ve Web/WASM export hedefini tanimlar
 # 📌 Modul - FileType: Config - TOML
-# Version: 0.2.0
-# Aciklama: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini tanimlar
-# Bagimli Oldugu Katman: Core
+# Version: 0.4.0
+# Aciklama: Native rlib kullanimi ile wasm-bindgen cdylib exportlarini ayni Core crate icinde hedef-bazli bagimlilikla tanimlar
+# Bagimli Oldugu Katman: Core | Tool
 
 [package]
 name = "turkuaz-office-core"
@@ -16,6 +16,10 @@ repository.workspace = true
 [lib]
 name = "turkuaz_office_core"
 path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.129"
 
 [lints]
 workspace = true
