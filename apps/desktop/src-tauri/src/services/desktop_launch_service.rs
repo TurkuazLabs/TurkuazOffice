@@ -11,7 +11,8 @@ use std::process::Command;
 
 use crate::config::constants::{
     DESKTOP_MODULE_ARGUMENT_PREFIX, DESKTOP_MODULE_SHEET, DESKTOP_MODULE_START,
-    DESKTOP_MODULE_WRITER, ERROR_DESKTOP_LAUNCH_FAILED, ERROR_DESKTOP_MODULE_INVALID,
+    DESKTOP_MODULE_WRITER, DESKTOP_TITLE_SHEET, DESKTOP_TITLE_START, DESKTOP_TITLE_WRITER,
+    ERROR_DESKTOP_LAUNCH_FAILED, ERROR_DESKTOP_MODULE_INVALID,
 };
 use turkuaz_office_writer::config::constants::TKO_FILE_EXTENSION;
 
@@ -28,6 +29,14 @@ impl DesktopLaunchModule {
             Self::Start => DESKTOP_MODULE_START,
             Self::Writer => DESKTOP_MODULE_WRITER,
             Self::Sheet => DESKTOP_MODULE_SHEET,
+        }
+    }
+
+    pub fn window_title(self) -> &'static str {
+        match self {
+            Self::Start => DESKTOP_TITLE_START,
+            Self::Writer => DESKTOP_TITLE_WRITER,
+            Self::Sheet => DESKTOP_TITLE_SHEET,
         }
     }
 
