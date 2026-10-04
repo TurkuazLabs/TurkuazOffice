@@ -180,8 +180,8 @@ export class SheetSessionService {
         this.repository.setDocument(updated);
         this.repository.markDirty();
         const selection = this.repository.selection();
-        if (selection?.reference === reference) {
-          await this.selectCell(reference, selection.row, selection.column);
+        if (selection !== null) {
+          await this.selectCell(selection.reference, selection.row, selection.column);
         }
         await this.refreshRowQuery();
       } catch (error: unknown) {
@@ -339,13 +339,18 @@ export class SheetSessionService {
         worksheetId: worksheet.id,
         reference: selection.reference,
       };
+      const nextFormat = transform(selection.format);
       this.repository.setLoading();
       try {
         this.repository.setDocument(
-          await this.sheetTool.setCellFormat(input, transform(selection.format)),
+          await this.sheetTool.setCellFormat(input, nextFormat),
         );
         this.repository.markDirty();
-        await this.selectCell(selection.reference, selection.row, selection.column);
+        this.repository.setCellFormat(worksheet.id, selection.reference, nextFormat);
+        const current = this.repository.selection();
+        if (current?.reference === selection.reference) {
+          await this.selectCell(selection.reference, selection.row, selection.column);
+        }
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
