@@ -14,7 +14,7 @@ export interface WebDocumentIndexEntry {
 export interface WebCoreCapabilities {
   readonly bridgeKind: string;
   readonly schemaVersion: number;
-  readonly browserStorage: true;
+  readonly browserMetadataStorage: true;
   readonly nativeFileSystemAccess: false;
 }
 
