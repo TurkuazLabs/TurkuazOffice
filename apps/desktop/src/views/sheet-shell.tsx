@@ -2,13 +2,18 @@
 // # 📌 Amac: Turkuaz Office Desktop Sheet temel grid ve formula bar yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.4.0
-// Aciklama: Modul secimi, yeni Sheet komutu, format toolbar, formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
+// Aciklama: Modul secimi, kalici sparse format/number-format toolbar, formula bari, 30x12 editable grid ve session statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { For, Match, onMount, Switch } from "solid-js";
 
 import { OFFICE_MODULES, type OfficeModule } from "../config/office-modules";
-import { SHEET_GRID_COLUMN_COUNT, SHEET_GRID_ROW_COUNT } from "../config/sheet";
+import {
+  SHEET_DECIMAL_GENERAL_VALUE,
+  SHEET_GRID_COLUMN_COUNT,
+  SHEET_GRID_ROW_COUNT,
+  SHEET_MAX_DECIMAL_PLACES,
+} from "../config/sheet";
 import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
@@ -26,6 +31,10 @@ interface SheetShellProps {
 const ROWS = Array.from({ length: SHEET_GRID_ROW_COUNT }, (_, index) => index + 1);
 const COLUMNS = Array.from({ length: SHEET_GRID_COLUMN_COUNT }, (_, index) => index + 1);
 const REFERENCE_TOOL = new SheetReferenceTool();
+const DECIMAL_PLACE_OPTIONS = Array.from(
+  { length: SHEET_MAX_DECIMAL_PLACES + 1 },
+  (_, index) => index,
+);
 
 export function SheetShell(props: SheetShellProps) {
   onMount(() => {
@@ -46,10 +55,20 @@ export function SheetShell(props: SheetShellProps) {
   };
 
   const cellText = (row: number, column: number): string => {
-    const cell = activeWorksheet()?.cells.find(
+    const worksheet = activeWorksheet();
+    const cell = worksheet?.cells.find(
       (item) => item.row === row && item.column === column,
     );
-    return cell === undefined ? "" : valueText(cell.value);
+    if (cell === undefined || worksheet === null) {
+      return "";
+    }
+
+    const reference = REFERENCE_TOOL.reference(row, column);
+    const format = props.repository.cellFormat(worksheet.id, reference);
+    if (cell.value.kind === "number" && format?.decimalPlaces !== null && format?.decimalPlaces !== undefined) {
+      return cell.value.value.toFixed(format.decimalPlaces);
+    }
+    return valueText(cell.value);
   };
 
   const commitCell = (row: number, column: number, value: string): void => {
@@ -69,9 +88,12 @@ export function SheetShell(props: SheetShellProps) {
 
   const selectedFormat = () => props.repository.selection()?.format ?? null;
 
-  const selectedCellStyle = (reference: string): Record<string, string> => {
-    const selection = props.repository.selection();
-    const format = selection?.reference === reference ? selection.format : null;
+  const cellStyle = (reference: string): Record<string, string> => {
+    const worksheet = activeWorksheet();
+    if (worksheet === null) {
+      return {};
+    }
+    const format = props.repository.cellFormat(worksheet.id, reference);
     if (format === null) {
       return {};
     }
@@ -202,6 +224,35 @@ export function SheetShell(props: SheetShellProps) {
           >
             {props.language.text("alignRightShort")}
           </button>
+          <span class="sheet-toolbar__separator" />
+          <label class="sheet-toolbar__decimal-format">
+            <span>{props.language.text("sheetDecimalPlaces")}</span>
+            <select
+              class="ribbon-select ribbon-select--size"
+              disabled={selectedFormat() === null}
+              value={
+                selectedFormat()?.decimalPlaces === null ||
+                selectedFormat()?.decimalPlaces === undefined
+                  ? SHEET_DECIMAL_GENERAL_VALUE
+                  : String(selectedFormat()?.decimalPlaces)
+              }
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                void props.controller.setDecimalPlaces(
+                  value === SHEET_DECIMAL_GENERAL_VALUE ? null : Number(value),
+                );
+              }}
+            >
+              <option value={SHEET_DECIMAL_GENERAL_VALUE}>
+                {props.language.text("sheetDecimalGeneral")}
+              </option>
+              <For each={DECIMAL_PLACE_OPTIONS}>
+                {(decimalPlaces) => (
+                  <option value={String(decimalPlaces)}>{decimalPlaces}</option>
+                )}
+              </For>
+            </select>
+          </label>
         </div>
 
         <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
@@ -264,7 +315,7 @@ export function SheetShell(props: SheetShellProps) {
                                 class="sheet-grid__input"
                                 aria-label={reference}
                                 value={cellText(row, column)}
-                                style={selectedCellStyle(reference)}
+                                style={cellStyle(reference)}
                                 onFocus={() => void props.controller.selectCell(reference, row, column)}
                                 onBlur={(event) => commitCell(row, column, event.currentTarget.value)}
                                 onKeyDown={(event) => {
