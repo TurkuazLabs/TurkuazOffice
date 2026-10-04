@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
-import type { SheetDocumentView } from "../views/sheet-types";
+import type { SheetCellFormatView, SheetDocumentView } from "../views/sheet-types";
 import { SheetSessionService } from "./sheet-session.service";
 
 const DOCUMENT: SheetDocumentView = {
@@ -28,11 +28,11 @@ const DOCUMENT: SheetDocumentView = {
 };
 
 function toolWithCalls(calls: string[]): TauriSheetTool {
-  let currentFormat = {
+  let currentFormat: SheetCellFormatView = {
     bold: false,
     italic: false,
     underline: false,
-    horizontalAlignment: "general" as const,
+    horizontalAlignment: "general",
     decimalPlaces: 2,
   };
 
@@ -52,7 +52,7 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
       return currentFormat;
     },
     setCellFormat: async (input, format) => {
-      currentFormat = { ...format, horizontalAlignment: format.horizontalAlignment };
+      currentFormat = format;
       calls.push(
         `format:set:${input.reference}:${String(format.bold)}:${format.horizontalAlignment}:${String(format.decimalPlaces)}`,
       );
