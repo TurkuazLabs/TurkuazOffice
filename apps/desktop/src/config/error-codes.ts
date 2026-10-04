@@ -10,4 +10,5 @@ export const ERROR_CODES = {
   appRootMissing: "desktop.app_root_missing",
   printUnavailable: "desktop.print_unavailable",
   sheetWorksheetNotFound: "sheet.worksheet_not_found",
+  sheetInvalidFilter: "sheet.invalid_filter",
 } as const;
