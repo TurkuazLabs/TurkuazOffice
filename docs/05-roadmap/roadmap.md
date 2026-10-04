@@ -198,10 +198,14 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - Typed Core Tool boundary.
 - Native filesystem erisiminin web kontrati disinda tutulmasi.
 - Web frontend build/test CI gate'i.
+- `turkuaz-office-core` icin `wasm32-unknown-unknown` compile gate'i.
+- Typed Rust Web Core ABI/schema capability yuzeyi.
+- Web tarafinda generated module icin `WasmCoreTool` adapter kontrati.
 
 ### M3 kalan kapsam
 
-- Gercek WASM-compatible Rust Core slice.
+- Generated Rust/WASM JavaScript binding ve runtime loader.
+- IndexedDB canonical document persistence.
 - Browser import/export.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
