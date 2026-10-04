@@ -655,43 +655,6 @@ input {
   white-space: nowrap;
 }
 
-.office-module-switcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border: 1px solid var(--to-border-soft);
-  border-radius: var(--to-radius-sm);
-  background: var(--to-bg-toolbar);
-}
-
-.office-module-switcher__button {
-  min-width: 62px;
-  height: 26px;
-  padding: 0 var(--to-space-2);
-  border: 0;
-  border-radius: var(--to-radius-sm);
-  background: transparent;
-  color: var(--to-text-secondary);
-  cursor: pointer;
-}
-
-.office-module-switcher__button:hover,
-.office-module-switcher__button:focus-visible {
-  background: var(--to-bg-toolbar-hover);
-  color: var(--to-text-primary);
-  outline: none;
-}
-
-.office-module-switcher__button:focus-visible {
-  box-shadow: 0 0 0 2px var(--to-border-focus);
-}
-
-.office-module-switcher__button--active {
-  background: var(--to-accent);
-  color: #ffffff;
-  font-weight: 600;
-}
 
 .sheet-toolbar {
   display: flex;
