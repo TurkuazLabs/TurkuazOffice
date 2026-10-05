@@ -7,6 +7,10 @@
 
 # Sheet Range Status Aggregates v0.5.1
 
+## Entegrasyon tabani
+
+Excel/Calc hybrid Sheet UI (#35) main dalindadir. Bu dilim dogrudan main uzerinde yalnizca range selection ve canonical status aggregate davranisini ekler.
+
 ## Kapsam
 
 Turkuaz Sheet, Excel ve Calc'taki hizli secim ozeti davranisini canonical Sheet motoruna baglar.
