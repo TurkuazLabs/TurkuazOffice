@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
 # 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.4.0
-# Aciklama: UI tokenlariyla Writer ribbon ve Sheet grid yuzeylerini ortak desktop gorunumunde tanimlar
+# Version: 0.5.1
+# Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, dock ve status yuzeylerini tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
 
@@ -949,4 +949,319 @@ input {
   color: var(--to-text-primary);
   font-weight: 600;
   white-space: nowrap;
+}
+
+
+/* Sheet Hybrid Office UI v0.5.1 */
+
+.sheet-menubar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 28px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  font-size: 12px;
+}
+
+.sheet-menu {
+  position: relative;
+}
+
+.sheet-menu > summary,
+.sheet-menubar__disabled {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 3px;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.sheet-menu > summary {
+  cursor: pointer;
+}
+
+.sheet-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sheet-menu > summary:hover,
+.sheet-menu[open] > summary {
+  background: var(--to-bg-toolbar-hover);
+}
+
+.sheet-menubar__disabled {
+  color: var(--to-text-secondary);
+  opacity: 0.65;
+}
+
+.sheet-menu__popup {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  z-index: 50;
+  display: grid;
+  min-width: 210px;
+  padding: 4px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  box-shadow: var(--to-shadow-page);
+}
+
+.sheet-menu__popup button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--to-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet-menu__popup button:hover,
+.sheet-menu__popup button:focus-visible,
+.sheet-menu__popup button[aria-pressed="true"] {
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.sheet-toolbar {
+  min-height: 40px;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--to-bg-surface);
+}
+
+.sheet-toolbar .toolbar-button {
+  min-height: 30px;
+}
+
+.sheet-query-bar {
+  min-height: 36px;
+  padding: 3px 8px;
+}
+
+.sheet-formula-bar {
+  grid-template-columns: 82px 28px minmax(260px, 1fr) minmax(150px, auto);
+  min-height: 34px;
+  gap: 4px;
+  padding: 3px 8px;
+  border-top: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+}
+
+.sheet-formula-bar::before {
+  content: "fx";
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  color: var(--to-accent);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sheet-formula-bar__reference {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  height: 27px;
+  padding: 0 7px;
+  border: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  font-weight: 500;
+}
+
+.sheet-formula-bar__input {
+  grid-column: 3;
+  grid-row: 1;
+  height: 27px;
+  border-radius: 0;
+}
+
+.sheet-formula-bar__evaluated {
+  grid-column: 4;
+  grid-row: 1;
+  padding-left: 8px;
+}
+
+.sheet-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sheet-workspace {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--to-bg-surface);
+}
+
+.sheet-grid__corner {
+  width: 36px;
+  min-width: 36px;
+}
+
+.sheet-grid__column-header {
+  width: 88px;
+  min-width: 88px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.sheet-grid__row-header {
+  width: 36px;
+  min-width: 36px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.sheet-grid__cell {
+  width: 88px;
+  min-width: 88px;
+  height: 24px;
+}
+
+.sheet-grid__input {
+  height: 23px;
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+.sheet-sidebar {
+  width: 300px;
+  min-width: 300px;
+  max-width: 340px;
+  min-height: 0;
+  overflow: auto;
+  border-left: 1px solid var(--to-border-soft);
+  background: var(--to-bg-toolbar);
+  color: var(--to-text-primary);
+}
+
+.sheet-sidebar__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+}
+
+.sheet-sidebar__close {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--to-text-secondary);
+  cursor: pointer;
+}
+
+.sheet-sidebar__close:hover,
+.sheet-sidebar__close:focus-visible {
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.sheet-sidebar__empty {
+  padding: 14px;
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+
+.sheet-sidebar__section {
+  padding: 12px;
+  border-bottom: 1px solid var(--to-border-soft);
+}
+
+.sheet-sidebar__section h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sheet-sidebar__facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.sheet-sidebar__facts > div {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.sheet-sidebar__facts dt {
+  color: var(--to-text-secondary);
+  font-size: 11px;
+}
+
+.sheet-sidebar__facts dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-sidebar__format-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.sheet-sidebar__field {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  color: var(--to-text-secondary);
+  font-size: 11px;
+}
+
+.sheet-sidebar__field .ribbon-select {
+  width: 100%;
+  min-height: 28px;
+}
+
+.sheet-statusbar {
+  min-height: 24px;
+  gap: 14px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+@media (max-width: 980px) {
+  .sheet-sidebar {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .sheet-formula-bar {
+    grid-template-columns: 72px 24px minmax(180px, 1fr);
+  }
+
+  .sheet-formula-bar__evaluated {
+    display: none;
+  }
 }

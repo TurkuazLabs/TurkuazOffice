@@ -315,6 +315,31 @@ desktop_keyboard_smoke:
   manual_smoke_required: true
 
 
+sheet_desktop_ui:
+  active: true
+  design_model: excel_calc_hybrid
+  classic_menu_bar: true
+  compact_toolbar: true
+  formula_bar: true
+  name_box: true
+  properties_sidebar: true
+  properties_sidebar_default_open: true
+  data_query_toggle: menu
+  grid_initial_rows: 100
+  grid_initial_columns: 26
+  fake_commands_allowed: false
+  planned_sidebar_modules:
+    - styles
+    - gallery
+    - functions
+  planned_productivity:
+    - multi_selection_status_aggregates
+    - freeze_panes
+    - tables
+    - conditional_formatting
+    - charts
+    - function_library
+
 sheet_cell_model:
   active: true
   storage: sparse

@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/tr.ts
 // # 📌 Amac: Turkuaz Office Desktop Turkce UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.4.0
+// # Version: 0.5.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid ve status alanlari icin ASCII Turkce label kaynagidir
 // Bagimli Oldugu Katman: Language
 
@@ -42,6 +42,15 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetSortDescending: "Azalan",
   sheetApplyQuery: "Uygula",
   sheetClearQuery: "Temizle",
+  sheetProperties: "Ozellikler",
+  sheetPropertiesToggle: "Ozellikler paneli",
+  sheetSidebarLabel: "Sheet sag paneli",
+  sheetRawValue: "Ham deger",
+  sheetFormat: "Bicim",
+  sheetCloseSidebar: "Paneli kapat",
+  sheetShowQuery: "Filtre ve siralamayi goster",
+  sheetHideQuery: "Filtre ve siralamayi gizle",
+  sheetStatusValue: "Deger",
   sheetVisibleRows: "Gorunen satir",
   newDocument: "Yeni Belge",
   undo: "Geri Al",
@@ -84,6 +93,12 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   italicShort: "I",
   underlineShort: "U",
   paragraphLabel: "Paragraf",
+  menuEdit: "Duzenle",
+  menuFormat: "Bicim",
+  menuData: "Veri",
+  menuTools: "Araclar",
+  menuWindow: "Pencere",
+  menuHelp: "Yardim",
   menuFile: "Dosya",
   menuHome: "Giris",
   menuInsert: "Ekle",

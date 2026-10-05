@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.5.0
+// Version: 0.5.1
 // Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
@@ -82,6 +82,13 @@ describe("SheetShell active drafts", () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
     const root = mount(repository);
+
+    const showQuery = Array.from(root.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "Show filter and sort",
+    );
+    expect(showQuery).not.toBeUndefined();
+    showQuery!.click();
+    await Promise.resolve();
 
     const filter = root.querySelector<HTMLSelectElement>('select[aria-label="Filter"]');
     const sort = root.querySelector<HTMLSelectElement>('select[aria-label="Sort"]');

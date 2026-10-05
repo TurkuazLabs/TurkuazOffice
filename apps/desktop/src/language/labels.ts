@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/labels.ts
 // # 📌 Amac: Desktop UI label anahtarlarini typed kontrat olarak tanimlar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.4.0
+// # Version: 0.5.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid, storage ve status kullanici metinlerini merkezi anahtarlara baglar
 // Bagimli Oldugu Katman: Language
 
@@ -41,6 +41,15 @@ export type DesktopLabelKey =
   | "sheetApplyQuery"
   | "sheetClearQuery"
   | "sheetVisibleRows"
+  | "sheetProperties"
+  | "sheetPropertiesToggle"
+  | "sheetSidebarLabel"
+  | "sheetRawValue"
+  | "sheetFormat"
+  | "sheetCloseSidebar"
+  | "sheetShowQuery"
+  | "sheetHideQuery"
+  | "sheetStatusValue"
   | "newDocument"
   | "open"
   | "undo"
@@ -85,6 +94,12 @@ export type DesktopLabelKey =
   | "underlineShort"
   | "paragraphLabel"
   | "menuFile"
+  | "menuEdit"
+  | "menuFormat"
+  | "menuData"
+  | "menuTools"
+  | "menuWindow"
+  | "menuHelp"
   | "menuHome"
   | "menuInsert"
   | "menuView"
