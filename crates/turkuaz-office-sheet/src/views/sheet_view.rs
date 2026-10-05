@@ -1,13 +1,13 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/views/sheet_view.rs
 // # 📌 Amac: Canonical Sheet domain modelini UI/API icin read-only deterministic View modeline cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.3.0
-// Aciklama: Document/worksheet/cell/value alanlarini sparse BTreeMap sirasini koruyarak presentation katmanina tasir
+// Version: 0.5.0
+// Aciklama: Document/worksheet/cell/value ve range summary alanlarini presentation katmanina tasir
 // Bagimli Oldugu Katman: View -> Service
 
 use crate::services::sheet_types::{
     Cell, CellFormat, CellValue, ChartDataPoint, ChartType, HorizontalAlignment, SheetChart,
-    SheetDocument, Worksheet,
+    SheetDocument, SheetRangeSummary, Worksheet,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -60,6 +60,14 @@ pub struct CellFormatView {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SheetRowQueryView {
     pub rows: Vec<u32>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SheetRangeSummaryView {
+    pub count: usize,
+    pub numeric_count: usize,
+    pub sum: f64,
+    pub average: Option<f64>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -162,6 +170,17 @@ impl From<CellFormat> for CellFormatView {
 impl From<Vec<u32>> for SheetRowQueryView {
     fn from(rows: Vec<u32>) -> Self {
         Self { rows }
+    }
+}
+
+impl From<SheetRangeSummary> for SheetRangeSummaryView {
+    fn from(summary: SheetRangeSummary) -> Self {
+        Self {
+            count: summary.count,
+            numeric_count: summary.numeric_count,
+            sum: summary.sum,
+            average: summary.average,
+        }
     }
 }
 

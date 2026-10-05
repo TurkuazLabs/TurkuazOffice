@@ -327,6 +327,12 @@ sheet_desktop_ui:
   data_query_toggle: menu
   grid_initial_rows: 100
   grid_initial_columns: 26
+  multi_selection: shift_rectangular_range
+  status_aggregates: canonical_range_summary
+  status_aggregate_metrics:
+    - count
+    - sum
+    - average
   fake_commands_allowed: false
   planned_sidebar_modules:
     - styles

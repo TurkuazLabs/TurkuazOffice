@@ -10,6 +10,7 @@ export const IPC_COMMANDS = {
   sheetGetDocument: "sheet_get_document",
   sheetGetEvaluatedCell: "sheet_get_evaluated_cell",
   sheetGetCellFormat: "sheet_get_cell_format",
+  sheetGetRangeSummary: "sheet_get_range_summary",
   sheetSetCellFormat: "sheet_set_cell_format",
   sheetQueryRows: "sheet_query_rows",
   sheetSetText: "sheet_set_text",

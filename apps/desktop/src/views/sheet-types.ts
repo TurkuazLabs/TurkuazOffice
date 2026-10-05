@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.4.0
-// Aciklama: Sheet belge, cell/format, selection, row-query ve stabil desktop error read-model tiplerini tasir
+// Version: 0.5.0
+// Aciklama: Sheet belge, cell/format, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
 export type SheetCellValueView =
@@ -52,6 +52,26 @@ export type SheetFilterConditionView =
   | { readonly kind: "numberLessThan"; readonly value: number }
   | { readonly kind: "booleanEquals"; readonly value: boolean };
 
+export interface SheetRangeView {
+  readonly startRow: number;
+  readonly endRow: number;
+  readonly startColumn: number;
+  readonly endColumn: number;
+}
+
+export interface SheetRangeSummaryRequestView {
+  readonly documentId: string;
+  readonly worksheetId: string;
+  readonly range: SheetRangeView;
+}
+
+export interface SheetRangeSummaryView {
+  readonly count: number;
+  readonly numericCount: number;
+  readonly sum: number;
+  readonly average: number | null;
+}
+
 export interface SheetRowQueryRequestView {
   readonly documentId: string;
   readonly worksheetId: string;
@@ -86,6 +106,8 @@ export interface SheetRowQueryStateView {
   readonly sortDirection: SheetSortDirectionView;
   readonly rows: readonly number[];
 }
+
+export interface SheetSelectionRangeView extends SheetRangeView {}
 
 export interface SheetSelectionView {
   readonly reference: string;

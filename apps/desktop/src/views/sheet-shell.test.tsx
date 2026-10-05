@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.5.1
+// Version: 0.5.2
 // Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
@@ -42,6 +42,7 @@ function controllerStub(): SheetController {
     initializeSession: async () => undefined,
     createDocument: async () => true,
     selectCell: async () => undefined,
+    extendSelection: async () => undefined,
     toggleBold: async () => undefined,
     toggleItalic: async () => undefined,
     toggleUnderline: async () => undefined,
@@ -135,6 +136,39 @@ describe("SheetShell active drafts", () => {
     await Promise.resolve();
 
     expect(input!.value).toBe("123");
+  });
+
+  it("renders range selection and Excel-style status aggregates", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setSelection({
+      reference: "A1",
+      row: 0,
+      column: 0,
+      rawValue: "12.34",
+      evaluatedValue: { kind: "number", value: 12.34 },
+      evaluationErrorCode: null,
+      format: null,
+    });
+    repository.setSelectionRange({
+      startRow: 0,
+      endRow: 1,
+      startColumn: 0,
+      endColumn: 1,
+    });
+    repository.setRangeSummary({
+      count: 4,
+      numericCount: 3,
+      sum: 30,
+      average: 10,
+    });
+
+    const root = mount(repository);
+    const b2 = root.querySelector<HTMLInputElement>('input[aria-label="B2"]');
+    expect(b2?.closest("td")?.classList.contains("sheet-grid__cell--range")).toBe(true);
+    expect(root.textContent).toContain("Count: 4");
+    expect(root.textContent).toContain("Sum: 30");
+    expect(root.textContent).toContain("Average: 10");
   });
 
   it("keeps uncommitted formula input when selected-cell read model refreshes", async () => {

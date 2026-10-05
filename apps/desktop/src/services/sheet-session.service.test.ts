@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.4.1
-// Aciklama: Dirty-state, discard onayi, stale query korumasi, format cache, filter-sort ve typed mutation davranislarini dogrular
+// Version: 0.5.0
+// Aciklama: Dirty-state, range summary, stale query korumasi, format cache, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -59,6 +59,17 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
         `format:set:${input.reference}:${String(format.bold)}:${format.horizontalAlignment}:${String(format.decimalPlaces)}`,
       );
       return DOCUMENT;
+    },
+    getRangeSummary: async (request) => {
+      calls.push(
+        `summary:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
+      );
+      return {
+        count: 4,
+        numericCount: 3,
+        sum: 30,
+        average: 10,
+      };
     },
     queryRows: async (request) => {
       calls.push(
@@ -222,6 +233,31 @@ describe("SheetSessionService", () => {
         horizontalAlignment: "general",
         decimalPlaces: 2,
       },
+    });
+  });
+
+  it("extends the active cell into a canonical range summary", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    calls.length = 0;
+    await service.extendSelection(2, 1);
+
+    expect(calls).toEqual(["summary:0:2:0:1"]);
+    expect(repository.selectionRange()).toEqual({
+      startRow: 0,
+      endRow: 2,
+      startColumn: 0,
+      endColumn: 1,
+    });
+    expect(repository.rangeSummary()).toEqual({
+      count: 4,
+      numericCount: 3,
+      sum: 30,
+      average: 10,
     });
   });
 

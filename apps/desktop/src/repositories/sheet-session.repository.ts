@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/sheet-session.repository.ts
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
-// Version: 0.4.1
-// Aciklama: Backend snapshot, dirty-state, secili hucre, sparse format cache ve row-query state'ini reactive saklar
+// Version: 0.5.0
+// Aciklama: Backend snapshot, dirty-state, secili hucre/range, range summary, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
@@ -10,7 +10,9 @@ import { createSignal, type Accessor } from "solid-js";
 import type {
   SheetCellFormatView,
   SheetDocumentView,
+  SheetRangeSummaryView,
   SheetRowQueryStateView,
+  SheetSelectionRangeView,
   SheetSelectionView,
 } from "../views/sheet-types";
 
@@ -22,6 +24,9 @@ export class SheetSessionRepository {
   private readonly dirtySignal = createSignal(false);
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly selectionSignal = createSignal<SheetSelectionView | null>(null);
+  private readonly selectionRangeSignal = createSignal<SheetSelectionRangeView | null>(null);
+  private readonly rangeSummarySignal = createSignal<SheetRangeSummaryView | null>(null);
+  private readonly rangeSummaryErrorCodeSignal = createSignal<string | null>(null);
   private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
     new Map(),
   );
@@ -33,6 +38,11 @@ export class SheetSessionRepository {
   public readonly dirty: Accessor<boolean> = this.dirtySignal[0];
   public readonly errorCode: Accessor<string | null> = this.errorCodeSignal[0];
   public readonly selection: Accessor<SheetSelectionView | null> = this.selectionSignal[0];
+  public readonly selectionRange: Accessor<SheetSelectionRangeView | null> =
+    this.selectionRangeSignal[0];
+  public readonly rangeSummary: Accessor<SheetRangeSummaryView | null> = this.rangeSummarySignal[0];
+  public readonly rangeSummaryErrorCode: Accessor<string | null> =
+    this.rangeSummaryErrorCodeSignal[0];
   public readonly rowQuery: Accessor<SheetRowQueryStateView | null> = this.rowQuerySignal[0];
   public readonly rowQueryErrorCode: Accessor<string | null> = this.rowQueryErrorCodeSignal[0];
 
@@ -75,6 +85,28 @@ export class SheetSessionRepository {
 
   public setSelection(selection: SheetSelectionView | null): void {
     this.selectionSignal[1](selection);
+  }
+
+  public setSelectionRange(range: SheetSelectionRangeView): void {
+    this.selectionRangeSignal[1](range);
+    this.rangeSummarySignal[1](null);
+    this.rangeSummaryErrorCodeSignal[1](null);
+  }
+
+  public setRangeSummary(summary: SheetRangeSummaryView): void {
+    this.rangeSummarySignal[1](summary);
+    this.rangeSummaryErrorCodeSignal[1](null);
+  }
+
+  public setRangeSummaryError(errorCode: string): void {
+    this.rangeSummarySignal[1](null);
+    this.rangeSummaryErrorCodeSignal[1](errorCode);
+  }
+
+  public clearSelectionRange(): void {
+    this.selectionRangeSignal[1](null);
+    this.rangeSummarySignal[1](null);
+    this.rangeSummaryErrorCodeSignal[1](null);
   }
 
   public markDirty(): void {

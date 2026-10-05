@@ -1,14 +1,14 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs
 // # 📌 Amac: Desktop Sheet requestlerini canonical Sheet Controller akisina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.4.0
-// Aciklama: Create/get/cell/formula/format/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
+// Version: 0.5.0
+// Aciklama: Create/get/cell/formula/format/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Controller -> Service -> Repo -> Tool
 
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValue, CellView, InMemorySheetDocumentRepository,
     SequentialSheetIdTool, SheetController, SheetDocumentView, SheetError, SheetFilter, SheetRange,
-    SheetRowQueryView, SheetService, SheetSort,
+    SheetRangeSummaryView, SheetRowQueryView, SheetService, SheetSort,
 };
 
 type DesktopSheetController =
@@ -114,6 +114,16 @@ impl SheetDesktopService {
     ) -> Result<SheetDocumentView, SheetError> {
         self.controller
             .set_cell_format_a1(document_id, worksheet_id, reference, format)
+    }
+
+    pub fn range_summary(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<SheetRangeSummaryView, SheetError> {
+        self.controller
+            .range_summary(document_id, worksheet_id, range)
     }
 
     pub fn query_rows(

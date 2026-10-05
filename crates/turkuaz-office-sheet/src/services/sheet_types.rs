@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_types.rs
-// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, query ve chart canonical modelini tanimlar
+// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, range summary, query ve chart canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.3.0
+// Version: 0.5.0
 // Aciklama: Sparse cell storage, canonical format metadata, table-query ve basic chart tiplerini tasir
 // Bagimli Oldugu Katman: Service
 
@@ -85,6 +85,14 @@ pub struct SheetRange {
     pub end_row: u32,
     pub start_column: u32,
     pub end_column: u32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SheetRangeSummary {
+    pub count: usize,
+    pub numeric_count: usize,
+    pub sum: f64,
+    pub average: Option<f64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]

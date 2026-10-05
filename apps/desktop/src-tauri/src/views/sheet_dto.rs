@@ -1,15 +1,15 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/sheet_dto.rs
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.4.0
-// Aciklama: Sheet belge, cell/format ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
+// Version: 0.5.0
+// Aciklama: Sheet belge, cell/format, range-summary ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
     HorizontalAlignmentView, SheetDocumentView, SheetFilter, SheetFilterCondition, SheetRange,
-    SheetRowQueryView, SheetSort, SheetSortDirection, WorksheetView,
+    SheetRangeSummaryView, SheetRowQueryView, SheetSort, SheetSortDirection, WorksheetView,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -69,6 +69,23 @@ pub struct SheetRangeDto {
     pub end_row: u32,
     pub start_column: u32,
     pub end_column: u32,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetRangeSummaryRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub range: SheetRangeDto,
+}
+
+#[derive(Clone, Copy, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetRangeSummaryDto {
+    pub count: usize,
+    pub numeric_count: usize,
+    pub sum: f64,
+    pub average: Option<f64>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -169,6 +186,17 @@ impl From<SheetRangeDto> for SheetRange {
             end_row: range.end_row,
             start_column: range.start_column,
             end_column: range.end_column,
+        }
+    }
+}
+
+impl From<SheetRangeSummaryView> for SheetRangeSummaryDto {
+    fn from(summary: SheetRangeSummaryView) -> Self {
+        Self {
+            count: summary.count,
+            numeric_count: summary.numeric_count,
+            sum: summary.sum,
+            average: summary.average,
         }
     }
 }
