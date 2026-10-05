@@ -17,6 +17,10 @@ Masaustu deneyimi iki olgun spreadsheet yaklasiminin guclu taraflarini birlestir
 - LibreOffice Calc tipi klasik menu ve dock edilebilir ozellik paneli.
 - Turkuaz Office'in sade, moduler ve fake komut kullanmayan UI kurali.
 
+## Suite giris tabani
+
+Standalone Writer/Sheet masaustu girisleri artik main dalindadir. Bu UI dilimi ortak uygulama ici modul switcher kullanmaz; dogrudan Sheet proses yuzeyini render eder.
+
 ## v0.5.0 aktif yuzey
 
 - Klasik menu satiri.
