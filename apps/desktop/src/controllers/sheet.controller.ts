@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/controllers/sheet.controller.ts
 // # 📌 Amac: Sheet View requestlerini alip yalnizca SheetSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
-// Version: 0.4.1
-// Aciklama: Session, dirty-safe create, secili hucre, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
+// Version: 0.5.0
+// Aciklama: Session, dirty-safe create, secili hucre/range, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
 import type { SheetSessionService } from "../services/sheet-session.service";
@@ -25,6 +25,10 @@ export class SheetController {
 
   public selectCell(reference: string, row: number, column: number): Promise<void> {
     return this.service.selectCell(reference, row, column);
+  }
+
+  public extendSelection(row: number, column: number): Promise<void> {
+    return this.service.extendSelection(row, column);
   }
 
   public toggleBold(): Promise<void> {

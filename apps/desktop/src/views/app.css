@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
 # 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.5.1
+# Version: 0.5.2
 # Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, dock ve status yuzeylerini tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
@@ -857,6 +857,10 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sheet-grid__cell--range {
+  background: color-mix(in srgb, var(--to-accent) 9%, var(--to-bg-surface));
 }
 
 .sheet-grid__cell--selected {

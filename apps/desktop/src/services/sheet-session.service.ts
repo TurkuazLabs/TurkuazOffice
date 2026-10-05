@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.4.1
-// Aciklama: Dirty-state korumali create, cell edit/format ve stale-response guvenli filter-sort akislarini koordine eder
+// Version: 0.5.0
+// Aciklama: Dirty-state korumali create, cell edit/format, range summary ve stale-response guvenli filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -33,6 +33,7 @@ import type {
 export class SheetSessionService {
   private mutationQueue: Promise<void> = Promise.resolve();
   private rowQueryGeneration = 0;
+  private rangeSummaryGeneration = 0;
 
   public constructor(
     private readonly repository: SheetSessionRepository,
@@ -59,6 +60,8 @@ export class SheetSessionService {
         const document = await this.sheetTool.createDocument();
         this.invalidateRowQueryRequests();
         this.repository.setSelection(null);
+        this.invalidateRangeSummaryRequests();
+        this.repository.clearSelectionRange();
         this.repository.clearCellFormats();
         this.repository.clearRowQuery();
         this.repository.setDocument(document);
@@ -72,6 +75,8 @@ export class SheetSessionService {
   }
 
   public async selectCell(reference: string, row: number, column: number): Promise<void> {
+    this.invalidateRangeSummaryRequests();
+    this.repository.clearSelectionRange();
     const document = this.requireDocument();
     const worksheet = document.worksheets[0];
     if (worksheet === undefined) {
@@ -95,6 +100,47 @@ export class SheetSessionService {
       this.refreshSelectionEvaluation(),
       this.refreshSelectionFormat(),
     ]);
+  }
+
+  public async extendSelection(row: number, column: number): Promise<void> {
+    const anchor = this.repository.selection();
+    const document = this.repository.document();
+    const worksheet = document?.worksheets[0];
+    if (anchor === null || document === null || worksheet === undefined) {
+      return;
+    }
+
+    const range = {
+      startRow: Math.min(anchor.row, row),
+      endRow: Math.max(anchor.row, row),
+      startColumn: Math.min(anchor.column, column),
+      endColumn: Math.max(anchor.column, column),
+    };
+    const generation = this.nextRangeSummaryGeneration();
+    const documentId = document.id;
+    this.repository.setSelectionRange(range);
+
+    try {
+      const summary = await this.sheetTool.getRangeSummary({
+        documentId,
+        worksheetId: worksheet.id,
+        range,
+      });
+      if (
+        generation !== this.rangeSummaryGeneration ||
+        this.repository.document()?.id !== documentId
+      ) {
+        return;
+      }
+      this.repository.setRangeSummary(summary);
+    } catch (error: unknown) {
+      if (
+        generation === this.rangeSummaryGeneration &&
+        this.repository.document()?.id === documentId
+      ) {
+        this.repository.setRangeSummaryError(this.errorCode(error));
+      }
+    }
   }
 
   public toggleBold(): Promise<void> {
@@ -424,6 +470,15 @@ export class SheetSessionService {
 
   private invalidateRowQueryRequests(): void {
     this.nextRowQueryGeneration();
+  }
+
+  private nextRangeSummaryGeneration(): number {
+    this.rangeSummaryGeneration += 1;
+    return this.rangeSummaryGeneration;
+  }
+
+  private invalidateRangeSummaryRequests(): void {
+    this.nextRangeSummaryGeneration();
   }
 
   private isCurrentRowQueryRequest(generation: number, documentId: string): boolean {

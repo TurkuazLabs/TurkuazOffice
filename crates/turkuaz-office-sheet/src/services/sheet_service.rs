@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_service.rs
-// # 📌 Amac: Sheet document yasam dongusu, cell validation, formula evaluation ve sparse mutation business kurallarini yonetir
+// # 📌 Amac: Sheet document yasam dongusu, cell validation, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.3.0
+// Version: 0.5.0
 // Aciklama: Default worksheet, cell set/get/clear ve basic same-sheet formula evaluation kurallarini Repo/Tool uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -19,8 +19,8 @@ use crate::config::constants::{
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
     Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
-    SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetSort,
-    SheetSortDirection, Worksheet, WorksheetId,
+    SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetRangeSummary,
+    SheetSort, SheetSortDirection, Worksheet, WorksheetId,
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::formula_tool::{
@@ -373,6 +373,55 @@ where
             .and_then(|formats| formats.get(&address))
             .copied()
             .unwrap_or_default())
+    }
+
+    pub fn range_summary(
+        &self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        range: SheetRange,
+    ) -> Result<SheetRangeSummary, SheetError> {
+        Self::validate_range(range)?;
+
+        let document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        let worksheet = document
+            .worksheets
+            .iter()
+            .find(|worksheet| &worksheet.id == worksheet_id)
+            .ok_or(SheetError::WorksheetNotFound)?;
+
+        let mut count = 0_usize;
+        let mut numeric_count = 0_usize;
+        let mut sum = 0.0_f64;
+
+        for (address, value) in &worksheet.cells {
+            if address.row < range.start_row
+                || address.row > range.end_row
+                || address.column < range.start_column
+                || address.column > range.end_column
+            {
+                continue;
+            }
+
+            count = count.saturating_add(1);
+            let evaluated =
+                Self::evaluate_value(worksheet, *address, value, &mut BTreeSet::new(), 0)?;
+            if let CellValue::Number(number) = evaluated {
+                numeric_count = numeric_count.saturating_add(1);
+                sum += number;
+            }
+        }
+
+        let average = (numeric_count > 0).then(|| sum / numeric_count as f64);
+        Ok(SheetRangeSummary {
+            count,
+            numeric_count,
+            sum,
+            average,
+        })
     }
 
     pub fn query_rows(

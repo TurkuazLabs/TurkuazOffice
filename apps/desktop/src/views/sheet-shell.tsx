@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.1
-// Aciklama: Zero-based adaptasyon, aktif draft, dirty-safe create, query-control reset, format toolbar, row query, formula bari ve grid View'larini birlestirir
+// Version: 0.5.2
+// Aciklama: Hybrid menu, Shift range selection, canonical aggregates, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -181,6 +181,20 @@ export function SheetShell(props: SheetShellProps) {
       return selection.evaluationErrorCode;
     }
     return selection.evaluatedValue === null ? "" : valueText(selection.evaluatedValue);
+  };
+
+  const isCellInSelectionRange = (row: number, column: number): boolean => {
+    const range = props.repository.selectionRange();
+    if (range === null) {
+      return false;
+    }
+    const address = REFERENCE_TOOL.domainAddress(row, column);
+    return (
+      address.row >= range.startRow &&
+      address.row <= range.endRow &&
+      address.column >= range.startColumn &&
+      address.column <= range.endColumn
+    );
   };
 
   const statusText = () => {
@@ -462,6 +476,7 @@ export function SheetShell(props: SheetShellProps) {
                               classList={{
                                 "sheet-grid__cell--selected":
                                   props.repository.selection()?.reference === reference,
+                                "sheet-grid__cell--range": isCellInSelectionRange(row, column),
                               }}
                             >
                               <input
@@ -469,6 +484,20 @@ export function SheetShell(props: SheetShellProps) {
                                 aria-label={reference}
                                 value={editorValue(reference, row, column)}
                                 style={cellStyle(reference)}
+                                onMouseDown={(event) => {
+                                  if (
+                                    event.button === 0 &&
+                                    event.shiftKey &&
+                                    props.repository.selection() !== null
+                                  ) {
+                                    event.preventDefault();
+                                    const address = REFERENCE_TOOL.domainAddress(row, column);
+                                    void props.controller.extendSelection(
+                                      address.row,
+                                      address.column,
+                                    );
+                                  }
+                                }}
                                 onFocus={(event) => {
                                   beginCellEdit(reference, event.currentTarget.value);
                                   const address = REFERENCE_TOOL.domainAddress(row, column);
@@ -535,6 +564,22 @@ export function SheetShell(props: SheetShellProps) {
         <span>
           {props.language.text("sheetStatusValue")}: {evaluatedText()}
         </span>
+        <Show when={props.repository.rangeSummary() !== null}>
+          <span>
+            {props.language.text("sheetStatusCount")}: {props.repository.rangeSummary()?.count ?? 0}
+          </span>
+          <Show when={(props.repository.rangeSummary()?.numericCount ?? 0) > 0}>
+            <span>
+              {props.language.text("sheetStatusSum")}: {props.repository.rangeSummary()?.sum ?? 0}
+            </span>
+            <span>
+              {props.language.text("sheetStatusAverage")}: {props.repository.rangeSummary()?.average ?? 0}
+            </span>
+          </Show>
+        </Show>
+        <Show when={props.repository.rangeSummaryErrorCode() !== null}>
+          <span>{props.repository.rangeSummaryErrorCode()}</span>
+        </Show>
         <span class="sheet-statusbar__spacer" />
         <span>
           {props.language.text("revision")}: {props.repository.document()?.revision ?? 0}

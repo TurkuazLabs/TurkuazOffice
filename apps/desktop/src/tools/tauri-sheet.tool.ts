@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/tauri-sheet.tool.ts
 // # 📌 Amac: Desktop frontend ile Tauri Rust backend arasindaki Sheet IPC adaptasyonunu yapar
 // # 📌 Modul - FileType: Tool - TypeScript
-// Version: 0.4.0
-// Aciklama: Create/get/format/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
+// Version: 0.5.0
+// Aciklama: Create/get/format/range-summary/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
 // Bagimli Oldugu Katman: Tool
 
 import { invoke } from "@tauri-apps/api/core";
@@ -12,6 +12,8 @@ import type {
   SheetCellFormatView,
   SheetCellView,
   SheetDocumentView,
+  SheetRangeSummaryRequestView,
+  SheetRangeSummaryView,
   SheetRowQueryRequestView,
   SheetRowQueryResultView,
 } from "../views/sheet-types";
@@ -40,6 +42,10 @@ export class TauriSheetTool {
     format: SheetCellFormatView,
   ): Promise<SheetDocumentView> {
     return invoke<SheetDocumentView>(IPC_COMMANDS.sheetSetCellFormat, { ...input, format });
+  }
+
+  public getRangeSummary(request: SheetRangeSummaryRequestView): Promise<SheetRangeSummaryView> {
+    return invoke<SheetRangeSummaryView>(IPC_COMMANDS.sheetGetRangeSummary, { request });
   }
 
   public queryRows(request: SheetRowQueryRequestView): Promise<SheetRowQueryResultView> {

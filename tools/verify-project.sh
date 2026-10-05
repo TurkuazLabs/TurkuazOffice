@@ -13,6 +13,7 @@ trap 'echo "verify_contract_failed line=$LINENO command=$BASH_COMMAND" >&2' ERR
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CURRENT_VERSION="0.3.1"
 SHEET_MODULE_VERSION="0.3.0"
+SHEET_RANGE_VERSION="0.5.0"
 
 required_files=(
   "README.md"
@@ -87,6 +88,9 @@ required_files=(
   "apps/desktop/src/views/sheet-properties-sidebar.tsx"
   "docs/08-implementation/sheet-hybrid-office-ui-v0.5.0.md"
   "docs/07-quality/sheet-hybrid-office-ui-test-matrix.md"
+  "crates/turkuaz-office-sheet/tests/sheet_range_summary_tests.rs"
+  "docs/08-implementation/sheet-range-status-aggregates-v0.5.1.md"
+  "docs/07-quality/sheet-range-status-aggregates-test-matrix.md"
   "apps/desktop/src-tauri/Cargo.toml"
   "apps/desktop/src-tauri/tauri.conf.json5"
   "apps/desktop/src-tauri/capabilities/main-capability.toml"
@@ -326,6 +330,14 @@ grep -q 'properties_sidebar: true' "$ROOT/config/project.yml"
 grep -q 'grid_initial_rows: 100' "$ROOT/config/project.yml"
 grep -q 'grid_initial_columns: 26' "$ROOT/config/project.yml"
 grep -q 'fake_commands_allowed: false' "$ROOT/config/project.yml"
+grep -q 'multi_selection: shift_rectangular_range' "$ROOT/config/project.yml"
+grep -q 'status_aggregates: canonical_range_summary' "$ROOT/config/project.yml"
+grep -q 'sheet_get_range_summary' "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs"
+grep -q 'sheetGetRangeSummary' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'getRangeSummary' "$ROOT/apps/desktop/src/tools/tauri-sheet.tool.ts"
+grep -q 'extendSelection' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
+grep -q 'sheet-grid__cell--range' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
+grep -q 'Sheet Range Status Aggregates v0.5.1' "$ROOT/docs/08-implementation/sheet-range-status-aggregates-v0.5.1.md"
 grep -q 'SheetMenubar' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
 grep -q 'SheetPropertiesSidebar' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
 grep -q 'SHEET_GRID_ROW_COUNT = 100' "$ROOT/apps/desktop/src/config/sheet.ts"
@@ -661,8 +673,12 @@ grep -q 'pub struct SheetDocumentView' "$ROOT/crates/turkuaz-office-sheet/src/vi
 grep -q 'a1_reference_tool_parses_and_formats_grid_boundaries' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
 grep -q 'sparse_set_get_and_clear_mutate_revision_only_when_data_changes' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"
 
-for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/src/language/mod.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"; do
+for sheet_file in   "$ROOT/crates/turkuaz-office-sheet/Cargo.toml"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/repositories/sheet_document_repository.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/cell_reference_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/language/mod.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_cell_model_tests.rs"; do
   grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_file"
+done
+
+for sheet_range_file in   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_range_summary_tests.rs"; do
+  grep -q "Version: $SHEET_RANGE_VERSION" "$sheet_range_file"
 done
 
 

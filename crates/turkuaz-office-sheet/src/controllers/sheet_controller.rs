@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs
 // # 📌 Amac: Sheet request girdilerini alip yalnizca SheetService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.3.0
-// Aciklama: Create/get/set/formula/evaluate/clear/cell A1 request yuzeyini business logic tasimadan typed View modeline cevirir
+// Version: 0.5.0
+// Aciklama: Create/get/set/formula/evaluate/range-summary/clear request yuzeyini business logic tasimadan typed View modeline cevirir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use turkuaz_office_core::DocumentId;
@@ -14,7 +14,8 @@ use crate::services::sheet_types::{
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
 use crate::views::sheet_view::{
-    CellFormatView, CellView, ChartDataView, SheetDocumentView, SheetRowQueryView,
+    CellFormatView, CellView, ChartDataView, SheetDocumentView, SheetRangeSummaryView,
+    SheetRowQueryView,
 };
 
 pub struct SheetController<R, I>
@@ -108,6 +109,21 @@ where
                 reference,
             )
             .map(CellFormatView::from)
+    }
+
+    pub fn range_summary(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<SheetRangeSummaryView, SheetError> {
+        self.service
+            .range_summary(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                range,
+            )
+            .map(SheetRangeSummaryView::from)
     }
 
     pub fn query_rows(
