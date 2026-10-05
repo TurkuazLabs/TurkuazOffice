@@ -1,14 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/tools/formula_tool.rs
-// # 📌 Amac: Basic Sheet formula metnini typed expression agacina parse eder
+// # 📌 Amac: Sheet formula metnini typed expression agacina parse eder
 // # 📌 Modul - FileType: Tool - Rust
-// Version: 0.3.0
-// Aciklama: Same-sheet A1/absolute references, arithmetic ve merkezi parse complexity limitlerini guvenli uygular
+// Version: 0.8.0
+// Aciklama: Same-sheet A1/range, arithmetic, comparison ve temel function library syntax'ini guvenli parse eder
 // Bagimli Oldugu Katman: Tool -> Config -> Service
 
 use crate::config::constants::{
-    FORMULA_PREFIX, MAX_FORMULA_LENGTH, MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH,
+    FORMULA_FUNCTION_AVERAGE, FORMULA_FUNCTION_IF, FORMULA_FUNCTION_MAX, FORMULA_FUNCTION_MIN,
+    FORMULA_FUNCTION_SUM, FORMULA_PREFIX, MAX_FORMULA_FUNCTION_ARGUMENTS, MAX_FORMULA_LENGTH,
+    MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH,
 };
-use crate::services::sheet_types::CellAddress;
+use crate::services::sheet_types::{CellAddress, SheetRange};
 use crate::tools::cell_reference_tool::CellReferenceTool;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -25,10 +27,30 @@ pub enum FormulaBinaryOperator {
     Divide,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FormulaComparisonOperator {
+    Equal,
+    NotEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FormulaFunction {
+    Sum,
+    Average,
+    Min,
+    Max,
+    If,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum FormulaExpression {
     Number(f64),
     Reference(CellAddress),
+    Range(SheetRange),
     Unary {
         operator: FormulaUnaryOperator,
         operand: Box<FormulaExpression>,
@@ -37,6 +59,15 @@ pub enum FormulaExpression {
         operator: FormulaBinaryOperator,
         left: Box<FormulaExpression>,
         right: Box<FormulaExpression>,
+    },
+    Comparison {
+        operator: FormulaComparisonOperator,
+        left: Box<FormulaExpression>,
+        right: Box<FormulaExpression>,
+    },
+    Function {
+        function: FormulaFunction,
+        arguments: Vec<FormulaExpression>,
     },
 }
 
@@ -55,6 +86,8 @@ pub enum FormulaToolError {
     InvalidNumber,
     InvalidReference,
     NonFiniteNumber,
+    UnknownFunction,
+    InvalidArgumentCount,
     TooComplex,
 }
 
@@ -111,7 +144,25 @@ impl<'a> FormulaParser<'a> {
     }
 
     fn parse_expression(&mut self) -> Result<FormulaExpression, FormulaToolError> {
-        self.parse_additive()
+        self.parse_comparison()
+    }
+
+    fn parse_comparison(&mut self) -> Result<FormulaExpression, FormulaToolError> {
+        let left = self.parse_additive()?;
+        self.skip_whitespace();
+
+        let Some((operator, token_length)) = self.comparison_operator() else {
+            return Ok(left);
+        };
+
+        self.record_operation()?;
+        self.position = self.position.saturating_add(token_length);
+        let right = self.parse_additive()?;
+        Ok(FormulaExpression::Comparison {
+            operator,
+            left: Box::new(left),
+            right: Box::new(right),
+        })
     }
 
     fn parse_additive(&mut self) -> Result<FormulaExpression, FormulaToolError> {
@@ -195,9 +246,100 @@ impl<'a> FormulaParser<'a> {
                 Ok(expression)
             }
             Some(byte) if byte.is_ascii_digit() || byte == b'.' => self.parse_number(),
-            Some(byte) if byte.is_ascii_alphabetic() || byte == b'$' => self.parse_reference(),
+            Some(b'$') => self.parse_reference_or_range(),
+            Some(byte) if byte.is_ascii_alphabetic() => self.parse_identifier_or_reference(),
             _ => Err(FormulaToolError::UnexpectedToken),
         }
+    }
+
+    fn parse_identifier_or_reference(&mut self) -> Result<FormulaExpression, FormulaToolError> {
+        let start = self.position;
+        while self
+            .current()
+            .is_some_and(|byte| byte.is_ascii_alphabetic())
+        {
+            self.position += 1;
+        }
+        let identifier_end = self.position;
+        self.skip_whitespace();
+
+        if self.current() == Some(b'(') {
+            let name = self.source[start..identifier_end].to_owned();
+            return self.parse_function(&name);
+        }
+
+        self.position = start;
+        self.parse_reference_or_range()
+    }
+
+    fn parse_function(&mut self, name: &str) -> Result<FormulaExpression, FormulaToolError> {
+        let normalized = name.to_ascii_uppercase();
+        let function = match normalized.as_str() {
+            FORMULA_FUNCTION_SUM => FormulaFunction::Sum,
+            FORMULA_FUNCTION_AVERAGE => FormulaFunction::Average,
+            FORMULA_FUNCTION_MIN => FormulaFunction::Min,
+            FORMULA_FUNCTION_MAX => FormulaFunction::Max,
+            FORMULA_FUNCTION_IF => FormulaFunction::If,
+            _ => return Err(FormulaToolError::UnknownFunction),
+        };
+
+        self.record_operation()?;
+        self.enter_nested()?;
+        self.position += 1;
+
+        let arguments_result = (|| -> Result<Vec<FormulaExpression>, FormulaToolError> {
+            let mut arguments = Vec::new();
+            self.skip_whitespace();
+
+            if self.current() == Some(b')') {
+                self.position += 1;
+                return Ok(arguments);
+            }
+
+            loop {
+                if arguments.len() >= MAX_FORMULA_FUNCTION_ARGUMENTS {
+                    return Err(FormulaToolError::TooComplex);
+                }
+
+                arguments.push(self.parse_expression()?);
+                self.skip_whitespace();
+
+                match self.current() {
+                    Some(b',') | Some(b';') => {
+                        self.position += 1;
+                        self.skip_whitespace();
+                        if self.current() == Some(b')') {
+                            return Err(FormulaToolError::UnexpectedToken);
+                        }
+                    }
+                    Some(b')') => {
+                        self.position += 1;
+                        break;
+                    }
+                    _ => return Err(FormulaToolError::UnexpectedToken),
+                }
+            }
+
+            Ok(arguments)
+        })();
+        self.exit_nested();
+
+        let arguments = arguments_result?;
+        let valid_count = match function {
+            FormulaFunction::Sum
+            | FormulaFunction::Average
+            | FormulaFunction::Min
+            | FormulaFunction::Max => !arguments.is_empty(),
+            FormulaFunction::If => arguments.len() == 3,
+        };
+        if !valid_count {
+            return Err(FormulaToolError::InvalidArgumentCount);
+        }
+
+        Ok(FormulaExpression::Function {
+            function,
+            arguments,
+        })
     }
 
     fn parse_number(&mut self) -> Result<FormulaExpression, FormulaToolError> {
@@ -231,7 +373,28 @@ impl<'a> FormulaParser<'a> {
         Ok(FormulaExpression::Number(value))
     }
 
-    fn parse_reference(&mut self) -> Result<FormulaExpression, FormulaToolError> {
+    fn parse_reference_or_range(&mut self) -> Result<FormulaExpression, FormulaToolError> {
+        let first = self.parse_reference_address()?;
+        self.skip_whitespace();
+
+        if self.current() != Some(b':') {
+            return Ok(FormulaExpression::Reference(first));
+        }
+
+        self.position += 1;
+        self.skip_whitespace();
+        let second = self.parse_reference_address()?;
+
+        Ok(FormulaExpression::Range(SheetRange {
+            start_row: first.row.min(second.row),
+            end_row: first.row.max(second.row),
+            start_column: first.column.min(second.column),
+            end_column: first.column.max(second.column),
+        }))
+    }
+
+    fn parse_reference_address(&mut self) -> Result<CellAddress, FormulaToolError> {
+        let token_start = self.position;
         if self.current() == Some(b'$') {
             self.position += 1;
         }
@@ -259,25 +422,28 @@ impl<'a> FormulaParser<'a> {
             return Err(FormulaToolError::InvalidReference);
         }
 
-        let mut normalized = String::with_capacity(self.position - column_start);
-        for byte in self.source.as_bytes()[column_start..row_start]
-            .iter()
-            .copied()
-        {
-            if byte != b'$' {
-                normalized.push(char::from(byte.to_ascii_uppercase()));
-            }
-        }
-        for byte in self.source.as_bytes()[row_start..self.position]
-            .iter()
-            .copied()
-        {
-            normalized.push(char::from(byte));
-        }
+        let token = &self.source[token_start..self.position];
+        let normalized = token.replace('$', "").to_ascii_uppercase();
+        CellReferenceTool::parse(&normalized).map_err(|_| FormulaToolError::InvalidReference)
+    }
 
-        let address = CellReferenceTool::parse(&normalized)
-            .map_err(|_| FormulaToolError::InvalidReference)?;
-        Ok(FormulaExpression::Reference(address))
+    fn comparison_operator(&self) -> Option<(FormulaComparisonOperator, usize)> {
+        let remaining = self.bytes.get(self.position..)?;
+        if remaining.starts_with(b"<>") {
+            return Some((FormulaComparisonOperator::NotEqual, 2));
+        }
+        if remaining.starts_with(b">=") {
+            return Some((FormulaComparisonOperator::GreaterThanOrEqual, 2));
+        }
+        if remaining.starts_with(b"<=") {
+            return Some((FormulaComparisonOperator::LessThanOrEqual, 2));
+        }
+        match remaining.first().copied() {
+            Some(b'=') => Some((FormulaComparisonOperator::Equal, 1)),
+            Some(b'>') => Some((FormulaComparisonOperator::GreaterThan, 1)),
+            Some(b'<') => Some((FormulaComparisonOperator::LessThan, 1)),
+            _ => None,
+        }
     }
 
     fn skip_whitespace(&mut self) {

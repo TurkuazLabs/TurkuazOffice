@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.7.0
+# Version: 0.8.0
 # Aciklama: Umbrella release versionini korur; M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
@@ -16,6 +16,7 @@ SHEET_MODULE_VERSION="0.3.0"
 SHEET_RANGE_VERSION="0.5.0"
 SHEET_TABLE_VERSION="0.6.0"
 SHEET_CONDITIONAL_VERSION="0.7.0"
+SHEET_FUNCTION_VERSION="0.8.0"
 
 required_files=(
   "README.md"
@@ -101,6 +102,9 @@ required_files=(
   "crates/turkuaz-office-sheet/tests/sheet_conditional_formatting_tests.rs"
   "docs/08-implementation/sheet-conditional-formatting-v0.7.0.md"
   "docs/07-quality/sheet-conditional-formatting-test-matrix.md"
+  "crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
+  "docs/08-implementation/sheet-function-library-v0.8.0.md"
+  "docs/07-quality/sheet-function-library-test-matrix.md"
   "apps/desktop/src-tauri/Cargo.toml"
   "apps/desktop/src-tauri/tauri.conf.json5"
   "apps/desktop/src-tauri/capabilities/main-capability.toml"
@@ -699,8 +703,12 @@ grep -q "Version: $SHEET_RANGE_VERSION"   "$ROOT/crates/turkuaz-office-sheet/tes
 
 grep -q "Version: $SHEET_TABLE_VERSION" "$ROOT/crates/turkuaz-office-sheet/tests/sheet_table_object_tests.rs"
 
-for sheet_conditional_file in   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_conditional_formatting_tests.rs"; do
+for sheet_conditional_file in   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_conditional_formatting_tests.rs"; do
   grep -q "Version: $SHEET_CONDITIONAL_VERSION" "$sheet_conditional_file"
+done
+
+for sheet_function_file in   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"; do
+  grep -q "Version: $SHEET_FUNCTION_VERSION" "$sheet_function_file"
 done
 
 
@@ -758,6 +766,24 @@ grep -q 'CellValue::Formula' "$ROOT/crates/turkuaz-office-format-adapters/src/se
 grep -q 'CellValue::Formula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
 grep -q 'formula_evaluation_respects_operator_precedence_and_revision_no_op' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
 grep -q 'formula_cycle_division_and_non_numeric_reference_are_typed_errors' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs"
+
+grep -q 'sheet_function_library:' "$ROOT/config/project.yml"
+grep -q 'functions: true' "$ROOT/config/project.yml"
+grep -q 'max_range_cells: 100000' "$ROOT/config/project.yml"
+grep -q 'max_function_arguments: 64' "$ROOT/config/project.yml"
+grep -q 'if_lazy_branch_evaluation: true' "$ROOT/config/project.yml"
+grep -q 'FORMULA_FUNCTION_SUM' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'MAX_FORMULA_RANGE_CELLS' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'pub enum FormulaFunction' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+grep -q 'pub enum FormulaComparisonOperator' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+grep -q 'Range(SheetRange)' "$ROOT/crates/turkuaz-office-sheet/src/tools/formula_tool.rs"
+grep -q 'fn evaluate_function' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'fn collect_aggregate_values' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'FormulaRangeTooLarge' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'FormulaRangeNotAllowed' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'aggregate_functions_use_numeric_cells_formulas_and_ignore_text_boolean_empty_cells' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
+grep -q 'comparisons_return_numeric_boolean_and_if_evaluates_only_selected_branch' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
+grep -q 'Sheet Function Library v0.8.0' "$ROOT/docs/08-implementation/sheet-function-library-v0.8.0.md"
 
 
 

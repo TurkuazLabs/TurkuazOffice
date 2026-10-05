@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/error_dto.rs
 // # 📌 Amac: Desktop backend hatalarini Tauri frontend icin stabil error code DTO'suna map eder
 // # 📌 Modul - FileType: View - Rust
-// # Version: 0.7.0
+// # Version: 0.8.0
 // # Aciklama: Writer ve Sheet domain hatalarini implementation detayini sizdirmadan stabil serializable hata koduna map eder
 // Bagimli Oldugu Katman: View
 
@@ -27,6 +27,7 @@ use crate::config::constants::{
     ERROR_SHEET_CONDITIONAL_FORMAT_NOT_FOUND, ERROR_SHEET_DOCUMENT_NOT_FOUND,
     ERROR_SHEET_FORMULA_CYCLE, ERROR_SHEET_FORMULA_DEPTH_EXCEEDED,
     ERROR_SHEET_FORMULA_DIVISION_BY_ZERO, ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE,
+    ERROR_SHEET_FORMULA_RANGE_NOT_ALLOWED, ERROR_SHEET_FORMULA_RANGE_TOO_LARGE,
     ERROR_SHEET_FORMULA_RESULT_NOT_FINITE, ERROR_SHEET_INVALID_CELL_FORMAT,
     ERROR_SHEET_INVALID_CELL_REFERENCE, ERROR_SHEET_INVALID_CHART_RANGE,
     ERROR_SHEET_INVALID_CHART_TITLE, ERROR_SHEET_INVALID_CONDITIONAL_FORMAT,
@@ -73,6 +74,8 @@ impl From<SheetError> for DesktopErrorDto {
             SheetError::FormulaNonNumericReference => {
                 Self::new(ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE)
             }
+            SheetError::FormulaRangeNotAllowed => Self::new(ERROR_SHEET_FORMULA_RANGE_NOT_ALLOWED),
+            SheetError::FormulaRangeTooLarge => Self::new(ERROR_SHEET_FORMULA_RANGE_TOO_LARGE),
             SheetError::FormulaResultNotFinite => Self::new(ERROR_SHEET_FORMULA_RESULT_NOT_FINITE),
             SheetError::InvalidCellFormat => Self::new(ERROR_SHEET_INVALID_CELL_FORMAT),
             SheetError::InvalidRange => Self::new(ERROR_SHEET_INVALID_RANGE),

@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_service.rs
-// # 📌 Amac: Sheet document yasam dongusu, cell validation, table object, conditional formatting, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
+// # 📌 Amac: Sheet document yasam dongusu, cell validation, table object, conditional formatting, function library, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.7.0
-// Aciklama: Default worksheet, cell set/get/clear ve basic same-sheet formula evaluation kurallarini Repo/Tool uzerinden koordine eder
+// Version: 0.8.0
+// Aciklama: Default worksheet, cell set/get/clear ve same-sheet formula/function evaluation kurallarini Repo/Tool uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 use std::cmp::Ordering;
@@ -14,7 +14,8 @@ use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use crate::config::constants::{
     DEFAULT_TABLE_NAME_PREFIX, DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES,
     MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_CONDITIONAL_FORMAT_RULES,
-    MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
+    MAX_FORMULA_EVALUATION_DEPTH, MAX_FORMULA_RANGE_CELLS, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS,
+    MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
@@ -26,7 +27,8 @@ use crate::services::sheet_types::{
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::formula_tool::{
-    FormulaBinaryOperator, FormulaExpression, FormulaTool, FormulaUnaryOperator,
+    FormulaBinaryOperator, FormulaComparisonOperator, FormulaExpression, FormulaFunction,
+    FormulaTool, FormulaUnaryOperator,
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
 
@@ -43,6 +45,8 @@ pub enum SheetError {
     FormulaDepthExceeded,
     FormulaDivisionByZero,
     FormulaNonNumericReference,
+    FormulaRangeNotAllowed,
+    FormulaRangeTooLarge,
     FormulaResultNotFinite,
     InvalidCellFormat,
     InvalidRange,
@@ -933,20 +937,10 @@ where
     ) -> Result<f64, SheetError> {
         let value = match expression {
             FormulaExpression::Number(value) => *value,
-            FormulaExpression::Reference(address) => match worksheet.cells.get(address) {
-                None => 0.0,
-                Some(CellValue::Number(value)) => *value,
-                Some(CellValue::Formula(formula)) => Self::evaluate_formula_numeric(
-                    worksheet,
-                    *address,
-                    formula,
-                    stack,
-                    depth.saturating_add(1),
-                )?,
-                Some(CellValue::Text(_)) | Some(CellValue::Boolean(_)) => {
-                    return Err(SheetError::FormulaNonNumericReference);
-                }
-            },
+            FormulaExpression::Reference(address) => {
+                Self::evaluate_reference_numeric(worksheet, *address, stack, depth)?
+            }
+            FormulaExpression::Range(_) => return Err(SheetError::FormulaRangeNotAllowed),
             FormulaExpression::Unary { operator, operand } => {
                 let operand = Self::evaluate_expression(worksheet, operand, stack, depth)?;
                 match operator {
@@ -973,12 +967,180 @@ where
                     }
                 }
             }
+            FormulaExpression::Comparison {
+                operator,
+                left,
+                right,
+            } => {
+                let left = Self::evaluate_expression(worksheet, left, stack, depth)?;
+                let right = Self::evaluate_expression(worksheet, right, stack, depth)?;
+                let matched = match operator {
+                    FormulaComparisonOperator::Equal => left == right,
+                    FormulaComparisonOperator::NotEqual => left != right,
+                    FormulaComparisonOperator::GreaterThan => left > right,
+                    FormulaComparisonOperator::GreaterThanOrEqual => left >= right,
+                    FormulaComparisonOperator::LessThan => left < right,
+                    FormulaComparisonOperator::LessThanOrEqual => left <= right,
+                };
+                if matched { 1.0 } else { 0.0 }
+            }
+            FormulaExpression::Function {
+                function,
+                arguments,
+            } => Self::evaluate_function(worksheet, *function, arguments, stack, depth)?,
         };
 
         if !value.is_finite() {
             return Err(SheetError::FormulaResultNotFinite);
         }
         Ok(value)
+    }
+
+    fn evaluate_reference_numeric(
+        worksheet: &Worksheet,
+        address: CellAddress,
+        stack: &mut BTreeSet<CellAddress>,
+        depth: usize,
+    ) -> Result<f64, SheetError> {
+        match worksheet.cells.get(&address) {
+            None => Ok(0.0),
+            Some(CellValue::Number(value)) => Ok(*value),
+            Some(CellValue::Formula(formula)) => Self::evaluate_formula_numeric(
+                worksheet,
+                address,
+                formula,
+                stack,
+                depth.saturating_add(1),
+            ),
+            Some(CellValue::Text(_)) | Some(CellValue::Boolean(_)) => {
+                Err(SheetError::FormulaNonNumericReference)
+            }
+        }
+    }
+
+    fn evaluate_function(
+        worksheet: &Worksheet,
+        function: FormulaFunction,
+        arguments: &[FormulaExpression],
+        stack: &mut BTreeSet<CellAddress>,
+        depth: usize,
+    ) -> Result<f64, SheetError> {
+        if function == FormulaFunction::If {
+            if arguments.len() != 3 {
+                return Err(SheetError::InvalidFormula);
+            }
+            let condition = Self::evaluate_expression(worksheet, &arguments[0], stack, depth)?;
+            let branch = if condition != 0.0 {
+                &arguments[1]
+            } else {
+                &arguments[2]
+            };
+            return Self::evaluate_expression(worksheet, branch, stack, depth);
+        }
+
+        let values = Self::collect_aggregate_values(worksheet, arguments, stack, depth)?;
+        match function {
+            FormulaFunction::Sum => Ok(values.into_iter().sum()),
+            FormulaFunction::Average => {
+                if values.is_empty() {
+                    return Err(SheetError::FormulaDivisionByZero);
+                }
+                let count = values.len() as f64;
+                Ok(values.into_iter().sum::<f64>() / count)
+            }
+            FormulaFunction::Min => Ok(values.into_iter().reduce(f64::min).unwrap_or(0.0)),
+            FormulaFunction::Max => Ok(values.into_iter().reduce(f64::max).unwrap_or(0.0)),
+            FormulaFunction::If => unreachable!("IF handled before aggregate evaluation"),
+        }
+    }
+
+    fn collect_aggregate_values(
+        worksheet: &Worksheet,
+        arguments: &[FormulaExpression],
+        stack: &mut BTreeSet<CellAddress>,
+        depth: usize,
+    ) -> Result<Vec<f64>, SheetError> {
+        let mut values = Vec::new();
+        let mut expanded_cells = 0_usize;
+
+        for argument in arguments {
+            match argument {
+                FormulaExpression::Range(range) => {
+                    let rows = u64::from(range.end_row)
+                        .saturating_sub(u64::from(range.start_row))
+                        .saturating_add(1);
+                    let columns = u64::from(range.end_column)
+                        .saturating_sub(u64::from(range.start_column))
+                        .saturating_add(1);
+                    let area = rows
+                        .checked_mul(columns)
+                        .and_then(|value| usize::try_from(value).ok())
+                        .ok_or(SheetError::FormulaRangeTooLarge)?;
+                    expanded_cells = expanded_cells
+                        .checked_add(area)
+                        .ok_or(SheetError::FormulaRangeTooLarge)?;
+                    if expanded_cells > MAX_FORMULA_RANGE_CELLS {
+                        return Err(SheetError::FormulaRangeTooLarge);
+                    }
+
+                    for row in range.start_row..=range.end_row {
+                        for column in range.start_column..=range.end_column {
+                            Self::push_aggregate_cell_value(
+                                worksheet,
+                                CellAddress { row, column },
+                                stack,
+                                depth,
+                                &mut values,
+                            )?;
+                        }
+                    }
+                }
+                FormulaExpression::Reference(address) => {
+                    expanded_cells = expanded_cells.saturating_add(1);
+                    if expanded_cells > MAX_FORMULA_RANGE_CELLS {
+                        return Err(SheetError::FormulaRangeTooLarge);
+                    }
+                    Self::push_aggregate_cell_value(
+                        worksheet,
+                        *address,
+                        stack,
+                        depth,
+                        &mut values,
+                    )?;
+                }
+                _ => values.push(Self::evaluate_expression(
+                    worksheet, argument, stack, depth,
+                )?),
+            }
+        }
+
+        Ok(values)
+    }
+
+    fn push_aggregate_cell_value(
+        worksheet: &Worksheet,
+        address: CellAddress,
+        stack: &mut BTreeSet<CellAddress>,
+        depth: usize,
+        values: &mut Vec<f64>,
+    ) -> Result<(), SheetError> {
+        match worksheet.cells.get(&address) {
+            None | Some(CellValue::Text(_)) | Some(CellValue::Boolean(_)) => Ok(()),
+            Some(CellValue::Number(value)) => {
+                values.push(*value);
+                Ok(())
+            }
+            Some(CellValue::Formula(formula)) => {
+                values.push(Self::evaluate_formula_numeric(
+                    worksheet,
+                    address,
+                    formula,
+                    stack,
+                    depth.saturating_add(1),
+                )?);
+                Ok(())
+            }
+        }
     }
 
     fn next_table_name(document: &SheetDocument) -> String {
