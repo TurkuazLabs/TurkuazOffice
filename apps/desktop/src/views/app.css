@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
 # 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.5.2
+# Version: 0.5.3
 # Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, dock ve status yuzeylerini tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
@@ -1268,4 +1268,37 @@ input {
   .sheet-formula-bar__evaluated {
     display: none;
   }
+}
+
+
+/* Sheet Freeze Panes v0.5.2 */
+
+.sheet-menu__separator {
+  height: 1px;
+  margin: 4px 2px;
+  background: var(--to-border-soft);
+}
+
+.sheet-menu__popup button:disabled {
+  color: var(--to-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sheet-grid__cell--frozen {
+  background: var(--to-bg-surface);
+}
+
+.sheet-grid__cell--frozen.sheet-grid__cell--range {
+  background: color-mix(in srgb, var(--to-accent) 9%, var(--to-bg-surface));
+}
+
+.sheet-grid__cell--freeze-row-edge,
+.sheet-grid__row-header--freeze-edge {
+  border-bottom: 2px solid var(--to-border-focus);
+}
+
+.sheet-grid__cell--freeze-column-edge,
+.sheet-grid__column-header--freeze-edge {
+  border-right: 2px solid var(--to-border-focus);
 }

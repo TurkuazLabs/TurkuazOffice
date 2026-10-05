@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.5.0
-// Aciklama: Dirty-state korumali create, cell edit/format, range summary ve stale-response guvenli filter-sort akislarini koordine eder
+// Version: 0.5.2
+// Aciklama: Dirty-state korumali create, cell edit/format, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -62,6 +62,7 @@ export class SheetSessionService {
         this.repository.setSelection(null);
         this.invalidateRangeSummaryRequests();
         this.repository.clearSelectionRange();
+        this.repository.clearFreezeState();
         this.repository.clearCellFormats();
         this.repository.clearRowQuery();
         this.repository.setDocument(document);
@@ -141,6 +142,33 @@ export class SheetSessionService {
         this.repository.setRangeSummaryError(this.errorCode(error));
       }
     }
+  }
+
+  public freezeAtSelection(): void {
+    const selection = this.repository.selection();
+    if (selection === null) {
+      return;
+    }
+
+    const queryRows = this.repository.rowQuery()?.rows;
+    const visibleRowIndex =
+      queryRows === undefined ? selection.row : queryRows.indexOf(selection.row);
+    this.repository.setFreezeState({
+      rows: Math.max(0, visibleRowIndex),
+      columns: Math.max(0, selection.column),
+    });
+  }
+
+  public freezeTopRow(): void {
+    this.repository.setFreezeState({ rows: 1, columns: 0 });
+  }
+
+  public freezeFirstColumn(): void {
+    this.repository.setFreezeState({ rows: 0, columns: 1 });
+  }
+
+  public unfreezePanes(): void {
+    this.repository.clearFreezeState();
   }
 
   public toggleBold(): Promise<void> {

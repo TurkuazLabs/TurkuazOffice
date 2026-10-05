@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/sheet-session.repository.ts
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
-// Version: 0.5.0
+// Version: 0.5.2
 // Aciklama: Backend snapshot, dirty-state, secili hucre/range, range summary, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
@@ -10,6 +10,7 @@ import { createSignal, type Accessor } from "solid-js";
 import type {
   SheetCellFormatView,
   SheetDocumentView,
+  SheetFreezeStateView,
   SheetRangeSummaryView,
   SheetRowQueryStateView,
   SheetSelectionRangeView,
@@ -25,6 +26,7 @@ export class SheetSessionRepository {
   private readonly errorCodeSignal = createSignal<string | null>(null);
   private readonly selectionSignal = createSignal<SheetSelectionView | null>(null);
   private readonly selectionRangeSignal = createSignal<SheetSelectionRangeView | null>(null);
+  private readonly freezeStateSignal = createSignal<SheetFreezeStateView>({ rows: 0, columns: 0 });
   private readonly rangeSummarySignal = createSignal<SheetRangeSummaryView | null>(null);
   private readonly rangeSummaryErrorCodeSignal = createSignal<string | null>(null);
   private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
@@ -40,6 +42,7 @@ export class SheetSessionRepository {
   public readonly selection: Accessor<SheetSelectionView | null> = this.selectionSignal[0];
   public readonly selectionRange: Accessor<SheetSelectionRangeView | null> =
     this.selectionRangeSignal[0];
+  public readonly freezeState: Accessor<SheetFreezeStateView> = this.freezeStateSignal[0];
   public readonly rangeSummary: Accessor<SheetRangeSummaryView | null> = this.rangeSummarySignal[0];
   public readonly rangeSummaryErrorCode: Accessor<string | null> =
     this.rangeSummaryErrorCodeSignal[0];
@@ -107,6 +110,14 @@ export class SheetSessionRepository {
     this.selectionRangeSignal[1](null);
     this.rangeSummarySignal[1](null);
     this.rangeSummaryErrorCodeSignal[1](null);
+  }
+
+  public setFreezeState(state: SheetFreezeStateView): void {
+    this.freezeStateSignal[1](state);
+  }
+
+  public clearFreezeState(): void {
+    this.freezeStateSignal[1]({ rows: 0, columns: 0 });
   }
 
   public markDirty(): void {

@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.5.0
+// Version: 0.5.2
 // Aciklama: Dirty-state, range summary, stale query korumasi, format cache, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -234,6 +234,44 @@ describe("SheetSessionService", () => {
         decimalPlaces: 2,
       },
     });
+  });
+
+  it("freezes panes above and left of the active cell", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls([]));
+
+    await service.selectCell("C3", 2, 2);
+    service.freezeAtSelection();
+
+    expect(repository.freezeState()).toEqual({ rows: 2, columns: 2 });
+
+    service.freezeTopRow();
+    expect(repository.freezeState()).toEqual({ rows: 1, columns: 0 });
+
+    service.freezeFirstColumn();
+    expect(repository.freezeState()).toEqual({ rows: 0, columns: 1 });
+
+    service.unfreezePanes();
+    expect(repository.freezeState()).toEqual({ rows: 0, columns: 0 });
+  });
+
+  it("uses the visible filtered row position for freeze-at-selection", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setRowQuery({
+      column: 0,
+      filterMode: "nonEmpty",
+      filterValue: "",
+      sortDirection: "ascending",
+      rows: [8, 2, 5],
+    });
+    const service = createService(repository, toolWithCalls([]));
+
+    await service.selectCell("A6", 5, 0);
+    service.freezeAtSelection();
+
+    expect(repository.freezeState()).toEqual({ rows: 2, columns: 0 });
   });
 
   it("extends the active cell into a canonical range summary", async () => {
