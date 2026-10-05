@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs
 // # 📌 Amac: XLSX ZIP/XML modelini canonical SheetDocument modeline map eder ve canonical workbook'u XLSX byte akimina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.6.0
-// Aciklama: Value-only SpreadsheetML import/export, worksheet/cell validation ve kayipsiz table-metadata guard kurallarini uygular
+// Version: 0.7.0
+// Aciklama: Value-only SpreadsheetML import/export, worksheet/cell validation ve kayipsiz table/conditional-format metadata guard kurallarini uygular
 // Bagimli Oldugu Katman: Service -> Model -> Tool -> Sheet
 
 use std::collections::{BTreeMap, HashSet};
@@ -34,6 +34,7 @@ pub enum SheetXlsxError {
     CellNumberNotFinite,
     UnsupportedFormula,
     UnsupportedTable,
+    UnsupportedConditionalFormat,
     UnsupportedCellType,
 }
 
@@ -124,6 +125,7 @@ impl SheetXlsxService {
             revision: 0,
             worksheets,
             cell_formats: BTreeMap::new(),
+            conditional_formats: BTreeMap::new(),
             tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         })
@@ -132,6 +134,9 @@ impl SheetXlsxService {
     pub fn export(document: &SheetDocument) -> Result<Vec<u8>, SheetXlsxError> {
         if !document.tables.is_empty() {
             return Err(SheetXlsxError::UnsupportedTable);
+        }
+        if !document.conditional_formats.is_empty() {
+            return Err(SheetXlsxError::UnsupportedConditionalFormat);
         }
         if document.worksheets.is_empty() || document.worksheets.len() > MAX_XLSX_WORKSHEETS {
             return Err(SheetXlsxError::ResourceLimit);

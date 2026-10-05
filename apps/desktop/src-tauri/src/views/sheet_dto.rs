@@ -1,16 +1,18 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/sheet_dto.rs
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.6.0
-// Aciklama: Sheet belge, cell/format, table, range-summary ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
+// Version: 0.7.0
+// Aciklama: Sheet belge, cell/format, table, conditional-format, range-summary ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
-    HorizontalAlignmentView, SheetDocumentView, SheetFilter, SheetFilterCondition, SheetRange,
-    SheetRangeSummaryView, SheetRowQueryView, SheetSort, SheetSortDirection, SheetTableView,
-    WorksheetView,
+    HorizontalAlignmentView, SheetConditionalFormatCondition, SheetConditionalFormatConditionView,
+    SheetConditionalFormatMatchView, SheetConditionalFormatRuleView, SheetConditionalFormatStyle,
+    SheetConditionalFormatStyleView, SheetDocumentView, SheetFilter, SheetFilterCondition,
+    SheetRange, SheetRangeSummaryView, SheetRowQueryView, SheetSort, SheetSortDirection,
+    SheetTableView, WorksheetView,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -70,6 +72,70 @@ pub struct SheetRangeDto {
     pub end_row: u32,
     pub start_column: u32,
     pub end_column: u32,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "kind", content = "value", rename_all = "camelCase")]
+pub enum SheetConditionalFormatConditionDto {
+    NumberGreaterThan(f64),
+    NumberLessThan(f64),
+    NumberEquals(f64),
+    TextContains(String),
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum SheetConditionalFormatStyleDto {
+    Warning,
+    Success,
+    Accent,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetConditionalFormatCreateRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub range: SheetRangeDto,
+    pub condition: SheetConditionalFormatConditionDto,
+    pub style: SheetConditionalFormatStyleDto,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetConditionalFormatRemoveRequestDto {
+    pub document_id: String,
+    pub rule_id: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetConditionalFormatMatchesRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub range: SheetRangeDto,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetConditionalFormatRuleDto {
+    pub id: String,
+    pub worksheet_id: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+    pub condition: SheetConditionalFormatConditionDto,
+    pub style: SheetConditionalFormatStyleDto,
+    pub priority: u32,
+}
+
+#[derive(Clone, Copy, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetConditionalFormatMatchDto {
+    pub row: u32,
+    pub column: u32,
+    pub style: SheetConditionalFormatStyleDto,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -139,6 +205,7 @@ pub struct SheetDocumentDto {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<SheetWorksheetDto>,
+    pub conditional_formats: Vec<SheetConditionalFormatRuleDto>,
     pub tables: Vec<SheetTableDto>,
     pub chart_count: usize,
 }
@@ -167,6 +234,82 @@ pub enum SheetCellValueDto {
     Number(f64),
     Boolean(bool),
     Formula(String),
+}
+
+impl From<SheetConditionalFormatConditionDto> for SheetConditionalFormatCondition {
+    fn from(condition: SheetConditionalFormatConditionDto) -> Self {
+        match condition {
+            SheetConditionalFormatConditionDto::NumberGreaterThan(value) => {
+                Self::NumberGreaterThan(value)
+            }
+            SheetConditionalFormatConditionDto::NumberLessThan(value) => {
+                Self::NumberLessThan(value)
+            }
+            SheetConditionalFormatConditionDto::NumberEquals(value) => Self::NumberEquals(value),
+            SheetConditionalFormatConditionDto::TextContains(value) => Self::TextContains(value),
+        }
+    }
+}
+
+impl From<SheetConditionalFormatConditionView> for SheetConditionalFormatConditionDto {
+    fn from(condition: SheetConditionalFormatConditionView) -> Self {
+        match condition {
+            SheetConditionalFormatConditionView::NumberGreaterThan(value) => {
+                Self::NumberGreaterThan(value)
+            }
+            SheetConditionalFormatConditionView::NumberLessThan(value) => {
+                Self::NumberLessThan(value)
+            }
+            SheetConditionalFormatConditionView::NumberEquals(value) => Self::NumberEquals(value),
+            SheetConditionalFormatConditionView::TextContains(value) => Self::TextContains(value),
+        }
+    }
+}
+
+impl From<SheetConditionalFormatStyleDto> for SheetConditionalFormatStyle {
+    fn from(style: SheetConditionalFormatStyleDto) -> Self {
+        match style {
+            SheetConditionalFormatStyleDto::Warning => Self::Warning,
+            SheetConditionalFormatStyleDto::Success => Self::Success,
+            SheetConditionalFormatStyleDto::Accent => Self::Accent,
+        }
+    }
+}
+
+impl From<SheetConditionalFormatStyleView> for SheetConditionalFormatStyleDto {
+    fn from(style: SheetConditionalFormatStyleView) -> Self {
+        match style {
+            SheetConditionalFormatStyleView::Warning => Self::Warning,
+            SheetConditionalFormatStyleView::Success => Self::Success,
+            SheetConditionalFormatStyleView::Accent => Self::Accent,
+        }
+    }
+}
+
+impl From<SheetConditionalFormatRuleView> for SheetConditionalFormatRuleDto {
+    fn from(rule: SheetConditionalFormatRuleView) -> Self {
+        Self {
+            id: rule.id,
+            worksheet_id: rule.worksheet_id,
+            start_row: rule.start_row,
+            end_row: rule.end_row,
+            start_column: rule.start_column,
+            end_column: rule.end_column,
+            condition: rule.condition.into(),
+            style: rule.style.into(),
+            priority: rule.priority,
+        }
+    }
+}
+
+impl From<SheetConditionalFormatMatchView> for SheetConditionalFormatMatchDto {
+    fn from(item: SheetConditionalFormatMatchView) -> Self {
+        Self {
+            row: item.row,
+            column: item.column,
+            style: item.style.into(),
+        }
+    }
 }
 
 impl From<SheetFilterConditionDto> for SheetFilterCondition {
@@ -342,6 +485,11 @@ impl From<SheetDocumentView> for SheetDocumentDto {
                 .worksheets
                 .into_iter()
                 .map(SheetWorksheetDto::from)
+                .collect(),
+            conditional_formats: document
+                .conditional_formats
+                .into_iter()
+                .map(SheetConditionalFormatRuleDto::from)
                 .collect(),
             tables: document
                 .tables

@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.6.0
+# Version: 0.7.0
 # Aciklama: Umbrella release versionini korur; M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
@@ -15,6 +15,7 @@ CURRENT_VERSION="0.3.1"
 SHEET_MODULE_VERSION="0.3.0"
 SHEET_RANGE_VERSION="0.5.0"
 SHEET_TABLE_VERSION="0.6.0"
+SHEET_CONDITIONAL_VERSION="0.7.0"
 
 required_files=(
   "README.md"
@@ -97,6 +98,9 @@ required_files=(
   "crates/turkuaz-office-sheet/tests/sheet_table_object_tests.rs"
   "docs/08-implementation/sheet-table-objects-v0.6.0.md"
   "docs/07-quality/sheet-table-objects-test-matrix.md"
+  "crates/turkuaz-office-sheet/tests/sheet_conditional_formatting_tests.rs"
+  "docs/08-implementation/sheet-conditional-formatting-v0.7.0.md"
+  "docs/07-quality/sheet-conditional-formatting-test-matrix.md"
   "apps/desktop/src-tauri/Cargo.toml"
   "apps/desktop/src-tauri/tauri.conf.json5"
   "apps/desktop/src-tauri/capabilities/main-capability.toml"
@@ -693,8 +697,10 @@ done
 
 grep -q "Version: $SHEET_RANGE_VERSION"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_range_summary_tests.rs"
 
-for sheet_table_file in   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_table_object_tests.rs"; do
-  grep -q "Version: $SHEET_TABLE_VERSION" "$sheet_table_file"
+grep -q "Version: $SHEET_TABLE_VERSION" "$ROOT/crates/turkuaz-office-sheet/tests/sheet_table_object_tests.rs"
+
+for sheet_conditional_file in   "$ROOT/crates/turkuaz-office-sheet/src/lib.rs"   "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"   "$ROOT/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"   "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"   "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"   "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"   "$ROOT/crates/turkuaz-office-sheet/tests/sheet_conditional_formatting_tests.rs"; do
+  grep -q "Version: $SHEET_CONDITIONAL_VERSION" "$sheet_conditional_file"
 done
 
 
@@ -730,11 +736,12 @@ for sheet_format_file in \
   grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_format_file"
 done
 
-for sheet_table_adapter_file in \
-  "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs" \
+grep -q "Version: $SHEET_TABLE_VERSION" "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs"
+
+for sheet_conditional_adapter_file in \
   "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"; do
-  grep -q "Version: $SHEET_TABLE_VERSION" "$sheet_table_adapter_file"
+  grep -q "Version: $SHEET_CONDITIONAL_VERSION" "$sheet_conditional_adapter_file"
 done
 
 grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
@@ -787,6 +794,26 @@ grep -q 'sheet-table-filter-button' "$ROOT/apps/desktop/src/views/sheet-shell.ts
 grep -q 'UnsupportedTable' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
 grep -q 'xlsx_export_rejects_canonical_table_metadata_until_table_parts_are_supported' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'Sheet Table Objects v0.6.0' "$ROOT/docs/08-implementation/sheet-table-objects-v0.6.0.md"
+
+grep -q 'sheet_conditional_formatting:' "$ROOT/config/project.yml"
+grep -q 'conditional_formatting: canonical_rules' "$ROOT/config/project.yml"
+grep -q 'max_rules: 512' "$ROOT/config/project.yml"
+grep -q 'conditional_format_export: strict_reject_until_ooxml_rules' "$ROOT/config/project.yml"
+grep -q 'pub struct ConditionalFormatRuleId' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub enum SheetConditionalFormatCondition' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'pub enum SheetConditionalFormatStyle' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
+grep -q 'CONDITIONAL_FORMAT_RULE_ID_PREFIX' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'MAX_CONDITIONAL_FORMAT_RULES' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
+grep -q 'fn next_conditional_format_rule_id' "$ROOT/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs"
+grep -q 'pub fn create_conditional_format' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'pub fn conditional_format_matches' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_service.rs"
+grep -q 'sheet_create_conditional_format' "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs"
+grep -q 'sheetCreateConditionalFormat' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'applyConditionalFormat' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
+grep -q 'sheet-grid__cell--conditional-warning' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
+grep -q 'UnsupportedConditionalFormat' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+grep -q 'xlsx_export_rejects_canonical_conditional_format_metadata_until_ooxml_rules_are_supported' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'Sheet Conditional Formatting v0.7.0' "$ROOT/docs/08-implementation/sheet-conditional-formatting-v0.7.0.md"
 
 grep -q 'sheet_basic_charts:' "$ROOT/config/project.yml"
 grep -q 'max_points: 1000' "$ROOT/config/project.yml"

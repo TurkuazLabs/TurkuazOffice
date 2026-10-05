@@ -1,14 +1,50 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/views/sheet_view.rs
 // # 📌 Amac: Canonical Sheet domain modelini UI/API icin read-only deterministic View modeline cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.6.0
-// Aciklama: Document/worksheet/cell/value, table ve range summary alanlarini presentation katmanina tasir
+// Version: 0.7.0
+// Aciklama: Document/worksheet/cell/value, table, conditional formatting ve range summary alanlarini presentation katmanina tasir
 // Bagimli Oldugu Katman: View -> Service
 
 use crate::services::sheet_types::{
     Cell, CellFormat, CellValue, ChartDataPoint, ChartType, HorizontalAlignment, SheetChart,
-    SheetDocument, SheetRangeSummary, SheetTable, Worksheet,
+    SheetConditionalFormatCondition, SheetConditionalFormatMatch, SheetConditionalFormatRule,
+    SheetConditionalFormatStyle, SheetDocument, SheetRangeSummary, SheetTable, Worksheet,
 };
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SheetConditionalFormatConditionView {
+    NumberGreaterThan(f64),
+    NumberLessThan(f64),
+    NumberEquals(f64),
+    TextContains(String),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SheetConditionalFormatStyleView {
+    Warning,
+    Success,
+    Accent,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SheetConditionalFormatRuleView {
+    pub id: String,
+    pub worksheet_id: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+    pub condition: SheetConditionalFormatConditionView,
+    pub style: SheetConditionalFormatStyleView,
+    pub priority: u32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SheetConditionalFormatMatchView {
+    pub row: u32,
+    pub column: u32,
+    pub style: SheetConditionalFormatStyleView,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SheetTableView {
@@ -110,8 +146,58 @@ pub struct SheetDocumentView {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<WorksheetView>,
+    pub conditional_formats: Vec<SheetConditionalFormatRuleView>,
     pub tables: Vec<SheetTableView>,
     pub charts: Vec<SheetChartView>,
+}
+
+impl From<SheetConditionalFormatCondition> for SheetConditionalFormatConditionView {
+    fn from(condition: SheetConditionalFormatCondition) -> Self {
+        match condition {
+            SheetConditionalFormatCondition::NumberGreaterThan(value) => {
+                Self::NumberGreaterThan(value)
+            }
+            SheetConditionalFormatCondition::NumberLessThan(value) => Self::NumberLessThan(value),
+            SheetConditionalFormatCondition::NumberEquals(value) => Self::NumberEquals(value),
+            SheetConditionalFormatCondition::TextContains(value) => Self::TextContains(value),
+        }
+    }
+}
+
+impl From<SheetConditionalFormatStyle> for SheetConditionalFormatStyleView {
+    fn from(style: SheetConditionalFormatStyle) -> Self {
+        match style {
+            SheetConditionalFormatStyle::Warning => Self::Warning,
+            SheetConditionalFormatStyle::Success => Self::Success,
+            SheetConditionalFormatStyle::Accent => Self::Accent,
+        }
+    }
+}
+
+impl From<SheetConditionalFormatRule> for SheetConditionalFormatRuleView {
+    fn from(rule: SheetConditionalFormatRule) -> Self {
+        Self {
+            id: rule.id.as_str().to_owned(),
+            worksheet_id: rule.worksheet_id.as_str().to_owned(),
+            start_row: rule.range.start_row,
+            end_row: rule.range.end_row,
+            start_column: rule.range.start_column,
+            end_column: rule.range.end_column,
+            condition: rule.condition.into(),
+            style: rule.style.into(),
+            priority: rule.priority,
+        }
+    }
+}
+
+impl From<SheetConditionalFormatMatch> for SheetConditionalFormatMatchView {
+    fn from(item: SheetConditionalFormatMatch) -> Self {
+        Self {
+            row: item.address.row,
+            column: item.address.column,
+            style: item.style.into(),
+        }
+    }
 }
 
 impl From<SheetTable> for SheetTableView {
@@ -261,6 +347,11 @@ impl From<SheetDocument> for SheetDocumentView {
                 .worksheets
                 .into_iter()
                 .map(WorksheetView::from)
+                .collect(),
+            conditional_formats: document
+                .conditional_formats
+                .into_values()
+                .map(SheetConditionalFormatRuleView::from)
                 .collect(),
             tables: document
                 .tables

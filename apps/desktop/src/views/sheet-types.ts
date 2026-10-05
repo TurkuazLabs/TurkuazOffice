@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.6.0
-// Aciklama: Sheet belge, cell/format, table, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
+// Version: 0.7.0
+// Aciklama: Sheet belge, cell/format, table, conditional formatting, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
 export type SheetCellValueView =
@@ -57,6 +57,53 @@ export interface SheetRangeView {
   readonly endRow: number;
   readonly startColumn: number;
   readonly endColumn: number;
+}
+
+export type SheetConditionalFormatModeView =
+  | "numberGreaterThan"
+  | "numberLessThan"
+  | "numberEquals"
+  | "textContains";
+
+export type SheetConditionalFormatConditionView =
+  | { readonly kind: "numberGreaterThan"; readonly value: number }
+  | { readonly kind: "numberLessThan"; readonly value: number }
+  | { readonly kind: "numberEquals"; readonly value: number }
+  | { readonly kind: "textContains"; readonly value: string };
+
+export type SheetConditionalFormatStyleView = "warning" | "success" | "accent";
+
+export interface SheetConditionalFormatRuleView extends SheetRangeView {
+  readonly id: string;
+  readonly worksheetId: string;
+  readonly condition: SheetConditionalFormatConditionView;
+  readonly style: SheetConditionalFormatStyleView;
+  readonly priority: number;
+}
+
+export interface SheetConditionalFormatCreateRequestView {
+  readonly documentId: string;
+  readonly worksheetId: string;
+  readonly range: SheetRangeView;
+  readonly condition: SheetConditionalFormatConditionView;
+  readonly style: SheetConditionalFormatStyleView;
+}
+
+export interface SheetConditionalFormatRemoveRequestView {
+  readonly documentId: string;
+  readonly ruleId: string;
+}
+
+export interface SheetConditionalFormatMatchesRequestView {
+  readonly documentId: string;
+  readonly worksheetId: string;
+  readonly range: SheetRangeView;
+}
+
+export interface SheetConditionalFormatMatchView {
+  readonly row: number;
+  readonly column: number;
+  readonly style: SheetConditionalFormatStyleView;
 }
 
 export interface SheetTableView extends SheetRangeView {
@@ -147,6 +194,7 @@ export interface SheetDocumentView {
   readonly title: string;
   readonly revision: number;
   readonly worksheets: readonly SheetWorksheetView[];
+  readonly conditionalFormats: readonly SheetConditionalFormatRuleView[];
   readonly tables: readonly SheetTableView[];
   readonly chartCount: number;
 }

@@ -1,14 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/sheet-session.repository.ts
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
-// Version: 0.5.2
-// Aciklama: Backend snapshot, dirty-state, secili hucre/range, range summary, sparse format cache ve row-query state'ini reactive saklar
+// Version: 0.7.0
+// Aciklama: Backend snapshot, dirty-state, secili hucre/range, range summary, conditional-format cache, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
 
 import type {
   SheetCellFormatView,
+  SheetConditionalFormatMatchView,
+  SheetConditionalFormatStyleView,
   SheetDocumentView,
   SheetFreezeStateView,
   SheetRangeSummaryView,
@@ -32,6 +34,10 @@ export class SheetSessionRepository {
   private readonly cellFormatsSignal = createSignal<ReadonlyMap<string, SheetCellFormatView>>(
     new Map(),
   );
+  private readonly conditionalFormatSignal = createSignal<
+    ReadonlyMap<string, SheetConditionalFormatStyleView>
+  >(new Map());
+  private readonly conditionalFormatErrorCodeSignal = createSignal<string | null>(null);
   private readonly rowQuerySignal = createSignal<SheetRowQueryStateView | null>(null);
   private readonly rowQueryErrorCodeSignal = createSignal<string | null>(null);
 
@@ -46,8 +52,36 @@ export class SheetSessionRepository {
   public readonly rangeSummary: Accessor<SheetRangeSummaryView | null> = this.rangeSummarySignal[0];
   public readonly rangeSummaryErrorCode: Accessor<string | null> =
     this.rangeSummaryErrorCodeSignal[0];
+  public readonly conditionalFormatErrorCode: Accessor<string | null> =
+    this.conditionalFormatErrorCodeSignal[0];
   public readonly rowQuery: Accessor<SheetRowQueryStateView | null> = this.rowQuerySignal[0];
   public readonly rowQueryErrorCode: Accessor<string | null> = this.rowQueryErrorCodeSignal[0];
+
+  public conditionalFormatStyle(
+    row: number,
+    column: number,
+  ): SheetConditionalFormatStyleView | null {
+    return this.conditionalFormatSignal[0]().get(this.conditionalFormatKey(row, column)) ?? null;
+  }
+
+  public setConditionalFormatMatches(matches: readonly SheetConditionalFormatMatchView[]): void {
+    const next = new Map<string, SheetConditionalFormatStyleView>();
+    for (const match of matches) {
+      next.set(this.conditionalFormatKey(match.row, match.column), match.style);
+    }
+    this.conditionalFormatSignal[1](next);
+    this.conditionalFormatErrorCodeSignal[1](null);
+  }
+
+  public setConditionalFormatError(errorCode: string): void {
+    this.conditionalFormatSignal[1](new Map());
+    this.conditionalFormatErrorCodeSignal[1](errorCode);
+  }
+
+  public clearConditionalFormats(): void {
+    this.conditionalFormatSignal[1](new Map());
+    this.conditionalFormatErrorCodeSignal[1](null);
+  }
 
   public cellFormat(worksheetId: string, reference: string): SheetCellFormatView | null {
     return this.cellFormatsSignal[0]().get(this.formatKey(worksheetId, reference)) ?? null;
@@ -144,6 +178,10 @@ export class SheetSessionRepository {
       evaluatedValue: null,
       evaluationErrorCode: errorCode,
     });
+  }
+
+  private conditionalFormatKey(row: number, column: number): string {
+    return `${row}:${column}`;
   }
 
   private formatKey(worksheetId: string, reference: string): string {

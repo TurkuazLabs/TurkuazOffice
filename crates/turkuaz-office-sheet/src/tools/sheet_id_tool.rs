@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/tools/sheet_id_tool.rs
-// # 📌 Amac: Sheet document, worksheet, table ve chart kimlik uretimini domain business logic'inden ayirir
+// # 📌 Amac: Sheet document, worksheet, table, conditional format ve chart kimlik uretimini domain business logic'inden ayirir
 // # 📌 Modul - FileType: Tool - Rust
-// Version: 0.6.0
+// Version: 0.7.0
 // Aciklama: Deterministik test edilebilir document/worksheet ID kontrati ve sequential implementasyon saglar
 // Bagimli Oldugu Katman: Tool -> Config
 
@@ -10,14 +10,16 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use turkuaz_office_core::DocumentId;
 
 use crate::config::constants::{
-    CHART_ID_PREFIX, SHEET_DOCUMENT_ID_PREFIX, TABLE_ID_PREFIX, WORKSHEET_ID_PREFIX,
+    CHART_ID_PREFIX, CONDITIONAL_FORMAT_RULE_ID_PREFIX, SHEET_DOCUMENT_ID_PREFIX, TABLE_ID_PREFIX,
+    WORKSHEET_ID_PREFIX,
 };
-use crate::services::sheet_types::{ChartId, TableId, WorksheetId};
+use crate::services::sheet_types::{ChartId, ConditionalFormatRuleId, TableId, WorksheetId};
 
 pub trait SheetIdTool {
     fn next_document_id(&self) -> DocumentId;
     fn next_worksheet_id(&self) -> WorksheetId;
     fn next_table_id(&self) -> TableId;
+    fn next_conditional_format_rule_id(&self) -> ConditionalFormatRuleId;
     fn next_chart_id(&self) -> ChartId;
 }
 
@@ -26,6 +28,7 @@ pub struct SequentialSheetIdTool {
     document_counter: AtomicU64,
     worksheet_counter: AtomicU64,
     table_counter: AtomicU64,
+    conditional_format_counter: AtomicU64,
     chart_counter: AtomicU64,
 }
 
@@ -49,6 +52,14 @@ impl SheetIdTool for SequentialSheetIdTool {
     fn next_table_id(&self) -> TableId {
         let value = self.table_counter.fetch_add(1, Ordering::Relaxed) + 1;
         TableId::new(format!("{TABLE_ID_PREFIX}-{value}"))
+    }
+
+    fn next_conditional_format_rule_id(&self) -> ConditionalFormatRuleId {
+        let value = self
+            .conditional_format_counter
+            .fetch_add(1, Ordering::Relaxed)
+            + 1;
+        ConditionalFormatRuleId::new(format!("{CONDITIONAL_FORMAT_RULE_ID_PREFIX}-{value}"))
     }
 
     fn next_chart_id(&self) -> ChartId {

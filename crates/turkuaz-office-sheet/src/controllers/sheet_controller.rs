@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs
 // # 📌 Amac: Sheet request girdilerini alip yalnizca SheetService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.6.0
-// Aciklama: Create/get/set/formula/evaluate/table/range-summary/clear request yuzeyini business logic tasimadan typed View modeline cevirir
+// Version: 0.7.0
+// Aciklama: Create/get/set/formula/evaluate/table/conditional-format/range-summary/clear request yuzeyini business logic tasimadan typed View modeline cevirir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use turkuaz_office_core::DocumentId;
@@ -10,13 +10,14 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
 use crate::services::sheet_types::{
-    CellFormat, CellValue, ChartId, ChartType, SheetFilter, SheetRange, SheetSort, TableId,
-    WorksheetId,
+    CellFormat, CellValue, ChartId, ChartType, ConditionalFormatRuleId,
+    SheetConditionalFormatCondition, SheetConditionalFormatStyle, SheetFilter, SheetRange,
+    SheetSort, TableId, WorksheetId,
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
 use crate::views::sheet_view::{
-    CellFormatView, CellView, ChartDataView, SheetDocumentView, SheetRangeSummaryView,
-    SheetRowQueryView,
+    CellFormatView, CellView, ChartDataView, SheetConditionalFormatMatchView, SheetDocumentView,
+    SheetRangeSummaryView, SheetRowQueryView,
 };
 
 pub struct SheetController<R, I>
@@ -135,6 +136,58 @@ where
         self.service
             .remove_table(&DocumentId::new(document_id), &TableId::new(table_id))
             .map(SheetDocumentView::from)
+    }
+
+    pub fn create_conditional_format(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+        condition: SheetConditionalFormatCondition,
+        style: SheetConditionalFormatStyle,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .create_conditional_format(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                range,
+                condition,
+                style,
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn remove_conditional_format(
+        &mut self,
+        document_id: &str,
+        rule_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .remove_conditional_format(
+                &DocumentId::new(document_id),
+                &ConditionalFormatRuleId::new(rule_id),
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn conditional_format_matches(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<Vec<SheetConditionalFormatMatchView>, SheetError> {
+        self.service
+            .conditional_format_matches(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                range,
+            )
+            .map(|items| {
+                items
+                    .into_iter()
+                    .map(SheetConditionalFormatMatchView::from)
+                    .collect()
+            })
     }
 
     pub fn range_summary(

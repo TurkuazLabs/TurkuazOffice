@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs
 // # 📌 Amac: Tauri Sheet IPC requestlerini alip yalnizca SheetDesktopService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.6.0
-// Aciklama: Sheet create/get/cell/formula/format/table/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
+// Version: 0.7.0
+// Aciklama: Sheet create/get/cell/formula/format/table/conditional-format/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
@@ -13,7 +13,9 @@ use crate::config::constants::ERROR_STATE_LOCK;
 use crate::services::sheet_desktop_service::SheetDesktopService;
 use crate::views::error_dto::DesktopErrorDto;
 use crate::views::sheet_dto::{
-    SheetCellDto, SheetCellFormatDto, SheetDocumentDto, SheetRangeSummaryDto,
+    SheetCellDto, SheetCellFormatDto, SheetConditionalFormatCreateRequestDto,
+    SheetConditionalFormatMatchDto, SheetConditionalFormatMatchesRequestDto,
+    SheetConditionalFormatRemoveRequestDto, SheetDocumentDto, SheetRangeSummaryDto,
     SheetRangeSummaryRequestDto, SheetRowQueryRequestDto, SheetRowQueryResultDto,
     SheetTableCreateRequestDto, SheetTableRemoveRequestDto,
 };
@@ -174,6 +176,58 @@ pub fn sheet_remove_table(
     service
         .remove_table(&request.document_id, &request.table_id)
         .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_create_conditional_format(
+    state: State<'_, SheetDesktopState>,
+    request: SheetConditionalFormatCreateRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .create_conditional_format(
+            &request.document_id,
+            &request.worksheet_id,
+            request.range.into(),
+            request.condition.into(),
+            request.style.into(),
+        )
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_remove_conditional_format(
+    state: State<'_, SheetDesktopState>,
+    request: SheetConditionalFormatRemoveRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .remove_conditional_format(&request.document_id, &request.rule_id)
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_get_conditional_format_matches(
+    state: State<'_, SheetDesktopState>,
+    request: SheetConditionalFormatMatchesRequestDto,
+) -> Result<Vec<SheetConditionalFormatMatchDto>, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .conditional_format_matches(
+            &request.document_id,
+            &request.worksheet_id,
+            request.range.into(),
+        )
+        .map(|items| items.into_iter().map(Into::into).collect())
         .map_err(Into::into)
 }
 

@@ -1,14 +1,15 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs
 // # 📌 Amac: Desktop Sheet requestlerini canonical Sheet Controller akisina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.6.0
-// Aciklama: Create/get/cell/formula/format/table/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
+// Version: 0.7.0
+// Aciklama: Create/get/cell/formula/format/table/conditional-format/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Controller -> Service -> Repo -> Tool
 
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValue, CellView, InMemorySheetDocumentRepository,
-    SequentialSheetIdTool, SheetController, SheetDocumentView, SheetError, SheetFilter, SheetRange,
-    SheetRangeSummaryView, SheetRowQueryView, SheetService, SheetSort,
+    SequentialSheetIdTool, SheetConditionalFormatCondition, SheetConditionalFormatMatchView,
+    SheetConditionalFormatStyle, SheetController, SheetDocumentView, SheetError, SheetFilter,
+    SheetRange, SheetRangeSummaryView, SheetRowQueryView, SheetService, SheetSort,
 };
 
 type DesktopSheetController =
@@ -132,6 +133,42 @@ impl SheetDesktopService {
         table_id: &str,
     ) -> Result<SheetDocumentView, SheetError> {
         self.controller.remove_table(document_id, table_id)
+    }
+
+    pub fn create_conditional_format(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+        condition: SheetConditionalFormatCondition,
+        style: SheetConditionalFormatStyle,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller.create_conditional_format(
+            document_id,
+            worksheet_id,
+            range,
+            condition,
+            style,
+        )
+    }
+
+    pub fn remove_conditional_format(
+        &mut self,
+        document_id: &str,
+        rule_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller
+            .remove_conditional_format(document_id, rule_id)
+    }
+
+    pub fn conditional_format_matches(
+        &self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<Vec<SheetConditionalFormatMatchView>, SheetError> {
+        self.controller
+            .conditional_format_matches(document_id, worksheet_id, range)
     }
 
     pub fn range_summary(

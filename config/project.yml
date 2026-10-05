@@ -341,13 +341,14 @@ sheet_desktop_ui:
   table_header_filters: true
   table_filter_engine: canonical_row_query
   table_overlap_allowed: false
+  conditional_formatting: canonical_rules
+  conditional_format_match_source: canonical_formula_evaluation
   fake_commands_allowed: false
   planned_sidebar_modules:
     - styles
     - gallery
     - functions
   planned_productivity:
-    - conditional_formatting
     - charts
     - function_library
 
@@ -421,6 +422,7 @@ sheet_csv_xlsx:
     multiple_worksheets: true
     formula_import: strict_reject
     table_export: strict_reject_until_ooxml_table_parts
+    conditional_format_export: strict_reject_until_ooxml_rules
     max_package_bytes: 67108864
     max_worksheets: 256
 
@@ -465,6 +467,27 @@ sheet_table_objects:
   filter_scope: table_data_rows
   filter_engine: sheet_row_query
   xlsx_export: strict_reject_until_table_parts_supported
+
+sheet_conditional_formatting:
+  active: true
+  canonical_definition: true
+  create_from_selection: true
+  remove_at_selection: true
+  priority: lowest_number_wins
+  max_rules: 512
+  formula_evaluation: true
+  formula_error_behavior: no_match
+  conditions:
+    - number_greater_than
+    - number_less_than
+    - number_equals
+    - text_contains
+  semantic_styles:
+    - warning
+    - success
+    - accent
+  desktop_match_projection: visible_grid
+  xlsx_export: strict_reject_until_ooxml_rules_supported
 
 sheet_basic_charts:
   active: true

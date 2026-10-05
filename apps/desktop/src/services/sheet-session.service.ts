@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.6.0
-// Aciklama: Dirty-state korumali create, cell edit/format, table object, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
+// Version: 0.7.0
+// Aciklama: Dirty-state korumali create, cell edit/format, table object, conditional formatting, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -21,6 +21,9 @@ import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type {
   SheetCellFormatView,
   SheetCellValueView,
+  SheetConditionalFormatConditionView,
+  SheetConditionalFormatModeView,
+  SheetConditionalFormatStyleView,
   SheetDesktopErrorView,
   SheetDocumentView,
   SheetFilterConditionView,
@@ -37,6 +40,7 @@ export class SheetSessionService {
   private mutationQueue: Promise<void> = Promise.resolve();
   private rowQueryGeneration = 0;
   private rangeSummaryGeneration = 0;
+  private conditionalFormatGeneration = 0;
 
   public constructor(
     private readonly repository: SheetSessionRepository,
@@ -66,6 +70,8 @@ export class SheetSessionService {
         this.invalidateRangeSummaryRequests();
         this.repository.clearSelectionRange();
         this.repository.clearFreezeState();
+        this.invalidateConditionalFormatRequests();
+        this.repository.clearConditionalFormats();
         this.repository.clearCellFormats();
         this.repository.clearRowQuery();
         this.repository.setDocument(document);
@@ -199,6 +205,104 @@ export class SheetSessionService {
     });
   }
 
+  public applyConditionalFormat(
+    mode: SheetConditionalFormatModeView,
+    rawValue: string,
+    style: SheetConditionalFormatStyleView,
+  ): Promise<void> {
+    return this.enqueue(async () => {
+      const selection = this.repository.selection();
+      const document = this.requireDocument();
+      const worksheet = document.worksheets[0];
+      if (selection === null || worksheet === undefined) {
+        return;
+      }
+
+      let condition: SheetConditionalFormatConditionView;
+      if (mode === "textContains") {
+        const value = rawValue.trim();
+        if (value.length === 0) {
+          this.repository.setConditionalFormatError(ERROR_CODES.sheetInvalidConditionalFormat);
+          return;
+        }
+        condition = { kind: "textContains", value };
+      } else {
+        const normalized = rawValue.trim();
+        if (normalized.length === 0 || !SHEET_NUMBER_PATTERN.test(normalized)) {
+          this.repository.setConditionalFormatError(ERROR_CODES.sheetInvalidConditionalFormat);
+          return;
+        }
+        const value = Number(normalized);
+        if (!Number.isFinite(value)) {
+          this.repository.setConditionalFormatError(ERROR_CODES.sheetInvalidConditionalFormat);
+          return;
+        }
+        condition = { kind: mode, value };
+      }
+
+      const range = this.repository.selectionRange() ?? {
+        startRow: selection.row,
+        endRow: selection.row,
+        startColumn: selection.column,
+        endColumn: selection.column,
+      };
+
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.createConditionalFormat({
+          documentId: document.id,
+          worksheetId: worksheet.id,
+          range,
+          condition,
+          style,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+        await this.refreshConditionalFormatMatches();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
+  public removeConditionalFormatAtSelection(): Promise<void> {
+    return this.enqueue(async () => {
+      const selection = this.repository.selection();
+      const document = this.requireDocument();
+      const worksheet = document.worksheets[0];
+      if (selection === null || worksheet === undefined) {
+        return;
+      }
+
+      const rule = document.conditionalFormats
+        .filter(
+          (item) =>
+            item.worksheetId === worksheet.id &&
+            selection.row >= item.startRow &&
+            selection.row <= item.endRow &&
+            selection.column >= item.startColumn &&
+            selection.column <= item.endColumn,
+        )
+        .sort((left, right) => left.priority - right.priority)[0];
+      if (rule === undefined) {
+        return;
+      }
+
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.removeConditionalFormat({
+          documentId: document.id,
+          ruleId: rule.id,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+        await this.refreshConditionalFormatMatches();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
   public freezeAtSelection(): void {
     const selection = this.repository.selection();
     if (selection === null) {
@@ -325,7 +429,10 @@ export class SheetSessionService {
         if (selection !== null) {
           await this.selectCell(selection.reference, selection.row, selection.column);
         }
-        await this.refreshRowQuery();
+        await Promise.all([
+          this.refreshRowQuery(),
+          this.refreshConditionalFormatMatches(),
+        ]);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
       }
@@ -414,6 +521,44 @@ export class SheetSessionService {
     } catch (error: unknown) {
       if (this.isCurrentRowQueryRequest(generation, documentId)) {
         this.repository.setRowQueryError(this.errorCode(error));
+      }
+    }
+  }
+
+  private async refreshConditionalFormatMatches(): Promise<void> {
+    const generation = this.nextConditionalFormatGeneration();
+    const document = this.repository.document();
+    const worksheet = document?.worksheets[0];
+    if (document === null || worksheet === undefined) {
+      this.repository.clearConditionalFormats();
+      return;
+    }
+    const documentId = document.id;
+
+    try {
+      const matches = await this.sheetTool.getConditionalFormatMatches({
+        documentId,
+        worksheetId: worksheet.id,
+        range: {
+          startRow: 0,
+          endRow: SHEET_GRID_ROW_COUNT - 1,
+          startColumn: 0,
+          endColumn: SHEET_GRID_COLUMN_COUNT - 1,
+        },
+      });
+      if (
+        generation !== this.conditionalFormatGeneration ||
+        this.repository.document()?.id !== documentId
+      ) {
+        return;
+      }
+      this.repository.setConditionalFormatMatches(matches);
+    } catch (error: unknown) {
+      if (
+        generation === this.conditionalFormatGeneration &&
+        this.repository.document()?.id === documentId
+      ) {
+        this.repository.setConditionalFormatError(this.errorCode(error));
       }
     }
   }
@@ -614,6 +759,15 @@ export class SheetSessionService {
       this.language.text("unsavedChangesMessage"),
       this.language.text("unsavedChangesTitle"),
     );
+  }
+
+  private nextConditionalFormatGeneration(): number {
+    this.conditionalFormatGeneration += 1;
+    return this.conditionalFormatGeneration;
+  }
+
+  private invalidateConditionalFormatRequests(): void {
+    this.nextConditionalFormatGeneration();
   }
 
   private nextRowQueryGeneration(): number {

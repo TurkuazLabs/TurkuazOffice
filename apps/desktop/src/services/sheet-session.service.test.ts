@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.6.0
-// Aciklama: Dirty-state, table object, range summary, stale query korumasi, freeze, filter-sort ve typed mutation davranislarini dogrular
+// Version: 0.7.0
+// Aciklama: Dirty-state, table object, conditional formatting, range summary, stale query korumasi, freeze, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -26,6 +26,7 @@ const DOCUMENT: SheetDocumentView = {
       cells: [],
     },
   ],
+  conditionalFormats: [],
   tables: [],
   chartCount: 0,
 };
@@ -82,6 +83,30 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
       calls.push(`table:remove:${request.tableId}`);
       return { ...DOCUMENT, revision: 2, tables: [] };
     },
+    createConditionalFormat: async (request) => {
+      calls.push(
+        `conditional:create:${request.condition.kind}:${request.style}:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
+      );
+      return {
+        ...DOCUMENT,
+        revision: 1,
+        conditionalFormats: [
+          {
+            id: "conditional-format-1",
+            worksheetId: request.worksheetId,
+            ...request.range,
+            condition: request.condition,
+            style: request.style,
+            priority: 1,
+          },
+        ],
+      };
+    },
+    removeConditionalFormat: async (request) => {
+      calls.push(`conditional:remove:${request.ruleId}`);
+      return { ...DOCUMENT, revision: 2, conditionalFormats: [] };
+    },
+    getConditionalFormatMatches: async () => [],
     getRangeSummary: async (request) => {
       calls.push(
         `summary:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
@@ -342,6 +367,97 @@ describe("SheetSessionService", () => {
       startColumn: 1,
       endColumn: 3,
     });
+  });
+
+  it("creates a canonical conditional format from the current selection range", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    await service.extendSelection(2, 1);
+    calls.length = 0;
+    await service.applyConditionalFormat("numberGreaterThan", "10", "warning");
+
+    expect(calls).toEqual(["conditional:create:numberGreaterThan:warning:0:2:0:1"]);
+    expect(repository.document()?.conditionalFormats).toHaveLength(1);
+    expect(repository.document()?.conditionalFormats[0]?.condition).toEqual({
+      kind: "numberGreaterThan",
+      value: 10,
+    });
+    expect(repository.dirty()).toBe(true);
+  });
+
+  it("rejects invalid conditional format values before invoking the backend", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    calls.length = 0;
+    await service.applyConditionalFormat("numberEquals", "abc", "accent");
+    await service.applyConditionalFormat("textContains", "   ", "success");
+
+    expect(calls).toEqual([]);
+    expect(repository.conditionalFormatErrorCode()).toBe(
+      ERROR_CODES.sheetInvalidConditionalFormat,
+    );
+  });
+
+  it("removes the highest-priority conditional format covering the active cell", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      conditionalFormats: [
+        {
+          id: "conditional-format-2",
+          worksheetId: "worksheet-1",
+          startRow: 0,
+          endRow: 2,
+          startColumn: 0,
+          endColumn: 2,
+          condition: { kind: "numberGreaterThan", value: 5 },
+          style: "success",
+          priority: 2,
+        },
+        {
+          id: "conditional-format-1",
+          worksheetId: "worksheet-1",
+          startRow: 0,
+          endRow: 2,
+          startColumn: 0,
+          endColumn: 2,
+          condition: { kind: "numberGreaterThan", value: 0 },
+          style: "warning",
+          priority: 1,
+        },
+      ],
+    });
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("B2", 1, 1);
+    calls.length = 0;
+    await service.removeConditionalFormatAtSelection();
+
+    expect(calls).toEqual(["conditional:remove:conditional-format-1"]);
+    expect(repository.document()?.conditionalFormats).toEqual([]);
+  });
+
+  it("refreshes conditional format matches after a cell mutation", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const sheetTool = toolWithCalls([]);
+    sheetTool.getConditionalFormatMatches = async () => [
+      { row: 0, column: 0, style: "success" },
+    ];
+    const service = createService(repository, sheetTool);
+
+    await service.commitCell("A1", "5");
+
+    expect(repository.conditionalFormatStyle(0, 0)).toBe("success");
   });
 
   it("freezes panes above and left of the active cell", async () => {
