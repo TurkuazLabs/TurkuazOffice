@@ -464,6 +464,8 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     .expect("worksheet utf8");
     assert!(worksheet_xml.contains("<conditionalFormatting"));
     assert!(worksheet_xml.contains("<tableParts count=\"1\">"));
+    assert!(worksheet_xml.contains(r#"SEARCH("Turkuaz",A2)"#));
+    assert!(!worksheet_xml.contains(r#"SEARCH(\"Turkuaz",A2)"#));
 
     let ids = SequentialSheetIdTool::new();
     let restored =
@@ -501,3 +503,128 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert_eq!(rules[1].style, SheetConditionalFormatStyle::Accent);
 }
 
+
+
+#[test]
+fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
+    let worksheet_id = WorksheetId::new("worksheet-reordered-target");
+    let table_id = TableId::new("table-reordered-target");
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-reordered-target"),
+        title: "Reordered Target".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 0,
+        worksheets: vec![Worksheet {
+            id: worksheet_id.clone(),
+            name: "Data".to_owned(),
+            cells: BTreeMap::from([
+                (CellAddress { row: 0, column: 0 }, CellValue::Text("Name".to_owned())),
+                (CellAddress { row: 1, column: 0 }, CellValue::Text("Turkuaz".to_owned())),
+            ]),
+        }],
+        cell_formats: BTreeMap::new(),
+        conditional_formats: BTreeMap::new(),
+        tables: BTreeMap::from([(
+            table_id.clone(),
+            SheetTable {
+                id: table_id,
+                worksheet_id,
+                name: "Names".to_owned(),
+                range: SheetRange {
+                    start_row: 0,
+                    end_row: 1,
+                    start_column: 0,
+                    end_column: 0,
+                },
+            },
+        )]),
+        charts: BTreeMap::new(),
+    };
+
+    let bytes = SheetXlsxService::export(&document).expect("export reordered fixture");
+    let mut entries = SheetXlsxArchiveTool::decode(&bytes).expect("decode reordered fixture");
+    let worksheet = entries
+        .remove("xl/worksheets/sheet1.xml")
+        .expect("sheet1 xml");
+    let relationships = entries
+        .remove("xl/worksheets/_rels/sheet1.xml.rels")
+        .expect("sheet1 rels");
+    entries.insert("xl/worksheets/sheet2.xml".to_owned(), worksheet);
+    entries.insert(
+        "xl/worksheets/_rels/sheet2.xml.rels".to_owned(),
+        relationships,
+    );
+
+    let workbook_rels = String::from_utf8(
+        entries
+            .get("xl/_rels/workbook.xml.rels")
+            .expect("workbook rels")
+            .clone(),
+    )
+    .expect("workbook rels utf8")
+    .replace("worksheets/sheet1.xml", "worksheets/sheet2.xml");
+    entries.insert(
+        "xl/_rels/workbook.xml.rels".to_owned(),
+        workbook_rels.into_bytes(),
+    );
+
+    let repacked = SheetXlsxArchiveTool::encode(
+        &entries.into_iter().collect::<Vec<_>>(),
+    )
+    .expect("repack reordered fixture");
+    let ids = SequentialSheetIdTool::new();
+    let restored =
+        SheetXlsxService::import(&ids, "Reordered Target", &repacked).expect("import reordered");
+
+    assert_eq!(restored.tables.len(), 1);
+    assert_eq!(
+        restored.tables.values().next().expect("table").name,
+        "Names"
+    );
+}
+
+#[test]
+fn xlsx_export_rejects_conditional_format_count_above_global_limit() {
+    let worksheet_id = WorksheetId::new("worksheet-conditional-limit");
+    let mut conditional_formats = BTreeMap::new();
+    for index in 0..513_u32 {
+        let id = ConditionalFormatRuleId::new(format!("conditional-format-{index}"));
+        conditional_formats.insert(
+            id.clone(),
+            SheetConditionalFormatRule {
+                id,
+                worksheet_id: worksheet_id.clone(),
+                range: SheetRange {
+                    start_row: 0,
+                    end_row: 0,
+                    start_column: 0,
+                    end_column: 0,
+                },
+                condition: SheetConditionalFormatCondition::NumberGreaterThan(f64::from(index)),
+                style: SheetConditionalFormatStyle::Warning,
+                priority: index + 1,
+            },
+        );
+    }
+
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-conditional-limit"),
+        title: "Conditional Limit".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 0,
+        worksheets: vec![Worksheet {
+            id: worksheet_id,
+            name: "Data".to_owned(),
+            cells: BTreeMap::new(),
+        }],
+        cell_formats: BTreeMap::new(),
+        conditional_formats,
+        tables: BTreeMap::new(),
+        charts: BTreeMap::new(),
+    };
+
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::ResourceLimit)
+    );
+}
