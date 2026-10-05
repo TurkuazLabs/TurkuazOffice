@@ -1,14 +1,25 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/views/sheet_view.rs
 // # 📌 Amac: Canonical Sheet domain modelini UI/API icin read-only deterministic View modeline cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.5.0
-// Aciklama: Document/worksheet/cell/value ve range summary alanlarini presentation katmanina tasir
+// Version: 0.6.0
+// Aciklama: Document/worksheet/cell/value, table ve range summary alanlarini presentation katmanina tasir
 // Bagimli Oldugu Katman: View -> Service
 
 use crate::services::sheet_types::{
     Cell, CellFormat, CellValue, ChartDataPoint, ChartType, HorizontalAlignment, SheetChart,
-    SheetDocument, SheetRangeSummary, Worksheet,
+    SheetDocument, SheetRangeSummary, SheetTable, Worksheet,
 };
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetTableView {
+    pub id: String,
+    pub worksheet_id: String,
+    pub name: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ChartTypeView {
@@ -99,7 +110,22 @@ pub struct SheetDocumentView {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<WorksheetView>,
+    pub tables: Vec<SheetTableView>,
     pub charts: Vec<SheetChartView>,
+}
+
+impl From<SheetTable> for SheetTableView {
+    fn from(table: SheetTable) -> Self {
+        Self {
+            id: table.id.as_str().to_owned(),
+            worksheet_id: table.worksheet_id.as_str().to_owned(),
+            name: table.name,
+            start_row: table.range.start_row,
+            end_row: table.range.end_row,
+            start_column: table.range.start_column,
+            end_column: table.range.end_column,
+        }
+    }
 }
 
 impl From<ChartType> for ChartTypeView {
@@ -235,6 +261,11 @@ impl From<SheetDocument> for SheetDocumentView {
                 .worksheets
                 .into_iter()
                 .map(WorksheetView::from)
+                .collect(),
+            tables: document
+                .tables
+                .into_values()
+                .map(SheetTableView::from)
                 .collect(),
             charts: document
                 .charts

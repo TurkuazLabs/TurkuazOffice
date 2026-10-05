@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.3
-// Aciklama: Hybrid menu, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
+// Version: 0.6.0
+// Aciklama: Hybrid menu, table/filter headers, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -28,6 +28,7 @@ import type {
   SheetFilterModeView,
   SheetHorizontalAlignmentView,
   SheetSortDirectionView,
+  SheetTableView,
 } from "./sheet-types";
 
 interface SheetShellProps {
@@ -61,7 +62,68 @@ export function SheetShell(props: SheetShellProps) {
 
   const activeWorksheet = () => props.repository.document()?.worksheets[0] ?? null;
   const selectedFormat = () => props.repository.selection()?.format ?? null;
-  const visibleRows = () => props.repository.rowQuery()?.rows.map((row) => row + 1) ?? ROWS;
+
+  const tableAtAddress = (row: number, column: number): SheetTableView | null => {
+    const worksheet = activeWorksheet();
+    if (worksheet === null) {
+      return null;
+    }
+    return (
+      props.repository.document()?.tables.find(
+        (table) =>
+          table.worksheetId === worksheet.id &&
+          row >= table.startRow &&
+          row <= table.endRow &&
+          column >= table.startColumn &&
+          column <= table.endColumn,
+      ) ?? null
+    );
+  };
+
+  const tableAtHeaderCell = (row: number, column: number): SheetTableView | null => {
+    const address = REFERENCE_TOOL.domainAddress(row, column);
+    const table = tableAtAddress(address.row, address.column);
+    return table?.startRow === address.row ? table : null;
+  };
+
+  const selectedTable = (): SheetTableView | null => {
+    const selection = props.repository.selection();
+    return selection === null ? null : tableAtAddress(selection.row, selection.column);
+  };
+
+  const rangesOverlap = (
+    left: { startRow: number; endRow: number; startColumn: number; endColumn: number },
+    right: SheetTableView,
+  ): boolean =>
+    left.startRow <= right.endRow &&
+    right.startRow <= left.endRow &&
+    left.startColumn <= right.endColumn &&
+    right.startColumn <= left.endColumn;
+
+  const canCreateTable = (): boolean => {
+    const range = props.repository.selectionRange();
+    const worksheet = activeWorksheet();
+    if (range === null || worksheet === null || range.startRow >= range.endRow) {
+      return false;
+    }
+    return !(
+      props.repository.document()?.tables.some(
+        (table) => table.worksheetId === worksheet.id && rangesOverlap(range, table),
+      ) ?? false
+    );
+  };
+
+  const visibleRows = () => {
+    const query = props.repository.rowQuery();
+    if (query === null) {
+      return ROWS;
+    }
+
+    const before = ROWS.filter((row) => row - 1 < query.range.startRow);
+    const queried = query.rows.map((row) => row + 1);
+    const after = ROWS.filter((row) => row - 1 > query.range.endRow);
+    return [...before, ...queried, ...after];
+  };
   const filterNeedsValue = () =>
     filterMode() === "textContains" ||
     filterMode() === "numberGreaterThan" ||
@@ -155,6 +217,49 @@ export function SheetShell(props: SheetShellProps) {
   const clearQuery = (): void => {
     resetQueryControls();
     props.controller.clearRowQuery();
+  };
+
+  const sameQueryRange = (
+    left: { startRow: number; endRow: number; startColumn: number; endColumn: number },
+    right: { startRow: number; endRow: number; startColumn: number; endColumn: number },
+  ): boolean =>
+    left.startRow === right.startRow &&
+    left.endRow === right.endRow &&
+    left.startColumn === right.startColumn &&
+    left.endColumn === right.endColumn;
+
+  const openTableFilter = async (
+    reference: string,
+    row: number,
+    column: number,
+  ): Promise<void> => {
+    const table = tableAtHeaderCell(row, column);
+    if (table === null) {
+      return;
+    }
+    const address = REFERENCE_TOOL.domainAddress(row, column);
+    const tableRange = {
+      startRow: table.startRow + 1,
+      endRow: table.endRow,
+      startColumn: table.startColumn,
+      endColumn: table.endColumn,
+    };
+    const query = props.repository.rowQuery();
+    if (
+      query !== null &&
+      query.column === address.column &&
+      sameQueryRange(query.range, tableRange)
+    ) {
+      setFilterMode(query.filterMode);
+      setFilterValue(query.filterValue);
+      setSortDirection(query.sortDirection);
+    } else {
+      props.controller.clearRowQuery();
+      resetQueryControls();
+    }
+
+    await props.controller.selectCell(reference, address.row, address.column);
+    setQueryOpen(true);
   };
 
   const frozenCellStyle = (
@@ -270,6 +375,8 @@ export function SheetShell(props: SheetShellProps) {
             props.repository.freezeState().columns > 0
           }
           canFreezeAtSelection={props.repository.selection() !== null}
+          canCreateTable={canCreateTable()}
+          canRemoveTable={selectedTable() !== null}
           onNewDocument={() => void createDocument()}
           onToggleProperties={() => setPropertiesOpen((value) => !value)}
           onToggleQuery={() => setQueryOpen((value) => !value)}
@@ -277,6 +384,8 @@ export function SheetShell(props: SheetShellProps) {
           onFreezeTopRow={() => props.controller.freezeTopRow()}
           onFreezeFirstColumn={() => props.controller.freezeFirstColumn()}
           onUnfreezePanes={() => props.controller.unfreezePanes()}
+          onCreateTable={() => void props.controller.createTableFromSelection()}
+          onRemoveTable={() => void props.controller.removeTableAtSelection()}
         />
         <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
           <button
@@ -555,6 +664,13 @@ export function SheetShell(props: SheetShellProps) {
                                 "sheet-grid__cell--selected":
                                   props.repository.selection()?.reference === reference,
                                 "sheet-grid__cell--range": isCellInSelectionRange(row, column),
+                                "sheet-grid__cell--table-header":
+                                  tableAtHeaderCell(row, column) !== null,
+                                "sheet-grid__cell--table-body": (() => {
+                                  const address = REFERENCE_TOOL.domainAddress(row, column);
+                                  const table = tableAtAddress(address.row, address.column);
+                                  return table !== null && table.startRow !== address.row;
+                                })(),
                                 "sheet-grid__cell--freeze-row-edge":
                                   props.repository.freezeState().rows > 0 &&
                                   rowIndex() === props.repository.freezeState().rows - 1,
@@ -610,6 +726,23 @@ export function SheetShell(props: SheetShellProps) {
                                   }
                                 }}
                               />
+                              <Show when={tableAtHeaderCell(row, column) !== null}>
+                                <button
+                                  type="button"
+                                  class="sheet-table-filter-button"
+                                  aria-label={`${props.language.text("sheetTableFilter")} ${reference}`}
+                                  onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                  }}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    void openTableFilter(reference, row, column);
+                                  }}
+                                >
+                                  &#9662;
+                                </button>
+                              </Show>
                             </td>
                           );
                         }}
@@ -670,6 +803,9 @@ export function SheetShell(props: SheetShellProps) {
         </span>
         <span>
           {props.language.text("sheetCells")}: {activeWorksheet()?.cellCount ?? 0}
+        </span>
+        <span>
+          {props.language.text("sheetTables")}: {props.repository.document()?.tables.length ?? 0}
         </span>
       </footer>
     </div>

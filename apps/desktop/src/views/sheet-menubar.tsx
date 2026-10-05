@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-menubar.tsx
 // # 📌 Amac: LibreOffice klasik menusu ile Excel hizli akislarini birlestiren Sheet menu satirini sunar
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.2
+// Version: 0.6.0
 // Aciklama: Yalnizca gercek islevi olan Dosya/Bicim/Gorunum/Veri komutlarini acar; diger menuleri gelecek kapsami olarak pasif gosterir
 // Bagimli Oldugu Katman: View -> Language
 
@@ -13,6 +13,8 @@ interface SheetMenubarProps {
   readonly queryOpen: boolean;
   readonly freezeActive: boolean;
   readonly canFreezeAtSelection: boolean;
+  readonly canCreateTable: boolean;
+  readonly canRemoveTable: boolean;
   readonly onNewDocument: () => void;
   readonly onToggleProperties: () => void;
   readonly onToggleQuery: () => void;
@@ -20,6 +22,8 @@ interface SheetMenubarProps {
   readonly onFreezeTopRow: () => void;
   readonly onFreezeFirstColumn: () => void;
   readonly onUnfreezePanes: () => void;
+  readonly onCreateTable: () => void;
+  readonly onRemoveTable: () => void;
 }
 
 export function SheetMenubar(props: SheetMenubarProps) {
@@ -89,6 +93,13 @@ export function SheetMenubar(props: SheetMenubarProps) {
       <details class="sheet-menu">
         <summary>{props.language.text("menuData")}</summary>
         <div class="sheet-menu__popup">
+          <button type="button" disabled={!props.canCreateTable} onClick={props.onCreateTable}>
+            {props.language.text("sheetCreateTable")}
+          </button>
+          <button type="button" disabled={!props.canRemoveTable} onClick={props.onRemoveTable}>
+            {props.language.text("sheetRemoveTable")}
+          </button>
+          <div class="sheet-menu__separator" />
           <button type="button" aria-pressed={props.queryOpen} onClick={props.onToggleQuery}>
             {props.queryOpen
               ? props.language.text("sheetHideQuery")

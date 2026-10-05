@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs
 // # 📌 Amac: CSV satir-hucre matrisini canonical SheetDocument/Worksheet modeline map eder ve geri export eder
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.3.0
+// Version: 0.6.0
 // Aciklama: CSV importu type metadata olmadigi icin text-only yapar; exportta canonical text/number/boolean degerlerini CSV stringine cevirir
 // Bagimli Oldugu Katman: Service -> Tool -> Sheet
 
@@ -66,6 +66,7 @@ impl SheetCsvService {
                 cells,
             }],
             cell_formats: BTreeMap::new(),
+            tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         })
     }

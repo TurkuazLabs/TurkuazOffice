@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/lib.rs
 // # 📌 Amac: Sheet modulunun kontrollu public API yuzeyini tanimlar
 // # 📌 Modul - FileType: Sheet - Rust
-// Version: 0.5.0
+// Version: 0.6.0
 // Aciklama: Controller, Service, Repo, Tool, View, Language ve Config katmanlarini disari acar
 // Bagimli Oldugu Katman: Sheet
 
@@ -21,7 +21,7 @@ pub use services::sheet_service::{SheetError, SheetService};
 pub use services::sheet_types::{
     Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
     HorizontalAlignment, SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange,
-    SheetRangeSummary, SheetSort, SheetSortDirection, Worksheet, WorksheetId,
+    SheetRangeSummary, SheetSort, SheetSortDirection, SheetTable, TableId, Worksheet, WorksheetId,
 };
 pub use tools::cell_reference_tool::{CellReferenceError, CellReferenceTool};
 pub use tools::formula_tool::{
@@ -32,5 +32,5 @@ pub use tools::sheet_id_tool::{SequentialSheetIdTool, SheetIdTool};
 pub use views::sheet_view::{
     CellFormatView, CellValueView, CellView, ChartDataPointView, ChartDataView, ChartTypeView,
     HorizontalAlignmentView, SheetChartView, SheetDocumentView, SheetRangeSummaryView,
-    SheetRowQueryView, WorksheetView,
+    SheetRowQueryView, SheetTableView, WorksheetView,
 };

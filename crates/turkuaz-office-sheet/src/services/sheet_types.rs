@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_types.rs
-// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, range summary, query ve chart canonical modelini tanimlar
+// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, table, range summary, query ve chart canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.5.0
+// Version: 0.6.0
 // Aciklama: Sparse cell storage, canonical format metadata, table-query ve basic chart tiplerini tasir
 // Bagimli Oldugu Katman: Service
 
@@ -96,6 +96,27 @@ pub struct SheetRangeSummary {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct TableId(String);
+
+impl TableId {
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SheetTable {
+    pub id: TableId,
+    pub worksheet_id: WorksheetId,
+    pub name: String,
+    pub range: SheetRange,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ChartId(String);
 
 impl ChartId {
@@ -161,5 +182,6 @@ pub struct SheetDocument {
     pub revision: u64,
     pub worksheets: Vec<Worksheet>,
     pub cell_formats: BTreeMap<WorksheetId, BTreeMap<CellAddress, CellFormat>>,
+    pub tables: BTreeMap<TableId, SheetTable>,
     pub charts: BTreeMap<ChartId, SheetChart>,
 }

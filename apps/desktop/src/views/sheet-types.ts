@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.5.2
-// Aciklama: Sheet belge, cell/format, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
+// Version: 0.6.0
+// Aciklama: Sheet belge, cell/format, table, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
 export type SheetCellValueView =
@@ -59,6 +59,23 @@ export interface SheetRangeView {
   readonly endColumn: number;
 }
 
+export interface SheetTableView extends SheetRangeView {
+  readonly id: string;
+  readonly worksheetId: string;
+  readonly name: string;
+}
+
+export interface SheetTableCreateRequestView {
+  readonly documentId: string;
+  readonly worksheetId: string;
+  readonly range: SheetRangeView;
+}
+
+export interface SheetTableRemoveRequestView {
+  readonly documentId: string;
+  readonly tableId: string;
+}
+
 export interface SheetRangeSummaryRequestView {
   readonly documentId: string;
   readonly worksheetId: string;
@@ -101,6 +118,7 @@ export interface SheetRowQueryResultView {
 
 export interface SheetRowQueryStateView {
   readonly column: number;
+  readonly range: SheetRangeView;
   readonly filterMode: SheetFilterModeView;
   readonly filterValue: string;
   readonly sortDirection: SheetSortDirectionView;
@@ -129,6 +147,7 @@ export interface SheetDocumentView {
   readonly title: string;
   readonly revision: number;
   readonly worksheets: readonly SheetWorksheetView[];
+  readonly tables: readonly SheetTableView[];
   readonly chartCount: number;
 }
 

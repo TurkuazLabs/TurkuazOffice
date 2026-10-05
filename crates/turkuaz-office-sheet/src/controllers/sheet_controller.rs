@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/controllers/sheet_controller.rs
 // # 📌 Amac: Sheet request girdilerini alip yalnizca SheetService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.5.0
-// Aciklama: Create/get/set/formula/evaluate/range-summary/clear request yuzeyini business logic tasimadan typed View modeline cevirir
+// Version: 0.6.0
+// Aciklama: Create/get/set/formula/evaluate/table/range-summary/clear request yuzeyini business logic tasimadan typed View modeline cevirir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use turkuaz_office_core::DocumentId;
@@ -10,7 +10,8 @@ use turkuaz_office_core::DocumentId;
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_service::{SheetError, SheetService};
 use crate::services::sheet_types::{
-    CellFormat, CellValue, ChartId, ChartType, SheetFilter, SheetRange, SheetSort, WorksheetId,
+    CellFormat, CellValue, ChartId, ChartType, SheetFilter, SheetRange, SheetSort, TableId,
+    WorksheetId,
 };
 use crate::tools::sheet_id_tool::SheetIdTool;
 use crate::views::sheet_view::{
@@ -109,6 +110,31 @@ where
                 reference,
             )
             .map(CellFormatView::from)
+    }
+
+    pub fn create_table(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .create_table(
+                &DocumentId::new(document_id),
+                &WorksheetId::new(worksheet_id),
+                range,
+            )
+            .map(SheetDocumentView::from)
+    }
+
+    pub fn remove_table(
+        &mut self,
+        document_id: &str,
+        table_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.service
+            .remove_table(&DocumentId::new(document_id), &TableId::new(table_id))
+            .map(SheetDocumentView::from)
     }
 
     pub fn range_summary(

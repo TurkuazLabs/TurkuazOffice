@@ -3,8 +3,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.5.3
-// Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
+// Version: 0.6.0
+// Aciklama: Aktif draft, table header/filter, range query, freeze ve yeni Sheet query-reset davranislarini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
 import { render } from "solid-js/web";
@@ -34,6 +34,7 @@ const DOCUMENT: SheetDocumentView = {
       ],
     },
   ],
+  tables: [],
   chartCount: 0,
 };
 
@@ -43,6 +44,8 @@ function controllerStub(): SheetController {
     createDocument: async () => true,
     selectCell: async () => undefined,
     extendSelection: async () => undefined,
+    createTableFromSelection: async () => undefined,
+    removeTableAtSelection: async () => undefined,
     freezeAtSelection: () => undefined,
     freezeTopRow: () => undefined,
     freezeFirstColumn: () => undefined,
@@ -140,6 +143,80 @@ describe("SheetShell active drafts", () => {
     await Promise.resolve();
 
     expect(input!.value).toBe("123");
+  });
+
+  it("renders automatic filter controls on canonical table headers", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      tables: [
+        {
+          id: "table-1",
+          worksheetId: "worksheet-1",
+          name: "Table1",
+          startRow: 0,
+          endRow: 3,
+          startColumn: 0,
+          endColumn: 1,
+        },
+      ],
+    });
+
+    const root = mount(repository);
+    expect(root.querySelector('button[aria-label="Table filter A1"]')).not.toBeNull();
+    expect(root.querySelector('button[aria-label="Table filter B1"]')).not.toBeNull();
+    expect(root.querySelector('button[aria-label="Table filter A2"]')).toBeNull();
+    expect(root.textContent).toContain("Tables: 1");
+  });
+
+  it("keeps rows outside a table query range visible", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setRowQuery({
+      column: 0,
+      range: {
+        startRow: 1,
+        endRow: 3,
+        startColumn: 0,
+        endColumn: 1,
+      },
+      filterMode: "nonEmpty",
+      filterValue: "",
+      sortDirection: "none",
+      rows: [2],
+    });
+
+    const root = mount(repository);
+    expect(root.querySelector('input[aria-label="A1"]')).not.toBeNull();
+    expect(root.querySelector('input[aria-label="A2"]')).toBeNull();
+    expect(root.querySelector('input[aria-label="A3"]')).not.toBeNull();
+    expect(root.querySelector('input[aria-label="A4"]')).toBeNull();
+    expect(root.querySelector('input[aria-label="A5"]')).not.toBeNull();
+  });
+
+  it("preserves backend sort order inside a scoped table query", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setRowQuery({
+      column: 0,
+      range: {
+        startRow: 1,
+        endRow: 3,
+        startColumn: 0,
+        endColumn: 1,
+      },
+      filterMode: "none",
+      filterValue: "",
+      sortDirection: "descending",
+      rows: [3, 1],
+    });
+
+    const root = mount(repository);
+    const firstRows = Array.from(root.querySelectorAll(".sheet-grid__row-header"))
+      .slice(0, 4)
+      .map((header) => header.textContent?.trim());
+
+    expect(firstRows).toEqual(["1", "4", "2", "5"]);
   });
 
   it("renders frozen row and column cells with sticky offsets", async () => {

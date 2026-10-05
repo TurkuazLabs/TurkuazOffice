@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/error_dto.rs
 // # 📌 Amac: Desktop backend hatalarini Tauri frontend icin stabil error code DTO'suna map eder
 // # 📌 Modul - FileType: View - Rust
-// # Version: 0.4.0
+// # Version: 0.6.0
 // # Aciklama: Writer ve Sheet domain hatalarini implementation detayini sizdirmadan stabil serializable hata koduna map eder
 // Bagimli Oldugu Katman: View
 
@@ -28,7 +28,8 @@ use crate::config::constants::{
     ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE, ERROR_SHEET_FORMULA_RESULT_NOT_FINITE,
     ERROR_SHEET_INVALID_CELL_FORMAT, ERROR_SHEET_INVALID_CELL_REFERENCE,
     ERROR_SHEET_INVALID_CHART_RANGE, ERROR_SHEET_INVALID_CHART_TITLE, ERROR_SHEET_INVALID_FILTER,
-    ERROR_SHEET_INVALID_FORMULA, ERROR_SHEET_INVALID_RANGE, ERROR_SHEET_QUERY_TOO_LARGE,
+    ERROR_SHEET_INVALID_FORMULA, ERROR_SHEET_INVALID_RANGE, ERROR_SHEET_INVALID_TABLE_RANGE,
+    ERROR_SHEET_QUERY_TOO_LARGE, ERROR_SHEET_TABLE_NOT_FOUND, ERROR_SHEET_TABLE_RANGE_OVERLAP,
     ERROR_SHEET_WORKSHEET_NOT_FOUND, ERROR_TEMPLATE_INVALID, ERROR_TEMPLATE_NOT_FOUND,
     ERROR_TKO_FUTURE_SCHEMA, ERROR_TKO_INVALID, ERROR_TKO_MIGRATION_REQUIRED,
 };
@@ -74,6 +75,9 @@ impl From<SheetError> for DesktopErrorDto {
             SheetError::InvalidRange => Self::new(ERROR_SHEET_INVALID_RANGE),
             SheetError::QueryTooLarge => Self::new(ERROR_SHEET_QUERY_TOO_LARGE),
             SheetError::InvalidFilter => Self::new(ERROR_SHEET_INVALID_FILTER),
+            SheetError::TableNotFound => Self::new(ERROR_SHEET_TABLE_NOT_FOUND),
+            SheetError::InvalidTableRange => Self::new(ERROR_SHEET_INVALID_TABLE_RANGE),
+            SheetError::TableRangeOverlap => Self::new(ERROR_SHEET_TABLE_RANGE_OVERLAP),
             SheetError::ChartNotFound => Self::new(ERROR_SHEET_CHART_NOT_FOUND),
             SheetError::InvalidChartTitle => Self::new(ERROR_SHEET_INVALID_CHART_TITLE),
             SheetError::InvalidChartRange => Self::new(ERROR_SHEET_INVALID_CHART_RANGE),
