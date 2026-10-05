@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/controllers/sheet.controller.ts
 // # 📌 Amac: Sheet View requestlerini alip yalnizca SheetSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
-// Version: 0.5.0
+// Version: 0.5.2
 // Aciklama: Session, dirty-safe create, secili hucre/range, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
@@ -29,6 +29,22 @@ export class SheetController {
 
   public extendSelection(row: number, column: number): Promise<void> {
     return this.service.extendSelection(row, column);
+  }
+
+  public freezeAtSelection(): void {
+    this.service.freezeAtSelection();
+  }
+
+  public freezeTopRow(): void {
+    this.service.freezeTopRow();
+  }
+
+  public freezeFirstColumn(): void {
+    this.service.freezeFirstColumn();
+  }
+
+  public unfreezePanes(): void {
+    this.service.unfreezePanes();
   }
 
   public toggleBold(): Promise<void> {

@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.5.2
+// Version: 0.5.3
 // Aciklama: Aktif draft korumasi ve basarili yeni Sheet sonrasi query-control reset davranisini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
@@ -43,6 +43,10 @@ function controllerStub(): SheetController {
     createDocument: async () => true,
     selectCell: async () => undefined,
     extendSelection: async () => undefined,
+    freezeAtSelection: () => undefined,
+    freezeTopRow: () => undefined,
+    freezeFirstColumn: () => undefined,
+    unfreezePanes: () => undefined,
     toggleBold: async () => undefined,
     toggleItalic: async () => undefined,
     toggleUnderline: async () => undefined,
@@ -136,6 +140,21 @@ describe("SheetShell active drafts", () => {
     await Promise.resolve();
 
     expect(input!.value).toBe("123");
+  });
+
+  it("renders frozen row and column cells with sticky offsets", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setFreezeState({ rows: 1, columns: 1 });
+
+    const root = mount(repository);
+    const a1 = root.querySelector<HTMLInputElement>('input[aria-label="A1"]');
+    const cell = a1?.closest<HTMLTableCellElement>("td");
+    expect(cell?.style.position).toBe("sticky");
+    expect(cell?.style.top).toBe("24px");
+    expect(cell?.style.left).toBe("36px");
+    expect(cell?.classList.contains("sheet-grid__cell--freeze-row-edge")).toBe(true);
+    expect(cell?.classList.contains("sheet-grid__cell--freeze-column-edge")).toBe(true);
   });
 
   it("renders range selection and Excel-style status aggregates", async () => {

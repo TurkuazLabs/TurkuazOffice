@@ -333,6 +333,10 @@ sheet_desktop_ui:
     - count
     - sum
     - average
+  freeze_panes: session_view_state
+  freeze_at_selection: true
+  freeze_top_row: true
+  freeze_first_column: true
   fake_commands_allowed: false
   planned_sidebar_modules:
     - styles
@@ -340,7 +344,6 @@ sheet_desktop_ui:
     - functions
   planned_productivity:
     - multi_selection_status_aggregates
-    - freeze_panes
     - tables
     - conditional_formatting
     - charts

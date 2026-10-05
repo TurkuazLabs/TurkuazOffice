@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-menubar.tsx
 // # 📌 Amac: LibreOffice klasik menusu ile Excel hizli akislarini birlestiren Sheet menu satirini sunar
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.0
+// Version: 0.5.2
 // Aciklama: Yalnizca gercek islevi olan Dosya/Bicim/Gorunum/Veri komutlarini acar; diger menuleri gelecek kapsami olarak pasif gosterir
 // Bagimli Oldugu Katman: View -> Language
 
@@ -11,9 +11,15 @@ interface SheetMenubarProps {
   readonly language: LanguageService;
   readonly propertiesOpen: boolean;
   readonly queryOpen: boolean;
+  readonly freezeActive: boolean;
+  readonly canFreezeAtSelection: boolean;
   readonly onNewDocument: () => void;
   readonly onToggleProperties: () => void;
   readonly onToggleQuery: () => void;
+  readonly onFreezeAtSelection: () => void;
+  readonly onFreezeTopRow: () => void;
+  readonly onFreezeFirstColumn: () => void;
+  readonly onUnfreezePanes: () => void;
 }
 
 export function SheetMenubar(props: SheetMenubarProps) {
@@ -55,6 +61,27 @@ export function SheetMenubar(props: SheetMenubarProps) {
             {props.queryOpen
               ? props.language.text("sheetHideQuery")
               : props.language.text("sheetShowQuery")}
+          </button>
+          <div class="sheet-menu__separator" />
+          <button
+            type="button"
+            disabled={!props.canFreezeAtSelection}
+            onClick={props.onFreezeAtSelection}
+          >
+            {props.language.text("sheetFreezeAtSelection")}
+          </button>
+          <button type="button" onClick={props.onFreezeTopRow}>
+            {props.language.text("sheetFreezeTopRow")}
+          </button>
+          <button type="button" onClick={props.onFreezeFirstColumn}>
+            {props.language.text("sheetFreezeFirstColumn")}
+          </button>
+          <button
+            type="button"
+            disabled={!props.freezeActive}
+            onClick={props.onUnfreezePanes}
+          >
+            {props.language.text("sheetUnfreezePanes")}
           </button>
         </div>
       </details>

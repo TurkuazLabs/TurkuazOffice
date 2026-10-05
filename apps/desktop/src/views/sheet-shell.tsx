@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.5.2
-// Aciklama: Hybrid menu, Shift range selection, canonical aggregates, formula bari, grid, properties dock ve status View'larini birlestirir
+// Version: 0.5.3
+// Aciklama: Hybrid menu, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -10,7 +10,11 @@ import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
+  SHEET_GRID_COLUMN_HEADER_HEIGHT_PX,
+  SHEET_GRID_COLUMN_WIDTH_PX,
   SHEET_GRID_ROW_COUNT,
+  SHEET_GRID_ROW_HEADER_WIDTH_PX,
+  SHEET_GRID_ROW_HEIGHT_PX,
   SHEET_MAX_DECIMAL_PLACES,
 } from "../config/sheet";
 import type { SheetController } from "../controllers/sheet.controller";
@@ -153,24 +157,64 @@ export function SheetShell(props: SheetShellProps) {
     props.controller.clearRowQuery();
   };
 
-  const cellStyle = (reference: string): Record<string, string> => {
-    const worksheet = activeWorksheet();
-    if (worksheet === null) {
-      return {};
-    }
-    const format = props.repository.cellFormat(worksheet.id, reference);
-    if (format === null) {
+  const frozenCellStyle = (
+    visibleRowIndex: number,
+    columnIndex: number,
+  ): Record<string, string> => {
+    const freeze = props.repository.freezeState();
+    const frozenRow = visibleRowIndex < freeze.rows;
+    const frozenColumn = columnIndex < freeze.columns;
+    if (!frozenRow && !frozenColumn) {
       return {};
     }
 
-    const alignment: SheetHorizontalAlignmentView = format.horizontalAlignment;
     return {
-      "font-weight": format.bold ? "700" : "400",
-      "font-style": format.italic ? "italic" : "normal",
-      "text-decoration": format.underline ? "underline" : "none",
-      "text-align": alignment === "general" ? "start" : alignment,
+      position: "sticky",
+      ...(frozenRow
+        ? {
+            top: `${SHEET_GRID_COLUMN_HEADER_HEIGHT_PX + visibleRowIndex * SHEET_GRID_ROW_HEIGHT_PX}px`,
+          }
+        : {}),
+      ...(frozenColumn
+        ? {
+            left: `${SHEET_GRID_ROW_HEADER_WIDTH_PX + columnIndex * SHEET_GRID_COLUMN_WIDTH_PX}px`,
+          }
+        : {}),
+      "z-index": frozenRow && frozenColumn ? "6" : "5",
     };
   };
+
+  const cellStyle = (reference: string): Record<string, string> => {
+    const worksheet = activeWorksheet();
+    const format = worksheet === null ? null : props.repository.cellFormat(worksheet.id, reference);
+    const alignment: SheetHorizontalAlignmentView = format?.horizontalAlignment ?? "general";
+    return {
+      ...(format === null
+        ? {}
+        : {
+            "font-weight": format.bold ? "700" : "400",
+            "font-style": format.italic ? "italic" : "normal",
+            "text-decoration": format.underline ? "underline" : "none",
+            "text-align": alignment === "general" ? "start" : alignment,
+          }),
+    };
+  };
+
+  const frozenColumnHeaderStyle = (columnIndex: number): Record<string, string> =>
+    columnIndex < props.repository.freezeState().columns
+      ? {
+          left: `${SHEET_GRID_ROW_HEADER_WIDTH_PX + columnIndex * SHEET_GRID_COLUMN_WIDTH_PX}px`,
+          "z-index": "5",
+        }
+      : {};
+
+  const frozenRowHeaderStyle = (visibleRowIndex: number): Record<string, string> =>
+    visibleRowIndex < props.repository.freezeState().rows
+      ? {
+          top: `${SHEET_GRID_COLUMN_HEADER_HEIGHT_PX + visibleRowIndex * SHEET_GRID_ROW_HEIGHT_PX}px`,
+          "z-index": "5",
+        }
+      : {};
 
   const evaluatedText = (): string => {
     const selection = props.repository.selection();
@@ -221,9 +265,18 @@ export function SheetShell(props: SheetShellProps) {
           language={props.language}
           propertiesOpen={propertiesOpen()}
           queryOpen={queryOpen()}
+          freezeActive={
+            props.repository.freezeState().rows > 0 ||
+            props.repository.freezeState().columns > 0
+          }
+          canFreezeAtSelection={props.repository.selection() !== null}
           onNewDocument={() => void createDocument()}
           onToggleProperties={() => setPropertiesOpen((value) => !value)}
           onToggleQuery={() => setQueryOpen((value) => !value)}
+          onFreezeAtSelection={() => props.controller.freezeAtSelection()}
+          onFreezeTopRow={() => props.controller.freezeTopRow()}
+          onFreezeFirstColumn={() => props.controller.freezeFirstColumn()}
+          onUnfreezePanes={() => props.controller.unfreezePanes()}
         />
         <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
           <button
@@ -452,19 +505,40 @@ export function SheetShell(props: SheetShellProps) {
                 <tr>
                   <th class="sheet-grid__corner" scope="col" />
                   <For each={COLUMNS}>
-                    {(column) => (
-                      <th class="sheet-grid__column-header" scope="col">
-                        {REFERENCE_TOOL.columnLabel(column)}
-                      </th>
-                    )}
+                    {(column) => {
+                      const columnIndex = column - 1;
+                      return (
+                        <th
+                          class="sheet-grid__column-header"
+                          classList={{
+                            "sheet-grid__column-header--freeze-edge":
+                              props.repository.freezeState().columns > 0 &&
+                              columnIndex === props.repository.freezeState().columns - 1,
+                          }}
+                          scope="col"
+                          style={frozenColumnHeaderStyle(columnIndex)}
+                        >
+                          {REFERENCE_TOOL.columnLabel(column)}
+                        </th>
+                      );
+                    }}
                   </For>
                 </tr>
               </thead>
               <tbody>
                 <For each={visibleRows()}>
-                  {(row) => (
+                  {(row, rowIndex) => (
                     <tr>
-                      <th class="sheet-grid__row-header" scope="row">
+                      <th
+                        class="sheet-grid__row-header"
+                        classList={{
+                          "sheet-grid__row-header--freeze-edge":
+                            props.repository.freezeState().rows > 0 &&
+                            rowIndex() === props.repository.freezeState().rows - 1,
+                        }}
+                        scope="row"
+                        style={frozenRowHeaderStyle(rowIndex())}
+                      >
                         {row}
                       </th>
                       <For each={COLUMNS}>
@@ -473,10 +547,20 @@ export function SheetShell(props: SheetShellProps) {
                           return (
                             <td
                               class="sheet-grid__cell"
+                              style={frozenCellStyle(rowIndex(), column - 1)}
                               classList={{
+                                "sheet-grid__cell--frozen":
+                                  rowIndex() < props.repository.freezeState().rows ||
+                                  column - 1 < props.repository.freezeState().columns,
                                 "sheet-grid__cell--selected":
                                   props.repository.selection()?.reference === reference,
                                 "sheet-grid__cell--range": isCellInSelectionRange(row, column),
+                                "sheet-grid__cell--freeze-row-edge":
+                                  props.repository.freezeState().rows > 0 &&
+                                  rowIndex() === props.repository.freezeState().rows - 1,
+                                "sheet-grid__cell--freeze-column-edge":
+                                  props.repository.freezeState().columns > 0 &&
+                                  column - 1 === props.repository.freezeState().columns - 1,
                               }}
                             >
                               <input
