@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.5.2
-// Aciklama: Dirty-state korumali create, cell edit/format, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
+// Version: 0.6.0
+// Aciklama: Dirty-state korumali create, cell edit/format, table object, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
@@ -26,8 +26,11 @@ import type {
   SheetFilterConditionView,
   SheetFilterModeView,
   SheetHorizontalAlignmentView,
+  SheetRangeView,
   SheetRowQueryRequestView,
+  SheetSelectionView,
   SheetSortDirectionView,
+  SheetTableView,
 } from "../views/sheet-types";
 
 export class SheetSessionService {
@@ -144,15 +147,65 @@ export class SheetSessionService {
     }
   }
 
+  public createTableFromSelection(): Promise<void> {
+    return this.enqueue(async () => {
+      const range = this.repository.selectionRange();
+      const document = this.requireDocument();
+      const worksheet = document.worksheets[0];
+      if (range === null || worksheet === undefined) {
+        return;
+      }
+
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.createTable({
+          documentId: document.id,
+          worksheetId: worksheet.id,
+          range,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+        this.clearRowQuery();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
+  public removeTableAtSelection(): Promise<void> {
+    return this.enqueue(async () => {
+      const selection = this.repository.selection();
+      const document = this.requireDocument();
+      const table =
+        selection === null
+          ? null
+          : this.tableAtCell(document.tables, selection.row, selection.column);
+      if (table === null) {
+        return;
+      }
+
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.removeTable({
+          documentId: document.id,
+          tableId: table.id,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+        this.clearRowQuery();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
+  }
+
   public freezeAtSelection(): void {
     const selection = this.repository.selection();
     if (selection === null) {
       return;
     }
 
-    const queryRows = this.repository.rowQuery()?.rows;
-    const visibleRowIndex =
-      queryRows === undefined ? selection.row : queryRows.indexOf(selection.row);
+    const visibleRowIndex = this.visibleRowIndex(selection.row);
     this.repository.setFreezeState({
       rows: Math.max(0, visibleRowIndex),
       columns: Math.max(0, selection.column),
@@ -211,7 +264,14 @@ export class SheetSessionService {
       this.repository.clearRowQuery();
       return;
     }
-    await this.runRowQuery(selection.column, filterMode, filterValue, sortDirection, generation);
+    await this.runRowQuery(
+      selection.column,
+      filterMode,
+      filterValue,
+      sortDirection,
+      this.queryRangeForSelection(selection),
+      generation,
+    );
   }
 
   public clearRowQuery(): void {
@@ -277,6 +337,7 @@ export class SheetSessionService {
     filterMode: SheetFilterModeView,
     filterValue: string,
     sortDirection: SheetSortDirectionView,
+    range: SheetRangeView,
     generation: number,
   ): Promise<void> {
     const document = this.requireDocument();
@@ -326,12 +387,7 @@ export class SheetSessionService {
     const request: SheetRowQueryRequestView = {
       documentId: document.id,
       worksheetId: worksheet.id,
-      range: {
-        startRow: 0,
-        endRow: SHEET_GRID_ROW_COUNT - 1,
-        startColumn: 0,
-        endColumn: SHEET_GRID_COLUMN_COUNT - 1,
-      },
+      range,
       filter: condition === null ? null : { column, condition },
       sort:
         sortDirection === "none"
@@ -349,6 +405,7 @@ export class SheetSessionService {
       }
       this.repository.setRowQuery({
         column,
+        range,
         filterMode,
         filterValue,
         sortDirection,
@@ -372,7 +429,75 @@ export class SheetSessionService {
       query.filterMode,
       query.filterValue,
       query.sortDirection,
+      query.range,
       generation,
+    );
+  }
+
+  private visibleRowIndex(row: number): number {
+    const query = this.repository.rowQuery();
+    if (query === null) {
+      return row;
+    }
+    if (row < query.range.startRow) {
+      return row;
+    }
+    if (row > query.range.endRow) {
+      return (
+        query.range.startRow +
+        query.rows.length +
+        row -
+        query.range.endRow -
+        1
+      );
+    }
+
+    const queryIndex = query.rows.indexOf(row);
+    return queryIndex < 0 ? query.range.startRow : query.range.startRow + queryIndex;
+  }
+
+  private queryRangeForSelection(selection: SheetSelectionView): SheetRangeView {
+    const document = this.repository.document();
+    const worksheet = document?.worksheets[0];
+    if (document !== null && worksheet !== undefined) {
+      const table = document.tables.find(
+        (item) =>
+          item.worksheetId === worksheet.id &&
+          selection.row === item.startRow &&
+          selection.column >= item.startColumn &&
+          selection.column <= item.endColumn,
+      );
+      if (table !== undefined) {
+        return {
+          startRow: table.startRow + 1,
+          endRow: table.endRow,
+          startColumn: table.startColumn,
+          endColumn: table.endColumn,
+        };
+      }
+    }
+
+    return {
+      startRow: 0,
+      endRow: SHEET_GRID_ROW_COUNT - 1,
+      startColumn: 0,
+      endColumn: SHEET_GRID_COLUMN_COUNT - 1,
+    };
+  }
+
+  private tableAtCell(
+    tables: readonly SheetTableView[],
+    row: number,
+    column: number,
+  ): SheetTableView | null {
+    return (
+      tables.find(
+        (table) =>
+          row >= table.startRow &&
+          row <= table.endRow &&
+          column >= table.startColumn &&
+          column <= table.endColumn,
+      ) ?? null
     );
   }
 

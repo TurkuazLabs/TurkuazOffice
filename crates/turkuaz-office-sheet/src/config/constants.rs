@@ -1,15 +1,17 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/config/constants.rs
-// # 📌 Amac: Sheet grid, formula, format ve query limitlerini merkezi tanimlar
+// # 📌 Amac: Sheet grid, formula, format, table ve query limitlerini merkezi tanimlar
 // # 📌 Modul - FileType: Config - Rust
-// Version: 0.3.0
+// Version: 0.6.0
 // Aciklama: XLSX uyumlu grid sinirlari ile formula, format ve query validation degerlerini magic string/sayidan ayirir
 // Bagimli Oldugu Katman: Config
 
 pub const SHEET_DOCUMENT_ID_PREFIX: &str = "sheet-document";
 pub const WORKSHEET_ID_PREFIX: &str = "worksheet";
 pub const CHART_ID_PREFIX: &str = "chart";
+pub const TABLE_ID_PREFIX: &str = "table";
 
 pub const DEFAULT_WORKSHEET_NAME: &str = "Sheet1";
+pub const DEFAULT_TABLE_NAME_PREFIX: &str = "Table";
 
 pub const MAX_SHEET_ROWS: u32 = 1_048_576;
 pub const MAX_SHEET_COLUMNS: u32 = 16_384;

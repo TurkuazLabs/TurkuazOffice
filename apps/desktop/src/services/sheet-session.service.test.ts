@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.5.2
-// Aciklama: Dirty-state, range summary, stale query korumasi, format cache, filter-sort ve typed mutation davranislarini dogrular
+// Version: 0.6.0
+// Aciklama: Dirty-state, table object, range summary, stale query korumasi, freeze, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -26,6 +26,7 @@ const DOCUMENT: SheetDocumentView = {
       cells: [],
     },
   ],
+  tables: [],
   chartCount: 0,
 };
 
@@ -60,6 +61,27 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
       );
       return DOCUMENT;
     },
+    createTable: async (request) => {
+      calls.push(
+        `table:create:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
+      );
+      return {
+        ...DOCUMENT,
+        revision: 1,
+        tables: [
+          {
+            id: "table-1",
+            worksheetId: request.worksheetId,
+            name: "Table1",
+            ...request.range,
+          },
+        ],
+      };
+    },
+    removeTable: async (request) => {
+      calls.push(`table:remove:${request.tableId}`);
+      return { ...DOCUMENT, revision: 2, tables: [] };
+    },
     getRangeSummary: async (request) => {
       calls.push(
         `summary:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
@@ -73,7 +95,7 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
     },
     queryRows: async (request) => {
       calls.push(
-        `query:${String(request.filter?.column ?? -1)}:${request.filter?.condition.kind ?? "none"}:${request.sort?.direction ?? "none"}:${String(request.range.endRow)}:${String(request.range.endColumn)}`,
+        `query:${String(request.filter?.column ?? -1)}:${request.filter?.condition.kind ?? "none"}:${request.sort?.direction ?? "none"}:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
       );
       return { rows: [2, 0] };
     },
@@ -236,6 +258,92 @@ describe("SheetSessionService", () => {
     });
   });
 
+  it("creates a canonical table from the current rectangular selection", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    await service.extendSelection(3, 2);
+    calls.length = 0;
+    await service.createTableFromSelection();
+
+    expect(calls).toEqual(["table:create:0:3:0:2"]);
+    expect(repository.document()?.tables).toEqual([
+      {
+        id: "table-1",
+        worksheetId: "worksheet-1",
+        name: "Table1",
+        startRow: 0,
+        endRow: 3,
+        startColumn: 0,
+        endColumn: 2,
+      },
+    ]);
+    expect(repository.dirty()).toBe(true);
+  });
+
+  it("removes the table containing the active cell", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      tables: [
+        {
+          id: "table-1",
+          worksheetId: "worksheet-1",
+          name: "Table1",
+          startRow: 0,
+          endRow: 4,
+          startColumn: 0,
+          endColumn: 2,
+        },
+      ],
+    });
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("B2", 1, 1);
+    calls.length = 0;
+    await service.removeTableAtSelection();
+
+    expect(calls).toEqual(["table:remove:table-1"]);
+    expect(repository.document()?.tables).toEqual([]);
+    expect(repository.dirty()).toBe(true);
+  });
+
+  it("uses table data rows when filtering from a table header", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      tables: [
+        {
+          id: "table-1",
+          worksheetId: "worksheet-1",
+          name: "Table1",
+          startRow: 0,
+          endRow: 5,
+          startColumn: 1,
+          endColumn: 3,
+        },
+      ],
+    });
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("B1", 0, 1);
+    calls.length = 0;
+    await service.applyRowQuery("nonEmpty", "", "ascending");
+
+    expect(calls).toEqual(["query:1:nonEmpty:ascending:1:5:1:3"]);
+    expect(repository.rowQuery()?.range).toEqual({
+      startRow: 1,
+      endRow: 5,
+      startColumn: 1,
+      endColumn: 3,
+    });
+  });
+
   it("freezes panes above and left of the active cell", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
@@ -261,6 +369,12 @@ describe("SheetSessionService", () => {
     repository.setDocument(DOCUMENT);
     repository.setRowQuery({
       column: 0,
+      range: {
+        startRow: 0,
+        endRow: 99,
+        startColumn: 0,
+        endColumn: 25,
+      },
       filterMode: "nonEmpty",
       filterValue: "",
       sortDirection: "ascending",
@@ -269,6 +383,30 @@ describe("SheetSessionService", () => {
     const service = createService(repository, toolWithCalls([]));
 
     await service.selectCell("A6", 5, 0);
+    service.freezeAtSelection();
+
+    expect(repository.freezeState()).toEqual({ rows: 2, columns: 0 });
+  });
+
+  it("computes freeze position after a scoped table query", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setRowQuery({
+      column: 0,
+      range: {
+        startRow: 1,
+        endRow: 3,
+        startColumn: 0,
+        endColumn: 1,
+      },
+      filterMode: "nonEmpty",
+      filterValue: "",
+      sortDirection: "ascending",
+      rows: [2],
+    });
+    const service = createService(repository, toolWithCalls([]));
+
+    await service.selectCell("A5", 4, 0);
     service.freezeAtSelection();
 
     expect(repository.freezeState()).toEqual({ rows: 2, columns: 0 });
@@ -408,9 +546,15 @@ describe("SheetSessionService", () => {
     calls.length = 0;
     await service.applyRowQuery("numberGreaterThan", "15", "ascending");
 
-    expect(calls).toEqual(["query:1:numberGreaterThan:ascending:99:25"]);
+    expect(calls).toEqual(["query:1:numberGreaterThan:ascending:0:99:0:25"]);
     expect(repository.rowQuery()).toEqual({
       column: 1,
+      range: {
+        startRow: 0,
+        endRow: 99,
+        startColumn: 0,
+        endColumn: 25,
+      },
       filterMode: "numberGreaterThan",
       filterValue: "15",
       sortDirection: "ascending",

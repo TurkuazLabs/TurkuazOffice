@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs
 // # 📌 Amac: Desktop Sheet requestlerini canonical Sheet Controller akisina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.5.0
-// Aciklama: Create/get/cell/formula/format/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
+// Version: 0.6.0
+// Aciklama: Create/get/cell/formula/format/table/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Controller -> Service -> Repo -> Tool
 
 use turkuaz_office_sheet::{
@@ -114,6 +114,24 @@ impl SheetDesktopService {
     ) -> Result<SheetDocumentView, SheetError> {
         self.controller
             .set_cell_format_a1(document_id, worksheet_id, reference, format)
+    }
+
+    pub fn create_table(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        range: SheetRange,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller
+            .create_table(document_id, worksheet_id, range)
+    }
+
+    pub fn remove_table(
+        &mut self,
+        document_id: &str,
+        table_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller.remove_table(document_id, table_id)
     }
 
     pub fn range_summary(

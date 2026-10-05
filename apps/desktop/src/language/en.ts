@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.4.0
+// Version: 0.6.0
 // Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
@@ -59,6 +59,10 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetFreezeTopRow: "Freeze Top Row",
   sheetFreezeFirstColumn: "Freeze First Column",
   sheetUnfreezePanes: "Unfreeze Panes",
+  sheetCreateTable: "Create Table from Selection",
+  sheetRemoveTable: "Remove Table",
+  sheetTableFilter: "Table filter",
+  sheetTables: "Tables",
   sheetVisibleRows: "Visible rows",
   newDocument: "New Document",
   open: "Open",

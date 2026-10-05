@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs
 // # 📌 Amac: XLSX ZIP/XML modelini canonical SheetDocument modeline map eder ve canonical workbook'u XLSX byte akimina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.3.0
-// Aciklama: Value-only SpreadsheetML import/export, worksheet/cell validation ve relationship target normalization business kurallarini uygular
+// Version: 0.6.0
+// Aciklama: Value-only SpreadsheetML import/export, worksheet/cell validation ve kayipsiz table-metadata guard kurallarini uygular
 // Bagimli Oldugu Katman: Service -> Model -> Tool -> Sheet
 
 use std::collections::{BTreeMap, HashSet};
@@ -33,6 +33,7 @@ pub enum SheetXlsxError {
     InvalidCellText,
     CellNumberNotFinite,
     UnsupportedFormula,
+    UnsupportedTable,
     UnsupportedCellType,
 }
 
@@ -123,11 +124,15 @@ impl SheetXlsxService {
             revision: 0,
             worksheets,
             cell_formats: BTreeMap::new(),
+            tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         })
     }
 
     pub fn export(document: &SheetDocument) -> Result<Vec<u8>, SheetXlsxError> {
+        if !document.tables.is_empty() {
+            return Err(SheetXlsxError::UnsupportedTable);
+        }
         if document.worksheets.is_empty() || document.worksheets.len() > MAX_XLSX_WORKSHEETS {
             return Err(SheetXlsxError::ResourceLimit);
         }

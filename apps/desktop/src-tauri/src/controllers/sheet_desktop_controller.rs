@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs
 // # 📌 Amac: Tauri Sheet IPC requestlerini alip yalnizca SheetDesktopService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.5.0
-// Aciklama: Sheet create/get/cell/formula/format/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
+// Version: 0.6.0
+// Aciklama: Sheet create/get/cell/formula/format/table/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
@@ -15,6 +15,7 @@ use crate::views::error_dto::DesktopErrorDto;
 use crate::views::sheet_dto::{
     SheetCellDto, SheetCellFormatDto, SheetDocumentDto, SheetRangeSummaryDto,
     SheetRangeSummaryRequestDto, SheetRowQueryRequestDto, SheetRowQueryResultDto,
+    SheetTableCreateRequestDto, SheetTableRemoveRequestDto,
 };
 
 pub type SheetDesktopState = Mutex<SheetDesktopService>;
@@ -140,6 +141,38 @@ pub fn sheet_set_cell_format(
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service
         .set_cell_format(&document_id, &worksheet_id, &reference, format.into())
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_create_table(
+    state: State<'_, SheetDesktopState>,
+    request: SheetTableCreateRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .create_table(
+            &request.document_id,
+            &request.worksheet_id,
+            request.range.into(),
+        )
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_remove_table(
+    state: State<'_, SheetDesktopState>,
+    request: SheetTableRemoveRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .remove_table(&request.document_id, &request.table_id)
         .map(Into::into)
         .map_err(Into::into)
 }

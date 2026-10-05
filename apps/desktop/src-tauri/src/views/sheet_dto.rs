@@ -1,15 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/views/sheet_dto.rs
 // # 📌 Amac: Sheet domain View modellerini Tauri frontend icin stabil serializable DTO kontratina cevirir
 // # 📌 Modul - FileType: View - Rust
-// Version: 0.5.0
-// Aciklama: Sheet belge, cell/format, range-summary ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
+// Version: 0.6.0
+// Aciklama: Sheet belge, cell/format, table, range-summary ve non-mutating row-query DTO'larini camelCase IPC kontrati olarak sunar
 // Bagimli Oldugu Katman: View
 
 use serde::{Deserialize, Serialize};
 use turkuaz_office_sheet::{
     CellFormat, CellFormatView, CellValueView, CellView, HorizontalAlignment,
     HorizontalAlignmentView, SheetDocumentView, SheetFilter, SheetFilterCondition, SheetRange,
-    SheetRangeSummaryView, SheetRowQueryView, SheetSort, SheetSortDirection, WorksheetView,
+    SheetRangeSummaryView, SheetRowQueryView, SheetSort, SheetSortDirection, SheetTableView,
+    WorksheetView,
 };
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -73,6 +74,33 @@ pub struct SheetRangeDto {
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SheetTableCreateRequestDto {
+    pub document_id: String,
+    pub worksheet_id: String,
+    pub range: SheetRangeDto,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetTableRemoveRequestDto {
+    pub document_id: String,
+    pub table_id: String,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SheetTableDto {
+    pub id: String,
+    pub worksheet_id: String,
+    pub name: String,
+    pub start_row: u32,
+    pub end_row: u32,
+    pub start_column: u32,
+    pub end_column: u32,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SheetRangeSummaryRequestDto {
     pub document_id: String,
     pub worksheet_id: String,
@@ -111,6 +139,7 @@ pub struct SheetDocumentDto {
     pub title: String,
     pub revision: u64,
     pub worksheets: Vec<SheetWorksheetDto>,
+    pub tables: Vec<SheetTableDto>,
     pub chart_count: usize,
 }
 
@@ -186,6 +215,20 @@ impl From<SheetRangeDto> for SheetRange {
             end_row: range.end_row,
             start_column: range.start_column,
             end_column: range.end_column,
+        }
+    }
+}
+
+impl From<SheetTableView> for SheetTableDto {
+    fn from(table: SheetTableView) -> Self {
+        Self {
+            id: table.id,
+            worksheet_id: table.worksheet_id,
+            name: table.name,
+            start_row: table.start_row,
+            end_row: table.end_row,
+            start_column: table.start_column,
+            end_column: table.end_column,
         }
     }
 }
@@ -299,6 +342,11 @@ impl From<SheetDocumentView> for SheetDocumentDto {
                 .worksheets
                 .into_iter()
                 .map(SheetWorksheetDto::from)
+                .collect(),
+            tables: document
+                .tables
+                .into_iter()
+                .map(SheetTableDto::from)
                 .collect(),
             chart_count: document.charts.len(),
         }

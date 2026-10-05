@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs
 // # 📌 Amac: M2 Sheet CSV/XLSX parser, canonical mapping, round-trip ve strict unsupported davranislarini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - Rust
-// Version: 0.3.0
-// Aciklama: CSV quote/text-only semantigi, XLSX typed multi-sheet round-trip, sharedStrings import ve formula reject kontratlarini kilitler
+// Version: 0.6.0
+// Aciklama: CSV quote/text-only semantigi, XLSX typed round-trip ve formula/table metadata reject kontratlarini kilitler
 // Bagimli Oldugu Katman: Service -> Model -> Tool -> Sheet
 
 use std::collections::BTreeMap;
@@ -14,8 +14,8 @@ use turkuaz_office_format_adapters::{
 };
 use turkuaz_office_sheet::config::constants::{MAX_SHEET_COLUMNS, MAX_SHEET_ROWS};
 use turkuaz_office_sheet::{
-    CellAddress, CellValue, FormulaCell, SequentialSheetIdTool, SheetDocument, Worksheet,
-    WorksheetId,
+    CellAddress, CellValue, FormulaCell, SequentialSheetIdTool, SheetDocument, SheetRange,
+    SheetTable, TableId, Worksheet, WorksheetId,
 };
 
 #[test]
@@ -125,6 +125,7 @@ fn xlsx_round_trip_preserves_multi_sheet_text_number_and_boolean_values() {
             },
         ],
         cell_formats: BTreeMap::new(),
+        tables: BTreeMap::new(),
         charts: BTreeMap::new(),
     };
 
@@ -182,6 +183,7 @@ fn xlsx_export_rejects_duplicate_worksheet_names_case_insensitively() {
             },
         ],
         cell_formats: BTreeMap::new(),
+        tables: BTreeMap::new(),
         charts: BTreeMap::new(),
     };
 
@@ -207,6 +209,7 @@ fn xlsx_export_rejects_xml_invalid_cell_text() {
             )]),
         }],
         cell_formats: BTreeMap::new(),
+        tables: BTreeMap::new(),
         charts: BTreeMap::new(),
     };
 
@@ -294,6 +297,7 @@ fn csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_profile() 
         revision: 1,
         worksheets: vec![worksheet],
         cell_formats: BTreeMap::new(),
+        tables: BTreeMap::new(),
         charts: BTreeMap::new(),
     };
     assert_eq!(
@@ -343,4 +347,42 @@ fn workbook_package(worksheet_xml: &[u8], shared_strings: Option<&[u8]>) -> Vec<
         entries.push(("xl/sharedStrings.xml".to_owned(), shared.to_vec()));
     }
     SheetXlsxArchiveTool::encode(&entries).expect("test xlsx package")
+}
+
+#[test]
+fn xlsx_export_rejects_canonical_table_metadata_until_table_parts_are_supported() {
+    let worksheet_id = WorksheetId::new("worksheet-table-export");
+    let table_id = TableId::new("table-1");
+    let document = SheetDocument {
+        id: DocumentId::new("sheet-document-table-export"),
+        title: "Table Export".to_owned(),
+        schema_version: DocumentSchemaVersion::current(),
+        revision: 1,
+        worksheets: vec![Worksheet {
+            id: worksheet_id.clone(),
+            name: "Sheet1".to_owned(),
+            cells: BTreeMap::new(),
+        }],
+        cell_formats: BTreeMap::new(),
+        tables: BTreeMap::from([(
+            table_id.clone(),
+            SheetTable {
+                id: table_id,
+                worksheet_id,
+                name: "Table1".to_owned(),
+                range: SheetRange {
+                    start_row: 0,
+                    end_row: 2,
+                    start_column: 0,
+                    end_column: 1,
+                },
+            },
+        )]),
+        charts: BTreeMap::new(),
+    };
+
+    assert_eq!(
+        SheetXlsxService::export(&document),
+        Err(SheetXlsxError::UnsupportedTable)
+    );
 }

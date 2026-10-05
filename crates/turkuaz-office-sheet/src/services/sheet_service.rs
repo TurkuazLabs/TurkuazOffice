@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_service.rs
-// # 📌 Amac: Sheet document yasam dongusu, cell validation, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
+// # 📌 Amac: Sheet document yasam dongusu, cell validation, table object, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.5.0
+// Version: 0.6.0
 // Aciklama: Default worksheet, cell set/get/clear ve basic same-sheet formula evaluation kurallarini Repo/Tool uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -12,15 +12,15 @@ use turkuaz_office_core::config::constants::DEFAULT_DOCUMENT_TITLE;
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 
 use crate::config::constants::{
-    DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES, MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS,
-    MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS,
-    MAX_SHEET_ROWS,
+    DEFAULT_TABLE_NAME_PREFIX, DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES,
+    MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH,
+    MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
     Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
     SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetRangeSummary,
-    SheetSort, SheetSortDirection, Worksheet, WorksheetId,
+    SheetSort, SheetSortDirection, SheetTable, TableId, Worksheet, WorksheetId,
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::formula_tool::{
@@ -46,6 +46,9 @@ pub enum SheetError {
     InvalidRange,
     QueryTooLarge,
     InvalidFilter,
+    TableNotFound,
+    InvalidTableRange,
+    TableRangeOverlap,
     ChartNotFound,
     InvalidChartTitle,
     InvalidChartRange,
@@ -95,6 +98,7 @@ where
                 cells: BTreeMap::new(),
             }],
             cell_formats: BTreeMap::new(),
+            tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         };
         self.repository.save(document.clone());
@@ -373,6 +377,61 @@ where
             .and_then(|formats| formats.get(&address))
             .copied()
             .unwrap_or_default())
+    }
+
+    pub fn create_table(
+        &mut self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        range: SheetRange,
+    ) -> Result<SheetDocument, SheetError> {
+        Self::validate_table_range(range)?;
+
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if !document
+            .worksheets
+            .iter()
+            .any(|worksheet| &worksheet.id == worksheet_id)
+        {
+            return Err(SheetError::WorksheetNotFound);
+        }
+        if document.tables.values().any(|table| {
+            &table.worksheet_id == worksheet_id && Self::ranges_overlap(table.range, range)
+        }) {
+            return Err(SheetError::TableRangeOverlap);
+        }
+
+        let table = SheetTable {
+            id: self.id_tool.next_table_id(),
+            worksheet_id: worksheet_id.clone(),
+            name: Self::next_table_name(&document),
+            range,
+        };
+        document.tables.insert(table.id.clone(), table);
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
+    }
+
+    pub fn remove_table(
+        &mut self,
+        document_id: &DocumentId,
+        table_id: &TableId,
+    ) -> Result<SheetDocument, SheetError> {
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if document.tables.remove(table_id).is_none() {
+            return Err(SheetError::TableNotFound);
+        }
+
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
     }
 
     pub fn range_summary(
@@ -795,6 +854,35 @@ where
             return Err(SheetError::FormulaResultNotFinite);
         }
         Ok(value)
+    }
+
+    fn next_table_name(document: &SheetDocument) -> String {
+        let mut index = document.tables.len().saturating_add(1);
+        loop {
+            let candidate = format!("{DEFAULT_TABLE_NAME_PREFIX}{index}");
+            if document
+                .tables
+                .values()
+                .all(|table| !table.name.eq_ignore_ascii_case(&candidate))
+            {
+                return candidate;
+            }
+            index = index.saturating_add(1);
+        }
+    }
+
+    const fn ranges_overlap(left: SheetRange, right: SheetRange) -> bool {
+        left.start_row <= right.end_row
+            && right.start_row <= left.end_row
+            && left.start_column <= right.end_column
+            && right.start_column <= left.end_column
+    }
+
+    fn validate_table_range(range: SheetRange) -> Result<(), SheetError> {
+        if range.start_row >= range.end_row {
+            return Err(SheetError::InvalidTableRange);
+        }
+        Self::validate_range(range).map_err(|_| SheetError::InvalidTableRange)
     }
 
     fn validate_format(format: CellFormat) -> Result<(), SheetError> {

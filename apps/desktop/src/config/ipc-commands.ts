@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/ipc-commands.ts
 // # 📌 Amac: Tauri IPC command adlarini tek merkezi kontratta toplar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.4.0
+// # Version: 0.6.0
 // # Aciklama: Frontend Tool katmaninda Writer ve Sheet IPC magic string kullanilmasini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -11,6 +11,8 @@ export const IPC_COMMANDS = {
   sheetGetEvaluatedCell: "sheet_get_evaluated_cell",
   sheetGetCellFormat: "sheet_get_cell_format",
   sheetGetRangeSummary: "sheet_get_range_summary",
+  sheetCreateTable: "sheet_create_table",
+  sheetRemoveTable: "sheet_remove_table",
   sheetSetCellFormat: "sheet_set_cell_format",
   sheetQueryRows: "sheet_query_rows",
   sheetSetText: "sheet_set_text",
