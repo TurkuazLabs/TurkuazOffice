@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs
 // # 📌 Amac: M2 Sheet CSV/XLSX parser, canonical mapping, round-trip ve strict unsupported davranislarini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - Rust
-// Version: 0.7.0
-// Aciklama: CSV quote/text-only semantigi, XLSX typed round-trip ve formula/table/conditional-format metadata reject kontratlarini kilitler
+// Version: 0.9.0
+// Aciklama: CSV quote/text-only semantigi, XLSX typed round-trip ve formula strict-reject ile table/conditional-format OOXML round-trip kontratlarini kilitler
 // Bagimli Oldugu Katman: Service -> Model -> Tool -> Sheet
 
 use std::collections::BTreeMap;
@@ -355,68 +355,88 @@ fn workbook_package(worksheet_xml: &[u8], shared_strings: Option<&[u8]>) -> Vec<
 }
 
 #[test]
-fn xlsx_export_rejects_canonical_conditional_format_metadata_until_ooxml_rules_are_supported() {
-    let worksheet_id = WorksheetId::new("worksheet-conditional-export");
-    let rule_id = ConditionalFormatRuleId::new("conditional-format-1");
-    let document = SheetDocument {
-        id: DocumentId::new("sheet-document-conditional-export"),
-        title: "Conditional Export".to_owned(),
-        schema_version: DocumentSchemaVersion::current(),
-        revision: 1,
-        worksheets: vec![Worksheet {
-            id: worksheet_id.clone(),
-            name: "Sheet1".to_owned(),
-            cells: BTreeMap::new(),
-        }],
-        cell_formats: BTreeMap::new(),
-        conditional_formats: BTreeMap::from([(
-            rule_id.clone(),
-            SheetConditionalFormatRule {
-                id: rule_id,
-                worksheet_id,
-                range: SheetRange {
-                    start_row: 0,
-                    end_row: 2,
-                    start_column: 0,
-                    end_column: 1,
-                },
-                condition: SheetConditionalFormatCondition::NumberGreaterThan(10.0),
-                style: SheetConditionalFormatStyle::Warning,
-                priority: 1,
-            },
-        )]),
-        tables: BTreeMap::new(),
-        charts: BTreeMap::new(),
-    };
-
-    assert_eq!(
-        SheetXlsxService::export(&document),
-        Err(SheetXlsxError::UnsupportedConditionalFormat)
-    );
-}
-
-#[test]
-fn xlsx_export_rejects_canonical_table_metadata_until_table_parts_are_supported() {
-    let worksheet_id = WorksheetId::new("worksheet-table-export");
+fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
+    let worksheet_id = WorksheetId::new("worksheet-metadata-export");
     let table_id = TableId::new("table-1");
+    let warning_rule_id = ConditionalFormatRuleId::new("conditional-format-warning");
+    let text_rule_id = ConditionalFormatRuleId::new("conditional-format-text");
+
     let document = SheetDocument {
-        id: DocumentId::new("sheet-document-table-export"),
-        title: "Table Export".to_owned(),
+        id: DocumentId::new("sheet-document-metadata-export"),
+        title: "Metadata Export".to_owned(),
         schema_version: DocumentSchemaVersion::current(),
-        revision: 1,
+        revision: 4,
         worksheets: vec![Worksheet {
             id: worksheet_id.clone(),
-            name: "Sheet1".to_owned(),
-            cells: BTreeMap::new(),
+            name: "Data".to_owned(),
+            cells: BTreeMap::from([
+                (
+                    CellAddress { row: 0, column: 0 },
+                    CellValue::Text("Name".to_owned()),
+                ),
+                (
+                    CellAddress { row: 0, column: 1 },
+                    CellValue::Text("Score".to_owned()),
+                ),
+                (
+                    CellAddress { row: 1, column: 0 },
+                    CellValue::Text("Turkuaz".to_owned()),
+                ),
+                (
+                    CellAddress { row: 1, column: 1 },
+                    CellValue::Number(20.0),
+                ),
+                (
+                    CellAddress { row: 2, column: 0 },
+                    CellValue::Text("Office".to_owned()),
+                ),
+                (
+                    CellAddress { row: 2, column: 1 },
+                    CellValue::Number(5.0),
+                ),
+            ]),
         }],
         cell_formats: BTreeMap::new(),
-        conditional_formats: BTreeMap::new(),
+        conditional_formats: BTreeMap::from([
+            (
+                warning_rule_id.clone(),
+                SheetConditionalFormatRule {
+                    id: warning_rule_id,
+                    worksheet_id: worksheet_id.clone(),
+                    range: SheetRange {
+                        start_row: 1,
+                        end_row: 2,
+                        start_column: 1,
+                        end_column: 1,
+                    },
+                    condition: SheetConditionalFormatCondition::NumberGreaterThan(10.0),
+                    style: SheetConditionalFormatStyle::Warning,
+                    priority: 1,
+                },
+            ),
+            (
+                text_rule_id.clone(),
+                SheetConditionalFormatRule {
+                    id: text_rule_id,
+                    worksheet_id: worksheet_id.clone(),
+                    range: SheetRange {
+                        start_row: 1,
+                        end_row: 2,
+                        start_column: 0,
+                        end_column: 0,
+                    },
+                    condition: SheetConditionalFormatCondition::TextContains("Turkuaz".to_owned()),
+                    style: SheetConditionalFormatStyle::Accent,
+                    priority: 2,
+                },
+            ),
+        ]),
         tables: BTreeMap::from([(
             table_id.clone(),
             SheetTable {
                 id: table_id,
-                worksheet_id,
-                name: "Table1".to_owned(),
+                worksheet_id: worksheet_id.clone(),
+                name: "Scores".to_owned(),
                 range: SheetRange {
                     start_row: 0,
                     end_row: 2,
@@ -428,8 +448,56 @@ fn xlsx_export_rejects_canonical_table_metadata_until_table_parts_are_supported(
         charts: BTreeMap::new(),
     };
 
+    let bytes = SheetXlsxService::export(&document).expect("metadata xlsx export");
+    let entries = SheetXlsxArchiveTool::decode(&bytes).expect("decode exported package");
+
+    assert!(entries.contains_key("xl/tables/table1.xml"));
+    assert!(entries.contains_key("xl/styles.xml"));
+    assert!(entries.contains_key("xl/worksheets/_rels/sheet1.xml.rels"));
+
+    let worksheet_xml = String::from_utf8(
+        entries
+            .get("xl/worksheets/sheet1.xml")
+            .expect("worksheet")
+            .clone(),
+    )
+    .expect("worksheet utf8");
+    assert!(worksheet_xml.contains("<conditionalFormatting"));
+    assert!(worksheet_xml.contains("<tableParts count=\"1\">"));
+
+    let ids = SequentialSheetIdTool::new();
+    let restored =
+        SheetXlsxService::import(&ids, "Restored Metadata", &bytes).expect("metadata xlsx import");
+
+    assert_eq!(restored.tables.len(), 1);
+    let table = restored.tables.values().next().expect("restored table");
+    assert_eq!(table.name, "Scores");
     assert_eq!(
-        SheetXlsxService::export(&document),
-        Err(SheetXlsxError::UnsupportedTable)
+        table.range,
+        SheetRange {
+            start_row: 0,
+            end_row: 2,
+            start_column: 0,
+            end_column: 1,
+        }
     );
+
+    assert_eq!(restored.conditional_formats.len(), 2);
+    let mut rules = restored
+        .conditional_formats
+        .values()
+        .collect::<Vec<_>>();
+    rules.sort_by_key(|rule| rule.priority);
+
+    assert_eq!(rules[0].style, SheetConditionalFormatStyle::Warning);
+    assert_eq!(
+        rules[0].condition,
+        SheetConditionalFormatCondition::NumberGreaterThan(10.0)
+    );
+    assert_eq!(
+        rules[1].condition,
+        SheetConditionalFormatCondition::TextContains("Turkuaz".to_owned())
+    );
+    assert_eq!(rules[1].style, SheetConditionalFormatStyle::Accent);
 }
+
