@@ -350,7 +350,6 @@ sheet_desktop_ui:
     - functions
   planned_productivity:
     - charts
-    - function_library
 
 sheet_cell_model:
   active: true
@@ -382,9 +381,33 @@ sheet_formula_engine:
     - subtract
     - multiply
     - divide
+  comparisons:
+    - equal
+    - not_equal
+    - greater_than
+    - greater_than_or_equal
+    - less_than
+    - less_than_or_equal
+  ranges:
+    a1_rectangular: true
+    max_expanded_cells: 100000
+  supported_functions:
+    - SUM
+    - AVERAGE
+    - MIN
+    - MAX
+    - IF
+  function_argument_separators:
+    - comma
+    - semicolon
+  if_lazy_branch_evaluation: true
+  aggregate_ignores:
+    - empty
+    - text
+    - boolean
   parentheses: true
   unary_plus_minus: true
-  functions: false
+  functions: true
   text_boolean_numeric_coercion: false
   cycle_detection: true
   max_expression_length: 4096
@@ -392,6 +415,27 @@ sheet_formula_engine:
   max_operations: 128
   max_dependency_depth: 64
 
+
+sheet_function_library:
+  active: true
+  version: 0.8.0
+  same_worksheet_only: true
+  range_reference: true
+  max_range_cells: 100000
+  max_function_arguments: 64
+  comparison_result:
+    true_value: 1
+    false_value: 0
+  functions:
+    - SUM
+    - AVERAGE
+    - MIN
+    - MAX
+    - IF
+  if_lazy_branch_evaluation: true
+  aggregate_formula_evaluation: true
+  aggregate_ignores_text_boolean_empty: true
+  text_boolean_numeric_coercion: false
 
 sheet_csv_xlsx:
   active: true

@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/config/constants.rs
 // # 📌 Amac: Desktop Rust shell error code ve state sabitlerini merkezi tutar
 // # 📌 Modul - FileType: Config - Rust
-// # Version: 0.7.0
+// # Version: 0.8.0
 // # Aciklama: Writer, Sheet, storage, recovery ve Service katmanlarinda magic string kullanilmasini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -42,6 +42,8 @@ pub const ERROR_SHEET_FORMULA_CYCLE: &str = "sheet.formula_cycle";
 pub const ERROR_SHEET_FORMULA_DEPTH_EXCEEDED: &str = "sheet.formula_depth_exceeded";
 pub const ERROR_SHEET_FORMULA_DIVISION_BY_ZERO: &str = "sheet.formula_division_by_zero";
 pub const ERROR_SHEET_FORMULA_NON_NUMERIC_REFERENCE: &str = "sheet.formula_non_numeric_reference";
+pub const ERROR_SHEET_FORMULA_RANGE_NOT_ALLOWED: &str = "sheet.formula_range_not_allowed";
+pub const ERROR_SHEET_FORMULA_RANGE_TOO_LARGE: &str = "sheet.formula_range_too_large";
 pub const ERROR_SHEET_FORMULA_RESULT_NOT_FINITE: &str = "sheet.formula_result_not_finite";
 pub const ERROR_SHEET_INVALID_CELL_FORMAT: &str = "sheet.invalid_cell_format";
 pub const ERROR_SHEET_INVALID_RANGE: &str = "sheet.invalid_range";

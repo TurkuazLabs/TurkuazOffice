@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/lib.rs
 // # 📌 Amac: Sheet modulunun kontrollu public API yuzeyini tanimlar
 // # 📌 Modul - FileType: Sheet - Rust
-// Version: 0.7.0
+// Version: 0.8.0
 // Aciklama: Controller, Service, Repo, Tool, View, Language ve Config katmanlarini disari acar
 // Bagimli Oldugu Katman: Sheet
 
@@ -27,8 +27,8 @@ pub use services::sheet_types::{
 };
 pub use tools::cell_reference_tool::{CellReferenceError, CellReferenceTool};
 pub use tools::formula_tool::{
-    FormulaBinaryOperator, FormulaExpression, FormulaTool, FormulaToolError, FormulaUnaryOperator,
-    ParsedFormula,
+    FormulaBinaryOperator, FormulaComparisonOperator, FormulaExpression, FormulaFunction,
+    FormulaTool, FormulaToolError, FormulaUnaryOperator, ParsedFormula,
 };
 pub use tools::sheet_id_tool::{SequentialSheetIdTool, SheetIdTool};
 pub use views::sheet_view::{
