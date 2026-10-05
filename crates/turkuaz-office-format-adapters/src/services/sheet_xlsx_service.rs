@@ -17,7 +17,7 @@ use turkuaz_office_sheet::{
 };
 
 use crate::config::sheet_constants::{
-    MAX_XLSX_TABLES, MAX_XLSX_WORKSHEETS, XLSX_CONDITIONAL_ACCENT_RGB,
+    MAX_XLSX_CONDITIONAL_FORMATS, MAX_XLSX_TABLES, MAX_XLSX_WORKSHEETS, XLSX_CONDITIONAL_ACCENT_RGB,
     XLSX_CONDITIONAL_SUCCESS_RGB, XLSX_CONDITIONAL_WARNING_RGB, XLSX_CONTENT_TYPES_ENTRY,
     XLSX_ROOT_RELATIONSHIPS_ENTRY, XLSX_SHARED_STRINGS_ENTRY, XLSX_STYLES_ENTRY,
     XLSX_TABLE_PREFIX, XLSX_TABLE_SUFFIX, XLSX_WORKBOOK_ENTRY, XLSX_WORKBOOK_RELATIONSHIPS_ENTRY,
@@ -108,7 +108,7 @@ impl SheetXlsxService {
         let mut imported_tables = BTreeMap::new();
         let mut imported_conditional_formats = BTreeMap::new();
         let mut worksheet_names = HashSet::new();
-        for (worksheet_index, descriptor) in descriptors.into_iter().enumerate() {
+        for descriptor in descriptors {
             let normalized_name = descriptor.name.to_lowercase();
             if !worksheet_names.insert(normalized_name) {
                 return Err(SheetXlsxError::InvalidWorksheetName);
@@ -140,10 +140,7 @@ impl SheetXlsxService {
             )?;
 
             if !model.table_relationship_ids.is_empty() {
-                let rel_entry = format!(
-                    "{XLSX_WORKSHEET_RELS_PREFIX}{}{XLSX_RELATIONSHIP_SUFFIX}",
-                    worksheet_index + 1
-                );
+                let rel_entry = Self::worksheet_relationship_entry_name(&entry_name)?;
                 let rel_xml = entries
                     .get(&rel_entry)
                     .ok_or(SheetXlsxError::InvalidPackage)?;
@@ -197,7 +194,9 @@ impl SheetXlsxService {
         if document.worksheets.is_empty() || document.worksheets.len() > MAX_XLSX_WORKSHEETS {
             return Err(SheetXlsxError::ResourceLimit);
         }
-        if document.tables.len() > MAX_XLSX_TABLES {
+        if document.tables.len() > MAX_XLSX_TABLES
+            || document.conditional_formats.len() > MAX_XLSX_CONDITIONAL_FORMATS
+        {
             return Err(SheetXlsxError::ResourceLimit);
         }
 
@@ -388,6 +387,9 @@ impl SheetXlsxService {
         I: SheetIdTool,
     {
         for rule in rules {
+            if output.len() >= MAX_XLSX_CONDITIONAL_FORMATS {
+                return Err(SheetXlsxError::ResourceLimit);
+            }
             let range = Self::parse_range_reference(&rule.range_reference)?;
             let condition = match &rule.condition {
                 XlsxConditionalFormatCondition::NumberGreaterThan(value) => {
@@ -646,6 +648,20 @@ impl SheetXlsxService {
             || ('\u{0020}'..='\u{D7FF}').contains(&character)
             || ('\u{E000}'..='\u{FFFD}').contains(&character)
             || ('\u{10000}'..='\u{10FFFF}').contains(&character)
+    }
+
+    fn worksheet_relationship_entry_name(entry_name: &str) -> Result<String, SheetXlsxError> {
+        let file_name = entry_name
+            .strip_prefix("xl/worksheets/")
+            .ok_or(SheetXlsxError::InvalidPackage)?;
+        if file_name.is_empty()
+            || file_name.contains('/')
+            || file_name.contains('\\')
+            || !file_name.ends_with(XLSX_WORKSHEET_SUFFIX)
+        {
+            return Err(SheetXlsxError::InvalidPackage);
+        }
+        Ok(format!("xl/worksheets/_rels/{file_name}.rels"))
     }
 
     fn worksheet_entry_name(target: &str) -> Result<String, SheetXlsxError> {
