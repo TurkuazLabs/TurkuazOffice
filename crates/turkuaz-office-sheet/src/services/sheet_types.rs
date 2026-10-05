@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_types.rs
-// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, table, range summary, query ve chart canonical modelini tanimlar
+// # 📌 Amac: Format/UI bagimsiz Sheet document, worksheet, cell, format, table, conditional formatting, range summary, query ve chart canonical modelini tanimlar
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.6.0
-// Aciklama: Sparse cell storage, canonical format metadata, table-query ve basic chart tiplerini tasir
+// Version: 0.7.0
+// Aciklama: Sparse cell storage, canonical format metadata, table, conditional formatting, query ve basic chart tiplerini tasir
 // Bagimli Oldugu Katman: Service
 
 use std::collections::BTreeMap;
@@ -117,6 +117,50 @@ pub struct SheetTable {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ConditionalFormatRuleId(String);
+
+impl ConditionalFormatRuleId {
+    pub fn new(value: impl Into<String>) -> Self {
+        Self(value.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SheetConditionalFormatCondition {
+    NumberGreaterThan(f64),
+    NumberLessThan(f64),
+    NumberEquals(f64),
+    TextContains(String),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SheetConditionalFormatStyle {
+    Warning,
+    Success,
+    Accent,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SheetConditionalFormatRule {
+    pub id: ConditionalFormatRuleId,
+    pub worksheet_id: WorksheetId,
+    pub range: SheetRange,
+    pub condition: SheetConditionalFormatCondition,
+    pub style: SheetConditionalFormatStyle,
+    pub priority: u32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SheetConditionalFormatMatch {
+    pub address: CellAddress,
+    pub style: SheetConditionalFormatStyle,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ChartId(String);
 
 impl ChartId {
@@ -182,6 +226,7 @@ pub struct SheetDocument {
     pub revision: u64,
     pub worksheets: Vec<Worksheet>,
     pub cell_formats: BTreeMap<WorksheetId, BTreeMap<CellAddress, CellFormat>>,
+    pub conditional_formats: BTreeMap<ConditionalFormatRuleId, SheetConditionalFormatRule>,
     pub tables: BTreeMap<TableId, SheetTable>,
     pub charts: BTreeMap<ChartId, SheetChart>,
 }

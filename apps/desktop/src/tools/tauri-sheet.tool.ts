@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/tauri-sheet.tool.ts
 // # 📌 Amac: Desktop frontend ile Tauri Rust backend arasindaki Sheet IPC adaptasyonunu yapar
 // # 📌 Modul - FileType: Tool - TypeScript
-// Version: 0.6.0
-// Aciklama: Create/get/format/table/range-summary/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
+// Version: 0.7.0
+// Aciklama: Create/get/format/table/conditional-format/range-summary/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
 // Bagimli Oldugu Katman: Tool
 
 import { invoke } from "@tauri-apps/api/core";
@@ -11,6 +11,10 @@ import { IPC_COMMANDS } from "../config/ipc-commands";
 import type {
   SheetCellFormatView,
   SheetCellView,
+  SheetConditionalFormatCreateRequestView,
+  SheetConditionalFormatMatchView,
+  SheetConditionalFormatMatchesRequestView,
+  SheetConditionalFormatRemoveRequestView,
   SheetDocumentView,
   SheetRangeSummaryRequestView,
   SheetRangeSummaryView,
@@ -52,6 +56,27 @@ export class TauriSheetTool {
 
   public removeTable(request: SheetTableRemoveRequestView): Promise<SheetDocumentView> {
     return invoke<SheetDocumentView>(IPC_COMMANDS.sheetRemoveTable, { request });
+  }
+
+  public createConditionalFormat(
+    request: SheetConditionalFormatCreateRequestView,
+  ): Promise<SheetDocumentView> {
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetCreateConditionalFormat, { request });
+  }
+
+  public removeConditionalFormat(
+    request: SheetConditionalFormatRemoveRequestView,
+  ): Promise<SheetDocumentView> {
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetRemoveConditionalFormat, { request });
+  }
+
+  public getConditionalFormatMatches(
+    request: SheetConditionalFormatMatchesRequestView,
+  ): Promise<readonly SheetConditionalFormatMatchView[]> {
+    return invoke<readonly SheetConditionalFormatMatchView[]>(
+      IPC_COMMANDS.sheetGetConditionalFormatMatches,
+      { request },
+    );
   }
 
   public getRangeSummary(request: SheetRangeSummaryRequestView): Promise<SheetRangeSummaryView> {

@@ -1,12 +1,14 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/controllers/sheet.controller.ts
 // # 📌 Amac: Sheet View requestlerini alip yalnizca SheetSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
-// Version: 0.6.0
-// Aciklama: Session, dirty-safe create, secili hucre/range, table, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
+// Version: 0.7.0
+// Aciklama: Session, dirty-safe create, secili hucre/range, table, conditional format, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
 import type { SheetSessionService } from "../services/sheet-session.service";
 import type {
+  SheetConditionalFormatModeView,
+  SheetConditionalFormatStyleView,
   SheetFilterModeView,
   SheetHorizontalAlignmentView,
   SheetSortDirectionView,
@@ -37,6 +39,18 @@ export class SheetController {
 
   public removeTableAtSelection(): Promise<void> {
     return this.service.removeTableAtSelection();
+  }
+
+  public applyConditionalFormat(
+    mode: SheetConditionalFormatModeView,
+    value: string,
+    style: SheetConditionalFormatStyleView,
+  ): Promise<void> {
+    return this.service.applyConditionalFormat(mode, value, style);
+  }
+
+  public removeConditionalFormatAtSelection(): Promise<void> {
+    return this.service.removeConditionalFormatAtSelection();
   }
 
   public freezeAtSelection(): void {

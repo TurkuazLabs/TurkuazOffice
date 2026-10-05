@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/src/services/sheet_service.rs
-// # 📌 Amac: Sheet document yasam dongusu, cell validation, table object, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
+// # 📌 Amac: Sheet document yasam dongusu, cell validation, table object, conditional formatting, formula evaluation, range summary ve sparse mutation business kurallarini yonetir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.6.0
+// Version: 0.7.0
 // Aciklama: Default worksheet, cell set/get/clear ve basic same-sheet formula evaluation kurallarini Repo/Tool uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -13,14 +13,16 @@ use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 
 use crate::config::constants::{
     DEFAULT_TABLE_NAME_PREFIX, DEFAULT_WORKSHEET_NAME, MAX_CELL_DECIMAL_PLACES,
-    MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_FORMULA_EVALUATION_DEPTH,
-    MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
+    MAX_CELL_TEXT_LENGTH, MAX_CHART_POINTS, MAX_CHART_TITLE_LENGTH, MAX_CONDITIONAL_FORMAT_RULES,
+    MAX_FORMULA_EVALUATION_DEPTH, MAX_SHEET_COLUMNS, MAX_SHEET_QUERY_ROWS, MAX_SHEET_ROWS,
 };
 use crate::repositories::sheet_document_repository::SheetDocumentRepository;
 use crate::services::sheet_types::{
-    Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType, FormulaCell,
-    SheetChart, SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetRangeSummary,
-    SheetSort, SheetSortDirection, SheetTable, TableId, Worksheet, WorksheetId,
+    Cell, CellAddress, CellFormat, CellValue, ChartDataPoint, ChartId, ChartType,
+    ConditionalFormatRuleId, FormulaCell, SheetChart, SheetConditionalFormatCondition,
+    SheetConditionalFormatMatch, SheetConditionalFormatRule, SheetConditionalFormatStyle,
+    SheetDocument, SheetFilter, SheetFilterCondition, SheetRange, SheetRangeSummary, SheetSort,
+    SheetSortDirection, SheetTable, TableId, Worksheet, WorksheetId,
 };
 use crate::tools::cell_reference_tool::CellReferenceTool;
 use crate::tools::formula_tool::{
@@ -46,6 +48,9 @@ pub enum SheetError {
     InvalidRange,
     QueryTooLarge,
     InvalidFilter,
+    ConditionalFormatRuleNotFound,
+    InvalidConditionalFormat,
+    ConditionalFormatLimitExceeded,
     TableNotFound,
     InvalidTableRange,
     TableRangeOverlap,
@@ -98,6 +103,7 @@ where
                 cells: BTreeMap::new(),
             }],
             cell_formats: BTreeMap::new(),
+            conditional_formats: BTreeMap::new(),
             tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         };
@@ -432,6 +438,125 @@ where
         document.revision = document.revision.saturating_add(1);
         self.repository.save(document.clone());
         Ok(document)
+    }
+
+    pub fn create_conditional_format(
+        &mut self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        range: SheetRange,
+        condition: SheetConditionalFormatCondition,
+        style: SheetConditionalFormatStyle,
+    ) -> Result<SheetDocument, SheetError> {
+        Self::validate_range(range).map_err(|_| SheetError::InvalidConditionalFormat)?;
+        Self::validate_conditional_format_condition(&condition)?;
+
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if !document
+            .worksheets
+            .iter()
+            .any(|worksheet| &worksheet.id == worksheet_id)
+        {
+            return Err(SheetError::WorksheetNotFound);
+        }
+        if document.conditional_formats.len() >= MAX_CONDITIONAL_FORMAT_RULES {
+            return Err(SheetError::ConditionalFormatLimitExceeded);
+        }
+
+        let priority = document
+            .conditional_formats
+            .values()
+            .map(|rule| rule.priority)
+            .max()
+            .unwrap_or(0)
+            .saturating_add(1);
+        let rule = SheetConditionalFormatRule {
+            id: self.id_tool.next_conditional_format_rule_id(),
+            worksheet_id: worksheet_id.clone(),
+            range,
+            condition,
+            style,
+            priority,
+        };
+        document.conditional_formats.insert(rule.id.clone(), rule);
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
+    }
+
+    pub fn remove_conditional_format(
+        &mut self,
+        document_id: &DocumentId,
+        rule_id: &ConditionalFormatRuleId,
+    ) -> Result<SheetDocument, SheetError> {
+        let mut document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        if document.conditional_formats.remove(rule_id).is_none() {
+            return Err(SheetError::ConditionalFormatRuleNotFound);
+        }
+
+        document.revision = document.revision.saturating_add(1);
+        self.repository.save(document.clone());
+        Ok(document)
+    }
+
+    pub fn conditional_format_matches(
+        &self,
+        document_id: &DocumentId,
+        worksheet_id: &WorksheetId,
+        range: SheetRange,
+    ) -> Result<Vec<SheetConditionalFormatMatch>, SheetError> {
+        Self::validate_range(range)?;
+
+        let document = self
+            .repository
+            .find(document_id)
+            .ok_or(SheetError::DocumentNotFound)?;
+        let worksheet = document
+            .worksheets
+            .iter()
+            .find(|worksheet| &worksheet.id == worksheet_id)
+            .ok_or(SheetError::WorksheetNotFound)?;
+
+        let mut rules = document
+            .conditional_formats
+            .values()
+            .filter(|rule| {
+                &rule.worksheet_id == worksheet_id && Self::ranges_overlap(rule.range, range)
+            })
+            .collect::<Vec<_>>();
+        rules.sort_by_key(|rule| rule.priority);
+
+        let mut matched = BTreeMap::<CellAddress, SheetConditionalFormatStyle>::new();
+        for rule in rules {
+            for (address, value) in &worksheet.cells {
+                if !Self::address_in_range(*address, rule.range)
+                    || !Self::address_in_range(*address, range)
+                    || matched.contains_key(address)
+                {
+                    continue;
+                }
+
+                let Ok(evaluated) =
+                    Self::evaluate_value(worksheet, *address, value, &mut BTreeSet::new(), 0)
+                else {
+                    continue;
+                };
+                if Self::matches_conditional_format(&evaluated, &rule.condition) {
+                    matched.insert(*address, rule.style);
+                }
+            }
+        }
+
+        Ok(matched
+            .into_iter()
+            .map(|(address, style)| SheetConditionalFormatMatch { address, style })
+            .collect())
     }
 
     pub fn range_summary(
@@ -876,6 +1001,55 @@ where
             && right.start_row <= left.end_row
             && left.start_column <= right.end_column
             && right.start_column <= left.end_column
+    }
+
+    fn address_in_range(address: CellAddress, range: SheetRange) -> bool {
+        address.row >= range.start_row
+            && address.row <= range.end_row
+            && address.column >= range.start_column
+            && address.column <= range.end_column
+    }
+
+    fn validate_conditional_format_condition(
+        condition: &SheetConditionalFormatCondition,
+    ) -> Result<(), SheetError> {
+        match condition {
+            SheetConditionalFormatCondition::NumberGreaterThan(value)
+            | SheetConditionalFormatCondition::NumberLessThan(value)
+            | SheetConditionalFormatCondition::NumberEquals(value)
+                if !value.is_finite() =>
+            {
+                Err(SheetError::InvalidConditionalFormat)
+            }
+            SheetConditionalFormatCondition::TextContains(text)
+                if text.trim().is_empty() || text.chars().count() > MAX_CELL_TEXT_LENGTH =>
+            {
+                Err(SheetError::InvalidConditionalFormat)
+            }
+            _ => Ok(()),
+        }
+    }
+
+    fn matches_conditional_format(
+        value: &CellValue,
+        condition: &SheetConditionalFormatCondition,
+    ) -> bool {
+        match (value, condition) {
+            (
+                CellValue::Number(value),
+                SheetConditionalFormatCondition::NumberGreaterThan(limit),
+            ) => value > limit,
+            (CellValue::Number(value), SheetConditionalFormatCondition::NumberLessThan(limit)) => {
+                value < limit
+            }
+            (CellValue::Number(value), SheetConditionalFormatCondition::NumberEquals(limit)) => {
+                value == limit
+            }
+            (CellValue::Text(value), SheetConditionalFormatCondition::TextContains(needle)) => {
+                value.to_lowercase().contains(&needle.to_lowercase())
+            }
+            _ => false,
+        }
     }
 
     fn validate_table_range(range: SheetRange) -> Result<(), SheetError> {

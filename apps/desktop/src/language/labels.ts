@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/labels.ts
 // # 📌 Amac: Desktop UI label anahtarlarini typed kontrat olarak tanimlar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.6.0
+// # Version: 0.7.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid, storage ve status kullanici metinlerini merkezi anahtarlara baglar
 // Bagimli Oldugu Katman: Language
 
@@ -62,6 +62,20 @@ export type DesktopLabelKey =
   | "sheetRemoveTable"
   | "sheetTableFilter"
   | "sheetTables"
+  | "sheetConditionalFormatting"
+  | "sheetConditionalCondition"
+  | "sheetConditionalNumberGreaterThan"
+  | "sheetConditionalNumberLessThan"
+  | "sheetConditionalNumberEquals"
+  | "sheetConditionalTextContains"
+  | "sheetConditionalValue"
+  | "sheetConditionalStyle"
+  | "sheetConditionalStyleWarning"
+  | "sheetConditionalStyleSuccess"
+  | "sheetConditionalStyleAccent"
+  | "sheetConditionalApply"
+  | "sheetConditionalRemove"
+  | "sheetConditionalRules"
   | "newDocument"
   | "open"
   | "undo"

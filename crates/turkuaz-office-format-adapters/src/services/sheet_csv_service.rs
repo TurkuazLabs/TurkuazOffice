@@ -66,6 +66,7 @@ impl SheetCsvService {
                 cells,
             }],
             cell_formats: BTreeMap::new(),
+            conditional_formats: BTreeMap::new(),
             tables: BTreeMap::new(),
             charts: BTreeMap::new(),
         })

@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.6.0
-// Aciklama: Hybrid menu, table/filter headers, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
+// Version: 0.7.0
+// Aciklama: Hybrid menu, table/filter headers, conditional formatting, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -25,6 +25,9 @@ import { SheetMenubar } from "./sheet-menubar";
 import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
 import type {
   SheetCellValueView,
+  SheetConditionalFormatModeView,
+  SheetConditionalFormatRuleView,
+  SheetConditionalFormatStyleView,
   SheetFilterModeView,
   SheetHorizontalAlignmentView,
   SheetSortDirectionView,
@@ -55,6 +58,12 @@ export function SheetShell(props: SheetShellProps) {
   const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
   const [propertiesOpen, setPropertiesOpen] = createSignal(true);
   const [queryOpen, setQueryOpen] = createSignal(false);
+  const [conditionalFormatOpen, setConditionalFormatOpen] = createSignal(false);
+  const [conditionalMode, setConditionalMode] =
+    createSignal<SheetConditionalFormatModeView>("numberGreaterThan");
+  const [conditionalValue, setConditionalValue] = createSignal("");
+  const [conditionalStyle, setConditionalStyle] =
+    createSignal<SheetConditionalFormatStyleView>("warning");
 
   onMount(() => {
     void props.controller.initializeSession();
@@ -89,6 +98,35 @@ export function SheetShell(props: SheetShellProps) {
   const selectedTable = (): SheetTableView | null => {
     const selection = props.repository.selection();
     return selection === null ? null : tableAtAddress(selection.row, selection.column);
+  };
+
+  const selectedConditionalFormatRule = (): SheetConditionalFormatRuleView | null => {
+    const selection = props.repository.selection();
+    const worksheet = activeWorksheet();
+    if (selection === null || worksheet === null) {
+      return null;
+    }
+    return (
+      props.repository
+        .document()
+        ?.conditionalFormats.filter(
+          (rule) =>
+            rule.worksheetId === worksheet.id &&
+            selection.row >= rule.startRow &&
+            selection.row <= rule.endRow &&
+            selection.column >= rule.startColumn &&
+            selection.column <= rule.endColumn,
+        )
+        .sort((left, right) => left.priority - right.priority)[0] ?? null
+    );
+  };
+
+  const conditionalFormatStyleAt = (
+    row: number,
+    column: number,
+  ): SheetConditionalFormatStyleView | null => {
+    const address = REFERENCE_TOOL.domainAddress(row, column);
+    return props.repository.conditionalFormatStyle(address.row, address.column);
   };
 
   const rangesOverlap = (
@@ -370,6 +408,7 @@ export function SheetShell(props: SheetShellProps) {
           language={props.language}
           propertiesOpen={propertiesOpen()}
           queryOpen={queryOpen()}
+          conditionalFormatOpen={conditionalFormatOpen()}
           freezeActive={
             props.repository.freezeState().rows > 0 ||
             props.repository.freezeState().columns > 0
@@ -380,6 +419,7 @@ export function SheetShell(props: SheetShellProps) {
           onNewDocument={() => void createDocument()}
           onToggleProperties={() => setPropertiesOpen((value) => !value)}
           onToggleQuery={() => setQueryOpen((value) => !value)}
+          onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
           onFreezeAtSelection={() => props.controller.freezeAtSelection()}
           onFreezeTopRow={() => props.controller.freezeTopRow()}
           onFreezeFirstColumn={() => props.controller.freezeFirstColumn()}
@@ -572,6 +612,93 @@ export function SheetShell(props: SheetShellProps) {
           </div>
         </Show>
 
+        <Show when={conditionalFormatOpen()}>
+          <div class="sheet-conditional-format-bar">
+            <strong>{props.language.text("sheetConditionalFormatting")}</strong>
+            <label>
+              <span>{props.language.text("sheetConditionalCondition")}</span>
+              <select
+                class="ribbon-select"
+                aria-label={props.language.text("sheetConditionalCondition")}
+                value={conditionalMode()}
+                onChange={(event) =>
+                  setConditionalMode(
+                    event.currentTarget.value as SheetConditionalFormatModeView,
+                  )
+                }
+              >
+                <option value="numberGreaterThan">
+                  {props.language.text("sheetConditionalNumberGreaterThan")}
+                </option>
+                <option value="numberLessThan">
+                  {props.language.text("sheetConditionalNumberLessThan")}
+                </option>
+                <option value="numberEquals">
+                  {props.language.text("sheetConditionalNumberEquals")}
+                </option>
+                <option value="textContains">
+                  {props.language.text("sheetConditionalTextContains")}
+                </option>
+              </select>
+            </label>
+            <input
+              class="sheet-conditional-format-bar__value"
+              aria-label={props.language.text("sheetConditionalValue")}
+              placeholder={props.language.text("sheetConditionalValue")}
+              value={conditionalValue()}
+              onInput={(event) => setConditionalValue(event.currentTarget.value)}
+            />
+            <label>
+              <span>{props.language.text("sheetConditionalStyle")}</span>
+              <select
+                class="ribbon-select"
+                aria-label={props.language.text("sheetConditionalStyle")}
+                value={conditionalStyle()}
+                onChange={(event) =>
+                  setConditionalStyle(
+                    event.currentTarget.value as SheetConditionalFormatStyleView,
+                  )
+                }
+              >
+                <option value="warning">
+                  {props.language.text("sheetConditionalStyleWarning")}
+                </option>
+                <option value="success">
+                  {props.language.text("sheetConditionalStyleSuccess")}
+                </option>
+                <option value="accent">
+                  {props.language.text("sheetConditionalStyleAccent")}
+                </option>
+              </select>
+            </label>
+            <button
+              type="button"
+              class="toolbar-button toolbar-button--primary"
+              disabled={props.repository.selection() === null}
+              onClick={() =>
+                void props.controller.applyConditionalFormat(
+                  conditionalMode(),
+                  conditionalValue(),
+                  conditionalStyle(),
+                )
+              }
+            >
+              {props.language.text("sheetConditionalApply")}
+            </button>
+            <button
+              type="button"
+              class="toolbar-button"
+              disabled={selectedConditionalFormatRule() === null}
+              onClick={() => void props.controller.removeConditionalFormatAtSelection()}
+            >
+              {props.language.text("sheetConditionalRemove")}
+            </button>
+            <span class="sheet-query-bar__error" aria-live="polite">
+              {props.repository.conditionalFormatErrorCode() ?? ""}
+            </span>
+          </div>
+        </Show>
+
         <div class="sheet-formula-bar" aria-label={props.language.text("sheetFormulaBarLabel")}>
           <span class="sheet-formula-bar__reference" title={props.language.text("sheetSelectedCell")}>
             {props.repository.selection()?.reference ?? "-"}
@@ -664,6 +791,12 @@ export function SheetShell(props: SheetShellProps) {
                                 "sheet-grid__cell--selected":
                                   props.repository.selection()?.reference === reference,
                                 "sheet-grid__cell--range": isCellInSelectionRange(row, column),
+                                "sheet-grid__cell--conditional-warning":
+                                  conditionalFormatStyleAt(row, column) === "warning",
+                                "sheet-grid__cell--conditional-success":
+                                  conditionalFormatStyleAt(row, column) === "success",
+                                "sheet-grid__cell--conditional-accent":
+                                  conditionalFormatStyleAt(row, column) === "accent",
                                 "sheet-grid__cell--table-header":
                                   tableAtHeaderCell(row, column) !== null,
                                 "sheet-grid__cell--table-body": (() => {
@@ -806,6 +939,9 @@ export function SheetShell(props: SheetShellProps) {
         </span>
         <span>
           {props.language.text("sheetTables")}: {props.repository.document()?.tables.length ?? 0}
+        </span>
+        <span>
+          {props.language.text("sheetConditionalRules")}: {props.repository.document()?.conditionalFormats.length ?? 0}
         </span>
       </footer>
     </div>

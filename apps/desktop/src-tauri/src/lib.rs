@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/lib.rs
 // # 📌 Amac: Turkuaz Office Desktop Tauri runtime composition rootunu kurar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.5.0
+// # Version: 0.7.0
 // # Aciklama: Suite launch hedefi, Writer/Sheet state, IPC controller ve Tauri Builder kaydini merkezi baslatir
 // Bagimli Oldugu Katman: Controller -> Service
 
@@ -11,10 +11,11 @@ use tauri::Manager;
 
 use controllers::desktop_launch_controller::desktop_get_launch_module;
 use controllers::sheet_desktop_controller::{
-    sheet_clear_cell, sheet_create_document, sheet_create_table, sheet_get_cell_format,
-    sheet_get_document, sheet_get_evaluated_cell, sheet_get_range_summary, sheet_query_rows,
-    sheet_remove_table, sheet_set_boolean, sheet_set_cell_format, sheet_set_formula,
-    sheet_set_number, sheet_set_text,
+    sheet_clear_cell, sheet_create_conditional_format, sheet_create_document, sheet_create_table,
+    sheet_get_cell_format, sheet_get_conditional_format_matches, sheet_get_document,
+    sheet_get_evaluated_cell, sheet_get_range_summary, sheet_query_rows,
+    sheet_remove_conditional_format, sheet_remove_table, sheet_set_boolean, sheet_set_cell_format,
+    sheet_set_formula, sheet_set_number, sheet_set_text,
 };
 use controllers::writer_desktop_controller::{
     writer_acknowledge_external_change, writer_apply_character_style,
@@ -56,6 +57,10 @@ pub fn run() {
             desktop_get_launch_module,
             sheet_create_document,
             sheet_create_table,
+            sheet_create_conditional_format,
+            sheet_remove_conditional_format,
+            sheet_remove_table,
+            sheet_get_conditional_format_matches,
             sheet_get_document,
             sheet_get_cell_format,
             sheet_set_cell_format,

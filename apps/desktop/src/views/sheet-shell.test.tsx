@@ -3,8 +3,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.test.tsx
 // # 📌 Amac: Sheet grid ve formula bar aktif draft'larinin async read-model guncellemelerinde korunmasini dogrular
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.6.0
-// Aciklama: Aktif draft, table header/filter, range query, freeze ve yeni Sheet query-reset davranislarini jsdom regression testleriyle sabitler
+// Version: 0.7.0
+// Aciklama: Aktif draft, table header/filter, conditional formatting, range query, freeze ve yeni Sheet query-reset davranislarini jsdom regression testleriyle sabitler
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
 import { render } from "solid-js/web";
@@ -34,6 +34,7 @@ const DOCUMENT: SheetDocumentView = {
       ],
     },
   ],
+  conditionalFormats: [],
   tables: [],
   chartCount: 0,
 };
@@ -46,6 +47,8 @@ function controllerStub(): SheetController {
     extendSelection: async () => undefined,
     createTableFromSelection: async () => undefined,
     removeTableAtSelection: async () => undefined,
+    applyConditionalFormat: async () => undefined,
+    removeConditionalFormatAtSelection: async () => undefined,
     freezeAtSelection: () => undefined,
     freezeTopRow: () => undefined,
     freezeFirstColumn: () => undefined,
@@ -232,6 +235,36 @@ describe("SheetShell active drafts", () => {
     expect(cell?.style.left).toBe("36px");
     expect(cell?.classList.contains("sheet-grid__cell--freeze-row-edge")).toBe(true);
     expect(cell?.classList.contains("sheet-grid__cell--freeze-column-edge")).toBe(true);
+  });
+
+  it("renders backend conditional format matches as semantic grid highlights", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      conditionalFormats: [
+        {
+          id: "conditional-format-1",
+          worksheetId: "worksheet-1",
+          startRow: 0,
+          endRow: 1,
+          startColumn: 0,
+          endColumn: 0,
+          condition: { kind: "numberGreaterThan", value: 10 },
+          style: "warning",
+          priority: 1,
+        },
+      ],
+    });
+    repository.setConditionalFormatMatches([
+      { row: 0, column: 0, style: "warning" },
+    ]);
+
+    const root = mount(repository);
+    const a1 = root.querySelector<HTMLInputElement>('input[aria-label="A1"]');
+    expect(
+      a1?.closest("td")?.classList.contains("sheet-grid__cell--conditional-warning"),
+    ).toBe(true);
+    expect(root.textContent).toContain("Conditional rules: 1");
   });
 
   it("renders range selection and Excel-style status aggregates", async () => {

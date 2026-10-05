@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.6.0
+// Version: 0.7.0
 // Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
@@ -63,6 +63,20 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetRemoveTable: "Remove Table",
   sheetTableFilter: "Table filter",
   sheetTables: "Tables",
+  sheetConditionalFormatting: "Conditional Formatting",
+  sheetConditionalCondition: "Condition",
+  sheetConditionalNumberGreaterThan: "Number greater than",
+  sheetConditionalNumberLessThan: "Number less than",
+  sheetConditionalNumberEquals: "Number equals",
+  sheetConditionalTextContains: "Text contains",
+  sheetConditionalValue: "Comparison value",
+  sheetConditionalStyle: "Highlight style",
+  sheetConditionalStyleWarning: "Warning",
+  sheetConditionalStyleSuccess: "Success",
+  sheetConditionalStyleAccent: "Accent",
+  sheetConditionalApply: "Apply Rule",
+  sheetConditionalRemove: "Remove Selected Rule",
+  sheetConditionalRules: "Conditional rules",
   sheetVisibleRows: "Visible rows",
   newDocument: "New Document",
   open: "Open",

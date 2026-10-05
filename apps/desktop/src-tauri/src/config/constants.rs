@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/config/constants.rs
 // # 📌 Amac: Desktop Rust shell error code ve state sabitlerini merkezi tutar
 // # 📌 Modul - FileType: Config - Rust
-// # Version: 0.6.0
+// # Version: 0.7.0
 // # Aciklama: Writer, Sheet, storage, recovery ve Service katmanlarinda magic string kullanilmasini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -50,6 +50,9 @@ pub const ERROR_SHEET_INVALID_FILTER: &str = "sheet.invalid_filter";
 pub const ERROR_SHEET_TABLE_NOT_FOUND: &str = "sheet.table_not_found";
 pub const ERROR_SHEET_INVALID_TABLE_RANGE: &str = "sheet.invalid_table_range";
 pub const ERROR_SHEET_TABLE_RANGE_OVERLAP: &str = "sheet.table_range_overlap";
+pub const ERROR_SHEET_CONDITIONAL_FORMAT_NOT_FOUND: &str = "sheet.conditional_format_not_found";
+pub const ERROR_SHEET_INVALID_CONDITIONAL_FORMAT: &str = "sheet.invalid_conditional_format";
+pub const ERROR_SHEET_CONDITIONAL_FORMAT_LIMIT: &str = "sheet.conditional_format_limit";
 pub const ERROR_SHEET_CHART_NOT_FOUND: &str = "sheet.chart_not_found";
 pub const ERROR_SHEET_INVALID_CHART_TITLE: &str = "sheet.invalid_chart_title";
 pub const ERROR_SHEET_INVALID_CHART_RANGE: &str = "sheet.invalid_chart_range";
