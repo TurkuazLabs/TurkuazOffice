@@ -754,7 +754,7 @@ impl SheetXlsxXmlTool {
                         rule.differential_style_id, rule.priority
                     ));
                     xml.push_str(&escape(text.as_str()));
-                    xml.push_str("\"><formula>NOT(ISERROR(SEARCH(\\"");
+                    xml.push_str("\"><formula>NOT(ISERROR(SEARCH(\"");
                     xml.push_str(&escape(excel_text.as_str()));
                     xml.push_str("\",");
                     xml.push_str(&escape(top_left));
