@@ -107,6 +107,7 @@ web_client:
   browser_download: blob_object_url
   browser_import_max_bytes: 16777216
   native_tko_codec: wasm_bridge_exported
+  writer_tko_ts_tool: runtime_loaded_when_wasm_available
   import_export_view_actions: false
   offline_cache: planned
 

@@ -107,6 +107,7 @@ Bagimli Oldugu Katman: Documentation
 - `07-quality/m3-web-indexeddb-persistence-test-matrix.md`
 - `07-quality/m3-web-browser-file-transfer-test-matrix.md`
 - `07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md`
+- `07-quality/m3-web-writer-tko-ts-tool-test-matrix.md`
 
 ## 08 Implementation
 
@@ -163,6 +164,7 @@ Bagimli Oldugu Katman: Documentation
 - `08-implementation/m3-web-indexeddb-persistence-v0.4.0.md`
 - `08-implementation/m3-web-browser-file-transfer-v0.4.0.md`
 - `08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md`
+- `08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md`
 
 ## Kural
 

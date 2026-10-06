@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.3
-# Aciklama: Umbrella release versionini korur; M3 Web storage, file-transfer ve Writer TKO aggregate WASM bridge kontratlarini uygular
+# Version: 0.11.4
+# Aciklama: Umbrella release versionini korur; M3 Web storage, file-transfer, Writer TKO WASM bridge ve typed TypeScript Tool kontratlarini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -63,6 +63,8 @@ required_files=(
   "crates/turkuaz-office-web-bridge/src/views/writer_tko_bridge_view.rs"
   "crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
   "crates/turkuaz-office-web-bridge/tests/writer_tko_bridge_tests.rs"
+  "apps/web/src/tools/writer-tko.tool.ts"
+  "apps/web/src/tools/writer-tko.tool.test.ts"
   "crates/turkuaz-office-writer/Cargo.toml"
   "crates/turkuaz-office-writer/src/lib.rs"
   "crates/turkuaz-office-writer/src/services/writer_command.rs"
@@ -334,6 +336,8 @@ required_files=(
   "docs/07-quality/m3-web-browser-file-transfer-test-matrix.md"
   "docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
   "docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md"
+  "docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md"
+  "docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -432,6 +436,7 @@ grep -q 'browser_file_picker: html_input_file' "$ROOT/config/project.yml"
 grep -q 'browser_download: blob_object_url' "$ROOT/config/project.yml"
 grep -q 'browser_import_max_bytes: 16777216' "$ROOT/config/project.yml"
 grep -q 'native_tko_codec: wasm_bridge_exported' "$ROOT/config/project.yml"
+grep -q 'writer_tko_ts_tool: runtime_loaded_when_wasm_available' "$ROOT/config/project.yml"
 grep -q 'import_export_view_actions: false' "$ROOT/config/project.yml"
 grep -q 'wasm_core: runtime_loaded' "$ROOT/config/project.yml"
 grep -q 'wasm_target: wasm32-unknown-unknown' "$ROOT/config/project.yml"
@@ -490,6 +495,10 @@ grep -q 'web_writer_tko_reencode' "$ROOT/tools/build-web-wasm.sh"
 grep -q 'pub struct WebWriterTkoBridgeService' "$ROOT/crates/turkuaz-office-web-bridge/src/services/writer_tko_bridge_service.rs"
 grep -q 'web_writer_tko_inspect' "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
 grep -q 'web_writer_tko_reencode' "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
+grep -q 'class WasmWriterTkoTool' "$ROOT/apps/web/src/tools/writer-tko.tool.ts"
+grep -q 'writerTkoTool: WebWriterTkoTool | null' "$ROOT/apps/web/src/tools/wasm-core-runtime-loader.ts"
+grep -q 'web_writer_tko_inspect' "$ROOT/apps/web/src/tools/wasm-core-runtime-loader.ts"
+grep -q 'M3 Web Writer TKO TypeScript Tool v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md"
 grep -q 'M3 Web Writer TKO WASM Bridge v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
 grep -q 'name: Web WASM artifact' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'actions/upload-artifact@v4' "$ROOT/.github/workflows/workspace-ci.yml"
@@ -526,7 +535,11 @@ for m3_web_file in \
   "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs" \
   "$ROOT/crates/turkuaz-office-web-bridge/tests/writer_tko_bridge_tests.rs" \
   "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md" \
-  "$ROOT/docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md"; do
+  "$ROOT/docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md" \
+  "$ROOT/apps/web/src/tools/writer-tko.tool.ts" \
+  "$ROOT/apps/web/src/tools/writer-tko.tool.test.ts" \
+  "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"; do
   grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
 done
 

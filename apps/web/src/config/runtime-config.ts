@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/config/runtime-config.ts
 // # 📌 Amac: M3 Web runtime sabitlerini merkezi konfigurasyonda tutar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.4.0
-// # Aciklama: Dev server, metadata-index, Web Core ABI/bridge ve WASM runtime binding yolunu tanimlar
+// Version: 0.4.0
+// Aciklama: Dev server, metadata-index, Web Core ABI/bridge, Writer TKO Tool ve WASM runtime binding yolunu tanimlar
 // Bagimli Oldugu Katman: Config
 
 export const WEB_APP_VERSION = "0.4.0";
@@ -15,6 +15,10 @@ export const WEB_CORE_SCHEMA_VERSION = 1;
 export const WEB_CORE_WASM_MODULE_URL = "/wasm/turkuaz_office_web_bridge.js";
 export const WEB_CORE_NATIVE_FS_CONTRACT_ERROR =
   "Web Core native filesystem capability false olmali.";
+export const WEB_WASM_BINDING_FUNCTION_MISSING_ERROR =
+  "WASM Web bridge binding function eksik";
+export const WEB_INVALID_TKO_SUMMARY_ERROR =
+  "Writer TKO WASM inspect cevabi gecersiz.";
 export const WEB_APP_ROOT_ID = "app";
 export const WEB_APP_ROOT_ERROR = "Turkuaz Office Web app root bulunamadi.";
 

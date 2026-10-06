@@ -226,10 +226,10 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - TKO codec hazir olmadan View aksiyonu acmayan import/export Service siniri.
 - Core + Writer dependency yonunu koruyan aggregate Web WASM bridge crate'i.
 - Mevcut Writer TkoPackageService'i kullanan TKO inspect/re-encode WASM exportlari.
+- Generated Writer TKO WASM exportlarini fail-closed typed TypeScript Tool ile acan runtime adapter.
 
 ### M3 kalan kapsam
 
-- Generated Writer TKO WASM exportlarini typed TypeScript Tool'a baglama.
 - Browser file-transfer Service + TKO Tool composition ve gercek import/export urun akisi.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
