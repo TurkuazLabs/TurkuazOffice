@@ -47,8 +47,24 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
   }
 
   private database(): Promise<IDBDatabase> {
-    this.databasePromise ??= new Promise<IDBDatabase>((resolve, reject) => {
-      const request = this.factory.open(WEB_DOCUMENT_DB_NAME, WEB_DOCUMENT_DB_VERSION);
+    if (this.databasePromise !== null) {
+      return this.databasePromise;
+    }
+
+    this.databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
+      let request: IDBOpenDBRequest;
+      try {
+        request = this.factory.open(WEB_DOCUMENT_DB_NAME, WEB_DOCUMENT_DB_VERSION);
+      } catch (error: unknown) {
+        this.databasePromise = null;
+        reject(error);
+        return;
+      }
+
+      const fail = (error: DOMException | Error | null): void => {
+        this.databasePromise = null;
+        reject(error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
+      };
 
       request.onupgradeneeded = () => {
         const database = request.result;
@@ -58,10 +74,16 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
           });
         }
       };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () =>
-        reject(request.error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
-      request.onblocked = () => reject(new Error(WEB_INDEXED_DB_OPERATION_ERROR));
+      request.onsuccess = () => {
+        const database = request.result;
+        database.onversionchange = () => {
+          database.close();
+          this.databasePromise = null;
+        };
+        resolve(database);
+      };
+      request.onerror = () => fail(request.error);
+      request.onblocked = () => fail(new Error(WEB_INDEXED_DB_OPERATION_ERROR));
     });
     return this.databasePromise;
   }
