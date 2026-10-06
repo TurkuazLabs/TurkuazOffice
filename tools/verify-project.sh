@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.8.0
+# Version: 0.9.0
 # Aciklama: Umbrella release versionini korur; M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
@@ -17,6 +17,7 @@ SHEET_RANGE_VERSION="0.5.0"
 SHEET_TABLE_VERSION="0.6.0"
 SHEET_CONDITIONAL_VERSION="0.7.0"
 SHEET_FUNCTION_VERSION="0.8.0"
+SHEET_OOXML_VERSION="0.9.0"
 
 required_files=(
   "README.md"
@@ -105,6 +106,8 @@ required_files=(
   "crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
   "docs/08-implementation/sheet-function-library-v0.8.0.md"
   "docs/07-quality/sheet-function-library-test-matrix.md"
+  "docs/08-implementation/sheet-ooxml-metadata-v0.9.0.md"
+  "docs/07-quality/sheet-ooxml-metadata-test-matrix.md"
   "apps/desktop/src-tauri/Cargo.toml"
   "apps/desktop/src-tauri/tauri.conf.json5"
   "apps/desktop/src-tauri/capabilities/main-capability.toml"
@@ -722,6 +725,21 @@ grep -q 'pub struct SheetCsvService' "$ROOT/crates/turkuaz-office-format-adapter
 grep -q 'pub struct SheetXlsxArchiveTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs"
 grep -q 'pub struct SheetXlsxXmlTool' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
 grep -q 'pub struct SheetXlsxService' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
+
+grep -q 'sheet_ooxml_metadata:' "$ROOT/config/project.yml"
+grep -q 'table_import: supported_ooxml_table_parts' "$ROOT/config/project.yml"
+grep -q 'conditional_format_import: supported_cell_is_and_contains_text' "$ROOT/config/project.yml"
+grep -q 'pub struct XlsxTableModel' "$ROOT/crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs"
+grep -q 'pub struct XlsxConditionalFormatModel' "$ROOT/crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs"
+grep -q 'pub fn parse_worksheet_metadata' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub fn parse_table' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub fn parse_differential_styles' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub fn worksheet_relationships_xml' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub fn table_xml' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'pub fn styles_xml' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
+grep -q 'xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'Sheet OOXML Metadata v0.9.0' "$ROOT/docs/08-implementation/sheet-ooxml-metadata-v0.9.0.md"
+
 grep -q 'validate_root_relationships' "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"
 grep -q 'UnsupportedFormula' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
 grep -q 'csv_parser_handles_quotes_crlf_and_service_import_is_text_only' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
@@ -736,20 +754,20 @@ grep -q 'csv_and_xlsx_export_reject_canonical_formula_until_adapter_formula_prof
 
 for sheet_format_file in \
   "$ROOT/crates/turkuaz-office-format-adapters/Cargo.toml" \
-  "$ROOT/crates/turkuaz-office-format-adapters/src/config/sheet_constants.rs" \
-  "$ROOT/crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_csv_tool.rs" \
-  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs" \
-  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs"; do
+  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_archive_tool.rs"; do
   grep -q "Version: $SHEET_MODULE_VERSION" "$sheet_format_file"
 done
 
 grep -q "Version: $SHEET_TABLE_VERSION" "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_csv_service.rs"
 
-for sheet_conditional_adapter_file in \
+for sheet_ooxml_file in \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/config/sheet_constants.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/models/sheet_xlsx_model.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs" \
+  "$ROOT/crates/turkuaz-office-format-adapters/src/tools/sheet_xlsx_xml_tool.rs" \
   "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"; do
-  grep -q "Version: $SHEET_CONDITIONAL_VERSION" "$sheet_conditional_adapter_file"
+  grep -q "Version: $SHEET_OOXML_VERSION" "$sheet_ooxml_file"
 done
 
 grep -q 'sheet_formula_engine:' "$ROOT/config/project.yml"
@@ -806,7 +824,7 @@ grep -q 'sheet_table_objects:' "$ROOT/config/project.yml"
 grep -q 'table_objects: canonical' "$ROOT/config/project.yml"
 grep -q 'automatic_filter_headers: true' "$ROOT/config/project.yml"
 grep -q 'table_filter_engine: canonical_row_query' "$ROOT/config/project.yml"
-grep -q 'table_export: strict_reject_until_ooxml_table_parts' "$ROOT/config/project.yml"
+grep -q 'table_export: supported_ooxml_table_parts' "$ROOT/config/project.yml"
 grep -q 'pub struct TableId' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
 grep -q 'pub struct SheetTable' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
 grep -q 'TABLE_ID_PREFIX' "$ROOT/crates/turkuaz-office-sheet/src/config/constants.rs"
@@ -818,13 +836,13 @@ grep -q 'sheetCreateTable' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
 grep -q 'createTableFromSelection' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
 grep -q 'sheet-table-filter-button' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
 grep -q 'UnsupportedTable' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
-grep -q 'xlsx_export_rejects_canonical_table_metadata_until_table_parts_are_supported' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'Sheet Table Objects v0.6.0' "$ROOT/docs/08-implementation/sheet-table-objects-v0.6.0.md"
 
 grep -q 'sheet_conditional_formatting:' "$ROOT/config/project.yml"
 grep -q 'conditional_formatting: canonical_rules' "$ROOT/config/project.yml"
 grep -q 'max_rules: 512' "$ROOT/config/project.yml"
-grep -q 'conditional_format_export: strict_reject_until_ooxml_rules' "$ROOT/config/project.yml"
+grep -q 'conditional_format_export: supported_cell_is_and_contains_text' "$ROOT/config/project.yml"
 grep -q 'pub struct ConditionalFormatRuleId' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
 grep -q 'pub enum SheetConditionalFormatCondition' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
 grep -q 'pub enum SheetConditionalFormatStyle' "$ROOT/crates/turkuaz-office-sheet/src/services/sheet_types.rs"
@@ -838,7 +856,7 @@ grep -q 'sheetCreateConditionalFormat' "$ROOT/apps/desktop/src/config/ipc-comman
 grep -q 'applyConditionalFormat' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
 grep -q 'sheet-grid__cell--conditional-warning' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
 grep -q 'UnsupportedConditionalFormat' "$ROOT/crates/turkuaz-office-format-adapters/src/services/sheet_xlsx_service.rs"
-grep -q 'xlsx_export_rejects_canonical_conditional_format_metadata_until_ooxml_rules_are_supported' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
+grep -q 'xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata' "$ROOT/crates/turkuaz-office-format-adapters/tests/sheet_csv_xlsx_tests.rs"
 grep -q 'Sheet Conditional Formatting v0.7.0' "$ROOT/docs/08-implementation/sheet-conditional-formatting-v0.7.0.md"
 
 grep -q 'sheet_basic_charts:' "$ROOT/config/project.yml"

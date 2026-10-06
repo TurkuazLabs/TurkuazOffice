@@ -449,7 +449,7 @@ sheet_csv_xlsx:
       - boolean
     max_bytes: 16777216
   xlsx:
-    mode: value_only
+    mode: value_plus_ooxml_metadata
     package: zip
     compression_read:
       - stored
@@ -465,11 +465,36 @@ sheet_csv_xlsx:
       - boolean
     multiple_worksheets: true
     formula_import: strict_reject
-    table_export: strict_reject_until_ooxml_table_parts
-    conditional_format_export: strict_reject_until_ooxml_rules
+    table_import: supported_ooxml_table_parts
+    table_export: supported_ooxml_table_parts
+    conditional_format_import: supported_cell_is_and_contains_text
+    conditional_format_export: supported_cell_is_and_contains_text
+    conditional_format_styles: differential_fill_mapping
     max_package_bytes: 67108864
     max_worksheets: 256
+    max_tables: 1024
+    max_conditional_formats: 512
 
+
+sheet_ooxml_metadata:
+  active: true
+  version: 0.9.0
+  table_parts: true
+  worksheet_table_relationships: true
+  styles_part: true
+  differential_styles: true
+  supported_conditional_rules:
+    - number_greater_than
+    - number_less_than
+    - number_equals
+    - text_contains
+  semantic_style_mapping:
+    warning_rgb: FFFFC7CE
+    success_rgb: FFC6EFCE
+    accent_rgb: FFDDEBF7
+  unknown_differential_fill_fallback: accent
+  formulas_in_cells: strict_reject
+  unsupported_conditional_rule: strict_reject
 
 sheet_format_filter_sort:
   active: true
@@ -510,7 +535,8 @@ sheet_table_objects:
   automatic_filter_headers: true
   filter_scope: table_data_rows
   filter_engine: sheet_row_query
-  xlsx_export: strict_reject_until_table_parts_supported
+  xlsx_import: supported_table_parts
+  xlsx_export: supported_table_parts
 
 sheet_conditional_formatting:
   active: true
@@ -531,7 +557,8 @@ sheet_conditional_formatting:
     - success
     - accent
   desktop_match_projection: visible_grid
-  xlsx_export: strict_reject_until_ooxml_rules_supported
+  xlsx_import: supported_cell_is_and_contains_text
+  xlsx_export: supported_cell_is_and_contains_text
 
 sheet_basic_charts:
   active: true
