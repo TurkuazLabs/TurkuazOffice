@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/desktop-launch.tool.ts
 // # 📌 Amac: Native suite baslatma hedefini Tauri IPC uzerinden frontend composition rootuna tasir
 // # 📌 Modul - FileType: Tool - TypeScript
-// Version: 0.5.0
-// Aciklama: Writer/Sheet giris secimini native komuttan typed OfficeModule degerine map eder
+// Version: 0.12.0
+// Aciklama: Baslangic Merkezi/Writer/Sheet giris secimini native komuttan typed OfficeModule degerine map eder
 // Bagimli Oldugu Katman: Tool -> Config
 
 import { invoke } from "@tauri-apps/api/core";
@@ -14,6 +14,12 @@ const DESKTOP_LAUNCH_COMMAND = "desktop_get_launch_module";
 export class DesktopLaunchTool {
   async getModule(): Promise<OfficeModule> {
     const module = await invoke<string>(DESKTOP_LAUNCH_COMMAND);
-    return module === OFFICE_MODULES.sheet ? OFFICE_MODULES.sheet : OFFICE_MODULES.writer;
+    if (module === OFFICE_MODULES.writer) {
+      return OFFICE_MODULES.writer;
+    }
+    if (module === OFFICE_MODULES.sheet) {
+      return OFFICE_MODULES.sheet;
+    }
+    return OFFICE_MODULES.home;
   }
 }
