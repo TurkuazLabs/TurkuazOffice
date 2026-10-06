@@ -39,6 +39,19 @@ describe("WebBootstrapService", () => {
     });
   });
 
+  it("keeps Core capability contract failures fail-closed", async () => {
+    const coreTool = new BrowserCoreContractTool();
+    coreTool.capabilities = () => {
+      throw new Error("core-contract-invalid");
+    };
+    const service = new WebBootstrapService(
+      repositoryWithCount(async () => 0),
+      coreTool,
+    );
+
+    await expect(service.initialize()).rejects.toThrow("core-contract-invalid");
+  });
+
   it("keeps canonical storage unavailable instead of falling back to localStorage payloads", async () => {
     const service = new WebBootstrapService(
       repositoryWithCount(async () => {
