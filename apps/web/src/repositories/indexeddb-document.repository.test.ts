@@ -95,6 +95,21 @@ describe("IndexedDbDocumentRepository", () => {
     expect(index.list()).toEqual([]);
   });
 
+  it("rejects unsupported stored schema versions from get and list", async () => {
+    const tool = new MemoryIndexedDbDocumentTool();
+    tool.seed({
+      ...DOCUMENT_A,
+      id: "future",
+      schemaVersion: WEB_CORE_SCHEMA_VERSION + 1,
+    });
+    const index = new BrowserDocumentIndexRepository(window.localStorage);
+    const repository = new IndexedDbDocumentRepository(tool, index);
+
+    await expect(repository.get("future")).resolves.toBeNull();
+    await expect(repository.list()).resolves.toEqual([]);
+    expect(index.list()).toEqual([]);
+  });
+
   it("keeps canonical commits successful when metadata index writes fail", async () => {
     const tool = new MemoryIndexedDbDocumentTool();
     const metadataIndex = {
