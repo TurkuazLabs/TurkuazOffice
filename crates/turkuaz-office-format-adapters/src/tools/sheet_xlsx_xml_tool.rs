@@ -383,17 +383,13 @@ impl SheetXlsxXmlTool {
                             current_range = Some(range);
                         }
                         TAG_CONDITIONAL_RULE => {
-                            let range = current_range
-                                .clone()
-                                .ok_or(SheetXlsxXmlError::InvalidXml)?;
+                            let range =
+                                current_range.clone().ok_or(SheetXlsxXmlError::InvalidXml)?;
                             current_rule = Some(Self::conditional_rule_state(&start, range)?);
                         }
                         TAG_FORMULA if current_rule.is_some() => in_rule_formula = true,
                         TAG_TABLE_PART => {
-                            Self::push_table_relationship_id(
-                                &start,
-                                &mut table_relationship_ids,
-                            )?;
+                            Self::push_table_relationship_id(&start, &mut table_relationship_ids)?;
                         }
                         _ => {}
                     }
@@ -403,15 +399,11 @@ impl SheetXlsxXmlTool {
                     Self::validate_limits(depth, nodes)?;
                     match Self::local_name(empty.name().as_ref()) {
                         TAG_TABLE_PART => {
-                            Self::push_table_relationship_id(
-                                &empty,
-                                &mut table_relationship_ids,
-                            )?;
+                            Self::push_table_relationship_id(&empty, &mut table_relationship_ids)?;
                         }
                         TAG_CONDITIONAL_RULE => {
-                            let range = current_range
-                                .clone()
-                                .ok_or(SheetXlsxXmlError::InvalidXml)?;
+                            let range =
+                                current_range.clone().ok_or(SheetXlsxXmlError::InvalidXml)?;
                             let state = Self::conditional_rule_state(&empty, range)?;
                             conditional_formats.push(Self::finish_conditional_rule(state)?);
                             if conditional_formats.len() > MAX_XLSX_CONDITIONAL_FORMATS {
@@ -435,20 +427,14 @@ impl SheetXlsxXmlTool {
                 }
                 Event::GeneralRef(reference) if in_rule_formula => {
                     if let Some(rule) = current_rule.as_mut() {
-                        Self::append_reference(
-                            &mut rule.formula,
-                            reference.as_ref(),
-                            &reference,
-                        )?;
+                        Self::append_reference(&mut rule.formula, reference.as_ref(), &reference)?;
                     }
                 }
                 Event::End(end) => {
                     match Self::local_name(end.name().as_ref()) {
                         TAG_FORMULA if current_rule.is_some() => in_rule_formula = false,
                         TAG_CONDITIONAL_RULE => {
-                            let state = current_rule
-                                .take()
-                                .ok_or(SheetXlsxXmlError::InvalidXml)?;
+                            let state = current_rule.take().ok_or(SheetXlsxXmlError::InvalidXml)?;
                             conditional_formats.push(Self::finish_conditional_rule(state)?);
                             if conditional_formats.len() > MAX_XLSX_CONDITIONAL_FORMATS {
                                 return Err(SheetXlsxXmlError::TooManyNodes);
@@ -578,9 +564,7 @@ impl SheetXlsxXmlTool {
                 }
                 Event::End(end) => {
                     if Self::local_name(end.name().as_ref()) == TAG_DXF {
-                        let fill_rgb = current
-                            .take()
-                            .ok_or(SheetXlsxXmlError::InvalidXml)?;
+                        let fill_rgb = current.take().ok_or(SheetXlsxXmlError::InvalidXml)?;
                         styles.push(XlsxDifferentialStyleModel { fill_rgb });
                     }
                     depth = depth.saturating_sub(1);
@@ -870,8 +854,8 @@ impl SheetXlsxXmlTool {
         element: &BytesStart<'_>,
         range_reference: String,
     ) -> Result<ConditionalRuleState, SheetXlsxXmlError> {
-        let rule_type = Self::attribute(element, ATTR_RULE_TYPE)?
-            .ok_or(SheetXlsxXmlError::MissingAttribute)?;
+        let rule_type =
+            Self::attribute(element, ATTR_RULE_TYPE)?.ok_or(SheetXlsxXmlError::MissingAttribute)?;
         let differential_style_id = Self::attribute(element, ATTR_DXF_ID)?
             .ok_or(SheetXlsxXmlError::MissingAttribute)?
             .parse::<usize>()
@@ -966,20 +950,12 @@ impl SheetXlsxXmlTool {
                     depth = depth.saturating_add(1);
                     nodes = nodes.saturating_add(1);
                     Self::validate_limits(depth, nodes)?;
-                    Self::read_relationship_of_type(
-                        &start,
-                        relationship_type,
-                        &mut relationships,
-                    )?;
+                    Self::read_relationship_of_type(&start, relationship_type, &mut relationships)?;
                 }
                 Event::Empty(empty) => {
                     nodes = nodes.saturating_add(1);
                     Self::validate_limits(depth, nodes)?;
-                    Self::read_relationship_of_type(
-                        &empty,
-                        relationship_type,
-                        &mut relationships,
-                    )?;
+                    Self::read_relationship_of_type(&empty, relationship_type, &mut relationships)?;
                 }
                 Event::End(_) => depth = depth.saturating_sub(1),
                 Event::DocType(_) => return Err(SheetXlsxXmlError::DocTypeUnsupported),
@@ -1017,11 +993,7 @@ impl SheetXlsxXmlTool {
         element: &BytesStart<'_>,
         relationships: &mut HashMap<String, String>,
     ) -> Result<(), SheetXlsxXmlError> {
-        Self::read_relationship_of_type(
-            element,
-            XLSX_WORKSHEET_RELATIONSHIP_TYPE,
-            relationships,
-        )
+        Self::read_relationship_of_type(element, XLSX_WORKSHEET_RELATIONSHIP_TYPE, relationships)
     }
 
     fn cell_value(
