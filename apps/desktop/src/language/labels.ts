@@ -1,12 +1,36 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/labels.ts
 // # 📌 Amac: Desktop UI label anahtarlarini typed kontrat olarak tanimlar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.11.0
+// # Version: 0.12.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid, storage ve status kullanici metinlerini merkezi anahtarlara baglar
 // Bagimli Oldugu Katman: Language
 
 export type DesktopLabelKey =
   | "appName"
+  | "startCenterBrandTagline"
+  | "startCenterNavigation"
+  | "startCenterHome"
+  | "startCenterRecent"
+  | "startCenterTemplates"
+  | "startCenterSettings"
+  | "startCenterHelp"
+  | "startCenterTitle"
+  | "startCenterSubtitle"
+  | "startCenterSearch"
+  | "startCenterApplications"
+  | "startCenterWriterDescription"
+  | "startCenterSheetDescription"
+  | "startCenterPresentation"
+  | "startCenterPdf"
+  | "startCenterComingSoon"
+  | "startCenterRecentDescription"
+  | "startCenterRecentWriterTitle"
+  | "startCenterRecentWriterDescription"
+  | "startCenterRecentSheetTitle"
+  | "startCenterRecentSheetDescription"
+  | "startCenterTemplatesDescription"
+  | "startCenterBudgetTemplate"
+  | "backToStartCenter"
   | "moduleSwitcherLabel"
   | "writerModule"
   | "sheetModule"
@@ -158,6 +182,8 @@ export type DesktopLabelKey =
   | "menuHelp"
   | "menuHome"
   | "menuInsert"
+  | "menuTable"
+  | "menuFormulas"
   | "menuView"
   | "menuComingSoon"
   | "documentGroup"
