@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.9.0
-# Aciklama: Umbrella release versionini korur; M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
+# Version: 0.10.0
+# Aciklama: Umbrella release versionini korur; Sheet Functions sidebar dahil M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -18,6 +18,7 @@ SHEET_TABLE_VERSION="0.6.0"
 SHEET_CONDITIONAL_VERSION="0.7.0"
 SHEET_FUNCTION_VERSION="0.8.0"
 SHEET_OOXML_VERSION="0.9.0"
+SHEET_FUNCTION_SIDEBAR_VERSION="0.10.0"
 
 required_files=(
   "README.md"
@@ -90,6 +91,13 @@ required_files=(
   "docs/08-implementation/desktop-suite-entrypoints-v0.5.0.md"
   "apps/desktop/src/views/sheet-menubar.tsx"
   "apps/desktop/src/views/sheet-properties-sidebar.tsx"
+  "apps/desktop/src/config/sheet-functions.ts"
+  "apps/desktop/src/tools/sheet-formula-helper.tool.ts"
+  "apps/desktop/src/tools/sheet-formula-helper.tool.test.ts"
+  "apps/desktop/src/services/sheet-session.service.test.ts"
+  "apps/desktop/src/views/sheet-functions-sidebar.tsx"
+  "docs/08-implementation/sheet-functions-sidebar-v0.10.0.md"
+  "docs/07-quality/sheet-functions-sidebar-test-matrix.md"
   "docs/08-implementation/sheet-hybrid-office-ui-v0.5.0.md"
   "docs/07-quality/sheet-hybrid-office-ui-test-matrix.md"
   "crates/turkuaz-office-sheet/tests/sheet_range_summary_tests.rs"
@@ -369,6 +377,9 @@ grep -q 'SHEET_GRID_ROW_COUNT = 100' "$ROOT/apps/desktop/src/config/sheet.ts"
 grep -q 'SHEET_GRID_COLUMN_COUNT = 26' "$ROOT/apps/desktop/src/config/sheet.ts"
 grep -q 'M3 Web WASM Runtime Loader' "$ROOT/docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md"
 grep -q '## R2 - Sheet Desktop Integration Baseline' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q '## R2.x - Sheet Productivity Extensions v0.5.0-v0.10.0' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q '## Sheet Productivity Extensions' "$ROOT/README.md"
+grep -q '## Unreleased - Sheet Productivity Extensions' "$ROOT/CHANGELOG.md"
 grep -q 'R2 Sheet Desktop baseline' "$ROOT/README.md"
 grep -q 'web_client:' "$ROOT/config/project.yml"
 grep -q 'milestone: m3_foundation' "$ROOT/config/project.yml"
@@ -802,6 +813,42 @@ grep -q 'FormulaRangeNotAllowed' "$ROOT/crates/turkuaz-office-sheet/src/services
 grep -q 'aggregate_functions_use_numeric_cells_formulas_and_ignore_text_boolean_empty_cells' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
 grep -q 'comparisons_return_numeric_boolean_and_if_evaluates_only_selected_branch' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_function_library_tests.rs"
 grep -q 'Sheet Function Library v0.8.0' "$ROOT/docs/08-implementation/sheet-function-library-v0.8.0.md"
+
+
+grep -q 'sheet_functions_sidebar:' "$ROOT/config/project.yml"
+grep -q 'functions_sidebar: true' "$ROOT/config/project.yml"
+grep -q 'formula_draft_insert: true' "$ROOT/config/project.yml"
+grep -q 'auto_commit: false' "$ROOT/config/project.yml"
+grep -q 'SHEET_FUNCTION_CATALOG' "$ROOT/apps/desktop/src/config/sheet-functions.ts"
+grep -q 'SHEET_FUNCTION_IDS' "$ROOT/apps/desktop/src/config/sheet-functions.ts"
+grep -q 'aliases: \["AVG"\]' "$ROOT/apps/desktop/src/config/sheet-functions.ts"
+grep -q 'export class SheetFormulaHelperTool' "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.ts"
+grep -q 'functionFormulaDraft' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
+grep -q 'functionFormulaDraft' "$ROOT/apps/desktop/src/controllers/sheet.controller.ts"
+grep -q 'export function SheetFunctionsSidebar' "$ROOT/apps/desktop/src/views/sheet-functions-sidebar.tsx"
+grep -q 'sheet-formula-bar__functions-button' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
+grep -q 'sheet-functions-sidebar__catalog' "$ROOT/apps/desktop/src/views/app.css"
+grep -q 'sheetFunctionsToggle' "$ROOT/apps/desktop/src/language/labels.ts"
+grep -q 'returns the configured draft for every supported function' "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.test.ts"
+grep -q 'Sheet Functions Sidebar v0.10.0' "$ROOT/docs/08-implementation/sheet-functions-sidebar-v0.10.0.md"
+
+for sheet_functions_sidebar_file in \
+  "$ROOT/apps/desktop/src/config/sheet-functions.ts" \
+  "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.ts" \
+  "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.test.ts" \
+  "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts" \
+  "$ROOT/apps/desktop/src/config/app-container.ts" \
+  "$ROOT/apps/desktop/src/services/sheet-session.service.ts" \
+  "$ROOT/apps/desktop/src/controllers/sheet.controller.ts" \
+  "$ROOT/apps/desktop/src/views/sheet-functions-sidebar.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
+  "$ROOT/apps/desktop/src/language/labels.ts" \
+  "$ROOT/apps/desktop/src/language/tr.ts" \
+  "$ROOT/apps/desktop/src/language/en.ts" \
+  "$ROOT/apps/desktop/src/views/app.css"; do
+  grep -q "Version: $SHEET_FUNCTION_SIDEBAR_VERSION" "$sheet_functions_sidebar_file"
+done
 
 
 

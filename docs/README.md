@@ -249,6 +249,19 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `07-quality/sheet-format-filter-sort-test-matrix.md`
 
 
+## R2.x Sheet Productivity ekleri
+
+- `08-implementation/sheet-hybrid-office-ui-v0.5.0.md`
+- `08-implementation/sheet-range-status-aggregates-v0.5.1.md`
+- `08-implementation/sheet-freeze-panes-v0.5.2.md`
+- `08-implementation/sheet-table-objects-v0.6.0.md`
+- `08-implementation/sheet-conditional-formatting-v0.7.0.md`
+- `08-implementation/sheet-function-library-v0.8.0.md`
+- `08-implementation/sheet-ooxml-metadata-v0.9.0.md`
+- `08-implementation/sheet-functions-sidebar-v0.10.0.md`
+- `07-quality/sheet-functions-sidebar-test-matrix.md`
+
+
 ## M3 Web ekleri
 
 - `06-adr/0003-web-compatible-core.md`

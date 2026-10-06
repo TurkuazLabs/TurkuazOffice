@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.7.0
+// Version: 0.10.0
 // Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
@@ -20,6 +20,22 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetError: "Sheet operation failed",
   sheetCells: "Cells",
   sheetFormulaBarLabel: "Formula bar",
+  sheetFunctions: "Functions",
+  sheetFunctionsToggle: "Functions panel",
+  sheetFunctionsSidebarLabel: "Sheet functions sidebar",
+  sheetFunctionSearch: "Search functions",
+  sheetFunctionInsert: "Insert Formula",
+  sheetFunctionDraftHint: "Insert a function draft into the formula bar, complete its arguments, then press Enter.",
+  sheetFunctionSum: "Sum",
+  sheetFunctionSumDescription: "Adds numbers and cell ranges.",
+  sheetFunctionAverage: "Average",
+  sheetFunctionAverageDescription: "Calculates the arithmetic mean of numbers.",
+  sheetFunctionMin: "Minimum",
+  sheetFunctionMinDescription: "Returns the smallest value among the supplied numbers.",
+  sheetFunctionMax: "Maximum",
+  sheetFunctionMaxDescription: "Returns the largest value among the supplied numbers.",
+  sheetFunctionIf: "Conditional Value",
+  sheetFunctionIfDescription: "Returns one of two results based on a condition.",
   sheetSelectedCell: "Selected cell",
   sheetEvaluatedValue: "Evaluated value",
   sheetAlignGeneral: "General alignment",

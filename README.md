@@ -101,6 +101,18 @@ M2 engine feature kapsami tamamlanmistir. R2 Sheet Desktop baseline'i de mevcut 
 
 Sheet native Open/Save, chart editor/render UI ve gelismis spreadsheet ozellikleri R2 kapsamina dahil degildir. Bunlar roadmap guncellenmeden eklenmez.
 
+## Sheet Productivity Extensions
+
+R2 baseline sonrasindaki roadmap-onayli Sheet gelistirme hatti v0.5.0-v0.10.0 arasinda su yetenekleri ekler:
+
+- hybrid Excel/Calc esinli Sheet UI, range/status ve freeze panes
+- canonical table objects ve conditional formatting
+- SUM / AVERAGE / MIN / MAX / IF function library
+- XLSX OOXML table + conditional-format metadata round-trip
+- aranabilir Functions sidebar ve formula bar draft helper
+
+Bu ozellikler mevcut formula engine semantigini UI katmaninda tekrar etmez; canonical hesaplama Rust Sheet katmaninda kalir.
+
 ## Community Preview v0.3.1
 
 R1 v0.3.1 tarihsel preview release kapsami:
