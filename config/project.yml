@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/config/project.yml
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.12.0
+# Version: 0.3.1
 # Aciklama: Platform, schema, guvenlik, kalite, modern Desktop Start Center ve M3 Web WASM runtime kararlarini merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
