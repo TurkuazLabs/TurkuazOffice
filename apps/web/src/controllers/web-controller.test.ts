@@ -1,25 +1,25 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/controllers/web-controller.test.ts
-// # 📌 Amac: WebController bootstrap ve typed native TKO import/export requestlerini yalniz Service katmanina delege ettigini dogrular
+// # 📌 Amac: WebController bootstrap ve Writer session requestlerini yalniz Service katmanina delege ettigini dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Controller logic eklenmesini engelleyen bootstrap, import ve export delegation regressionlarini sabitler
-// Bagimli Oldugu Katman: Controller -> Service -> Tool
+// Aciklama: Controller logic eklenmesini engelleyen bootstrap, active/open/export/close delegation regressionlarini sabitler
+// Bagimli Oldugu Katman: Controller -> Service -> Repo -> Tool
 
 import { describe, expect, it, vi } from "vitest";
 
 import type {
   WebCanonicalDocumentRecord,
-  WebDownloadFile,
-  WebWriterTkoSummary,
+  WebNativeDocumentImport,
 } from "../models/web-models";
 import type { WebCanonicalDocumentRepository } from "../repositories/indexeddb-document.repository";
+import { InMemoryWebWriterSessionRepository } from "../repositories/web-writer-session.repository";
 import { WebBootstrapService } from "../services/web-bootstrap-service";
-import { WebImportExportService } from "../services/web-import-export.service";
+import type { WebImportExportService } from "../services/web-import-export.service";
+import { WebWriterSessionService } from "../services/web-writer-session.service";
 import { BrowserCoreContractTool } from "../tools/web-core-tool";
-import type { WebWriterTkoTool } from "../tools/writer-tko.tool";
 import { WebController } from "./web-controller";
 
-function repositoryFixture(): WebCanonicalDocumentRepository {
+function canonicalRepositoryFixture(): WebCanonicalDocumentRepository {
   return {
     count: async () => 0,
     get: async () => null,
@@ -29,38 +29,42 @@ function repositoryFixture(): WebCanonicalDocumentRepository {
   };
 }
 
-function fileToolFixture() {
-  const pickFile = vi.fn(async () => null);
-  const downloadFile = vi.fn((_file: WebDownloadFile): void => undefined);
-  return { pickFile, downloadFile };
+function importFixture(): WebNativeDocumentImport {
+  return {
+    fileName: "belge.tko",
+    bytes: new Uint8Array([1, 2]),
+    summary: {
+      id: "writer-1",
+      title: "Belge",
+      schemaVersion: 1,
+      revision: 1,
+      sectionCount: 1,
+      assetCount: 0,
+    },
+  };
 }
 
-function codecFixture(): WebWriterTkoTool {
-  return {
-    inspect: vi.fn(
-      (_bytes: Uint8Array): WebWriterTkoSummary => ({
-        id: "writer-1",
-        title: "Belge",
-        schemaVersion: 1,
-        revision: 1,
-        sectionCount: 1,
-        assetCount: 0,
-      }),
-    ),
-    reencode: vi.fn((bytes: Uint8Array) => bytes.slice()),
-  };
+function sessionServiceFixture() {
+  const importExportService = {
+    importNativeDocument: vi.fn(async () => importFixture()),
+    exportNativeDocument: vi.fn(),
+  } as unknown as WebImportExportService;
+  return new WebWriterSessionService(
+    new InMemoryWebWriterSessionRepository(),
+    importExportService,
+  );
 }
 
 describe("WebController", () => {
   it("delegates bootstrap initialization to WebBootstrapService", async () => {
     const bootstrapService = new WebBootstrapService(
-      repositoryFixture(),
+      canonicalRepositoryFixture(),
       new BrowserCoreContractTool(),
     );
     const initialize = vi.spyOn(bootstrapService, "initialize");
     const controller = new WebController(
       bootstrapService,
-      new WebImportExportService(fileToolFixture(), codecFixture()),
+      sessionServiceFixture(),
     );
 
     await controller.initialize();
@@ -68,36 +72,68 @@ describe("WebController", () => {
     expect(initialize).toHaveBeenCalledOnce();
   });
 
-  it("delegates native import to WebImportExportService", async () => {
-    const importExportService = new WebImportExportService(
-      fileToolFixture(),
-      codecFixture(),
-    );
-    const importDocument = vi.spyOn(importExportService, "importNativeDocument");
+  it("delegates Writer open to WebWriterSessionService", async () => {
+    const sessionService = sessionServiceFixture();
+    const open = vi.spyOn(sessionService, "openNativeDocument");
     const controller = new WebController(
-      new WebBootstrapService(repositoryFixture(), new BrowserCoreContractTool()),
-      importExportService,
+      new WebBootstrapService(
+        canonicalRepositoryFixture(),
+        new BrowserCoreContractTool(),
+      ),
+      sessionService,
     );
 
-    await controller.importNativeDocument();
+    await controller.openWriterDocument();
 
-    expect(importDocument).toHaveBeenCalledOnce();
+    expect(open).toHaveBeenCalledOnce();
   });
 
-  it("delegates native export without transforming bytes in Controller", () => {
-    const importExportService = new WebImportExportService(
-      fileToolFixture(),
-      codecFixture(),
-    );
-    const exportDocument = vi.spyOn(importExportService, "exportNativeDocument");
+  it("delegates active Writer session lookup", () => {
+    const sessionService = sessionServiceFixture();
+    const active = vi.spyOn(sessionService, "activeDocument");
     const controller = new WebController(
-      new WebBootstrapService(repositoryFixture(), new BrowserCoreContractTool()),
-      importExportService,
+      new WebBootstrapService(
+        canonicalRepositoryFixture(),
+        new BrowserCoreContractTool(),
+      ),
+      sessionService,
     );
-    const bytes = new Uint8Array([9, 10]);
 
-    controller.exportNativeDocument("belge", bytes);
+    controller.activeWriterDocument();
 
-    expect(exportDocument).toHaveBeenCalledWith("belge", bytes);
+    expect(active).toHaveBeenCalledOnce();
+  });
+
+  it("delegates Writer export without transforming bytes in Controller", async () => {
+    const sessionService = sessionServiceFixture();
+    await sessionService.openNativeDocument();
+    const exportActive = vi.spyOn(sessionService, "exportActiveDocument");
+    const controller = new WebController(
+      new WebBootstrapService(
+        canonicalRepositoryFixture(),
+        new BrowserCoreContractTool(),
+      ),
+      sessionService,
+    );
+
+    controller.exportWriterDocument();
+
+    expect(exportActive).toHaveBeenCalledOnce();
+  });
+
+  it("delegates Writer close to WebWriterSessionService", () => {
+    const sessionService = sessionServiceFixture();
+    const close = vi.spyOn(sessionService, "closeDocument");
+    const controller = new WebController(
+      new WebBootstrapService(
+        canonicalRepositoryFixture(),
+        new BrowserCoreContractTool(),
+      ),
+      sessionService,
+    );
+
+    controller.closeWriterDocument();
+
+    expect(close).toHaveBeenCalledOnce();
   });
 });
