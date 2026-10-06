@@ -12,8 +12,10 @@
 | File picker | BrowserFileTransferTool unit testi | Secilen dosya byte olarak doner, temporary input silinir |
 | Picker cancel | BrowserFileTransferTool unit testi | null doner ve temporary input silinir |
 | Pre-read limit | BrowserFileTransferTool unit testi | 16 MiB ustu dosyada arrayBuffer cagrilmaz |
+| Post-read limit | WebImportExportService unit testi | Tool siniri bypass edilse bile oversized byte payload reddedilir |
+| Picker click failure | BrowserFileTransferTool unit testi | senkron browser click hatasinda temporary input temizlenir |
 | Download | BrowserFileTransferTool unit testi | Blob object URL ile anchor click yapilir |
-| URL cleanup | BrowserFileTransferTool unit testi | object URL click ile ayni task'ta revoke edilmez; merkezi gecikme sonunda revoke edilir |
+| URL cleanup | BrowserFileTransferTool unit testi | object URL click ile ayni task'ta revoke edilmez; basarili veya hatali click sonrasinda merkezi gecikme sonunda revoke edilir |
 | TKO accept | WebImportExportService unit testi | merkezi .tko accept ve max-byte requesti Tool'a iletilir |
 | Extension validation | WebImportExportService unit testi | .tko disi secim reddedilir |
 | Export filename | WebImportExportService unit testi | eksik .tko uzantisi deterministic eklenir |
