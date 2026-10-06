@@ -419,7 +419,7 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
                         start_column: 0,
                         end_column: 0,
                     },
-                    condition: SheetConditionalFormatCondition::TextContains("Turkuaz".to_owned()),
+                    condition: SheetConditionalFormatCondition::TextContains("Tur*?~kuaz".to_owned()),
                     style: SheetConditionalFormatStyle::Accent,
                     priority: 2,
                 },
@@ -458,7 +458,7 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     .expect("worksheet utf8");
     assert!(worksheet_xml.contains("<conditionalFormatting"));
     assert!(worksheet_xml.contains("<tableParts count=\"1\">"));
-    assert!(worksheet_xml.contains(r#"SEARCH("Turkuaz",A2)"#));
+    assert!(worksheet_xml.contains(r#"SEARCH("Tur~*~?~~kuaz",A2)"#));
     assert!(!worksheet_xml.contains(r#"SEARCH(\"Turkuaz",A2)"#));
 
     let parsed_styles = SheetXlsxXmlTool::parse_differential_styles(
@@ -478,28 +478,6 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert_eq!(parsed_rules[0].differential_style_id, 0);
     assert_eq!(parsed_rules[1].differential_style_id, 2);
     assert_eq!(parsed_table_relationships, vec!["rId1".to_owned()]);
-
-    let parsed_styles = SheetXlsxXmlTool::parse_differential_styles(
-        entries.get("xl/styles.xml").expect("styles part"),
-    )
-    .expect("generated styles metadata parses");
-    assert_eq!(parsed_styles.len(), 3);
-
-    let (parsed_rules, parsed_table_parts) = SheetXlsxXmlTool::parse_worksheet_metadata(
-        entries
-            .get("xl/worksheets/sheet1.xml")
-            .expect("worksheet metadata part"),
-    )
-    .expect("generated worksheet metadata parses");
-    assert_eq!(parsed_rules.len(), 2);
-    assert_eq!(
-        parsed_rules
-            .iter()
-            .map(|rule| rule.differential_style_id)
-            .collect::<Vec<_>>(),
-        vec![0, 2]
-    );
-    assert_eq!(parsed_table_parts.len(), 1);
 
     let ids = SequentialSheetIdTool::new();
     let restored =
@@ -584,9 +562,9 @@ fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
     let relationships = entries
         .remove("xl/worksheets/_rels/sheet1.xml.rels")
         .expect("sheet1 rels");
-    entries.insert("xl/worksheets/sheet2.xml".to_owned(), worksheet);
+    entries.insert("xl/custom/sheet.xml".to_owned(), worksheet);
     entries.insert(
-        "xl/worksheets/_rels/sheet2.xml.rels".to_owned(),
+        "xl/custom/_rels/sheet.xml.rels".to_owned(),
         relationships,
     );
 
@@ -597,7 +575,7 @@ fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
             .clone(),
     )
     .expect("workbook rels utf8")
-    .replace("worksheets/sheet1.xml", "worksheets/sheet2.xml");
+    .replace("worksheets/sheet1.xml", "custom/sheet.xml");
     entries.insert(
         "xl/_rels/workbook.xml.rels".to_owned(),
         workbook_rels.into_bytes(),
