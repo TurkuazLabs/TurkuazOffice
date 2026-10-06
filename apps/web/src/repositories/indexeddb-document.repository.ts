@@ -5,7 +5,10 @@
 // Aciklama: Canonical payloadlari IndexedDB Tool uzerinden saklar; localStorage metadata indexine payload yazmadan deterministic metadata yansitmasi yapar
 // Bagimli Oldugu Katman: Repo -> Tool
 
-import { WEB_INVALID_CANONICAL_DOCUMENT_ERROR } from "../config/runtime-config";
+import {
+  WEB_CORE_SCHEMA_VERSION,
+  WEB_INVALID_CANONICAL_DOCUMENT_ERROR,
+} from "../config/runtime-config";
 import type {
   WebCanonicalDocumentRecord,
   WebDocumentIndexEntry,
@@ -44,7 +47,7 @@ export class IndexedDbDocumentRepository implements WebCanonicalDocumentReposito
       .map(cloneDocument)
       .sort((left, right) => left.id.localeCompare(right.id));
 
-    this.syncMetadataIndex(documents);
+    this.syncMetadataIndexBestEffort(documents);
     return documents;
   }
 
@@ -55,23 +58,45 @@ export class IndexedDbDocumentRepository implements WebCanonicalDocumentReposito
 
     const canonical = cloneDocument(document);
     await this.tool.put(canonical);
-    this.metadataIndex.save(toIndexEntry(canonical));
+    this.saveMetadataBestEffort(toIndexEntry(canonical));
   }
 
   public async remove(id: string): Promise<void> {
     await this.tool.remove(id);
-    this.metadataIndex.remove(id);
+    this.removeMetadataBestEffort(id);
   }
 
-  private syncMetadataIndex(documents: readonly WebCanonicalDocumentRecord[]): void {
-    const ids = new Set(documents.map((document) => document.id));
-    for (const entry of this.metadataIndex.list()) {
-      if (!ids.has(entry.id)) {
-        this.metadataIndex.remove(entry.id);
+  private syncMetadataIndexBestEffort(
+    documents: readonly WebCanonicalDocumentRecord[],
+  ): void {
+    try {
+      const ids = new Set(documents.map((document) => document.id));
+      for (const entry of this.metadataIndex.list()) {
+        if (!ids.has(entry.id)) {
+          this.metadataIndex.remove(entry.id);
+        }
       }
+      for (const document of documents) {
+        this.metadataIndex.save(toIndexEntry(document));
+      }
+    } catch {
+      // Canonical IndexedDB state remains authoritative; a later list repairs metadata.
     }
-    for (const document of documents) {
-      this.metadataIndex.save(toIndexEntry(document));
+  }
+
+  private saveMetadataBestEffort(entry: WebDocumentIndexEntry): void {
+    try {
+      this.metadataIndex.save(entry);
+    } catch {
+      // Canonical commit already succeeded; later list reconciliation repairs metadata.
+    }
+  }
+
+  private removeMetadataBestEffort(id: string): void {
+    try {
+      this.metadataIndex.remove(id);
+    } catch {
+      // Canonical delete already succeeded; later list reconciliation repairs metadata.
     }
   }
 }
@@ -104,9 +129,7 @@ function isWebCanonicalDocumentRecord(value: unknown): value is WebCanonicalDocu
     typeof candidate.id === "string" &&
     typeof candidate.title === "string" &&
     typeof candidate.text === "string" &&
-    typeof candidate.schemaVersion === "number" &&
-    Number.isSafeInteger(candidate.schemaVersion) &&
-    candidate.schemaVersion > 0 &&
+    candidate.schemaVersion === WEB_CORE_SCHEMA_VERSION &&
     typeof candidate.revision === "number" &&
     Number.isSafeInteger(candidate.revision) &&
     candidate.revision >= 0
