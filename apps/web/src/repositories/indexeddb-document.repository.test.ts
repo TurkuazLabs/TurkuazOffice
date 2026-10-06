@@ -7,7 +7,10 @@
 
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { WEB_INVALID_CANONICAL_DOCUMENT_ERROR } from "../config/runtime-config";
+import {
+  WEB_INVALID_CANONICAL_DOCUMENT_ERROR,
+  WEB_STORAGE_NAMESPACE,
+} from "../config/runtime-config";
 import type { WebCanonicalDocumentRecord } from "../models/web-models";
 import type { WebIndexedDbDocumentTool } from "../tools/indexed-db-document.tool";
 import { BrowserDocumentIndexRepository } from "./browser-document-index.repository";
@@ -59,7 +62,7 @@ describe("IndexedDbDocumentRepository", () => {
 
     expect(await repository.get("a")).toEqual(DOCUMENT_A);
     expect(index.list()).toEqual([{ id: "a", title: "Belge A", revision: 2 }]);
-    expect(window.localStorage.getItem("turkuaz-office:web:index:v1")).not.toContain(
+    expect(window.localStorage.getItem(WEB_STORAGE_NAMESPACE)).not.toContain(
       DOCUMENT_A.text,
     );
   });
