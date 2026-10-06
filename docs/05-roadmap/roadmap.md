@@ -202,6 +202,22 @@ Durum: Roadmap onayli ardil Sheet dilimleri aktif gelistirme hattidir.
 
 Bu uzanti R2'nin tamamlanmis baseline'ini degistirmez; yeni Sheet productivity dilimlerinin sirasini ve kapsam sinirini resmi olarak tanimlar. v0.11.0 sonrasi yeni fonksiyon gruplari veya yeni spreadsheet yetenekleri ayri roadmap guncellemesi gerektirir.
 
+## R2.y - Desktop UI Refresh v0.12.0
+
+Durum: Aktif. Onaylanan Turkuaz Office gorsel konseptinin gercek Desktop uygulamasina uygulanma dilimidir.
+
+- Varsayilan suite acilisinda modern Start Center.
+- Writer ve Sheet icin ayri fakat ayni aileye ait uygulama ikonlari.
+- Start Center -> Writer/Sheet ayni pencere modul gecisi.
+- `--module writer` ve `--module sheet` direct-launch kontratinin korunmasi.
+- Writer ust menunun kelime islemci siralamasina alinmasi.
+- Writer Sayfalar + belge canvas + Ozellikler layout'u.
+- Sheet ust menunun spreadsheet siralamasina alinmasi ve yesil urun kimligi.
+- Proje tanitiminda onaylanan Start Center, Writer, Sheet ve genel UI konsept gorsellerinin yayinlanmasi.
+- Frontend/Rust/Windows/Linux Community Preview gate'leri.
+
+Kapsam disi: canonical document modeli, format/schema degisikligi, Sheet native Open/Save, Sunum/PDF urun implementasyonu ve yeni Writer editing semantigi.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
