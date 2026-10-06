@@ -27,3 +27,13 @@ export const WEB_INDEXED_DB_OPERATION_ERROR =
   "IndexedDB belge islemi tamamlanamadi.";
 export const WEB_INVALID_CANONICAL_DOCUMENT_ERROR =
   "Canonical web belge kaydi gecersiz.";
+
+export const WEB_NATIVE_DOCUMENT_EXTENSION = ".tko";
+export const WEB_NATIVE_DOCUMENT_MIME_TYPE = "application/x-turkuaz-office";
+export const WEB_NATIVE_DOCUMENT_ACCEPT =
+  ".tko,application/x-turkuaz-office";
+export const WEB_BROWSER_IMPORT_MAX_BYTES = 16 * 1024 * 1024;
+export const WEB_IMPORT_FILE_TOO_LARGE_ERROR =
+  "Secilen browser import dosyasi boyut limitini asiyor.";
+export const WEB_UNSUPPORTED_IMPORT_FILE_ERROR =
+  "Secilen browser import dosya uzantisi desteklenmiyor.";
