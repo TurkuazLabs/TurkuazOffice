@@ -1,13 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-sheet/tests/sheet_formula_engine_tests.rs
-// # 📌 Amac: M2 Basic Formula Engine parse, evaluation, dependency ve error davranislarini regression testiyle dogrular
+// # 📌 Amac: M2 Formula Engine parse, function library, evaluation, dependency ve error davranislarini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - Rust
-// Version: 0.3.0
-// Aciklama: Same-sheet arithmetic, absolute A1, empty reference, cycle, division ve Controller/View akislarini kabul testi yapar
+// Version: 0.8.0
+// Aciklama: Same-sheet arithmetic, range/function, comparison, lazy IF, absolute A1, cycle ve Controller/View akislarini kabul testi yapar
 // Bagimli Oldugu Katman: Controller -> Service -> Repo -> Tool -> View
 
-use turkuaz_office_sheet::config::constants::{MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH};
+use turkuaz_office_sheet::config::constants::{
+    MAX_FORMULA_OPERATIONS, MAX_FORMULA_PARSE_DEPTH, MAX_FORMULA_RANGE_CELLS,
+};
 use turkuaz_office_sheet::{
-    CellValue, CellValueView, FormulaCell, FormulaTool, FormulaToolError,
+    CellValue, CellValueView, FormulaCell, FormulaComparisonOperator, FormulaExpression,
+    FormulaFunction, FormulaTool, FormulaToolError,
     InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetController, SheetError,
     SheetService,
 };
@@ -54,6 +57,161 @@ fn formula_tool_rejects_excessive_nesting_and_operator_count() {
     assert_eq!(
         FormulaTool::parse(&operation_heavy),
         Err(FormulaToolError::TooComplex)
+    );
+}
+
+
+#[test]
+fn formula_tool_parses_ranges_functions_comparisons_and_both_argument_separators() {
+    let parsed = FormulaTool::parse("=SUM(A1:B3, 5, MAX(C1;C2))").expect("function formula");
+    let FormulaExpression::Function {
+        function: FormulaFunction::Sum,
+        arguments,
+    } = parsed.expression
+    else {
+        panic!("SUM function expected");
+    };
+    assert_eq!(arguments.len(), 3);
+    assert!(matches!(arguments[0], FormulaExpression::Range(_)));
+    assert!(matches!(
+        arguments[2],
+        FormulaExpression::Function {
+            function: FormulaFunction::Max,
+            ..
+        }
+    ));
+
+    let comparison = FormulaTool::parse("=A1>=B1").expect("comparison");
+    assert!(matches!(
+        comparison.expression,
+        FormulaExpression::Comparison {
+            operator: FormulaComparisonOperator::GreaterThanOrEqual,
+            ..
+        }
+    ));
+
+    assert_eq!(
+        FormulaTool::parse("=UNKNOWN(A1)"),
+        Err(FormulaToolError::UnknownFunction)
+    );
+    assert_eq!(
+        FormulaTool::parse("=IF(1,2)"),
+        Err(FormulaToolError::InvalidArgumentCount)
+    );
+}
+
+#[test]
+fn aggregate_functions_support_ranges_scalars_formulas_and_ignore_non_numeric_cells() {
+    let mut service = service();
+    let document = service.create_document("Functions");
+    let worksheet_id = document.worksheets[0].id.clone();
+
+    let document = service
+        .set_cell_by_a1(&document.id, &worksheet_id, "A1", CellValue::Number(10.0))
+        .expect("A1");
+    let document = service
+        .set_cell_by_a1(&document.id, &worksheet_id, "A2", CellValue::Number(20.0))
+        .expect("A2");
+    let document = service
+        .set_cell_by_a1(
+            &document.id,
+            &worksheet_id,
+            "A3",
+            CellValue::Text("ignored".to_owned()),
+        )
+        .expect("A3");
+    let document = service
+        .set_cell_by_a1(&document.id, &worksheet_id, "A4", CellValue::Boolean(true))
+        .expect("A4");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "A5", "=A1+A2")
+        .expect("A5");
+
+    for (reference, expression, expected) in [
+        ("B1", "=SUM(A1:A5,5)", 65.0),
+        ("B2", "=AVERAGE(A1:A5)", 20.0),
+        ("B3", "=MIN(A1:A5)", 10.0),
+        ("B4", "=MAX(A1:A5)", 30.0),
+    ] {
+        let document = service
+            .set_formula_by_a1(&document.id, &worksheet_id, reference, expression)
+            .expect("function formula");
+        let evaluated = service
+            .evaluated_cell_by_a1(&document.id, &worksheet_id, reference)
+            .expect("evaluate function")
+            .expect("formula cell");
+        assert_eq!(evaluated.value, CellValue::Number(expected));
+    }
+}
+
+#[test]
+fn comparisons_return_numeric_booleans_and_if_evaluates_only_selected_branch() {
+    let mut service = service();
+    let document = service.create_document("If");
+    let worksheet_id = document.worksheets[0].id.clone();
+
+    let document = service
+        .set_cell_by_a1(&document.id, &worksheet_id, "A1", CellValue::Number(10.0))
+        .expect("A1");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "B1", "=A1>5")
+        .expect("comparison");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "B2", "=A1<>10")
+        .expect("comparison false");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "B3", "=IF(A1>=10,42,1/0)")
+        .expect("lazy true");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "B4", "=IF(A1<10,1/0,7)")
+        .expect("lazy false");
+
+    for (reference, expected) in [("B1", 1.0), ("B2", 0.0), ("B3", 42.0), ("B4", 7.0)] {
+        let evaluated = service
+            .evaluated_cell_by_a1(&document.id, &worksheet_id, reference)
+            .expect("evaluate")
+            .expect("formula cell");
+        assert_eq!(evaluated.value, CellValue::Number(expected));
+    }
+}
+
+#[test]
+fn aggregate_functions_preserve_cycle_detection_and_enforce_range_expansion_limit() {
+    let mut service = service();
+    let document = service.create_document("Function Safety");
+    let worksheet_id = document.worksheets[0].id.clone();
+
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "A1", "=SUM(A1:A2)")
+        .expect("cycle formula");
+    assert_eq!(
+        service.evaluated_cell_by_a1(&document.id, &worksheet_id, "A1"),
+        Err(SheetError::FormulaCycle)
+    );
+
+    let end_row = MAX_FORMULA_RANGE_CELLS as u32 + 1;
+    let expression = format!("=SUM(B1:B{end_row})");
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "C1", &expression)
+        .expect("large range formula");
+    assert_eq!(
+        service.evaluated_cell_by_a1(&document.id, &worksheet_id, "C1"),
+        Err(SheetError::FormulaRangeTooLarge)
+    );
+}
+
+#[test]
+fn standalone_range_expression_is_rejected_as_non_scalar() {
+    let mut service = service();
+    let document = service.create_document("Range Scalar");
+    let worksheet_id = document.worksheets[0].id.clone();
+    let document = service
+        .set_formula_by_a1(&document.id, &worksheet_id, "A1", "=B1:B2")
+        .expect("range formula");
+
+    assert_eq!(
+        service.evaluated_cell_by_a1(&document.id, &worksheet_id, "A1"),
+        Err(SheetError::FormulaRangeNotAllowed)
     );
 }
 
