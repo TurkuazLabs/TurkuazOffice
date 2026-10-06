@@ -20,10 +20,11 @@ export class WebBootstrapService {
   ) {}
 
   public async initialize(): Promise<WebBootstrapViewModel> {
+    const capabilities = this.coreTool.capabilities();
     try {
       return {
         version: WEB_APP_VERSION,
-        capabilities: this.coreTool.capabilities(),
+        capabilities,
         documentStorageKind: WEB_DOCUMENT_STORAGE_KIND,
         documentStorageAvailable: true,
         storedDocumentCount: await this.repository.count(),
@@ -31,7 +32,7 @@ export class WebBootstrapService {
     } catch {
       return {
         version: WEB_APP_VERSION,
-        capabilities: this.coreTool.capabilities(),
+        capabilities,
         documentStorageKind: WEB_DOCUMENT_STORAGE_KIND,
         documentStorageAvailable: false,
         storedDocumentCount: null,
