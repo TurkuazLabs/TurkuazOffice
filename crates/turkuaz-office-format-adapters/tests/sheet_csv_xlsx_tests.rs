@@ -473,7 +473,7 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
             .get("xl/worksheets/sheet1.xml")
             .expect("worksheet metadata"),
     )
-    .expect("parse worksheet metadata");
+    .unwrap_or_else(|error| panic!("parse worksheet metadata {error:?}: {worksheet_xml}"));
     assert_eq!(parsed_rules.len(), 2);
     assert_eq!(parsed_rules[0].differential_style_id, 0);
     assert_eq!(parsed_rules[1].differential_style_id, 2);
@@ -507,9 +507,31 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     );
     assert_eq!(
         rules[1].condition,
-        SheetConditionalFormatCondition::TextContains("Turkuaz".to_owned())
+        SheetConditionalFormatCondition::TextContains("Tur*?~kuaz".to_owned())
     );
     assert_eq!(rules[1].style, SheetConditionalFormatStyle::Accent);
+}
+
+#[test]
+fn xlsx_metadata_parser_accepts_supported_cell_is_rule() {
+    let xml = br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/><conditionalFormatting sqref="B2:B3"><cfRule type="cellIs" dxfId="0" priority="1" operator="greaterThan"><formula>10</formula></cfRule></conditionalFormatting></worksheet>"#;
+
+    let (rules, table_relationships) =
+        SheetXlsxXmlTool::parse_worksheet_metadata(xml).expect("cell-is metadata");
+
+    assert_eq!(rules.len(), 1);
+    assert!(table_relationships.is_empty());
+}
+
+#[test]
+fn xlsx_metadata_parser_accepts_supported_contains_text_rule() {
+    let xml = br#"<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/><conditionalFormatting sqref="A2:A3"><cfRule type="containsText" dxfId="2" priority="2" operator="containsText" text="Tur*?~kuaz"><formula>NOT(ISERROR(SEARCH(&quot;Tur~*~?~~kuaz&quot;,A2)))</formula></cfRule></conditionalFormatting></worksheet>"#;
+
+    let (rules, table_relationships) =
+        SheetXlsxXmlTool::parse_worksheet_metadata(xml).expect("contains-text metadata");
+
+    assert_eq!(rules.len(), 1);
+    assert!(table_relationships.is_empty());
 }
 
 #[test]
