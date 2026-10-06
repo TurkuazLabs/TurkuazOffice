@@ -8,6 +8,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  WEB_CORE_SCHEMA_VERSION,
   WEB_INVALID_CANONICAL_DOCUMENT_ERROR,
   WEB_STORAGE_NAMESPACE,
 } from "../config/runtime-config";
@@ -44,7 +45,7 @@ const DOCUMENT_A: WebCanonicalDocumentRecord = {
   id: "a",
   title: "Belge A",
   text: "Merhaba",
-  schemaVersion: 1,
+  schemaVersion: WEB_CORE_SCHEMA_VERSION,
   revision: 2,
 };
 
@@ -94,6 +95,28 @@ describe("IndexedDbDocumentRepository", () => {
     expect(index.list()).toEqual([]);
   });
 
+  it("keeps canonical commits successful when metadata index writes fail", async () => {
+    const tool = new MemoryIndexedDbDocumentTool();
+    const metadataIndex = {
+      list: () => {
+        throw new Error("metadata-unavailable");
+      },
+      save: () => {
+        throw new Error("metadata-unavailable");
+      },
+      remove: () => {
+        throw new Error("metadata-unavailable");
+      },
+    };
+    const repository = new IndexedDbDocumentRepository(tool, metadataIndex);
+
+    await expect(repository.save(DOCUMENT_A)).resolves.toBeUndefined();
+    await expect(repository.get(DOCUMENT_A.id)).resolves.toEqual(DOCUMENT_A);
+    await expect(repository.list()).resolves.toEqual([DOCUMENT_A]);
+    await expect(repository.remove(DOCUMENT_A.id)).resolves.toBeUndefined();
+    await expect(repository.get(DOCUMENT_A.id)).resolves.toBeNull();
+  });
+
   it("rejects invalid canonical records before writing browser storage", async () => {
     const tool = new MemoryIndexedDbDocumentTool();
     const repository = new IndexedDbDocumentRepository(
@@ -101,11 +124,13 @@ describe("IndexedDbDocumentRepository", () => {
       new BrowserDocumentIndexRepository(window.localStorage),
     );
 
-    await expect(
-      repository.save({
-        ...DOCUMENT_A,
-        schemaVersion: 0,
-      }),
-    ).rejects.toThrow(WEB_INVALID_CANONICAL_DOCUMENT_ERROR);
+    for (const schemaVersion of [0, WEB_CORE_SCHEMA_VERSION + 1]) {
+      await expect(
+        repository.save({
+          ...DOCUMENT_A,
+          schemaVersion,
+        }),
+      ).rejects.toThrow(WEB_INVALID_CANONICAL_DOCUMENT_ERROR);
+    }
   });
 });
