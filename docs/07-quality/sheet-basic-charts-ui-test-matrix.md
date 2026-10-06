@@ -18,6 +18,7 @@
 | Select | Chart data request | Repo selectedChartId + projected points |
 | Select async | Yeni chart secimi IPC tamamlanmadan once | selectedChartId hemen yeni chart olur, eski preview kalmaz |
 | Async | Eski chart data response | Yeni chart secimini ezmez |
+| Create async | Create beklerken daha yeni chart secimi | Create sonucu daha yeni secimi veya preview'i ezmez |
 | Remove | Secili chart | Document guncellenir, chart data temizlenir |
 | Mutation | Aktif chart varken cell edit | Projected chart data refresh |
 | Menu | Ekle/Gorunum | Charts panel toggle gercek komut |
@@ -25,6 +26,8 @@
 | Renderer | Bar | Sifir baseline + finite rectangles |
 | Renderer | Line | Polyline + finite points |
 | Renderer | Pie | Pozitif toplam icin deterministic slices |
+| Renderer extreme | +/-1e308 Bar/Line | Tum SVG koordinatlari finite kalir |
+| Pie extreme | Birden fazla 1e308 | Scaled toplam ile gorunur finite dilimler |
 | Empty | Chart data yok | Lokalize empty state |
 | Localization | tr-TR/en-US | Tum chart panel metinleri Language katmaninda |
 | Static contract | verify-project.sh | v0.11.0 dosya ve davranis kontrati |
