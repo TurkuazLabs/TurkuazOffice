@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md
 # 📌 Amac: M3 Web WASM runtime loader foundation kararlarini ve fail-safe davranisini dokumante eder
 # 📌 Modul - FileType: Documentation - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: Generated wasm-bindgen modulunun Tool katmaninda yuklenmesi, fallback ve fail-closed kontratini tanimlar
 # Bagimli Oldugu Katman: Tool | Service | Config
 
