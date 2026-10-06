@@ -36,25 +36,40 @@ interface PieSliceGeometry {
 }
 
 function valueBounds(points: readonly SheetChartDataPointView[]): {
+  readonly scale: number;
   readonly min: number;
   readonly max: number;
   readonly span: number;
 } {
   if (points.length === 0) {
-    return { min: SHEET_CHART_EMPTY_VALUE, max: 1, span: 1 };
+    return { scale: 1, min: SHEET_CHART_EMPTY_VALUE, max: 1, span: 1 };
   }
-  const values = points.map((point) => point.value);
+
+  const scale = Math.max(
+    1,
+    ...points.map((point) => Math.abs(point.value)),
+  );
+  const values = points.map((point) => point.value / scale);
   const min = Math.min(SHEET_CHART_EMPTY_VALUE, ...values);
   const max = Math.max(SHEET_CHART_EMPTY_VALUE, ...values);
   const span = max - min;
-  return { min, max, span: span === SHEET_CHART_EMPTY_VALUE ? 1 : span };
+  return {
+    scale,
+    min,
+    max,
+    span: span === SHEET_CHART_EMPTY_VALUE ? 1 : span,
+  };
 }
 
-function valueY(value: number, max: number, span: number): number {
+function valueY(
+  value: number,
+  bounds: ReturnType<typeof valueBounds>,
+): number {
   const plotHeight = SHEET_CHART_VIEW_HEIGHT - SHEET_CHART_PLOT_PADDING * 2;
+  const normalizedValue = value / bounds.scale;
   return (
     SHEET_CHART_PLOT_PADDING +
-    ((max - value) / span) * plotHeight
+    ((bounds.max - normalizedValue) / bounds.span) * plotHeight
   );
 }
 
@@ -67,7 +82,7 @@ function linePoints(points: readonly SheetChartDataPointView[]): string {
       const x =
         SHEET_CHART_PLOT_PADDING +
         (index / divisor) * plotWidth;
-      const y = valueY(point.value, bounds.max, bounds.span);
+      const y = valueY(point.value, bounds);
       return `${x},${y}`;
     })
     .join(" ");
@@ -82,14 +97,17 @@ function polarPoint(angle: number): { readonly x: number; readonly y: number } {
 
 function pieSlices(points: readonly SheetChartDataPointView[]): readonly PieSliceGeometry[] {
   const positive = points.map((point) => Math.max(SHEET_CHART_EMPTY_VALUE, point.value));
-  const total = positive.reduce((sum, value) => sum + value, SHEET_CHART_EMPTY_VALUE);
-  if (total <= SHEET_CHART_EMPTY_VALUE) {
+  const scale = Math.max(SHEET_CHART_EMPTY_VALUE, ...positive);
+  if (scale <= SHEET_CHART_EMPTY_VALUE) {
     return [];
   }
+  const normalized = positive.map((value) => value / scale);
+  const total = normalized.reduce((sum, value) => sum + value, SHEET_CHART_EMPTY_VALUE);
+  const positiveCount = normalized.filter((value) => value > SHEET_CHART_EMPTY_VALUE).length;
 
   let angle = -Math.PI / 2;
   return points.flatMap((point, index) => {
-    const value = positive[index] ?? SHEET_CHART_EMPTY_VALUE;
+    const value = normalized[index] ?? SHEET_CHART_EMPTY_VALUE;
     if (value <= SHEET_CHART_EMPTY_VALUE) {
       return [];
     }
@@ -97,7 +115,7 @@ function pieSlices(points: readonly SheetChartDataPointView[]): readonly PieSlic
     const start = polarPoint(angle);
     const endAngle = angle + sweep;
 
-    if (value === total) {
+    if (positiveCount === 1) {
       const middle = polarPoint(angle + Math.PI);
       const path = [
         `M ${SHEET_CHART_PIE_CENTER_X} ${SHEET_CHART_PIE_CENTER_Y}`,
@@ -136,7 +154,7 @@ function BarChart(props: SheetChartRendererProps) {
   const plotWidth = SHEET_CHART_VIEW_WIDTH - SHEET_CHART_PLOT_PADDING * 2;
   const slotWidth = () => plotWidth / Math.max(1, props.points.length);
   const barWidth = () => Math.max(1, slotWidth() - SHEET_CHART_BAR_GAP);
-  const baseline = () => valueY(SHEET_CHART_EMPTY_VALUE, bounds().max, bounds().span);
+  const baseline = () => valueY(SHEET_CHART_EMPTY_VALUE, bounds());
 
   return (
     <svg
@@ -154,7 +172,7 @@ function BarChart(props: SheetChartRendererProps) {
       />
       <For each={props.points}>
         {(point, index) => {
-          const y = () => valueY(point.value, bounds().max, bounds().span);
+          const y = () => valueY(point.value, bounds());
           const top = () => Math.min(y(), baseline());
           const height = () => Math.max(1, Math.abs(y() - baseline()));
           const x = () =>
@@ -199,7 +217,7 @@ function LineChart(props: SheetChartRendererProps) {
               SHEET_CHART_PLOT_PADDING +
               (index() / divisor()) * plotWidth
             }
-            cy={valueY(point.value, bounds().max, bounds().span)}
+            cy={valueY(point.value, bounds())}
             r={SHEET_CHART_POINT_RADIUS}
           >
             <title>{point.category}: {point.value}</title>
