@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.4
-# Aciklama: Umbrella release versionini korur; M3 Web storage, file-transfer, Writer TKO WASM bridge ve typed TypeScript Tool kontratlarini uygular
+# Version: 0.11.5
+# Aciklama: Umbrella release versionini korur; M3 Web storage, Writer TKO WASM bridge, typed Tool ve import/export Service composition kontratlarini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -338,6 +338,8 @@ required_files=(
   "docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md"
   "docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md"
   "docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"
+  "docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md"
+  "docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -431,12 +433,14 @@ grep -q 'indexed_db_version: 1' "$ROOT/config/project.yml"
 grep -q 'indexed_db_store: documents' "$ROOT/config/project.yml"
 grep -q 'canonical_document_payload_in_local_storage: false' "$ROOT/config/project.yml"
 grep -q 'canonical_document_storage_fallback: none' "$ROOT/config/project.yml"
-grep -q 'import_export: file_transfer_foundation' "$ROOT/config/project.yml"
+grep -q 'import_export: tko_service_composed' "$ROOT/config/project.yml"
 grep -q 'browser_file_picker: html_input_file' "$ROOT/config/project.yml"
 grep -q 'browser_download: blob_object_url' "$ROOT/config/project.yml"
 grep -q 'browser_import_max_bytes: 16777216' "$ROOT/config/project.yml"
-grep -q 'native_tko_codec: wasm_bridge_exported' "$ROOT/config/project.yml"
+grep -q 'native_tko_codec: wasm_tool_composed' "$ROOT/config/project.yml"
 grep -q 'writer_tko_ts_tool: runtime_loaded_when_wasm_available' "$ROOT/config/project.yml"
+grep -q 'tko_import_validation: rust_wasm_inspect' "$ROOT/config/project.yml"
+grep -q 'tko_export_canonicalization: rust_wasm_reencode' "$ROOT/config/project.yml"
 grep -q 'import_export_view_actions: false' "$ROOT/config/project.yml"
 grep -q 'wasm_core: runtime_loaded' "$ROOT/config/project.yml"
 grep -q 'wasm_target: wasm32-unknown-unknown' "$ROOT/config/project.yml"
@@ -475,13 +479,18 @@ grep -q 'retries after a synchronous IDBFactory open failure' "$ROOT/apps/web/sr
 grep -q 'evicts a resolved database after an unexpected close event' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
 grep -q 'class BrowserFileTransferTool' "$ROOT/apps/web/src/tools/browser-file-transfer.tool.ts"
 grep -q 'class WebImportExportService' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'importNativeDocument' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'exportNativeDocument' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'codec.inspect(picked.bytes)' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'codec.reencode(bytes, WEB_APP_VERSION)' "$ROOT/apps/web/src/services/web-import-export.service.ts"
 grep -q 'WEB_BROWSER_IMPORT_MAX_BYTES = 16 \* 1024 \* 1024' "$ROOT/apps/web/src/config/runtime-config.ts"
 grep -q 'WEB_DOWNLOAD_URL_REVOKE_DELAY_MS = 1_000' "$ROOT/apps/web/src/config/runtime-config.ts"
 grep -q 'MAX_TKO_PACKAGE_BYTES: u64 = 16 \* 1024 \* 1024' "$ROOT/crates/turkuaz-office-writer/src/config/constants.rs"
-grep -q 'nativeTkoCodecAvailable: false' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'nativeTkoCodecAvailable: this.writerTkoTool !== null' "$ROOT/apps/web/src/services/web-import-export.service.ts"
 grep -q 'BrowserFileTransferTool(document, URL)' "$ROOT/apps/web/src/main.tsx"
+grep -q 'loadedCore.writerTkoTool' "$ROOT/apps/web/src/main.tsx"
 grep -q 'M3 Web Browser File Transfer v0.4.0' "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
-grep -q 'delegates native file selection to WebImportExportService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
+grep -q 'delegates native import to WebImportExportService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
 grep -q 'delays Blob URL revocation until after the browser can consume the download' "$ROOT/apps/web/src/tools/browser-file-transfer.tool.test.ts"
 grep -q 'web-wasm-exports = \["dep:wasm-bindgen"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'wasm-bindgen = { version = "=0.2.129", optional = true }' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
@@ -499,6 +508,7 @@ grep -q 'class WasmWriterTkoTool' "$ROOT/apps/web/src/tools/writer-tko.tool.ts"
 grep -q 'writerTkoTool: WebWriterTkoTool | null' "$ROOT/apps/web/src/tools/wasm-core-runtime-loader.ts"
 grep -q 'web_writer_tko_inspect' "$ROOT/apps/web/src/tools/wasm-core-runtime-loader.ts"
 grep -q 'M3 Web Writer TKO TypeScript Tool v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md"
+grep -q 'M3 Web TKO Import Export Composition v0.4.0' "$ROOT/docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md"
 grep -q 'M3 Web Writer TKO WASM Bridge v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
 grep -q 'name: Web WASM artifact' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'actions/upload-artifact@v4' "$ROOT/.github/workflows/workspace-ci.yml"
@@ -539,7 +549,9 @@ for m3_web_file in \
   "$ROOT/apps/web/src/tools/writer-tko.tool.ts" \
   "$ROOT/apps/web/src/tools/writer-tko.tool.test.ts" \
   "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md" \
-  "$ROOT/docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"; do
+  "$ROOT/docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md" \
+  "$ROOT/docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"; do
   grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
 done
 

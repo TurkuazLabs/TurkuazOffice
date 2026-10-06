@@ -2,7 +2,7 @@
 // # 📌 Amac: M3 Web istemcisinin typed read-model ve browser document index tiplerini tanimlar
 // # 📌 Modul - FileType: Model - TypeScript
 // Version: 0.4.0
-// Aciklama: View ile Service arasindaki platformdan bagimsiz web read-model, TKO summary ve metadata kontratini tasir
+// Aciklama: View ile Service arasindaki platformdan bagimsiz web read-model, TKO import summary ve metadata kontratini tasir
 // Bagimli Oldugu Katman: Service
 
 export interface WebDocumentIndexEntry {
@@ -47,9 +47,15 @@ export interface WebWriterTkoSummary {
   readonly assetCount: number;
 }
 
+export interface WebNativeDocumentImport {
+  readonly fileName: string;
+  readonly bytes: Uint8Array;
+  readonly summary: WebWriterTkoSummary;
+}
+
 export interface WebImportExportCapabilities {
   readonly browserFileTransferAvailable: true;
-  readonly nativeTkoCodecAvailable: false;
+  readonly nativeTkoCodecAvailable: boolean;
 }
 
 export interface WebCoreCapabilities {

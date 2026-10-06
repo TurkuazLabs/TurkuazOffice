@@ -227,10 +227,11 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - Core + Writer dependency yonunu koruyan aggregate Web WASM bridge crate'i.
 - Mevcut Writer TkoPackageService'i kullanan TKO inspect/re-encode WASM exportlari.
 - Generated Writer TKO WASM exportlarini fail-closed typed TypeScript Tool ile acan runtime adapter.
+- Browser file-transfer ile typed TKO Tool'u compose eden inspect import + canonical re-encode export Service hatti.
 
 ### M3 kalan kapsam
 
-- Browser file-transfer Service + TKO Tool composition ve gercek import/export urun akisi.
+- Writer Web session/repository entegrasyonu ve kullaniciya acilan TKO import/export View akisi.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
 
