@@ -514,7 +514,19 @@ for m3_web_file in \
   "$ROOT/apps/web/src/views/App.tsx" \
   "$ROOT/apps/web/src/language/tr-TR.ts" \
   "$ROOT/docs/08-implementation/m3-web-indexeddb-persistence-v0.4.0.md" \
-  "$ROOT/docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md"; do
+  "$ROOT/docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md" \
+  "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-browser-file-transfer-test-matrix.md" \
+  "$ROOT/crates/turkuaz-office-web-bridge/Cargo.toml" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/lib.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/config/constants.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/controllers/writer_tko_bridge_controller.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/services/writer_tko_bridge_service.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/views/writer_tko_bridge_view.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs" \
+  "$ROOT/crates/turkuaz-office-web-bridge/tests/writer_tko_bridge_tests.rs" \
+  "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md"; do
   grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
 done
 
