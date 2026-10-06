@@ -17,12 +17,12 @@ use turkuaz_office_sheet::{
 };
 
 use crate::config::sheet_constants::{
-    MAX_XLSX_CONDITIONAL_FORMATS, MAX_XLSX_TABLES, MAX_XLSX_WORKSHEETS, XLSX_CONDITIONAL_ACCENT_RGB,
-    XLSX_CONDITIONAL_SUCCESS_RGB, XLSX_CONDITIONAL_WARNING_RGB, XLSX_CONTENT_TYPES_ENTRY,
-    XLSX_ROOT_RELATIONSHIPS_ENTRY, XLSX_SHARED_STRINGS_ENTRY, XLSX_STYLES_ENTRY,
-    XLSX_TABLE_PREFIX, XLSX_TABLE_SUFFIX, XLSX_WORKBOOK_ENTRY, XLSX_WORKBOOK_RELATIONSHIPS_ENTRY,
-    XLSX_WORKSHEET_PREFIX, XLSX_WORKSHEET_RELS_PREFIX, XLSX_WORKSHEET_SUFFIX,
-    XLSX_RELATIONSHIP_SUFFIX,
+    MAX_XLSX_CONDITIONAL_FORMATS, MAX_XLSX_TABLES, MAX_XLSX_WORKSHEETS,
+    XLSX_CONDITIONAL_ACCENT_RGB, XLSX_CONDITIONAL_SUCCESS_RGB, XLSX_CONDITIONAL_WARNING_RGB,
+    XLSX_CONTENT_TYPES_ENTRY, XLSX_RELATIONSHIP_SUFFIX, XLSX_ROOT_RELATIONSHIPS_ENTRY,
+    XLSX_SHARED_STRINGS_ENTRY, XLSX_STYLES_ENTRY, XLSX_TABLE_PREFIX, XLSX_TABLE_SUFFIX,
+    XLSX_WORKBOOK_ENTRY, XLSX_WORKBOOK_RELATIONSHIPS_ENTRY, XLSX_WORKSHEET_PREFIX,
+    XLSX_WORKSHEET_RELS_PREFIX, XLSX_WORKSHEET_SUFFIX,
 };
 use crate::models::sheet_xlsx_model::{
     XlsxCellModel, XlsxCellValue, XlsxConditionalFormatCondition, XlsxConditionalFormatModel,
@@ -216,10 +216,8 @@ impl SheetXlsxService {
                 }
 
                 let mut model = Self::to_xlsx_worksheet(worksheet)?;
-                model.conditional_formats = Self::to_xlsx_conditional_formats(
-                    document,
-                    &worksheet.id,
-                )?;
+                model.conditional_formats =
+                    Self::to_xlsx_conditional_formats(document, &worksheet.id)?;
 
                 let mut table_indices = Vec::new();
                 let mut worksheet_tables = document
@@ -233,7 +231,8 @@ impl SheetXlsxService {
                     let model_table = Self::to_xlsx_table(worksheet, table)?;
                     table_parts.push((table_index, model_table));
                     table_indices.push(table_index);
-                    model.table_relationship_ids
+                    model
+                        .table_relationship_ids
                         .push(format!("rId{}", table_indices.len()));
                     table_index = table_index.saturating_add(1);
                 }
@@ -244,9 +243,7 @@ impl SheetXlsxService {
             .collect::<Result<Vec<_>, SheetXlsxError>>()?;
         let workbook = XlsxWorkbookModel { worksheets };
 
-        let mut entries = Vec::with_capacity(
-            workbook.worksheets.len() + table_parts.len() * 2 + 6,
-        );
+        let mut entries = Vec::with_capacity(workbook.worksheets.len() + table_parts.len() * 2 + 6);
         entries.push((
             XLSX_CONTENT_TYPES_ENTRY.to_owned(),
             SheetXlsxXmlTool::content_types_xml_with_metadata(
@@ -290,9 +287,7 @@ impl SheetXlsxService {
             let table_indices = &worksheet_table_indices[index];
             if !table_indices.is_empty() {
                 entries.push((
-                    format!(
-                        "{XLSX_WORKSHEET_RELS_PREFIX}{sheet_number}{XLSX_RELATIONSHIP_SUFFIX}"
-                    ),
+                    format!("{XLSX_WORKSHEET_RELS_PREFIX}{sheet_number}{XLSX_RELATIONSHIP_SUFFIX}"),
                     SheetXlsxXmlTool::worksheet_relationships_xml(table_indices).into_bytes(),
                 ));
             }
@@ -492,7 +487,10 @@ impl SheetXlsxService {
         } else {
             candidate
         };
-        if existing.iter().all(|name| !name.eq_ignore_ascii_case(&base)) {
+        if existing
+            .iter()
+            .all(|name| !name.eq_ignore_ascii_case(&base))
+        {
             return base;
         }
         let mut suffix = 2_usize;
@@ -558,10 +556,10 @@ impl SheetXlsxService {
         if parts.next().is_some() {
             return Err(SheetXlsxError::InvalidCellReference);
         }
-        let start = CellReferenceTool::parse(first)
-            .map_err(|_| SheetXlsxError::InvalidCellReference)?;
-        let end = CellReferenceTool::parse(second)
-            .map_err(|_| SheetXlsxError::InvalidCellReference)?;
+        let start =
+            CellReferenceTool::parse(first).map_err(|_| SheetXlsxError::InvalidCellReference)?;
+        let end =
+            CellReferenceTool::parse(second).map_err(|_| SheetXlsxError::InvalidCellReference)?;
         Ok(SheetRange {
             start_row: start.row.min(end.row),
             end_row: start.row.max(end.row),
