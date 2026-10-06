@@ -49,7 +49,7 @@ TKO v1 encode/decode semantigi mevcut Rust Writer TkoPackageService icinde kalir
 
 - Browser accept attribute guvenlik siniri degildir; uzanti Service tarafinda tekrar dogrulanir.
 - Boyut guardi file bytes okunmadan once uygulanir.
-- Object URL her download denemesinden sonra finally icinde revoke edilir.
+- Temporary anchor click sonrasinda object URL senkron revoke edilmez; WebKit deferred-download uyumu icin merkezi gecikme sonrasinda revoke edilir.
 - Temporary input ve anchor DOM'da kalici tutulmaz.
 - Native filesystem API veya path erisimi kullanilmaz.
 
