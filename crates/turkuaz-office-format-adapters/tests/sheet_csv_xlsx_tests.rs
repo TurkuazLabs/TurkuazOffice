@@ -382,18 +382,12 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
                     CellAddress { row: 1, column: 0 },
                     CellValue::Text("Turkuaz".to_owned()),
                 ),
-                (
-                    CellAddress { row: 1, column: 1 },
-                    CellValue::Number(20.0),
-                ),
+                (CellAddress { row: 1, column: 1 }, CellValue::Number(20.0)),
                 (
                     CellAddress { row: 2, column: 0 },
                     CellValue::Text("Office".to_owned()),
                 ),
-                (
-                    CellAddress { row: 2, column: 1 },
-                    CellValue::Number(5.0),
-                ),
+                (CellAddress { row: 2, column: 1 }, CellValue::Number(5.0)),
             ]),
         }],
         cell_formats: BTreeMap::new(),
@@ -485,10 +479,7 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     );
 
     assert_eq!(restored.conditional_formats.len(), 2);
-    let mut rules = restored
-        .conditional_formats
-        .values()
-        .collect::<Vec<_>>();
+    let mut rules = restored.conditional_formats.values().collect::<Vec<_>>();
     rules.sort_by_key(|rule| rule.priority);
 
     assert_eq!(rules[0].style, SheetConditionalFormatStyle::Warning);
@@ -503,8 +494,6 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert_eq!(rules[1].style, SheetConditionalFormatStyle::Accent);
 }
 
-
-
 #[test]
 fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
     let worksheet_id = WorksheetId::new("worksheet-reordered-target");
@@ -518,8 +507,14 @@ fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
             id: worksheet_id.clone(),
             name: "Data".to_owned(),
             cells: BTreeMap::from([
-                (CellAddress { row: 0, column: 0 }, CellValue::Text("Name".to_owned())),
-                (CellAddress { row: 1, column: 0 }, CellValue::Text("Turkuaz".to_owned())),
+                (
+                    CellAddress { row: 0, column: 0 },
+                    CellValue::Text("Name".to_owned()),
+                ),
+                (
+                    CellAddress { row: 1, column: 0 },
+                    CellValue::Text("Turkuaz".to_owned()),
+                ),
             ]),
         }],
         cell_formats: BTreeMap::new(),
@@ -568,10 +563,8 @@ fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
         workbook_rels.into_bytes(),
     );
 
-    let repacked = SheetXlsxArchiveTool::encode(
-        &entries.into_iter().collect::<Vec<_>>(),
-    )
-    .expect("repack reordered fixture");
+    let repacked = SheetXlsxArchiveTool::encode(&entries.into_iter().collect::<Vec<_>>())
+        .expect("repack reordered fixture");
     let ids = SequentialSheetIdTool::new();
     let restored =
         SheetXlsxService::import(&ids, "Reordered Target", &repacked).expect("import reordered");
