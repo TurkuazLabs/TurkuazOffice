@@ -732,7 +732,11 @@ impl SheetXlsxXmlTool {
                         .split(':')
                         .next()
                         .unwrap_or(rule.range_reference.as_str());
-                    let excel_text = text.replace('"', "\"\"");
+                    let excel_text = text
+                        .replace('~', "~~")
+                        .replace('*', "~*")
+                        .replace('?', "~?")
+                        .replace('"', "\"\"");
                     xml.push_str(&format!(
                         r#"type="containsText" dxfId="{}" priority="{}" operator="containsText" text=""#,
                         rule.differential_style_id, rule.priority
