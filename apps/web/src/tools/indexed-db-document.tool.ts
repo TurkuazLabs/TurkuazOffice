@@ -53,6 +53,7 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
 
     this.databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
       let request: IDBOpenDBRequest;
+      let failed = false;
       try {
         request = this.factory.open(WEB_DOCUMENT_DB_NAME, WEB_DOCUMENT_DB_VERSION);
       } catch (error: unknown) {
@@ -62,6 +63,7 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
       }
 
       const fail = (error: DOMException | Error | null): void => {
+        failed = true;
         this.databasePromise = null;
         reject(error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
       };
@@ -76,6 +78,10 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
       };
       request.onsuccess = () => {
         const database = request.result;
+        if (failed) {
+          database.close();
+          return;
+        }
         database.onversionchange = () => {
           database.close();
           this.databasePromise = null;
