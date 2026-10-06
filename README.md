@@ -187,4 +187,4 @@ npm run build
 npm test
 ```
 
-Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Core document payload IndexedDB `documents` store'unda saklanir ve localStorage'a payload fallback yapilmaz. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; pinned wasm-bindgen generated artifact ve browser runtime loader Tool siniri arkasinda aktiftir.
+Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Core document payload IndexedDB `documents` store'unda saklanir ve localStorage'a payload fallback yapilmaz. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; pinned wasm-bindgen generated artifact ve browser runtime loader Tool siniri arkasinda aktiftir. Browser file picker ve Blob download byte transport foundation'i aktiftir; TKO encode/decode henuz Rust domain bridge bekledigi icin View import/export aksiyonu acilmaz.
