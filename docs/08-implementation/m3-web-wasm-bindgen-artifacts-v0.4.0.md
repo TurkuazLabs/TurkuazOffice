@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-bindgen-artifacts-v0.4.0.md
 # 📌 Amac: M3 Web icin wasm-bindgen generated JS/WASM artifact pipeline kapsam ve sinirlarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: Rust wasm32 cdylib exportlari, pinned wasm-bindgen CLI, generated browser artifact ve CI upload kontratini dokumante eder
 # Bagimli Oldugu Katman: Tool | Service | Config | CI
 
