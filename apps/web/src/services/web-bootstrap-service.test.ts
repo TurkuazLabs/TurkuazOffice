@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 
+import { WEB_INDEXED_DB_OPERATION_ERROR } from "../config/runtime-config";
 import type { WebCanonicalDocumentRecord } from "../models/web-models";
 import type { WebCanonicalDocumentRepository } from "../repositories/indexeddb-document.repository";
 import { BrowserCoreContractTool } from "../tools/web-core-tool";
@@ -41,7 +42,7 @@ describe("WebBootstrapService", () => {
   it("keeps canonical storage unavailable instead of falling back to localStorage payloads", async () => {
     const service = new WebBootstrapService(
       repositoryWithCount(async () => {
-        throw new Error("indexed-db-unavailable");
+        throw new Error(WEB_INDEXED_DB_OPERATION_ERROR);
       }),
       new BrowserCoreContractTool(),
     );
