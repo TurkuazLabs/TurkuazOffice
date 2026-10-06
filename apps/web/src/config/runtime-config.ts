@@ -33,6 +33,7 @@ export const WEB_NATIVE_DOCUMENT_MIME_TYPE = "application/x-turkuaz-office";
 export const WEB_NATIVE_DOCUMENT_ACCEPT =
   ".tko,application/x-turkuaz-office";
 export const WEB_BROWSER_IMPORT_MAX_BYTES = 16 * 1024 * 1024;
+export const WEB_DOWNLOAD_URL_REVOKE_DELAY_MS = 1_000;
 export const WEB_IMPORT_FILE_TOO_LARGE_ERROR =
   "Secilen browser import dosyasi boyut limitini asiyor.";
 export const WEB_UNSUPPORTED_IMPORT_FILE_ERROR =
