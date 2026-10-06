@@ -7,11 +7,13 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-import type { WebCanonicalDocumentRecord } from "../models/web-models";
+import type {
+  WebCanonicalDocumentRecord,
+  WebDownloadFile,
+} from "../models/web-models";
 import type { WebCanonicalDocumentRepository } from "../repositories/indexeddb-document.repository";
 import { WebBootstrapService } from "../services/web-bootstrap-service";
 import { WebImportExportService } from "../services/web-import-export.service";
-import type { WebBrowserFileTransferTool } from "../tools/browser-file-transfer.tool";
 import { BrowserCoreContractTool } from "../tools/web-core-tool";
 import { WebController } from "./web-controller";
 
@@ -25,14 +27,10 @@ function repositoryFixture(): WebCanonicalDocumentRepository {
   };
 }
 
-function fileToolFixture(): WebBrowserFileTransferTool & {
-  pickFile: ReturnType<typeof vi.fn>;
-  downloadFile: ReturnType<typeof vi.fn>;
-} {
-  return {
-    pickFile: vi.fn(async () => null),
-    downloadFile: vi.fn(),
-  };
+function fileToolFixture() {
+  const pickFile = vi.fn(async () => null);
+  const downloadFile = vi.fn((_file: WebDownloadFile): void => undefined);
+  return { pickFile, downloadFile };
 }
 
 describe("WebController", () => {
