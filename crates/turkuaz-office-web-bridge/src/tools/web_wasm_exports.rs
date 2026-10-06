@@ -7,8 +7,8 @@
 
 use wasm_bindgen::prelude::{JsValue, wasm_bindgen};
 
-use crate::config::constants::WEB_TKO_ERROR_JSON_SERIALIZATION;
 use crate::WebWriterTkoBridgeController;
+use crate::config::constants::WEB_TKO_ERROR_JSON_SERIALIZATION;
 
 #[wasm_bindgen(js_name = web_core_abi_version)]
 #[must_use]
@@ -38,15 +38,11 @@ pub fn wasm_web_core_native_file_system_access() -> bool {
 pub fn wasm_web_writer_tko_inspect(bytes: &[u8]) -> Result<String, JsValue> {
     let view = WebWriterTkoBridgeController::inspect(bytes)
         .map_err(|error| JsValue::from_str(error.code()))?;
-    serde_json::to_string(&view)
-        .map_err(|_| JsValue::from_str(WEB_TKO_ERROR_JSON_SERIALIZATION))
+    serde_json::to_string(&view).map_err(|_| JsValue::from_str(WEB_TKO_ERROR_JSON_SERIALIZATION))
 }
 
 #[wasm_bindgen(js_name = web_writer_tko_reencode)]
-pub fn wasm_web_writer_tko_reencode(
-    bytes: &[u8],
-    app_version: &str,
-) -> Result<Vec<u8>, JsValue> {
+pub fn wasm_web_writer_tko_reencode(bytes: &[u8], app_version: &str) -> Result<Vec<u8>, JsValue> {
     WebWriterTkoBridgeController::reencode(bytes, app_version)
         .map_err(|error| JsValue::from_str(error.code()))
 }

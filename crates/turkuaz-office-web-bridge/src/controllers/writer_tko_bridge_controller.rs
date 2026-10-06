@@ -17,10 +17,7 @@ impl WebWriterTkoBridgeController {
         WebWriterTkoBridgeService::inspect(bytes)
     }
 
-    pub fn reencode(
-        bytes: &[u8],
-        app_version: &str,
-    ) -> Result<Vec<u8>, WebWriterTkoBridgeError> {
+    pub fn reencode(bytes: &[u8], app_version: &str) -> Result<Vec<u8>, WebWriterTkoBridgeError> {
         WebWriterTkoBridgeService::reencode(bytes, app_version)
     }
 }

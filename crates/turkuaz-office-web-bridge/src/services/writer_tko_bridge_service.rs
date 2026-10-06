@@ -6,13 +6,11 @@
 // Bagimli Oldugu Katman: Service -> Writer Service -> View -> Config
 
 use turkuaz_office_writer::tools::tko_archive_tool::TkoArchiveError;
-use turkuaz_office_writer::{
-    TkoPackageError, TkoPackageService, TkoProfileError,
-};
+use turkuaz_office_writer::{TkoPackageError, TkoPackageService, TkoProfileError};
 
 use crate::config::constants::{
-    WEB_TKO_ERROR_FUTURE_SCHEMA, WEB_TKO_ERROR_INVALID_PACKAGE,
-    WEB_TKO_ERROR_MIGRATION_REQUIRED, WEB_TKO_ERROR_PACKAGE_TOO_LARGE,
+    WEB_TKO_ERROR_FUTURE_SCHEMA, WEB_TKO_ERROR_INVALID_PACKAGE, WEB_TKO_ERROR_MIGRATION_REQUIRED,
+    WEB_TKO_ERROR_PACKAGE_TOO_LARGE,
 };
 use crate::views::writer_tko_bridge_view::WebWriterTkoSummaryView;
 
@@ -44,10 +42,7 @@ impl WebWriterTkoBridgeService {
         Ok(WebWriterTkoSummaryView::from(&document))
     }
 
-    pub fn reencode(
-        bytes: &[u8],
-        app_version: &str,
-    ) -> Result<Vec<u8>, WebWriterTkoBridgeError> {
+    pub fn reencode(bytes: &[u8], app_version: &str) -> Result<Vec<u8>, WebWriterTkoBridgeError> {
         let document = TkoPackageService::deserialize(bytes).map_err(map_tko_error)?;
         TkoPackageService::serialize(&document, app_version).map_err(map_tko_error)
     }

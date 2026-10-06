@@ -42,8 +42,7 @@ fn reencode_preserves_the_canonical_writer_document() {
     let document = editor.create_document("Reencode");
     let bytes = TkoPackageService::serialize(&document, "0.2.0").expect("serialize fixture");
 
-    let reencoded =
-        WebWriterTkoBridgeController::reencode(&bytes, "0.4.0").expect("re-encode TKO");
+    let reencoded = WebWriterTkoBridgeController::reencode(&bytes, "0.4.0").expect("re-encode TKO");
     let restored = TkoPackageService::deserialize(&reencoded).expect("deserialize reencoded TKO");
 
     assert_eq!(restored, document);

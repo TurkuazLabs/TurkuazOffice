@@ -12,7 +12,5 @@ pub mod tools;
 pub mod views;
 
 pub use controllers::writer_tko_bridge_controller::WebWriterTkoBridgeController;
-pub use services::writer_tko_bridge_service::{
-    WebWriterTkoBridgeError, WebWriterTkoBridgeService,
-};
+pub use services::writer_tko_bridge_service::{WebWriterTkoBridgeError, WebWriterTkoBridgeService};
 pub use views::writer_tko_bridge_view::WebWriterTkoSummaryView;
