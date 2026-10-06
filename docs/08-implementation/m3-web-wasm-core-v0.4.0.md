@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-core-v0.4.0.md
 # 📌 Amac: M3 Web icin compile-verified Rust WASM Core diliminin kapsam ve sinirlarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: wasm32 hedefi, Core ABI capability API'si, Web Tool adapter kontrati ve sonraki binding adimini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
