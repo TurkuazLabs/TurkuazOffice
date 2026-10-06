@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.2
-# Aciklama: Umbrella release versionini korur; M3 Web IndexedDB ve browser file-transfer foundation static contract kontrollerini uygular
+# Version: 0.11.3
+# Aciklama: Umbrella release versionini korur; M3 Web storage, file-transfer ve Writer TKO aggregate WASM bridge kontratlarini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -55,6 +55,14 @@ required_files=(
   "docs/06-adr/0014-ime-rich-text-contenteditable.md"
   "docs/06-adr/0015-caret-typing-style-ribbon-typography.md"
   "crates/turkuaz-office-core/Cargo.toml"
+  "crates/turkuaz-office-web-bridge/Cargo.toml"
+  "crates/turkuaz-office-web-bridge/src/lib.rs"
+  "crates/turkuaz-office-web-bridge/src/config/constants.rs"
+  "crates/turkuaz-office-web-bridge/src/controllers/writer_tko_bridge_controller.rs"
+  "crates/turkuaz-office-web-bridge/src/services/writer_tko_bridge_service.rs"
+  "crates/turkuaz-office-web-bridge/src/views/writer_tko_bridge_view.rs"
+  "crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
+  "crates/turkuaz-office-web-bridge/tests/writer_tko_bridge_tests.rs"
   "crates/turkuaz-office-writer/Cargo.toml"
   "crates/turkuaz-office-writer/src/lib.rs"
   "crates/turkuaz-office-writer/src/services/writer_command.rs"
@@ -324,6 +332,8 @@ required_files=(
   "docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md"
   "docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
   "docs/07-quality/m3-web-browser-file-transfer-test-matrix.md"
+  "docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
+  "docs/07-quality/m3-web-writer-tko-wasm-bridge-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -421,14 +431,15 @@ grep -q 'import_export: file_transfer_foundation' "$ROOT/config/project.yml"
 grep -q 'browser_file_picker: html_input_file' "$ROOT/config/project.yml"
 grep -q 'browser_download: blob_object_url' "$ROOT/config/project.yml"
 grep -q 'browser_import_max_bytes: 16777216' "$ROOT/config/project.yml"
-grep -q 'native_tko_codec: planned_rust_domain_bridge' "$ROOT/config/project.yml"
+grep -q 'native_tko_codec: wasm_bridge_exported' "$ROOT/config/project.yml"
 grep -q 'import_export_view_actions: false' "$ROOT/config/project.yml"
 grep -q 'wasm_core: runtime_loaded' "$ROOT/config/project.yml"
 grep -q 'wasm_target: wasm32-unknown-unknown' "$ROOT/config/project.yml"
 grep -q 'wasm_binding: generated_artifact_runtime_loader' "$ROOT/config/project.yml"
 grep -q 'wasm_bindgen_version: 0.2.129' "$ROOT/config/project.yml"
 grep -q 'wasm_artifact_ci: true' "$ROOT/config/project.yml"
-grep -q 'wasm_binding_url: /wasm/turkuaz_office_core.js' "$ROOT/config/project.yml"
+grep -q 'wasm_bridge_crate: turkuaz-office-web-bridge' "$ROOT/config/project.yml"
+grep -q 'wasm_binding_url: /wasm/turkuaz_office_web_bridge.js' "$ROOT/config/project.yml"
 grep -q '"version": "0.4.0"' "$ROOT/apps/web/package.json"
 grep -q 'BrowserDocumentIndexRepository' "$ROOT/apps/web/src/repositories/browser-document-index.repository.ts"
 grep -q 'WebBootstrapService' "$ROOT/apps/web/src/services/web-bootstrap-service.ts"
@@ -467,10 +478,19 @@ grep -q 'BrowserFileTransferTool(document, URL)' "$ROOT/apps/web/src/main.tsx"
 grep -q 'M3 Web Browser File Transfer v0.4.0' "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
 grep -q 'delegates native file selection to WebImportExportService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
 grep -q 'delays Blob URL revocation until after the browser can consume the download' "$ROOT/apps/web/src/tools/browser-file-transfer.tool.test.ts"
-grep -q 'wasm-bindgen = "=0.2.129"' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
+grep -q 'web-wasm-exports = \["dep:wasm-bindgen"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
+grep -q 'wasm-bindgen = { version = "=0.2.129", optional = true }' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'crate-type = \["rlib", "cdylib"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'web_core_abi_version' "$ROOT/crates/turkuaz-office-core/src/tools/web_wasm_exports.rs"
 grep -q 'WASM_BINDGEN_VERSION="0.2.129"' "$ROOT/tools/build-web-wasm.sh"
+grep -q 'WASM_CRATE="turkuaz-office-web-bridge"' "$ROOT/tools/build-web-wasm.sh"
+grep -q 'WASM_OUT_NAME="turkuaz_office_web_bridge"' "$ROOT/tools/build-web-wasm.sh"
+grep -q 'web_writer_tko_inspect' "$ROOT/tools/build-web-wasm.sh"
+grep -q 'web_writer_tko_reencode' "$ROOT/tools/build-web-wasm.sh"
+grep -q 'pub struct WebWriterTkoBridgeService' "$ROOT/crates/turkuaz-office-web-bridge/src/services/writer_tko_bridge_service.rs"
+grep -q 'web_writer_tko_inspect' "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
+grep -q 'web_writer_tko_reencode' "$ROOT/crates/turkuaz-office-web-bridge/src/tools/web_wasm_exports.rs"
+grep -q 'M3 Web Writer TKO WASM Bridge v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
 grep -q 'name: Web WASM artifact' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'actions/upload-artifact@v4' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'M3 Web wasm-bindgen Artifacts v0.4.0' "$ROOT/docs/08-implementation/m3-web-wasm-bindgen-artifacts-v0.4.0.md"
