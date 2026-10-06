@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/tr.ts
 // # 📌 Amac: Turkuaz Office Desktop Turkce UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.11.0
+// # Version: 0.12.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid, Functions/Charts ve status alanlari icin ASCII Turkce label kaynagidir
 // Bagimli Oldugu Katman: Language
 
@@ -9,6 +9,30 @@ import type { DesktopLabelKey } from "./labels";
 
 export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
+  startCenterBrandTagline: "Daha fazlasini birlikte yazin",
+  startCenterNavigation: "Baslangic Merkezi gezinme",
+  startCenterHome: "Ana Sayfa",
+  startCenterRecent: "Son Belgeler",
+  startCenterTemplates: "Sablonlar",
+  startCenterSettings: "Ayarlar",
+  startCenterHelp: "Yardim",
+  startCenterTitle: "Turkuaz Office'e Hos Geldiniz",
+  startCenterSubtitle: "Calismalarinizi daha uretken, daha ozgur hale getirin.",
+  startCenterSearch: "Belgelerde ara...",
+  startCenterApplications: "Turkuaz Office uygulamalari",
+  startCenterWriterDescription: "Metin belgeleri olusturun ve duzenleyin",
+  startCenterSheetDescription: "Hesap tablolarini olusturun ve analiz edin",
+  startCenterPresentation: "Sunum",
+  startCenterPdf: "PDF",
+  startCenterComingSoon: "Yakinda",
+  startCenterRecentDescription: "Writer ve Sheet belgelerinize hizli donus noktasi.",
+  startCenterRecentWriterTitle: "Writer belgeleri",
+  startCenterRecentWriterDescription: "Son Writer belgeleri uygulama icinden yonetilir.",
+  startCenterRecentSheetTitle: "Sheet calisma kitaplari",
+  startCenterRecentSheetDescription: "Sheet oturumlari ve analizler ayni urun ailesinde kalir.",
+  startCenterTemplatesDescription: "Yeni calismaya uygun uygulama ile baslayin.",
+  startCenterBudgetTemplate: "Butce Tablosu",
+  backToStartCenter: "Baslangic Merkezine don",
   moduleSwitcherLabel: "Uygulama modulu",
   writerModule: "Writer",
   sheetModule: "Sheet",
@@ -158,6 +182,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   menuFile: "Dosya",
   menuHome: "Giris",
   menuInsert: "Ekle",
+  menuTable: "Tablo",
+  menuFormulas: "Formuller",
   menuView: "Gorunum",
   menuComingSoon: "Bu ribbon sekmesi sonraki fazda aktif olacak",
   documentGroup: "Belge",
