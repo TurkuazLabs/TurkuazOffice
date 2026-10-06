@@ -101,6 +101,7 @@ required_files=(
   "docs/07-quality/sheet-functions-sidebar-test-matrix.md"
   "apps/desktop/src/config/sheet-charts.ts"
   "apps/desktop/src/views/sheet-chart-renderer.tsx"
+  "apps/desktop/src/views/sheet-chart-renderer.test.tsx"
   "apps/desktop/src/views/sheet-charts-sidebar.tsx"
   "docs/08-implementation/sheet-basic-charts-ui-v0.11.0.md"
   "docs/07-quality/sheet-basic-charts-ui-test-matrix.md"
@@ -933,6 +934,9 @@ grep -q 'export function SheetChartRenderer' "$ROOT/apps/desktop/src/views/sheet
 grep -q 'sheetChartsToggle' "$ROOT/apps/desktop/src/language/labels.ts"
 grep -q 'creates and selects a canonical chart from an exact two-column range' "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts"
 grep -q 'Sheet Basic Charts UI v0.11.0' "$ROOT/docs/08-implementation/sheet-basic-charts-ui-v0.11.0.md"
+grep -q 'keeps extreme finite Bar and Line geometry valid' "$ROOT/apps/desktop/src/views/sheet-chart-renderer.test.tsx"
+grep -q 'keeps extreme Pie slices visible without overflow' "$ROOT/apps/desktop/src/views/sheet-chart-renderer.test.tsx"
+grep -q 'preserves a newer chart selection while chart creation is pending' "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts"
 
 for sheet_chart_ui_file in \
   "$ROOT/apps/desktop/src/config/sheet-charts.ts" \
@@ -945,6 +949,7 @@ for sheet_chart_ui_file in \
   "$ROOT/apps/desktop/src/tools/tauri-sheet.tool.ts" \
   "$ROOT/apps/desktop/src/views/sheet-types.ts" \
   "$ROOT/apps/desktop/src/views/sheet-chart-renderer.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-chart-renderer.test.tsx" \
   "$ROOT/apps/desktop/src/views/sheet-charts-sidebar.tsx" \
   "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
   "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
