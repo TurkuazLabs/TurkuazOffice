@@ -340,6 +340,12 @@ required_files=(
   "docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"
   "docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md"
   "docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"
+  "apps/web/src/repositories/web-writer-session.repository.ts"
+  "apps/web/src/repositories/web-writer-session.repository.test.ts"
+  "apps/web/src/services/web-writer-session.service.ts"
+  "apps/web/src/services/web-writer-session.service.test.ts"
+  "docs/08-implementation/m3-web-writer-session-repository-v0.4.0.md"
+  "docs/07-quality/m3-web-writer-session-repository-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -433,7 +439,9 @@ grep -q 'indexed_db_version: 1' "$ROOT/config/project.yml"
 grep -q 'indexed_db_store: documents' "$ROOT/config/project.yml"
 grep -q 'canonical_document_payload_in_local_storage: false' "$ROOT/config/project.yml"
 grep -q 'canonical_document_storage_fallback: none' "$ROOT/config/project.yml"
-grep -q 'import_export: tko_service_composed' "$ROOT/config/project.yml"
+grep -q 'import_export: tko_session_composed' "$ROOT/config/project.yml"
+grep -q 'writer_session_repository: in_memory_preserve_tko_bytes' "$ROOT/config/project.yml"
+grep -q 'writer_session_rich_payload_loss_allowed: false' "$ROOT/config/project.yml"
 grep -q 'browser_file_picker: html_input_file' "$ROOT/config/project.yml"
 grep -q 'browser_download: blob_object_url' "$ROOT/config/project.yml"
 grep -q 'browser_import_max_bytes: 16777216' "$ROOT/config/project.yml"
@@ -490,7 +498,10 @@ grep -q 'nativeTkoCodecAvailable: this.writerTkoTool !== null' "$ROOT/apps/web/s
 grep -q 'BrowserFileTransferTool(document, URL)' "$ROOT/apps/web/src/main.tsx"
 grep -q 'loadedCore.writerTkoTool' "$ROOT/apps/web/src/main.tsx"
 grep -q 'M3 Web Browser File Transfer v0.4.0' "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
-grep -q 'delegates native import to WebImportExportService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
+grep -q 'delegates Writer open to WebWriterSessionService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
+grep -q 'delegates Writer export without transforming bytes in Controller' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
+grep -q 'class WebWriterSessionService' "$ROOT/apps/web/src/services/web-writer-session.service.ts"
+grep -q 'class InMemoryWebWriterSessionRepository' "$ROOT/apps/web/src/repositories/web-writer-session.repository.ts"
 grep -q 'delays Blob URL revocation until after the browser can consume the download' "$ROOT/apps/web/src/tools/browser-file-transfer.tool.test.ts"
 grep -q 'web-wasm-exports = \["dep:wasm-bindgen"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'wasm-bindgen = { version = "=0.2.129", optional = true }' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
@@ -551,7 +562,13 @@ for m3_web_file in \
   "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md" \
   "$ROOT/docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md" \
   "$ROOT/docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md" \
-  "$ROOT/docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"; do
+  "$ROOT/docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md" \
+  "$ROOT/apps/web/src/repositories/web-writer-session.repository.ts" \
+  "$ROOT/apps/web/src/repositories/web-writer-session.repository.test.ts" \
+  "$ROOT/apps/web/src/services/web-writer-session.service.ts" \
+  "$ROOT/apps/web/src/services/web-writer-session.service.test.ts" \
+  "$ROOT/docs/08-implementation/m3-web-writer-session-repository-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-writer-session-repository-test-matrix.md"; do
   grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
 done
 

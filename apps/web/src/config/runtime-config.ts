@@ -2,7 +2,7 @@
 // # 📌 Amac: M3 Web runtime sabitlerini merkezi konfigurasyonda tutar
 // # 📌 Modul - FileType: Config - TypeScript
 // Version: 0.4.0
-// Aciklama: Dev server, metadata-index, Web Core ABI/bridge, Writer TKO Tool ve browser import/export runtime kontratini tanimlar
+// Aciklama: Dev server, metadata-index, Web Core ABI/bridge, Writer TKO Tool, session ve browser import/export runtime kontratini tanimlar
 // Bagimli Oldugu Katman: Config
 
 export const WEB_APP_VERSION = "0.4.0";
@@ -21,6 +21,8 @@ export const WEB_INVALID_TKO_SUMMARY_ERROR =
   "Writer TKO WASM inspect cevabi gecersiz.";
 export const WEB_TKO_CODEC_UNAVAILABLE_ERROR =
   "Writer TKO codec browser runtime'da kullanilabilir degil.";
+export const WEB_WRITER_SESSION_EMPTY_ERROR =
+  "Aktif Writer Web oturumu bulunamadi.";
 export const WEB_APP_ROOT_ID = "app";
 export const WEB_APP_ROOT_ERROR = "Turkuaz Office Web app root bulunamadi.";
 
