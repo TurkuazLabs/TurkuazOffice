@@ -2,7 +2,7 @@
 // # 📌 Amac: M3 Web katmanlarini composition root uzerinden birlestirir
 // # 📌 Modul - FileType: Web - TypeScript
 // Version: 0.4.0
-// Aciklama: Browser Repository, runtime WASM Core/Writer TKO Tool, Service, Controller ve View baglantilarini kurar
+// Aciklama: Browser Repository, Writer session Repository, runtime WASM Tool, Service, Controller ve View baglantilarini kurar
 // Bagimli Oldugu Katman: Controller | Service | Repo | Tool | View | Language
 
 import { render } from "solid-js/web";
@@ -11,8 +11,10 @@ import { WEB_APP_ROOT_ERROR, WEB_APP_ROOT_ID } from "./config/runtime-config";
 import { WebController } from "./controllers/web-controller";
 import { BrowserDocumentIndexRepository } from "./repositories/browser-document-index.repository";
 import { IndexedDbDocumentRepository } from "./repositories/indexeddb-document.repository";
+import { InMemoryWebWriterSessionRepository } from "./repositories/web-writer-session.repository";
 import { WebBootstrapService } from "./services/web-bootstrap-service";
 import { WebImportExportService } from "./services/web-import-export.service";
+import { WebWriterSessionService } from "./services/web-writer-session.service";
 import { BrowserFileTransferTool } from "./tools/browser-file-transfer.tool";
 import { BrowserIndexedDbDocumentTool } from "./tools/indexed-db-document.tool";
 import { loadWebCoreTool } from "./tools/wasm-core-runtime-loader";
@@ -23,6 +25,7 @@ async function bootstrap(): Promise<void> {
   const metadataIndex = new BrowserDocumentIndexRepository(window.localStorage);
   const indexedDbTool = new BrowserIndexedDbDocumentTool(window.indexedDB);
   const repository = new IndexedDbDocumentRepository(indexedDbTool, metadataIndex);
+  const writerSessionRepository = new InMemoryWebWriterSessionRepository();
   const loadedCore = await loadWebCoreTool();
   const bootstrapService = new WebBootstrapService(repository, loadedCore.tool);
   const fileTransferTool = new BrowserFileTransferTool(document, URL);
@@ -30,7 +33,11 @@ async function bootstrap(): Promise<void> {
     fileTransferTool,
     loadedCore.writerTkoTool,
   );
-  const controller = new WebController(bootstrapService, importExportService);
+  const writerSessionService = new WebWriterSessionService(
+    writerSessionRepository,
+    importExportService,
+  );
+  const controller = new WebController(bootstrapService, writerSessionService);
   const state = await controller.initialize();
 
   const root = document.getElementById(WEB_APP_ROOT_ID);
