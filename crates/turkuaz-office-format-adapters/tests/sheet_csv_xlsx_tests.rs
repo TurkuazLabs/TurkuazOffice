@@ -479,6 +479,28 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert_eq!(parsed_rules[1].differential_style_id, 2);
     assert_eq!(parsed_table_relationships, vec!["rId1".to_owned()]);
 
+    let parsed_styles = SheetXlsxXmlTool::parse_differential_styles(
+        entries.get("xl/styles.xml").expect("styles part"),
+    )
+    .expect("generated styles metadata parses");
+    assert_eq!(parsed_styles.len(), 3);
+
+    let (parsed_rules, parsed_table_parts) = SheetXlsxXmlTool::parse_worksheet_metadata(
+        entries
+            .get("xl/worksheets/sheet1.xml")
+            .expect("worksheet metadata part"),
+    )
+    .expect("generated worksheet metadata parses");
+    assert_eq!(parsed_rules.len(), 2);
+    assert_eq!(
+        parsed_rules
+            .iter()
+            .map(|rule| rule.differential_style_id)
+            .collect::<Vec<_>>(),
+        vec![0, 2]
+    );
+    assert_eq!(parsed_table_parts.len(), 1);
+
     let ids = SequentialSheetIdTool::new();
     let restored =
         SheetXlsxService::import(&ids, "Restored Metadata", &bytes).expect("metadata xlsx import");
