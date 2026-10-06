@@ -18,6 +18,10 @@ Bagimli Oldugu Katman: Documentation
 - Browser file input ingress ve Blob/object-URL download egress byte transport foundation'i eklendi.
 - .tko accept/download profili ve 16 MiB pre-read browser import guardi merkezi config'e alindi.
 - TKO codec henuz Rust domain bridge bekledigi icin View import/export aksiyonlari bilerek acilmadi.
+- Core + Writer'i tek browser cdylib'de birlestiren turkuaz-office-web-bridge crate'i eklendi.
+- Generated WASM artifact turkuaz_office_web_bridge.js olarak aggregate hale getirildi.
+- Writer TKO inspect ve canonical re-encode exportlari mevcut Rust TkoPackageService uzerinden eklendi.
+- Core standalone wasm-bindgen exportlari duplicate aggregate symbol riskini engellemek icin web-wasm-exports feature'i ile gate edildi.
 
 ## Unreleased - Sheet Productivity Extensions
 
