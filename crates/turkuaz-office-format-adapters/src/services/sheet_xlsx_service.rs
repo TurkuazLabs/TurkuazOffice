@@ -649,17 +649,17 @@ impl SheetXlsxService {
     }
 
     fn worksheet_relationship_entry_name(entry_name: &str) -> Result<String, SheetXlsxError> {
-        let file_name = entry_name
-            .strip_prefix("xl/worksheets/")
+        let (directory, file_name) = entry_name
+            .rsplit_once('/')
             .ok_or(SheetXlsxError::InvalidPackage)?;
-        if file_name.is_empty()
-            || file_name.contains('/')
+        if directory.is_empty()
+            || file_name.is_empty()
             || file_name.contains('\\')
             || !file_name.ends_with(XLSX_WORKSHEET_SUFFIX)
         {
             return Err(SheetXlsxError::InvalidPackage);
         }
-        Ok(format!("xl/worksheets/_rels/{file_name}.rels"))
+        Self::validate_resolved_entry(&format!("{directory}/_rels/{file_name}.rels"))
     }
 
     fn worksheet_entry_name(target: &str) -> Result<String, SheetXlsxError> {
