@@ -17,3 +17,13 @@ export const WEB_CORE_NATIVE_FS_CONTRACT_ERROR =
   "Web Core native filesystem capability false olmali.";
 export const WEB_APP_ROOT_ID = "app";
 export const WEB_APP_ROOT_ERROR = "Turkuaz Office Web app root bulunamadi.";
+
+export const WEB_DOCUMENT_DB_NAME = "turkuaz-office-web";
+export const WEB_DOCUMENT_DB_VERSION = 1;
+export const WEB_DOCUMENT_STORE_NAME = "documents";
+export const WEB_DOCUMENT_STORE_KEY_PATH = "id";
+export const WEB_DOCUMENT_STORAGE_KIND = "indexed-db";
+export const WEB_INDEXED_DB_OPERATION_ERROR =
+  "IndexedDB belge islemi tamamlanamadi.";
+export const WEB_INVALID_CANONICAL_DOCUMENT_ERROR =
+  "Canonical web belge kaydi gecersiz.";

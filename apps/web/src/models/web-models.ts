@@ -11,6 +11,16 @@ export interface WebDocumentIndexEntry {
   readonly revision: number;
 }
 
+export interface WebCanonicalDocumentRecord {
+  readonly id: string;
+  readonly title: string;
+  readonly text: string;
+  readonly schemaVersion: number;
+  readonly revision: number;
+}
+
+export type WebDocumentStorageKind = "indexed-db";
+
 export interface WebCoreCapabilities {
   readonly bridgeKind: string;
   readonly abiVersion: number;
@@ -22,5 +32,7 @@ export interface WebCoreCapabilities {
 export interface WebBootstrapViewModel {
   readonly version: string;
   readonly capabilities: WebCoreCapabilities;
-  readonly storedDocumentCount: number;
+  readonly documentStorageKind: WebDocumentStorageKind;
+  readonly documentStorageAvailable: boolean;
+  readonly storedDocumentCount: number | null;
 }

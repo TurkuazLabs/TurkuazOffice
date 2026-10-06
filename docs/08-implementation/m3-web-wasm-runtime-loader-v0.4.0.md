@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md
 # 📌 Amac: M3 Web WASM runtime loader foundation kararlarini ve fail-safe davranisini dokumante eder
 # 📌 Modul - FileType: Documentation - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: Generated wasm-bindgen modulunun Tool katmaninda yuklenmesi, fallback ve fail-closed kontratini tanimlar
 # Bagimli Oldugu Katman: Tool | Service | Config
 
@@ -30,11 +30,10 @@ Fallback akisi:
 
 Import/yukleme hatasi deploy-time eksik artefakt olarak ele alinir ve browser fallback'e izin verilir. Buna karsilik basariyla yuklenen bir modulun kontrat hatasi sessizce fallback'e dusurulmez. Eksik export veya native filesystem capability iddiasi uygulama acilisini durdurur.
 
+## Guncel durum
+
+Pinned wasm-bindgen generated JS/WASM artifact pipeline'i `tools/build-web-wasm.sh` ve `Web WASM artifact` CI job'u ile aktiftir. Runtime loader generated modulu ayni Tool siniri arkasinda yukler.
+
 ## Sonraki Dilim
 
-Bu foundation generated binding'i uretmez. Siradaki is:
-
-1. Rust exportlarini wasm-bindgen ile generated JS/WASM artefaktina baglamak.
-2. CI icinde deterministik binding build adimi eklemek.
-3. `apps/web/public/wasm` veya build pipeline tarafinda uretilen artefakti runtime URL'ine koymak.
-4. Gercek generated module ile browser smoke testi eklemek.
+Canonical Core document payload persistence IndexedDB adapteri ile tamamlanmistir. Bundan sonraki M3 sirasi browser import/export, offline cache boundary ve Writer/Sheet web read-model entegrasyonudur.

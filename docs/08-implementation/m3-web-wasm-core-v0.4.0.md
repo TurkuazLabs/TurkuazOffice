@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-core-v0.4.0.md
 # 📌 Amac: M3 Web icin compile-verified Rust WASM Core diliminin kapsam ve sinirlarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: wasm32 hedefi, Core ABI capability API'si, Web Tool adapter kontrati ve sonraki binding adimini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
@@ -60,6 +60,8 @@ Bu gate gecmeden WASM-compatible Core dilimi tamamlanmis sayilmaz.
 - Browser import/export.
 - Service Worker / Cache Storage offline cache.
 
-## Sonraki dilim
+## Takip eden durum
 
-Siradaki teknik adim, bu compile-verified Rust API'sini generated WASM binding ile browser runtime'a baglamak ve `BrowserCoreContractTool` yerine gercek `WasmCoreTool` composition'i kullanmaktir.
+Pinned wasm-bindgen generated artifact pipeline'i ve browser runtime loader sonraki M3 dilimlerinde tamamlanmistir. Runtime, generated binding mevcutsa `WasmCoreTool` kullanir; artifact yoksa yalniz capability foundation icin browser-contract fallback uygulanir.
+
+Canonical belge persistence'i IndexedDB diliminde ele alinmistir.

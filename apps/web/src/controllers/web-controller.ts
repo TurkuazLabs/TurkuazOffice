@@ -11,7 +11,7 @@ import { WebBootstrapService } from "../services/web-bootstrap-service";
 export class WebController {
   public constructor(private readonly service: WebBootstrapService) {}
 
-  public initialize(): WebBootstrapViewModel {
+  public initialize(): Promise<WebBootstrapViewModel> {
     return this.service.initialize();
   }
 }

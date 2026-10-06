@@ -3,49 +3,53 @@
 // # 📌 Modul - FileType: View - TSX
 // # Version: 0.4.0
 // # Aciklama: Controller'dan gelen read-modeli goruntuler; is kurali veya storage erisimi yapmaz
-// Bagimli Oldugu Katman: View
+// Bagimli Oldugu Katman: View -> Language
 
-import { createMemo } from "solid-js";
-
-import type { WebController } from "../controllers/web-controller";
 import { WEB_TR } from "../language/tr-TR";
+import type { WebBootstrapViewModel } from "../models/web-models";
 
 export interface AppProps {
-  readonly controller: WebController;
+  readonly state: WebBootstrapViewModel;
 }
 
 export function App(props: AppProps) {
-  const state = createMemo(() => props.controller.initialize());
-
   return (
     <main class="app-shell">
       <section class="status-card">
         <p class="eyebrow">{WEB_TR.milestone}</p>
         <h1>{WEB_TR.productName}</h1>
-        <p>v{state().version}</p>
+        <p>v{props.state.version}</p>
 
         <dl class="status-grid">
           <div>
             <dt>{WEB_TR.coreBridge}</dt>
-            <dd>{state().capabilities.bridgeKind}</dd>
+            <dd>{props.state.capabilities.bridgeKind}</dd>
           </div>
           <div>
             <dt>{WEB_TR.coreAbi}</dt>
-            <dd>{state().capabilities.abiVersion}</dd>
+            <dd>{props.state.capabilities.abiVersion}</dd>
           </div>
           <div>
             <dt>{WEB_TR.browserMetadataStorage}</dt>
             <dd>
-              {state().capabilities.browserMetadataStorage ? WEB_TR.enabled : WEB_TR.disabled}
+              {props.state.capabilities.browserMetadataStorage ? WEB_TR.enabled : WEB_TR.disabled}
             </dd>
           </div>
           <div>
             <dt>{WEB_TR.nativeFileSystem}</dt>
-            <dd>{state().capabilities.nativeFileSystemAccess ? WEB_TR.enabled : WEB_TR.disabled}</dd>
+            <dd>{props.state.capabilities.nativeFileSystemAccess ? WEB_TR.enabled : WEB_TR.disabled}</dd>
+          </div>
+          <div>
+            <dt>{WEB_TR.canonicalDocumentStorage}</dt>
+            <dd>
+              {props.state.documentStorageAvailable
+                ? `${WEB_TR.enabled} (${props.state.documentStorageKind})`
+                : WEB_TR.unavailable}
+            </dd>
           </div>
           <div>
             <dt>{WEB_TR.storedDocuments}</dt>
-            <dd>{state().storedDocumentCount}</dd>
+            <dd>{props.state.storedDocumentCount ?? "-"}</dd>
           </div>
         </dl>
       </section>

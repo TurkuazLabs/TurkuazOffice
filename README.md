@@ -59,7 +59,7 @@ Foundation Hardening ve tamamlanan Writer M1 kontratlari kod ile temsil edilir:
 - Font fallback render katmaninda cozulur; requested font family canonical belgede korunur.
 - Windows/Linux icin Arial/Calibri/Times New Roman/Georgia/Verdana/Courier New fallback profilleri merkezi configte tutulur.
 
-Desktop + Writer M1 feature kapsami tamamlanmistir. M2 Sheet engine ve R2 Sheet Desktop integration baseline'i tamamlanmistir. M3 Web v0.4.0 gelistirmesi browser foundation ve compile-verified Rust WASM Core dilimleriyle devam etmektedir.
+Desktop + Writer M1 feature kapsami tamamlanmistir. M2 Sheet engine ve R2 Sheet Desktop integration baseline'i tamamlanmistir. M3 Web v0.4.0 gelistirmesi generated WASM runtime loader ve IndexedDB canonical document persistence dilimleriyle devam etmektedir.
 
 ## Sheet M2 v0.3.0 durumu
 
@@ -187,4 +187,4 @@ npm run build
 npm test
 ```
 
-Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Web document payload persistence'i IndexedDB adapteri icin planlidir. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; runtime generated binding henuz planli asamadadir ve Core erisimi Tool siniri arkasindadir.
+Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Core document payload IndexedDB `documents` store'unda saklanir ve localStorage'a payload fallback yapilmaz. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; pinned wasm-bindgen generated artifact ve browser runtime loader Tool siniri arkasinda aktiftir.

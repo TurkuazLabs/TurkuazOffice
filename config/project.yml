@@ -86,13 +86,17 @@ web_client:
   language: typescript
   build_tool: vite
   metadata_index_adapter: local_storage
-  document_storage_adapter: indexed_db_planned
+  document_storage_adapter: indexed_db
+  indexed_db_database: turkuaz-office-web
+  indexed_db_version: 1
+  indexed_db_store: documents
   canonical_document_payload_in_local_storage: false
+  canonical_document_storage_fallback: none
   native_file_system_access: false
   core_bridge: tool_boundary
-  wasm_core: compile_verified
+  wasm_core: runtime_loaded
   wasm_target: wasm32-unknown-unknown
-  wasm_binding: generated_artifact_ci
+  wasm_binding: generated_artifact_runtime_loader
   wasm_binding_url: /wasm/turkuaz_office_core.js
   wasm_bindgen_version: 0.2.129
   wasm_artifact_ci: true
