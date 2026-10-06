@@ -143,7 +143,8 @@ TurkuazOffice/
 |   |-- turkuaz-office-core/
 |   |-- turkuaz-office-writer/
 |   |-- turkuaz-office-sheet/
-|   `-- turkuaz-office-format-adapters/
+|   |-- turkuaz-office-format-adapters/
+|   `-- turkuaz-office-web-bridge/
 |-- config/
 |-- docs/
 |-- tools/
