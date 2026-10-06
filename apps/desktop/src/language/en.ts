@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.10.0
+// Version: 0.11.0
 // Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
@@ -36,6 +36,20 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetFunctionMaxDescription: "Returns the largest value among the supplied numbers.",
   sheetFunctionIf: "Conditional Value",
   sheetFunctionIfDescription: "Returns one of two results based on a condition.",
+  sheetCharts: "Charts",
+  sheetChartsToggle: "Charts panel",
+  sheetChartsSidebarLabel: "Sheet charts sidebar",
+  sheetChartType: "Chart type",
+  sheetChartTitle: "Chart title",
+  sheetChartBar: "Bar",
+  sheetChartLine: "Line",
+  sheetChartPie: "Pie",
+  sheetChartCreate: "Create Chart from Selection",
+  sheetChartRemove: "Remove Chart",
+  sheetChartSelectionHint: "Select exactly two columns: the first for categories and the second for values.",
+  sheetChartNoCharts: "This Sheet document has no charts.",
+  sheetChartDataEmpty: "There is no numeric chart data to display.",
+  sheetChartDataError: "Chart data could not be loaded",
   sheetSelectedCell: "Selected cell",
   sheetEvaluatedValue: "Evaluated value",
   sheetAlignGeneral: "General alignment",

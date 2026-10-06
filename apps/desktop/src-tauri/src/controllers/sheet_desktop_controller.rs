@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs
 // # 📌 Amac: Tauri Sheet IPC requestlerini alip yalnizca SheetDesktopService cagirir
 // # 📌 Modul - FileType: Controller - Rust
-// Version: 0.7.0
-// Aciklama: Sheet create/get/cell/formula/format/table/conditional-format/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
+// Version: 0.11.0
+// Aciklama: Sheet create/get/cell/formula/format/table/conditional-format/chart/range-summary/query/evaluated-cell/clear request ve state sinirini business logic tasimadan yonetir
 // Bagimli Oldugu Katman: Controller -> Service
 
 use std::sync::Mutex;
@@ -13,7 +13,8 @@ use crate::config::constants::ERROR_STATE_LOCK;
 use crate::services::sheet_desktop_service::SheetDesktopService;
 use crate::views::error_dto::DesktopErrorDto;
 use crate::views::sheet_dto::{
-    SheetCellDto, SheetCellFormatDto, SheetConditionalFormatCreateRequestDto,
+    SheetCellDto, SheetCellFormatDto, SheetChartCreateRequestDto, SheetChartDataDto,
+    SheetChartDataRequestDto, SheetChartRemoveRequestDto, SheetConditionalFormatCreateRequestDto,
     SheetConditionalFormatMatchDto, SheetConditionalFormatMatchesRequestDto,
     SheetConditionalFormatRemoveRequestDto, SheetDocumentDto, SheetRangeSummaryDto,
     SheetRangeSummaryRequestDto, SheetRowQueryRequestDto, SheetRowQueryResultDto,
@@ -228,6 +229,57 @@ pub fn sheet_get_conditional_format_matches(
             request.range.into(),
         )
         .map(|items| items.into_iter().map(Into::into).collect())
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_create_chart(
+    state: State<'_, SheetDesktopState>,
+    request: SheetChartCreateRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .create_chart(
+            &request.document_id,
+            &request.worksheet_id,
+            request.chart_type.into(),
+            &request.title,
+            request.start_row,
+            request.end_row,
+            request.category_column,
+            request.value_column,
+        )
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_remove_chart(
+    state: State<'_, SheetDesktopState>,
+    request: SheetChartRemoveRequestDto,
+) -> Result<SheetDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .remove_chart(&request.document_id, &request.chart_id)
+        .map(Into::into)
+        .map_err(Into::into)
+}
+
+#[tauri::command]
+pub fn sheet_get_chart_data(
+    state: State<'_, SheetDesktopState>,
+    request: SheetChartDataRequestDto,
+) -> Result<SheetChartDataDto, DesktopErrorDto> {
+    let service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .chart_data(&request.document_id, &request.chart_id)
+        .map(Into::into)
         .map_err(Into::into)
 }
 

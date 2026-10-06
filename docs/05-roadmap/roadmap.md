@@ -186,7 +186,7 @@ Durum: Tamamlandi ve mevcut Desktop calisma agacinda aktiftir.
 
 Bu kapsam disi maddeler sessizce R2'ye eklenmez. Yeni Sheet urun ozelligi gerekiyorsa once roadmap ve gerekirse ADR guncellenir.
 
-## R2.x - Sheet Productivity Extensions v0.5.0-v0.10.0
+## R2.x - Sheet Productivity Extensions v0.5.0-v0.11.0
 
 Durum: Roadmap onayli ardil Sheet dilimleri aktif gelistirme hattidir.
 
@@ -198,8 +198,9 @@ Durum: Roadmap onayli ardil Sheet dilimleri aktif gelistirme hattidir.
 - v0.8.0: SUM, AVERAGE, MIN, MAX ve IF function library.
 - v0.9.0: OOXML table parts, worksheet relationships ve conditional-format metadata round-trip.
 - v0.10.0: aranabilir Functions sidebar ve formula bar draft helper.
+- v0.11.0: canonical Basic Charts Desktop IPC, create/remove paneli ve dependency-free SVG Bar/Line/Pie renderer.
 
-Bu uzanti R2'nin tamamlanmis baseline'ini degistirmez; yeni Sheet productivity dilimlerinin sirasini ve kapsam sinirini resmi olarak tanimlar. v0.10.0 sonrasi yeni fonksiyon gruplari veya yeni spreadsheet yetenekleri ayri roadmap guncellemesi gerektirir.
+Bu uzanti R2'nin tamamlanmis baseline'ini degistirmez; yeni Sheet productivity dilimlerinin sirasini ve kapsam sinirini resmi olarak tanimlar. v0.11.0 sonrasi yeni fonksiyon gruplari veya yeni spreadsheet yetenekleri ayri roadmap guncellemesi gerektirir.
 
 ## M3 - Web v0.4.0
 

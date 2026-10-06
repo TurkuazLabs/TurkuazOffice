@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/tr.ts
 // # 📌 Amac: Turkuaz Office Desktop Turkce UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.10.0
-// # Aciklama: Writer ve Sheet modul, ribbon, grid ve status alanlari icin ASCII Turkce label kaynagidir
+// # Version: 0.11.0
+// # Aciklama: Writer ve Sheet modul, ribbon, grid, Functions/Charts ve status alanlari icin ASCII Turkce label kaynagidir
 // Bagimli Oldugu Katman: Language
 
 import type { DesktopLabelKey } from "./labels";
@@ -36,6 +36,20 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetFunctionMaxDescription: "Verilen sayilar arasindaki en buyuk degeri bulur.",
   sheetFunctionIf: "Kosullu Deger",
   sheetFunctionIfDescription: "Kosula gore iki sonuctan birini dondurur.",
+  sheetCharts: "Grafikler",
+  sheetChartsToggle: "Grafikler paneli",
+  sheetChartsSidebarLabel: "Sheet grafikler paneli",
+  sheetChartType: "Grafik tipi",
+  sheetChartTitle: "Grafik basligi",
+  sheetChartBar: "Cubuk",
+  sheetChartLine: "Cizgi",
+  sheetChartPie: "Pasta",
+  sheetChartCreate: "Secimden Grafik Olustur",
+  sheetChartRemove: "Grafigi Kaldir",
+  sheetChartSelectionHint: "Kategori icin ilk, deger icin ikinci kolon olacak sekilde tam iki kolonluk bir aralik secin.",
+  sheetChartNoCharts: "Bu Sheet belgesinde grafik yok.",
+  sheetChartDataEmpty: "Grafik icin gosterilecek sayisal veri yok.",
+  sheetChartDataError: "Grafik verisi yuklenemedi",
   sheetSelectedCell: "Secili hucre",
   sheetEvaluatedValue: "Hesaplanan deger",
   sheetAlignGeneral: "Genel hizalama",

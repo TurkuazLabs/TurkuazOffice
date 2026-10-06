@@ -1,14 +1,15 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/repositories/sheet-session.repository.ts
 // # 📌 Amac: Desktop Sheet oturum read-model ve durum bilgisini bellekte tutar
 // # 📌 Modul - FileType: Repo - TypeScript
-// Version: 0.7.0
-// Aciklama: Backend snapshot, dirty-state, secili hucre/range, range summary, conditional-format cache, sparse format cache ve row-query state'ini reactive saklar
+// Version: 0.11.0
+// Aciklama: Backend snapshot, dirty-state, secim, chart data, range summary, conditional-format cache, sparse format cache ve row-query state'ini reactive saklar
 // Bagimli Oldugu Katman: Repo
 
 import { createSignal, type Accessor } from "solid-js";
 
 import type {
   SheetCellFormatView,
+  SheetChartDataView,
   SheetConditionalFormatMatchView,
   SheetConditionalFormatStyleView,
   SheetDocumentView,
@@ -40,6 +41,9 @@ export class SheetSessionRepository {
   private readonly conditionalFormatErrorCodeSignal = createSignal<string | null>(null);
   private readonly rowQuerySignal = createSignal<SheetRowQueryStateView | null>(null);
   private readonly rowQueryErrorCodeSignal = createSignal<string | null>(null);
+  private readonly selectedChartIdSignal = createSignal<string | null>(null);
+  private readonly chartDataSignal = createSignal<SheetChartDataView | null>(null);
+  private readonly chartErrorCodeSignal = createSignal<string | null>(null);
 
   public readonly document: Accessor<SheetDocumentView | null> = this.documentSignal[0];
   public readonly status: Accessor<SheetSessionStatus> = this.statusSignal[0];
@@ -56,6 +60,9 @@ export class SheetSessionRepository {
     this.conditionalFormatErrorCodeSignal[0];
   public readonly rowQuery: Accessor<SheetRowQueryStateView | null> = this.rowQuerySignal[0];
   public readonly rowQueryErrorCode: Accessor<string | null> = this.rowQueryErrorCodeSignal[0];
+  public readonly selectedChartId: Accessor<string | null> = this.selectedChartIdSignal[0];
+  public readonly chartData: Accessor<SheetChartDataView | null> = this.chartDataSignal[0];
+  public readonly chartErrorCode: Accessor<string | null> = this.chartErrorCodeSignal[0];
 
   public conditionalFormatStyle(
     row: number,
@@ -113,6 +120,30 @@ export class SheetSessionRepository {
   public clearRowQuery(): void {
     this.rowQuerySignal[1](null);
     this.rowQueryErrorCodeSignal[1](null);
+  }
+
+  public beginChartDataLoad(chartId: string): void {
+    this.selectedChartIdSignal[1](chartId);
+    this.chartDataSignal[1](null);
+    this.chartErrorCodeSignal[1](null);
+  }
+
+  public setChartData(chartId: string, data: SheetChartDataView): void {
+    this.selectedChartIdSignal[1](chartId);
+    this.chartDataSignal[1](data);
+    this.chartErrorCodeSignal[1](null);
+  }
+
+  public setChartError(chartId: string | null, errorCode: string): void {
+    this.selectedChartIdSignal[1](chartId);
+    this.chartDataSignal[1](null);
+    this.chartErrorCodeSignal[1](errorCode);
+  }
+
+  public clearChartSelection(): void {
+    this.selectedChartIdSignal[1](null);
+    this.chartDataSignal[1](null);
+    this.chartErrorCodeSignal[1](null);
   }
 
   public setLoading(): void {

@@ -1,9 +1,11 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.7.0
-// Aciklama: Sheet belge, cell/format, table, conditional formatting, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
+// Version: 0.11.0
+// Aciklama: Sheet belge, cell/format, table, conditional formatting, chart, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
+
+import type { SheetChartType } from "../config/sheet-charts";
 
 export type SheetCellValueView =
   | { readonly kind: "text"; readonly value: string }
@@ -123,6 +125,49 @@ export interface SheetTableRemoveRequestView {
   readonly tableId: string;
 }
 
+export type SheetChartTypeView = SheetChartType;
+
+export interface SheetChartView {
+  readonly id: string;
+  readonly worksheetId: string;
+  readonly chartType: SheetChartTypeView;
+  readonly title: string;
+  readonly startRow: number;
+  readonly endRow: number;
+  readonly categoryColumn: number;
+  readonly valueColumn: number;
+}
+
+export interface SheetChartCreateRequestView {
+  readonly documentId: string;
+  readonly worksheetId: string;
+  readonly chartType: SheetChartTypeView;
+  readonly title: string;
+  readonly startRow: number;
+  readonly endRow: number;
+  readonly categoryColumn: number;
+  readonly valueColumn: number;
+}
+
+export interface SheetChartRemoveRequestView {
+  readonly documentId: string;
+  readonly chartId: string;
+}
+
+export interface SheetChartDataRequestView {
+  readonly documentId: string;
+  readonly chartId: string;
+}
+
+export interface SheetChartDataPointView {
+  readonly category: string;
+  readonly value: number;
+}
+
+export interface SheetChartDataView {
+  readonly points: readonly SheetChartDataPointView[];
+}
+
 export interface SheetRangeSummaryRequestView {
   readonly documentId: string;
   readonly worksheetId: string;
@@ -196,6 +241,7 @@ export interface SheetDocumentView {
   readonly worksheets: readonly SheetWorksheetView[];
   readonly conditionalFormats: readonly SheetConditionalFormatRuleView[];
   readonly tables: readonly SheetTableView[];
+  readonly charts: readonly SheetChartView[];
   readonly chartCount: number;
 }
 
