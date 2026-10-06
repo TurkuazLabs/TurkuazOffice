@@ -352,6 +352,73 @@ describe("SheetSessionService", () => {
     expect(repository.dirty()).toBe(true);
   });
 
+  it("preserves a newer chart selection while chart creation is pending", async () => {
+    const repository = new SheetSessionRepository();
+    const existingChart = {
+      id: "chart-existing",
+      worksheetId: "worksheet-1",
+      chartType: "line" as const,
+      title: "Mevcut",
+      startRow: 0,
+      endRow: 1,
+      categoryColumn: 0,
+      valueColumn: 1,
+    };
+    repository.setDocument({
+      ...DOCUMENT,
+      charts: [existingChart],
+      chartCount: 1,
+    });
+    const sheetTool = toolWithCalls([]);
+    let resolveCreate!: (value: SheetDocumentView) => void;
+    let signalCreateStarted!: () => void;
+    const createStarted = new Promise<void>((resolve) => {
+      signalCreateStarted = resolve;
+    });
+    sheetTool.createChart = async (request) => {
+      signalCreateStarted();
+      return new Promise<SheetDocumentView>((resolve) => {
+        resolveCreate = resolve;
+      });
+    };
+    sheetTool.getChartData = async (request) => ({
+      points: [{ category: request.chartId, value: 10 }],
+    });
+    const service = createService(repository, sheetTool);
+
+    await service.selectCell("A1", 0, 0);
+    await service.extendSelection(1, 1);
+    const creating = service.createChartFromSelection("bar", "Yeni");
+    await createStarted;
+    await service.selectChart(existingChart.id);
+
+    resolveCreate({
+      ...DOCUMENT,
+      revision: 2,
+      charts: [
+        existingChart,
+        {
+          id: "chart-new",
+          worksheetId: "worksheet-1",
+          chartType: "bar",
+          title: "Yeni",
+          startRow: 0,
+          endRow: 1,
+          categoryColumn: 0,
+          valueColumn: 1,
+        },
+      ],
+      chartCount: 2,
+    });
+    await creating;
+
+    expect(repository.document()?.charts).toHaveLength(2);
+    expect(repository.selectedChartId()).toBe(existingChart.id);
+    expect(repository.chartData()?.points).toEqual([
+      { category: existingChart.id, value: 10 },
+    ]);
+  });
+
   it("rejects chart creation unless the selection spans exactly two columns", async () => {
     const calls: string[] = [];
     const repository = new SheetSessionRepository();
