@@ -7,7 +7,10 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { WEB_IMPORT_FILE_TOO_LARGE_ERROR } from "../config/runtime-config";
+import {
+  WEB_DOWNLOAD_URL_REVOKE_DELAY_MS,
+  WEB_IMPORT_FILE_TOO_LARGE_ERROR,
+} from "../config/runtime-config";
 import { BrowserFileTransferTool } from "./browser-file-transfer.tool";
 
 const ACCEPT = ".tko";
@@ -46,6 +49,7 @@ function fileFixture(
 
 afterEach(() => {
   document.body.innerHTML = "";
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -100,7 +104,8 @@ describe("BrowserFileTransferTool", () => {
     expect(arrayBuffer).not.toHaveBeenCalled();
   });
 
-  it("downloads bytes with a temporary Blob URL and always revokes it", () => {
+  it("delays Blob URL revocation until after the browser can consume the download", () => {
+    vi.useFakeTimers();
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => undefined);
@@ -119,7 +124,11 @@ describe("BrowserFileTransferTool", () => {
 
     expect(click).toHaveBeenCalledOnce();
     expect(createObjectURL).toHaveBeenCalledOnce();
-    expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
+    expect(revokeObjectURL).not.toHaveBeenCalled();
     expect(document.querySelector("a[download]")).toBeNull();
+
+    vi.advanceTimersByTime(WEB_DOWNLOAD_URL_REVOKE_DELAY_MS);
+
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
   });
 });
