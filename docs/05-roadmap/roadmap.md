@@ -206,7 +206,7 @@ Bu uzanti R2'nin tamamlanmis baseline'ini degistirmez; yeni Sheet productivity d
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
 
-### Tamamlanan ilk foundation parcasi
+### Tamamlanan M3 parcalari
 
 - SolidJS + TypeScript + Vite browser client shell.
 - Controller -> Service -> Repo/Tool -> View -> Language web katman iskeleti.
@@ -217,11 +217,13 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - `turkuaz-office-core` icin `wasm32-unknown-unknown` compile gate'i.
 - Typed Rust Web Core ABI/schema capability yuzeyi.
 - Web tarafinda generated module icin `WasmCoreTool` adapter kontrati.
+- Pinned wasm-bindgen generated JavaScript/WASM artifact CI pipeline'i.
+- Browser runtime loader ve fail-closed WASM capability dogrulamasi.
+- IndexedDB canonical Core document persistence adapteri.
+- localStorage metadata index ile IndexedDB canonical payload ayrimi.
 
 ### M3 kalan kapsam
 
-- Generated Rust/WASM JavaScript binding ve runtime loader.
-- IndexedDB canonical document persistence.
 - Browser import/export.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
