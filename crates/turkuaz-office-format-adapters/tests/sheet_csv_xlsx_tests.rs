@@ -461,7 +461,7 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert!(worksheet_xml.contains("<conditionalFormatting"));
     assert!(worksheet_xml.contains("<tableParts count=\"1\">"));
     assert!(worksheet_xml.contains(r#"SEARCH("Tur~*~?~~kuaz",A2)"#));
-    assert!(!worksheet_xml.contains(r#"SEARCH(\"Turkuaz",A2)"#));
+    assert!(!worksheet_xml.contains(r#"SEARCH(\"Tur~*~?~~kuaz",A2)"#));
 
     let parsed_styles =
         SheetXlsxXmlTool::parse_differential_styles(entries.get("xl/styles.xml").expect("styles"))
