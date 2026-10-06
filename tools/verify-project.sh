@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.5
-# Aciklama: Umbrella release versionini korur; M3 Web storage, Writer TKO WASM bridge, typed Tool ve import/export Service composition kontratlarini uygular
+# Version: 0.12.0
+# Aciklama: Umbrella release versionini korur; M3 Web ve Desktop Start Center/Writer/Sheet UI refresh kontratlarini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -20,6 +20,7 @@ SHEET_FUNCTION_VERSION="0.8.0"
 SHEET_OOXML_VERSION="0.9.0"
 SHEET_FUNCTION_SIDEBAR_VERSION="0.10.0"
 SHEET_CHART_UI_VERSION="0.11.0"
+DESKTOP_UI_REFRESH_VERSION="0.12.0"
 M3_WEB_VERSION="0.4.0"
 
 required_files=(
@@ -576,7 +577,7 @@ grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
 grep -q 'materialize_on_text_insert: true' "$ROOT/config/project.yml"
-grep -q 'active_tab: home' "$ROOT/config/project.yml"
+grep -q 'layout: classic_menu_plus_toolbar' "$ROOT/config/project.yml"
 grep -q 'WRITER_PARAGRAPH_MARKER_VALUE' "$ROOT/apps/desktop/src/config/dom-contract.ts"
 grep -q 'WRITER_PARAGRAPH_SELECTOR' "$ROOT/apps/desktop/src/config/dom-contract.ts"
 grep -q 'WRITER_RIBBON_TABS' "$ROOT/apps/desktop/src/config/ribbon.ts"
@@ -593,7 +594,15 @@ grep -q 'TextOffsetTool' "$ROOT/apps/desktop/src/services/writer-session.service
 grep -q 'IPC_COMMANDS' "$ROOT/apps/desktop/src/tools/tauri-writer.tool.ts"
 grep -q 'capabilities: \["main-capability"\]' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
 grep -q 'suite_entrypoints: start_menu_shortcuts' "$ROOT/config/project.yml"
-grep -q 'in_app_module_switcher: false' "$ROOT/config/project.yml"
+grep -q 'in_app_module_switcher: true' "$ROOT/config/project.yml"
+grep -q 'default_launch_module: home' "$ROOT/config/project.yml"
+grep -q 'start_center: true' "$ROOT/config/project.yml"
+grep -q 'distinct_application_icons: true' "$ROOT/config/project.yml"
+grep -q 'StartCenter' "$ROOT/apps/desktop/src/main.tsx"
+grep -q 'SuiteTitlebar' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'SuiteTitlebar' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
+grep -q 'kind="writer"' "$ROOT/apps/desktop/src/views/start-center.tsx"
+grep -q 'kind="sheet"' "$ROOT/apps/desktop/src/views/start-center.tsx"
 grep -q 'windows_console_window: false' "$ROOT/config/project.yml"
 grep -q 'installerHooks: "./windows/installer-hooks.nsh"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
 grep -q 'startMenuFolder: "Turkuaz Office"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
@@ -605,7 +614,7 @@ grep -q 'windows_subsystem = "windows"' "$ROOT/apps/desktop/src-tauri/src/main.r
 grep -q 'desktop_get_launch_module' "$ROOT/apps/desktop/src-tauri/src/lib.rs"
 grep -q 'DesktopLaunchTool' "$ROOT/apps/desktop/src/main.tsx"
 if grep -q 'OfficeModuleSwitcher' "$ROOT/apps/desktop/src/views/writer-shell.tsx" "$ROOT/apps/desktop/src/views/sheet-shell.tsx"; then
-  echo "In-app module switcher suite kontratina aykiri." >&2
+  echo "Eski OfficeModuleSwitcher artik kullanilmamali." >&2
   exit 1
 fi
 
@@ -1102,18 +1111,37 @@ for sheet_chart_ui_file in \
   "$ROOT/apps/desktop/src/views/sheet-chart-renderer.tsx" \
   "$ROOT/apps/desktop/src/views/sheet-chart-renderer.test.tsx" \
   "$ROOT/apps/desktop/src/views/sheet-charts-sidebar.tsx" \
-  "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
-  "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
-  "$ROOT/apps/desktop/src/language/labels.ts" \
-  "$ROOT/apps/desktop/src/language/tr.ts" \
-  "$ROOT/apps/desktop/src/language/en.ts" \
-  "$ROOT/apps/desktop/src/views/app.css" \
   "$ROOT/apps/desktop/src-tauri/src/views/sheet_dto.rs" \
   "$ROOT/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs" \
   "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs" \
   "$ROOT/apps/desktop/src-tauri/src/lib.rs"; do
   grep -q "Version: $SHEET_CHART_UI_VERSION" "$sheet_chart_ui_file"
 done
+
+for desktop_ui_refresh_file in \
+  "$ROOT/apps/desktop/src/main.tsx" \
+  "$ROOT/apps/desktop/src/config/office-modules.ts" \
+  "$ROOT/apps/desktop/src/config/ribbon.ts" \
+  "$ROOT/apps/desktop/src/config/ui-tokens.css" \
+  "$ROOT/apps/desktop/src/tools/desktop-launch.tool.ts" \
+  "$ROOT/apps/desktop/src/views/start-center.tsx" \
+  "$ROOT/apps/desktop/src/views/suite-icon.tsx" \
+  "$ROOT/apps/desktop/src/views/suite-titlebar.tsx" \
+  "$ROOT/apps/desktop/src/views/writer-ribbon.tsx" \
+  "$ROOT/apps/desktop/src/views/writer-shell.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
+  "$ROOT/apps/desktop/src/language/labels.ts" \
+  "$ROOT/apps/desktop/src/language/tr.ts" \
+  "$ROOT/apps/desktop/src/language/en.ts" \
+  "$ROOT/apps/desktop/src/views/app.css" \
+  "$ROOT/apps/desktop/src-tauri/src/tools/desktop_launch_tool.rs"; do
+  grep -q "Version: $DESKTOP_UI_REFRESH_VERSION" "$desktop_ui_refresh_file"
+done
+
+grep -q 'DesktopLaunchModule::Home' "$ROOT/apps/desktop/src-tauri/src/tools/desktop_launch_tool.rs"
+grep -q 'writer-editor-layout' "$ROOT/apps/desktop/src/views/writer-shell.tsx"
+grep -q 'sheet-menubar__active' "$ROOT/apps/desktop/src/views/sheet-menubar.tsx"
 
 
 
