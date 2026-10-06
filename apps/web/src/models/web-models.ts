@@ -21,6 +21,28 @@ export interface WebCanonicalDocumentRecord {
 
 export type WebDocumentStorageKind = "indexed-db";
 
+export interface WebFilePickRequest {
+  readonly accept: string;
+  readonly maxBytes: number;
+}
+
+export interface WebPickedFile {
+  readonly name: string;
+  readonly mediaType: string;
+  readonly bytes: Uint8Array;
+}
+
+export interface WebDownloadFile {
+  readonly fileName: string;
+  readonly mediaType: string;
+  readonly bytes: Uint8Array;
+}
+
+export interface WebImportExportCapabilities {
+  readonly browserFileTransferAvailable: true;
+  readonly nativeTkoCodecAvailable: false;
+}
+
 export interface WebCoreCapabilities {
   readonly bridgeKind: string;
   readonly abiVersion: number;
