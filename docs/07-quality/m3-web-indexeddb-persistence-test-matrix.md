@@ -15,9 +15,13 @@
 | Deterministic list | Repository unit testi | canonical kayitlar id bazli deterministic siralanir |
 | Metadata repair | Repository unit testi | stale metadata silinir, IndexedDB kayitlari indexe yansir |
 | Remove | Repository unit testi | canonical payload ve metadata kaydi birlikte silinir |
-| Invalid record | Repository unit testi | schemaVersion/revision guard yazmadan once reddeder |
+| Invalid record | Repository unit testi | current schema disindaki kaydi save/get/list akislarinda reddeder |
 | Bootstrap success | WebBootstrapService unit testi | IndexedDB available ve canonical belge sayisi raporlanir |
 | Bootstrap failure | WebBootstrapService unit testi | localStorage payload fallback yapmadan unavailable raporlanir |
+| Metadata partial failure | Repository unit testi | canonical commit/silme basarili kalir; metadata daha sonra list ile onarilir |
+| IndexedDB blocked open | Tool unit testi | blocked terminal hata sayilmaz; sonraki success kabul edilir |
+| IndexedDB sync open error | Tool unit testi | rejected open cache temizlenir ve sonraki islem retry eder |
+| IndexedDB unexpected close | Tool unit testi | cached connection temizlenir ve sonraki islem yeniden acar |
 | Browser API compile | npm run build | DOM IndexedDB tipleri strict TypeScript ile derlenir |
 | Web regression | npm test | tum Web unit testleri yesil |
 | Static contract | tools/verify-project.sh | aktif IndexedDB ve runtime-loader kontrati dogrulanir |
