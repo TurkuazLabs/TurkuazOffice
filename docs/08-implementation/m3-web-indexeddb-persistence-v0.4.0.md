@@ -31,8 +31,10 @@ Repository:
 
 - canonical kaydi IndexedDB Tool'a yazar
 - get/list/remove islemlerini typed kontratla sunar
+- yalniz current Core schemaVersion kayitlarini kabul eder
 - list sirasinda corrupt/uyumsuz kayitlari canonical listeye almaz
-- metadata indexini IndexedDB gercekligiyle senkronize eder
+- metadata indexini IndexedDB gercekligiyle best-effort senkronize eder
+- metadata yazma hatasi canonical commit veya silmeyi basarisiz gostermez
 - canonical payload text alanini localStorage'a yazmaz
 
 ## IndexedDB kontrati
@@ -44,7 +46,9 @@ Database adi, version, object-store adi ve keyPath merkezi runtime config icinde
 - store: documents
 - keyPath: id
 
-Upgrade yalniz eksik object store'u olusturur. Canonical belge silme islemi metadata index kaydini da siler.
+Upgrade yalniz eksik object store'u olusturur. Blocked open terminal hata sayilmaz; request success/error sonucuna kadar pending kalir. Senkron open hatasi veya beklenmeyen database close sonrasinda connection cache temizlenir ve sonraki islem yeniden deneyebilir.
+
+Canonical belge silme islemi metadata index kaydini best-effort siler; localStorage hatasi canonical IndexedDB sonucunu geri almaz. Sonraki canonical list akisi metadata indexini yeniden uzlastirir.
 
 ## Fallback siniri
 
