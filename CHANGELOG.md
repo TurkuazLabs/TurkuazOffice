@@ -8,6 +8,14 @@ Bagimli Oldugu Katman: Documentation
 
 # Changelog
 
+## Unreleased - M3 Web v0.4.0
+
+- Pinned wasm-bindgen generated Web WASM artifact pipeline ve browser runtime loader aktif hale getirildi.
+- Canonical Core document payload persistence IndexedDB `turkuaz-office-web/documents` store'una baglandi.
+- localStorage yalniz id/title/revision metadata indexi olarak tutuldu; canonical text payload localStorage'a yazilmaz.
+- IndexedDB unavailable durumunda canonical payload icin sessiz localStorage fallback yasaklandi.
+- Web bootstrap canonical storage availability ve belge sayisini typed ViewModel ile raporlar.
+
 ## Unreleased - Sheet Productivity Extensions
 
 - v0.11.0 Basic Charts Desktop UI eklendi.
