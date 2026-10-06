@@ -50,7 +50,10 @@ describe("BrowserIndexedDbDocumentTool database lifecycle", () => {
     const access = databaseAccess(new BrowserIndexedDbDocumentTool(factory));
 
     const opening = access.database();
-    request.onblocked?.call(request, new Event("blocked"));
+    request.onblocked?.call(
+      request,
+      new Event("blocked") as unknown as IDBVersionChangeEvent,
+    );
     request.onsuccess?.call(request, new Event("success"));
 
     await expect(opening).resolves.toBe(database);
