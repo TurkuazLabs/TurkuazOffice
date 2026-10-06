@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/build-web-wasm.sh
 # 📌 Amac: Rust Web aggregate bridge wasm32 binarysini pinned wasm-bindgen ile browser-ready JS/WASM artifactina donusturur
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.1.0
+# Version: 0.2.0
 # Aciklama: Core capability + Writer TKO codec bridge release build, generated binding ve export kontrat kontrolunu tek komutta toplar
 # Bagimli Oldugu Katman: Tool | Config
 
