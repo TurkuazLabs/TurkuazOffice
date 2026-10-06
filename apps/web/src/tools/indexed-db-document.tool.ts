@@ -51,22 +51,36 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
       return this.databasePromise;
     }
 
-    this.databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
+    const opening = this.openDatabase();
+    this.databasePromise = opening;
+
+    void opening.then(
+      (database) => {
+        database.onversionchange = () => {
+          database.close();
+          this.clearDatabasePromise(opening);
+        };
+        database.onclose = () => {
+          this.clearDatabasePromise(opening);
+        };
+      },
+      () => {
+        this.clearDatabasePromise(opening);
+      },
+    );
+
+    return opening;
+  }
+
+  private openDatabase(): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
       let request: IDBOpenDBRequest;
-      let failed = false;
       try {
         request = this.factory.open(WEB_DOCUMENT_DB_NAME, WEB_DOCUMENT_DB_VERSION);
       } catch (error: unknown) {
-        this.databasePromise = null;
         reject(error);
         return;
       }
-
-      const fail = (error: DOMException | Error | null): void => {
-        failed = true;
-        this.databasePromise = null;
-        reject(error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
-      };
 
       request.onupgradeneeded = () => {
         const database = request.result;
@@ -76,22 +90,19 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
           });
         }
       };
-      request.onsuccess = () => {
-        const database = request.result;
-        if (failed) {
-          database.close();
-          return;
-        }
-        database.onversionchange = () => {
-          database.close();
-          this.databasePromise = null;
-        };
-        resolve(database);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () =>
+        reject(request.error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
+      request.onblocked = () => {
+        // IndexedDB blocked is informational; the request may succeed after peers close.
       };
-      request.onerror = () => fail(request.error);
-      request.onblocked = () => fail(new Error(WEB_INDEXED_DB_OPERATION_ERROR));
     });
-    return this.databasePromise;
+  }
+
+  private clearDatabasePromise(opening: Promise<IDBDatabase>): void {
+    if (this.databasePromise === opening) {
+      this.databasePromise = null;
+    }
   }
 
   private async request(
