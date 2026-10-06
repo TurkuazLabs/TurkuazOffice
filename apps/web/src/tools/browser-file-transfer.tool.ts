@@ -5,7 +5,10 @@
 // Aciklama: Native filesystem yetkisi istemeden input-file ingress ve Blob object-URL egress byte tasimasini saglar
 // Bagimli Oldugu Katman: Tool -> Config
 
-import { WEB_IMPORT_FILE_TOO_LARGE_ERROR } from "../config/runtime-config";
+import {
+  WEB_DOWNLOAD_URL_REVOKE_DELAY_MS,
+  WEB_IMPORT_FILE_TOO_LARGE_ERROR,
+} from "../config/runtime-config";
 import type {
   WebDownloadFile,
   WebFilePickRequest,
@@ -103,7 +106,9 @@ export class BrowserFileTransferTool implements WebBrowserFileTransferTool {
       anchor.click();
     } finally {
       anchor.remove();
-      this.objectUrlApi.revokeObjectURL(url);
+      globalThis.setTimeout(() => {
+        this.objectUrlApi.revokeObjectURL(url);
+      }, WEB_DOWNLOAD_URL_REVOKE_DELAY_MS);
     }
   }
 }
