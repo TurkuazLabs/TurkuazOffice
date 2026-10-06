@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Writer ana pencere kompozisyonunu render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.5.0
+// # Version: 0.12.0
 // # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
@@ -17,6 +17,7 @@ import { WriterPage } from "./writer-page";
 import { WriterPrintPreview } from "./writer-print-preview";
 import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banner";
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
+import { SuiteTitlebar } from "./suite-titlebar";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
 import { WriterRibbon } from "./writer-ribbon";
@@ -25,6 +26,7 @@ interface WriterShellProps {
   readonly controller: WriterController;
   readonly repository: WriterSessionRepository;
   readonly language: LanguageService;
+  readonly onHome?: () => void;
 }
 
 export function WriterShell(props: WriterShellProps) {
@@ -142,13 +144,14 @@ export function WriterShell(props: WriterShellProps) {
   };
 
   return (
-    <div class="office-shell">
-      <header class="office-titlebar">
-        <strong>{props.language.text("appName")} {props.language.text("writerModule")}</strong>
-        <span class="office-titlebar__document">
-          {props.repository.filePath() ?? props.language.text("untitledDocument")}
-        </span>
-      </header>
+    <div class="office-shell office-shell--writer">
+      <SuiteTitlebar
+        moduleIcon="writer"
+        moduleName={props.language.text("writerModule")}
+        documentName={props.repository.filePath() ?? props.language.text("untitledDocument")}
+        language={props.language}
+        onHome={props.onHome}
+      />
       <div class="office-command-area">
         <Show when={props.repository.document() !== null || props.repository.recoveryCandidates().length === 0}>
           <WriterRibbon controller={props.controller} language={props.language} />
