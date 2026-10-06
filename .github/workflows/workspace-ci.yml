@@ -88,8 +88,29 @@ jobs:
       - name: Install wasm-bindgen CLI
         run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Web Dependencies
+        working-directory: apps/web
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+
       - name: Build Generated Web WASM
         run: bash ./tools/build-web-wasm.sh
+
+      - name: Build Web With Generated WASM
+        working-directory: apps/web
+        run: npm run build
+
+      - name: Browser WASM Smoke
+        working-directory: apps/web
+        run: npm run smoke:wasm
 
       - name: Upload Web WASM Artifact
         uses: actions/upload-artifact@v4

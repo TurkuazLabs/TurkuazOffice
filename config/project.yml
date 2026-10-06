@@ -96,6 +96,7 @@ web_client:
   wasm_binding_url: /wasm/turkuaz_office_core.js
   wasm_bindgen_version: 0.2.129
   wasm_artifact_ci: true
+  wasm_browser_smoke: chromium
   import_export: planned
   offline_cache: planned
 
