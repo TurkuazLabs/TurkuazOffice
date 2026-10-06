@@ -28,6 +28,7 @@ modules:
     - writer
     - sheet
     - format_adapters
+    - web_bridge
   planned:
     - slides
     - plugin
