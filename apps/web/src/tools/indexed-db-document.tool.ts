@@ -94,7 +94,7 @@ export class BrowserIndexedDbDocumentTool implements WebIndexedDbDocumentTool {
       request.onerror = () =>
         reject(request.error ?? new Error(WEB_INDEXED_DB_OPERATION_ERROR));
       request.onblocked = () => {
-        // IndexedDB blocked is informational; the request may succeed after peers close.
+        // Blocked bildirimi terminal hata degildir; diger baglanti kapaninca istek tamamlanabilir.
       };
     });
   }
