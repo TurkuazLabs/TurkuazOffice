@@ -12,6 +12,8 @@ import { WebController } from "./controllers/web-controller";
 import { BrowserDocumentIndexRepository } from "./repositories/browser-document-index.repository";
 import { IndexedDbDocumentRepository } from "./repositories/indexeddb-document.repository";
 import { WebBootstrapService } from "./services/web-bootstrap-service";
+import { WebImportExportService } from "./services/web-import-export.service";
+import { BrowserFileTransferTool } from "./tools/browser-file-transfer.tool";
 import { BrowserIndexedDbDocumentTool } from "./tools/indexed-db-document.tool";
 import { loadWebCoreTool } from "./tools/wasm-core-runtime-loader";
 import { App } from "./views/App";
@@ -22,8 +24,10 @@ async function bootstrap(): Promise<void> {
   const indexedDbTool = new BrowserIndexedDbDocumentTool(window.indexedDB);
   const repository = new IndexedDbDocumentRepository(indexedDbTool, metadataIndex);
   const loadedCore = await loadWebCoreTool();
-  const service = new WebBootstrapService(repository, loadedCore.tool);
-  const controller = new WebController(service);
+  const bootstrapService = new WebBootstrapService(repository, loadedCore.tool);
+  const fileTransferTool = new BrowserFileTransferTool(document, URL);
+  const importExportService = new WebImportExportService(fileTransferTool);
+  const controller = new WebController(bootstrapService, importExportService);
   const state = await controller.initialize();
 
   const root = document.getElementById(WEB_APP_ROOT_ID);

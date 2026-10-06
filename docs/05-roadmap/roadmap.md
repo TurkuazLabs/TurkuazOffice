@@ -221,10 +221,13 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - Browser runtime loader ve fail-closed WASM capability dogrulamasi.
 - IndexedDB canonical Core document persistence adapteri.
 - localStorage metadata index ile IndexedDB canonical payload ayrimi.
+- Browser file picker + Blob download byte-transfer Tool foundation'i.
+- .tko accept/download profili ve 16 MiB pre-read browser ingress guardi.
+- TKO codec hazir olmadan View aksiyonu acmayan import/export Service siniri.
 
 ### M3 kalan kapsam
 
-- Browser import/export.
+- Browser TKO codec/domain mapping ve gercek import/export urun akisi.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
 
