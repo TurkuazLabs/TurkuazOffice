@@ -340,6 +340,12 @@ required_files=(
   "docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md"
   "docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md"
   "docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"
+  "apps/web/src/repositories/web-writer-session.repository.ts"
+  "apps/web/src/repositories/web-writer-session.repository.test.ts"
+  "apps/web/src/services/web-writer-session.service.ts"
+  "apps/web/src/services/web-writer-session.service.test.ts"
+  "docs/08-implementation/m3-web-writer-session-repository-v0.4.0.md"
+  "docs/07-quality/m3-web-writer-session-repository-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -551,7 +557,13 @@ for m3_web_file in \
   "$ROOT/docs/08-implementation/m3-web-writer-tko-ts-tool-v0.4.0.md" \
   "$ROOT/docs/07-quality/m3-web-writer-tko-ts-tool-test-matrix.md" \
   "$ROOT/docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md" \
-  "$ROOT/docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md"; do
+  "$ROOT/docs/07-quality/m3-web-tko-import-export-composition-test-matrix.md" \
+  "$ROOT/apps/web/src/repositories/web-writer-session.repository.ts" \
+  "$ROOT/apps/web/src/repositories/web-writer-session.repository.test.ts" \
+  "$ROOT/apps/web/src/services/web-writer-session.service.ts" \
+  "$ROOT/apps/web/src/services/web-writer-session.service.test.ts" \
+  "$ROOT/docs/08-implementation/m3-web-writer-session-repository-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-writer-session-repository-test-matrix.md"; do
   grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
 done
 
