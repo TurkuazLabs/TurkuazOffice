@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   WEB_BROWSER_IMPORT_MAX_BYTES,
+  WEB_IMPORT_FILE_TOO_LARGE_ERROR,
   WEB_NATIVE_DOCUMENT_ACCEPT,
   WEB_NATIVE_DOCUMENT_MIME_TYPE,
   WEB_UNSUPPORTED_IMPORT_FILE_ERROR,
@@ -46,6 +47,20 @@ describe("WebImportExportService", () => {
       accept: WEB_NATIVE_DOCUMENT_ACCEPT,
       maxBytes: WEB_BROWSER_IMPORT_MAX_BYTES,
     });
+  });
+
+  it("rechecks returned byte length even if a Tool fake bypasses pre-read limits", async () => {
+    const service = new WebImportExportService(
+      toolFixture({
+        name: "large.tko",
+        mediaType: WEB_NATIVE_DOCUMENT_MIME_TYPE,
+        bytes: new Uint8Array(WEB_BROWSER_IMPORT_MAX_BYTES + 1),
+      }),
+    );
+
+    await expect(service.pickNativeDocumentBytes()).rejects.toThrow(
+      WEB_IMPORT_FILE_TOO_LARGE_ERROR,
+    );
   });
 
   it("rejects a selected file outside the native TKO extension contract", async () => {
