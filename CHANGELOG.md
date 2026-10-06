@@ -15,6 +15,9 @@ Bagimli Oldugu Katman: Documentation
 - localStorage yalniz id/title/revision metadata indexi olarak tutuldu; canonical text payload localStorage'a yazilmaz.
 - IndexedDB unavailable durumunda canonical payload icin sessiz localStorage fallback yasaklandi.
 - Web bootstrap canonical storage availability ve belge sayisini typed ViewModel ile raporlar.
+- Browser file input ingress ve Blob/object-URL download egress byte transport foundation'i eklendi.
+- .tko accept/download profili ve 16 MiB pre-read browser import guardi merkezi config'e alindi.
+- TKO codec henuz Rust domain bridge bekledigi icin View import/export aksiyonlari bilerek acilmadi.
 
 ## Unreleased - Sheet Productivity Extensions
 
