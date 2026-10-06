@@ -10,7 +10,7 @@ use std::collections::BTreeMap;
 use turkuaz_office_core::{DocumentId, DocumentSchemaVersion};
 use turkuaz_office_format_adapters::{
     SheetCsvError, SheetCsvService, SheetCsvTool, SheetXlsxArchiveTool, SheetXlsxError,
-    SheetXlsxService,
+    SheetXlsxService, SheetXlsxXmlTool,
 };
 use turkuaz_office_sheet::config::constants::{MAX_SHEET_COLUMNS, MAX_SHEET_ROWS};
 use turkuaz_office_sheet::{
@@ -460,6 +460,24 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert!(worksheet_xml.contains("<tableParts count=\"1\">"));
     assert!(worksheet_xml.contains(r#"SEARCH("Turkuaz",A2)"#));
     assert!(!worksheet_xml.contains(r#"SEARCH(\"Turkuaz",A2)"#));
+
+    let parsed_styles = SheetXlsxXmlTool::parse_differential_styles(
+        entries.get("xl/styles.xml").expect("styles"),
+    )
+    .expect("parse differential styles");
+    assert_eq!(parsed_styles.len(), 3);
+
+    let (parsed_rules, parsed_table_relationships) =
+        SheetXlsxXmlTool::parse_worksheet_metadata(
+            entries
+                .get("xl/worksheets/sheet1.xml")
+                .expect("worksheet metadata"),
+        )
+        .expect("parse worksheet metadata");
+    assert_eq!(parsed_rules.len(), 2);
+    assert_eq!(parsed_rules[0].differential_style_id, 0);
+    assert_eq!(parsed_rules[1].differential_style_id, 2);
+    assert_eq!(parsed_table_relationships, vec!["rId1".to_owned()]);
 
     let ids = SequentialSheetIdTool::new();
     let restored =
