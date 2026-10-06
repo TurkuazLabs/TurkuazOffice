@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-wasm-core-v0.4.0.md
 # 📌 Amac: M3 Web icin compile-verified Rust WASM Core diliminin kapsam ve sinirlarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.1
+# Version: 0.1.2
 # Aciklama: wasm32 hedefi, Core ABI capability API'si, Web Tool adapter kontrati ve sonraki binding adimini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
@@ -46,8 +46,9 @@ Browser metadata storage capability Rust Core'un canonical document modeli degil
 2. `wasm32-unknown-unknown` targetini kurar.
 3. Project contract'i dogrular.
 4. Native workspace `cargo check` calistirir.
-5. `cargo check -p turkuaz-office-core --target wasm32-unknown-unknown` calistirir.
-6. Rustfmt ve Clippy gate'lerini calistirir.
+5. `cargo check -p turkuaz-office-core --target wasm32-unknown-unknown --features web-wasm-exports` ile standalone Core export surface'ini dogrular.
+6. `cargo check -p turkuaz-office-web-bridge --target wasm32-unknown-unknown` ile aggregate bridge'i dogrular.
+7. Rustfmt ve Clippy gate'lerini calistirir.
 
 Bu gate gecmeden WASM-compatible Core dilimi tamamlanmis sayilmaz.
 
@@ -62,6 +63,6 @@ Bu gate gecmeden WASM-compatible Core dilimi tamamlanmis sayilmaz.
 
 ## Takip eden durum
 
-Pinned wasm-bindgen generated artifact pipeline'i ve browser runtime loader sonraki M3 dilimlerinde tamamlanmistir. Runtime, generated binding mevcutsa `WasmCoreTool` kullanir; artifact yoksa yalniz capability foundation icin browser-contract fallback uygulanir.
+Pinned wasm-bindgen generated artifact pipeline'i ve browser runtime loader sonraki M3 dilimlerinde tamamlanmistir. Generated artifact artik Core + Writer TKO exportlarini tasiyan `turkuaz-office-web-bridge` aggregate crate'inden uretilir. Core standalone exportlari `web-wasm-exports` feature'i ile korunur.
 
-Canonical belge persistence'i IndexedDB diliminde ele alinmistir.
+Runtime, generated binding mevcutsa `WasmCoreTool` kullanir; artifact yoksa yalniz capability foundation icin browser-contract fallback uygulanir. Canonical Core belge persistence'i IndexedDB diliminde ele alinmistir.
