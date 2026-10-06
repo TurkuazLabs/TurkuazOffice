@@ -24,6 +24,8 @@ Bagimli Oldugu Katman: Documentation
 - Core standalone wasm-bindgen exportlari duplicate aggregate symbol riskini engellemek icin web-wasm-exports feature'i ile gate edildi.
 - Generated Writer TKO WASM exportlari typed `WasmWriterTkoTool` adapterine baglandi.
 - Aggregate runtime loader Writer TKO exportlarini fail-closed dogrular; browser fallback codec capability iddia etmez.
+- Browser file-transfer ve typed Writer TKO Tool WebImportExportService icinde compose edildi.
+- Import Rust-backed inspect ile dogrulanir; export download oncesi canonical re-encode edilir; View aksiyonlari kapali kalir.
 
 ## Unreleased - Sheet Productivity Extensions
 
