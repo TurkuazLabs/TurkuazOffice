@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office monorepo giris dokumani ve gelistirme yonlendirmesi
 # 📌 Modul - FileType: Docs - Markdown
 # Version: 0.3.1
-# Aciklama: Tamamlanan Writer, Sheet engine ve Sheet Desktop baseline durumunu monorepo girisinde ozetler
+# Aciklama: Writer, Sheet, modern Desktop Start Center ve aktif Web foundation durumunu monorepo girisinde ozetler
 
 Bagimli Oldugu Katman: Documentation
 
@@ -13,6 +13,32 @@ Turkuaz Office; Windows ve Linux ile baslayan, ileride macOS, Web, Android ve iO
 ## Urun hedefi
 
 Microsoft Office ile ozellik sayisi yarisi yapmak hedef degildir. Hedef; gunluk belge, tablo ve sunum islerini hizli, sade, guvenilir ve genisletilebilir bir urunle karsilamaktir.
+
+## Yeni Desktop deneyimi
+
+Turkuaz Office masaustu arayuzu v0.12.0 UI Refresh ile tek urun ailesi kimligine gecmektedir. Normal uygulama acilisi modern Baslangic Merkezi'ne gelir; Writer ve Sheet ayni pencere icinden acilir ve her uygulama kendine ait ikon/renk kimligini kullanir.
+
+![Turkuaz Office UI konsepti](docs/assets/ui/ui-concept.jpg)
+
+### Baslangic Merkezi
+
+Writer, Sheet, Son Belgeler ve Sablonlar icin merkezi suite giris deneyimi:
+
+![Turkuaz Office Baslangic Merkezi](docs/assets/ui/start-center.jpg)
+
+### Writer
+
+Klasik kelime islemci menu sirasi, modern command toolbar, Sayfalar paneli ve Ozellikler paneli:
+
+![Turkuaz Office Writer UI](docs/assets/ui/writer-ui.jpg)
+
+### Sheet
+
+Spreadsheet odakli menu/ribbon, formul cubugu, grid ve analiz panelleri ile ayri yesil uygulama kimligi:
+
+![Turkuaz Office Sheet UI](docs/assets/ui/sheet-ui.jpg)
+
+Bu gorseller onaylanan hedef UI yonunu gosteren proje tanitim konseptleridir. Gercek Desktop uygulamasi bu tasarim diline asamali olarak yaklastirilir; mevcut calisan command ve canonical document kontratlari korunur.
 
 ## Writer M1 v0.2.0 durumu
 
