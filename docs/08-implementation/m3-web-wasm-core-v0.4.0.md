@@ -60,6 +60,8 @@ Bu gate gecmeden WASM-compatible Core dilimi tamamlanmis sayilmaz.
 - Browser import/export.
 - Service Worker / Cache Storage offline cache.
 
-## Sonraki dilim
+## Takip eden durum
 
-Siradaki teknik adim, bu compile-verified Rust API'sini generated WASM binding ile browser runtime'a baglamak ve `BrowserCoreContractTool` yerine gercek `WasmCoreTool` composition'i kullanmaktir.
+Pinned wasm-bindgen generated artifact pipeline'i ve browser runtime loader sonraki M3 dilimlerinde tamamlanmistir. Runtime, generated binding mevcutsa `WasmCoreTool` kullanir; artifact yoksa yalniz capability foundation icin browser-contract fallback uygulanir.
+
+Canonical belge persistence'i IndexedDB diliminde ele alinmistir.
