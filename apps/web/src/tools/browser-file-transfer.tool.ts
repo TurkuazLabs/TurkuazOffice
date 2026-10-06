@@ -87,7 +87,11 @@ export class BrowserFileTransferTool implements WebBrowserFileTransferTool {
         { once: true },
       );
       input.addEventListener("cancel", () => finish(null), { once: true });
-      input.click();
+      try {
+        input.click();
+      } catch (error: unknown) {
+        fail(error);
+      }
     });
   }
 
@@ -96,16 +100,17 @@ export class BrowserFileTransferTool implements WebBrowserFileTransferTool {
       type: file.mediaType,
     });
     const url = this.objectUrlApi.createObjectURL(blob);
-    const anchor = this.document.createElement("a");
-    anchor.href = url;
-    anchor.download = file.fileName;
-    anchor.hidden = true;
-    this.document.body.append(anchor);
+    let anchor: HTMLAnchorElement | null = null;
 
     try {
+      anchor = this.document.createElement("a");
+      anchor.href = url;
+      anchor.download = file.fileName;
+      anchor.hidden = true;
+      this.document.body.append(anchor);
       anchor.click();
     } finally {
-      anchor.remove();
+      anchor?.remove();
       globalThis.setTimeout(() => {
         this.objectUrlApi.revokeObjectURL(url);
       }, WEB_DOWNLOAD_URL_REVOKE_DELAY_MS);
