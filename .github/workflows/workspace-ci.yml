@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
 # 📌 Amac: Rust Core/Writer/Sheet/Web bridge, Desktop, M3 Web ve generated WASM binding artifact kalite kontrollerini calistirir
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.1
+# Version: 0.4.0
 # Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core+Web bridge check, generated aggregate binding artifact ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
