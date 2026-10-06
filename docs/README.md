@@ -260,6 +260,8 @@ Kod ile dokuman farkli gerceklikler olamaz. Public contract, schema, security ve
 - `08-implementation/sheet-ooxml-metadata-v0.9.0.md`
 - `08-implementation/sheet-functions-sidebar-v0.10.0.md`
 - `07-quality/sheet-functions-sidebar-test-matrix.md`
+- `08-implementation/sheet-basic-charts-ui-v0.11.0.md`
+- `07-quality/sheet-basic-charts-ui-test-matrix.md`
 
 
 ## M3 Web ekleri

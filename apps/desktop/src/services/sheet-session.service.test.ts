@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.10.0
-// Aciklama: Function draft, dirty-state, table object, conditional formatting, range summary, stale query, freeze, filter-sort ve typed mutation davranislarini dogrular
+// Version: 0.11.0
+// Aciklama: Chart, function draft, dirty-state, table object, conditional formatting, range summary, stale query, freeze, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
@@ -30,6 +30,7 @@ const DOCUMENT: SheetDocumentView = {
   ],
   conditionalFormats: [],
   tables: [],
+  charts: [],
   chartCount: 0,
 };
 
@@ -109,6 +110,35 @@ function toolWithCalls(calls: string[]): TauriSheetTool {
       return { ...DOCUMENT, revision: 2, conditionalFormats: [] };
     },
     getConditionalFormatMatches: async () => [],
+    createChart: async (request) => {
+      calls.push(
+        `chart:create:${request.chartType}:${request.title}:${String(request.startRow)}:${String(request.endRow)}:${String(request.categoryColumn)}:${String(request.valueColumn)}`,
+      );
+      const chart = {
+        id: "chart-1",
+        worksheetId: request.worksheetId,
+        chartType: request.chartType,
+        title: request.title,
+        startRow: request.startRow,
+        endRow: request.endRow,
+        categoryColumn: request.categoryColumn,
+        valueColumn: request.valueColumn,
+      };
+      return { ...DOCUMENT, revision: 1, charts: [chart], chartCount: 1 };
+    },
+    removeChart: async (request) => {
+      calls.push(`chart:remove:${request.chartId}`);
+      return { ...DOCUMENT, revision: 2, charts: [], chartCount: 0 };
+    },
+    getChartData: async (request) => {
+      calls.push(`chart:data:${request.chartId}`);
+      return {
+        points: [
+          { category: "Ocak", value: 10 },
+          { category: "Subat", value: 20 },
+        ],
+      };
+    },
     getRangeSummary: async (request) => {
       calls.push(
         `summary:${String(request.range.startRow)}:${String(request.range.endRow)}:${String(request.range.startColumn)}:${String(request.range.endColumn)}`,
@@ -296,6 +326,134 @@ describe("SheetSessionService", () => {
         decimalPlaces: 2,
       },
     });
+  });
+
+  it("creates and selects a canonical chart from an exact two-column range", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    await service.extendSelection(2, 1);
+    calls.length = 0;
+    await service.createChartFromSelection("bar", "Aylik Satis");
+
+    expect(calls).toEqual([
+      "chart:create:bar:Aylik Satis:0:2:0:1",
+      "chart:data:chart-1",
+    ]);
+    expect(repository.document()?.charts).toHaveLength(1);
+    expect(repository.selectedChartId()).toBe("chart-1");
+    expect(repository.chartData()?.points).toEqual([
+      { category: "Ocak", value: 10 },
+      { category: "Subat", value: 20 },
+    ]);
+    expect(repository.dirty()).toBe(true);
+  });
+
+  it("rejects chart creation unless the selection spans exactly two columns", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectCell("A1", 0, 0);
+    await service.extendSelection(2, 2);
+    calls.length = 0;
+    await service.createChartFromSelection("line", "Gecersiz");
+
+    expect(calls).toEqual([]);
+    expect(repository.chartErrorCode()).toBe(ERROR_CODES.sheetInvalidChartRange);
+    expect(repository.document()?.charts).toEqual([]);
+  });
+
+  it("ignores stale chart data after a newer chart selection", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      charts: [
+        {
+          id: "chart-1",
+          worksheetId: "worksheet-1",
+          chartType: "bar",
+          title: "Bir",
+          startRow: 0,
+          endRow: 1,
+          categoryColumn: 0,
+          valueColumn: 1,
+        },
+        {
+          id: "chart-2",
+          worksheetId: "worksheet-1",
+          chartType: "line",
+          title: "Iki",
+          startRow: 0,
+          endRow: 1,
+          categoryColumn: 0,
+          valueColumn: 1,
+        },
+      ],
+      chartCount: 2,
+    });
+    const sheetTool = toolWithCalls([]);
+    let resolveFirst!: (value: { points: { category: string; value: number }[] }) => void;
+    let resolveSecond!: (value: { points: { category: string; value: number }[] }) => void;
+    sheetTool.getChartData = async (request) =>
+      new Promise((resolve) => {
+        if (request.chartId === "chart-1") {
+          resolveFirst = resolve;
+        } else {
+          resolveSecond = resolve;
+        }
+      });
+    const service = createService(repository, sheetTool);
+
+    const first = service.selectChart("chart-1");
+    const second = service.selectChart("chart-2");
+
+    expect(repository.selectedChartId()).toBe("chart-2");
+    expect(repository.chartData()).toBeNull();
+
+    resolveSecond({ points: [{ category: "Yeni", value: 20 }] });
+    await second;
+    resolveFirst({ points: [{ category: "Eski", value: 10 }] });
+    await first;
+
+    expect(repository.selectedChartId()).toBe("chart-2");
+    expect(repository.chartData()?.points).toEqual([{ category: "Yeni", value: 20 }]);
+  });
+
+  it("removes the selected canonical chart and clears its projected data", async () => {
+    const calls: string[] = [];
+    const repository = new SheetSessionRepository();
+    repository.setDocument({
+      ...DOCUMENT,
+      charts: [
+        {
+          id: "chart-1",
+          worksheetId: "worksheet-1",
+          chartType: "pie",
+          title: "Dagilim",
+          startRow: 0,
+          endRow: 1,
+          categoryColumn: 0,
+          valueColumn: 1,
+        },
+      ],
+      chartCount: 1,
+    });
+    const service = createService(repository, toolWithCalls(calls));
+
+    await service.selectChart("chart-1");
+    calls.length = 0;
+    await service.removeChart("chart-1");
+
+    expect(calls).toEqual(["chart:remove:chart-1"]);
+    expect(repository.document()?.charts).toEqual([]);
+    expect(repository.selectedChartId()).toBeNull();
+    expect(repository.chartData()).toBeNull();
+    expect(repository.dirty()).toBe(true);
   });
 
   it("creates a canonical table from the current rectangular selection", async () => {

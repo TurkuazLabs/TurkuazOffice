@@ -1,10 +1,11 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/controllers/sheet.controller.ts
 // # 📌 Amac: Sheet View requestlerini alip yalnizca SheetSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
-// Version: 0.10.0
-// Aciklama: Session, function draft, secili hucre/range, table, conditional format, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
+// Version: 0.11.0
+// Aciklama: Session, chart, function draft, secili hucre/range, table, conditional format, format, filter-sort ve cell commit requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
+import type { SheetChartType } from "../config/sheet-charts";
 import type { SheetFunctionId } from "../config/sheet-functions";
 import type { SheetSessionService } from "../services/sheet-session.service";
 import type {
@@ -52,6 +53,18 @@ export class SheetController {
 
   public removeConditionalFormatAtSelection(): Promise<void> {
     return this.service.removeConditionalFormatAtSelection();
+  }
+
+  public createChartFromSelection(chartType: SheetChartType, title: string): Promise<void> {
+    return this.service.createChartFromSelection(chartType, title);
+  }
+
+  public removeChart(chartId: string): Promise<void> {
+    return this.service.removeChart(chartId);
+  }
+
+  public selectChart(chartId: string): Promise<void> {
+    return this.service.selectChart(chartId);
   }
 
   public freezeAtSelection(): void {

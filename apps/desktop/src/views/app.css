@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
 # 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.10.0
-# Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, properties/functions dock ve status yuzeylerini tanimlar
+# Version: 0.11.0
+# Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, properties/functions/charts dock ve status yuzeylerini tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
 
@@ -1510,4 +1510,161 @@ input {
 .sheet-function-card .toolbar-button {
   justify-self: start;
   min-height: 28px;
+}
+
+
+/* Sheet Basic Charts UI v0.11.0 */
+
+.sheet-sidebar__field input {
+  width: 100%;
+  min-height: 30px;
+  padding: 0 var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.sheet-sidebar__field input:focus {
+  border-color: var(--to-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--to-border-focus) 30%, transparent);
+}
+
+.sheet-charts-sidebar__create {
+  display: grid;
+}
+
+.sheet-charts-sidebar__hint {
+  margin: 0;
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sheet-charts-sidebar__create > .toolbar-button {
+  justify-self: start;
+  margin-top: var(--to-space-3);
+}
+
+.sheet-charts-sidebar__list {
+  display: grid;
+  gap: var(--to-space-2);
+}
+
+.sheet-charts-sidebar__item {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet-charts-sidebar__item span {
+  color: var(--to-text-secondary);
+  font-size: 11px;
+}
+
+.sheet-charts-sidebar__item:hover,
+.sheet-charts-sidebar__item:focus-visible,
+.sheet-charts-sidebar__item[aria-pressed="true"] {
+  border-color: var(--to-border-focus);
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.sheet-charts-sidebar__preview {
+  display: grid;
+  gap: var(--to-space-2);
+}
+
+.sheet-charts-sidebar__preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--to-space-2);
+}
+
+.sheet-charts-sidebar__preview-header h3 {
+  margin: 0;
+}
+
+.sheet-charts-sidebar__preview-header .toolbar-button {
+  min-height: 28px;
+  padding-inline: var(--to-space-2);
+}
+
+.sheet-charts-sidebar__error {
+  color: var(--to-text-primary);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.sheet-chart-svg {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+}
+
+.sheet-chart-svg__axis {
+  stroke: var(--to-border-soft);
+  stroke-width: 1;
+}
+
+.sheet-chart-svg__bar {
+  fill: var(--to-accent);
+}
+
+.sheet-chart-svg__line {
+  fill: none;
+  stroke: var(--to-accent);
+  stroke-width: 2;
+}
+
+.sheet-chart-svg__point {
+  fill: var(--to-bg-surface);
+  stroke: var(--to-accent);
+  stroke-width: 2;
+}
+
+.sheet-chart-svg__slice {
+  stroke: var(--to-bg-surface);
+  stroke-width: 1;
+}
+
+.sheet-chart-svg__slice--0 {
+  fill: var(--to-accent);
+}
+
+.sheet-chart-svg__slice--1 {
+  fill: var(--to-accent-strong);
+}
+
+.sheet-chart-svg__slice--2 {
+  fill: var(--to-border-focus);
+}
+
+.sheet-chart-svg__slice--3 {
+  fill: var(--to-text-secondary);
+}
+
+.sheet-chart-svg__slice--4 {
+  fill: color-mix(in srgb, var(--to-accent) 55%, var(--to-bg-surface));
+}
+
+.sheet-chart-renderer__empty {
+  padding: var(--to-space-3);
+  border: 1px dashed var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  text-align: center;
 }

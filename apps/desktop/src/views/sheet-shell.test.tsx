@@ -36,6 +36,7 @@ const DOCUMENT: SheetDocumentView = {
   ],
   conditionalFormats: [],
   tables: [],
+  charts: [],
   chartCount: 0,
 };
 

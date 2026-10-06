@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-menubar.tsx
 // # 📌 Amac: LibreOffice klasik menusu ile Excel hizli akislarini birlestiren Sheet menu satirini sunar
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.10.0
-// Aciklama: Dosya, Bicim, Ekle, Gorunum ve Veri menulerinde gercek Sheet komutlarini; Functions sidebar dahil aktif yuzeyleri sunar
+// Version: 0.11.0
+// Aciklama: Dosya, Bicim, Ekle, Gorunum ve Veri menulerinde Functions ve Charts sidebar dahil gercek Sheet komutlarini sunar
 // Bagimli Oldugu Katman: View -> Language
 
 import type { LanguageService } from "../language/language-service";
@@ -13,6 +13,7 @@ interface SheetMenubarProps {
   readonly queryOpen: boolean;
   readonly conditionalFormatOpen: boolean;
   readonly functionsOpen: boolean;
+  readonly chartsOpen: boolean;
   readonly freezeActive: boolean;
   readonly canFreezeAtSelection: boolean;
   readonly canCreateTable: boolean;
@@ -22,6 +23,7 @@ interface SheetMenubarProps {
   readonly onToggleQuery: () => void;
   readonly onToggleConditionalFormat: () => void;
   readonly onToggleFunctions: () => void;
+  readonly onToggleCharts: () => void;
   readonly onFreezeAtSelection: () => void;
   readonly onFreezeTopRow: () => void;
   readonly onFreezeFirstColumn: () => void;
@@ -72,6 +74,13 @@ export function SheetMenubar(props: SheetMenubarProps) {
           >
             {props.language.text("sheetFunctionsToggle")}
           </button>
+          <button
+            type="button"
+            aria-pressed={props.chartsOpen}
+            onClick={props.onToggleCharts}
+          >
+            {props.language.text("sheetChartsToggle")}
+          </button>
         </div>
       </details>
 
@@ -92,6 +101,13 @@ export function SheetMenubar(props: SheetMenubarProps) {
             onClick={props.onToggleFunctions}
           >
             {props.language.text("sheetFunctionsToggle")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={props.chartsOpen}
+            onClick={props.onToggleCharts}
+          >
+            {props.language.text("sheetChartsToggle")}
           </button>
           <div class="sheet-menu__separator" />
           <button

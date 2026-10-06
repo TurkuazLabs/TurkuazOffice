@@ -1,15 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs
 // # 📌 Amac: Desktop Sheet requestlerini canonical Sheet Controller akisina cevirir
 // # 📌 Modul - FileType: Service - Rust
-// Version: 0.7.0
-// Aciklama: Create/get/cell/formula/format/table/conditional-format/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
+// Version: 0.11.0
+// Aciklama: Create/get/cell/formula/format/table/conditional-format/chart/range-summary/query/evaluated-cell/clear islemlerini domain Controller uzerinden koordine eder
 // Bagimli Oldugu Katman: Service -> Controller -> Service -> Repo -> Tool
 
 use turkuaz_office_sheet::{
-    CellFormat, CellFormatView, CellValue, CellView, InMemorySheetDocumentRepository,
-    SequentialSheetIdTool, SheetConditionalFormatCondition, SheetConditionalFormatMatchView,
-    SheetConditionalFormatStyle, SheetController, SheetDocumentView, SheetError, SheetFilter,
-    SheetRange, SheetRangeSummaryView, SheetRowQueryView, SheetService, SheetSort,
+    CellFormat, CellFormatView, CellValue, CellView, ChartDataView, ChartType,
+    InMemorySheetDocumentRepository, SequentialSheetIdTool, SheetConditionalFormatCondition,
+    SheetConditionalFormatMatchView, SheetConditionalFormatStyle, SheetController,
+    SheetDocumentView, SheetError, SheetFilter, SheetRange, SheetRangeSummaryView,
+    SheetRowQueryView, SheetService, SheetSort,
 };
 
 type DesktopSheetController =
@@ -169,6 +170,46 @@ impl SheetDesktopService {
     ) -> Result<Vec<SheetConditionalFormatMatchView>, SheetError> {
         self.controller
             .conditional_format_matches(document_id, worksheet_id, range)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn create_chart(
+        &mut self,
+        document_id: &str,
+        worksheet_id: &str,
+        chart_type: ChartType,
+        title: &str,
+        start_row: u32,
+        end_row: u32,
+        category_column: u32,
+        value_column: u32,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller.create_chart(
+            document_id,
+            worksheet_id,
+            chart_type,
+            title,
+            start_row,
+            end_row,
+            category_column,
+            value_column,
+        )
+    }
+
+    pub fn remove_chart(
+        &mut self,
+        document_id: &str,
+        chart_id: &str,
+    ) -> Result<SheetDocumentView, SheetError> {
+        self.controller.remove_chart(document_id, chart_id)
+    }
+
+    pub fn chart_data(
+        &self,
+        document_id: &str,
+        chart_id: &str,
+    ) -> Result<ChartDataView, SheetError> {
+        self.controller.chart_data(document_id, chart_id)
     }
 
     pub fn range_summary(

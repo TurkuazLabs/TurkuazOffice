@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/labels.ts
 // # 📌 Amac: Desktop UI label anahtarlarini typed kontrat olarak tanimlar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.10.0
+// # Version: 0.11.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid, storage ve status kullanici metinlerini merkezi anahtarlara baglar
 // Bagimli Oldugu Katman: Language
 
@@ -34,6 +34,20 @@ export type DesktopLabelKey =
   | "sheetFunctionMaxDescription"
   | "sheetFunctionIf"
   | "sheetFunctionIfDescription"
+  | "sheetCharts"
+  | "sheetChartsToggle"
+  | "sheetChartsSidebarLabel"
+  | "sheetChartType"
+  | "sheetChartTitle"
+  | "sheetChartBar"
+  | "sheetChartLine"
+  | "sheetChartPie"
+  | "sheetChartCreate"
+  | "sheetChartRemove"
+  | "sheetChartSelectionHint"
+  | "sheetChartNoCharts"
+  | "sheetChartDataEmpty"
+  | "sheetChartDataError"
   | "sheetSelectedCell"
   | "sheetEvaluatedValue"
   | "sheetAlignGeneral"

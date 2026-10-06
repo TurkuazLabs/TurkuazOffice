@@ -1,11 +1,12 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.10.0
-// Aciklama: Dirty-state korumali create, cell edit/format, function draft, table object, conditional formatting, range summary, freeze-pane ve filter-sort akislarini koordine eder
+// Version: 0.11.0
+// Aciklama: Dirty-state korumali create, cell edit/format, chart, function draft, table object, conditional formatting, range summary, freeze-pane ve filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
+import { SHEET_CHART_REQUIRED_COLUMN_COUNT, type SheetChartType } from "../config/sheet-charts";
 import type { SheetFunctionId } from "../config/sheet-functions";
 import {
   SHEET_BOOLEAN_FALSE,
@@ -43,6 +44,7 @@ export class SheetSessionService {
   private rowQueryGeneration = 0;
   private rangeSummaryGeneration = 0;
   private conditionalFormatGeneration = 0;
+  private chartDataGeneration = 0;
 
   public constructor(
     private readonly repository: SheetSessionRepository,
@@ -75,6 +77,8 @@ export class SheetSessionService {
         this.repository.clearFreezeState();
         this.invalidateConditionalFormatRequests();
         this.repository.clearConditionalFormats();
+        this.invalidateChartDataRequests();
+        this.repository.clearChartSelection();
         this.repository.clearCellFormats();
         this.repository.clearRowQuery();
         this.repository.setDocument(document);
@@ -306,6 +310,112 @@ export class SheetSessionService {
     });
   }
 
+  public createChartFromSelection(chartType: SheetChartType, title: string): Promise<void> {
+    return this.enqueue(async () => {
+      const range = this.repository.selectionRange();
+      const document = this.requireDocument();
+      const worksheet = document.worksheets[0];
+      const normalizedTitle = title.trim();
+
+      if (
+        range === null ||
+        worksheet === undefined ||
+        range.endColumn - range.startColumn + 1 !== SHEET_CHART_REQUIRED_COLUMN_COUNT
+      ) {
+        this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartRange);
+        return;
+      }
+      if (normalizedTitle.length === 0) {
+        this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartTitle);
+        return;
+      }
+
+      const existingChartIds = new Set(document.charts.map((chart) => chart.id));
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.createChart({
+          documentId: document.id,
+          worksheetId: worksheet.id,
+          chartType,
+          title: normalizedTitle,
+          startRow: range.startRow,
+          endRow: range.endRow,
+          categoryColumn: range.startColumn,
+          valueColumn: range.startColumn + 1,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+
+        const createdChart = updated.charts.find((chart) => !existingChartIds.has(chart.id));
+        if (createdChart === undefined) {
+          this.repository.setChartError(null, ERROR_CODES.unknown);
+          return;
+        }
+        await this.selectChart(createdChart.id);
+      } catch (error: unknown) {
+        this.repository.setDocument(document);
+        this.repository.setChartError(null, this.errorCode(error));
+      }
+    });
+  }
+
+  public removeChart(chartId: string): Promise<void> {
+    return this.enqueue(async () => {
+      const document = this.requireDocument();
+      if (!document.charts.some((chart) => chart.id === chartId)) {
+        this.repository.setChartError(chartId, ERROR_CODES.sheetChartNotFound);
+        return;
+      }
+
+      this.repository.setLoading();
+      try {
+        const updated = await this.sheetTool.removeChart({
+          documentId: document.id,
+          chartId,
+        });
+        this.repository.setDocument(updated);
+        this.repository.markDirty();
+        if (this.repository.selectedChartId() === chartId) {
+          this.invalidateChartDataRequests();
+          this.repository.clearChartSelection();
+        }
+      } catch (error: unknown) {
+        this.repository.setDocument(document);
+        this.repository.setChartError(chartId, this.errorCode(error));
+      }
+    });
+  }
+
+  public async selectChart(chartId: string): Promise<void> {
+    const document = this.repository.document();
+    const chart = document?.charts.find((item) => item.id === chartId);
+    if (document === null || chart === undefined) {
+      this.repository.setChartError(chartId, ERROR_CODES.sheetChartNotFound);
+      return;
+    }
+
+    const generation = this.nextChartDataGeneration();
+    const documentId = document.id;
+    this.repository.beginChartDataLoad(chartId);
+    try {
+      const data = await this.sheetTool.getChartData({ documentId, chartId });
+      if (
+        generation !== this.chartDataGeneration ||
+        this.repository.document()?.id !== documentId
+      ) {
+        return;
+      }
+      this.repository.setChartData(chartId, data);
+    } catch (error: unknown) {
+      if (
+        generation === this.chartDataGeneration &&
+        this.repository.document()?.id === documentId
+      ) {
+        this.repository.setChartError(chartId, this.errorCode(error));
+      }
+    }
+  }
+
   public freezeAtSelection(): void {
     const selection = this.repository.selection();
     if (selection === null) {
@@ -443,6 +553,7 @@ export class SheetSessionService {
         await Promise.all([
           this.refreshRowQuery(),
           this.refreshConditionalFormatMatches(),
+          this.refreshSelectedChartData(),
         ]);
       } catch (error: unknown) {
         this.repository.setError(this.errorCode(error));
@@ -572,6 +683,20 @@ export class SheetSessionService {
         this.repository.setConditionalFormatError(this.errorCode(error));
       }
     }
+  }
+
+  private async refreshSelectedChartData(): Promise<void> {
+    const chartId = this.repository.selectedChartId();
+    if (chartId === null) {
+      return;
+    }
+    const document = this.repository.document();
+    if (document === null || !document.charts.some((chart) => chart.id === chartId)) {
+      this.invalidateChartDataRequests();
+      this.repository.clearChartSelection();
+      return;
+    }
+    await this.selectChart(chartId);
   }
 
   private async refreshRowQuery(): Promise<void> {
@@ -770,6 +895,15 @@ export class SheetSessionService {
       this.language.text("unsavedChangesMessage"),
       this.language.text("unsavedChangesTitle"),
     );
+  }
+
+  private nextChartDataGeneration(): number {
+    this.chartDataGeneration += 1;
+    return this.chartDataGeneration;
+  }
+
+  private invalidateChartDataRequests(): void {
+    this.nextChartDataGeneration();
   }
 
   private nextConditionalFormatGeneration(): number {

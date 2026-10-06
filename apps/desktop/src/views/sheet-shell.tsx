@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.10.0
-// Aciklama: Hybrid menu, table/filter, conditional formatting, function helper sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
+// Version: 0.11.0
+// Aciklama: Hybrid menu, table/filter, conditional formatting, Functions/Charts sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
@@ -25,6 +25,7 @@ import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { SheetReferenceTool } from "../tools/sheet-reference.tool";
+import { SheetChartsSidebar } from "./sheet-charts-sidebar";
 import { SheetFunctionsSidebar } from "./sheet-functions-sidebar";
 import { SheetMenubar } from "./sheet-menubar";
 import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
@@ -63,6 +64,7 @@ export function SheetShell(props: SheetShellProps) {
   const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
   const [propertiesOpen, setPropertiesOpen] = createSignal(true);
   const [functionsOpen, setFunctionsOpen] = createSignal(false);
+  const [chartsOpen, setChartsOpen] = createSignal(false);
   const [queryOpen, setQueryOpen] = createSignal(false);
   const [conditionalFormatOpen, setConditionalFormatOpen] = createSignal(false);
   const [conditionalMode, setConditionalMode] =
@@ -261,12 +263,20 @@ export function SheetShell(props: SheetShellProps) {
 
   const togglePropertiesSidebar = (): void => {
     setFunctionsOpen(false);
+    setChartsOpen(false);
     setPropertiesOpen((value) => !value);
   };
 
   const toggleFunctionsSidebar = (): void => {
     setPropertiesOpen(false);
+    setChartsOpen(false);
     setFunctionsOpen((value) => !value);
+  };
+
+  const toggleChartsSidebar = (): void => {
+    setPropertiesOpen(false);
+    setFunctionsOpen(false);
+    setChartsOpen((value) => !value);
   };
 
   const insertFunctionDraft = (functionId: SheetFunctionId): void => {
@@ -453,6 +463,7 @@ export function SheetShell(props: SheetShellProps) {
           queryOpen={queryOpen()}
           conditionalFormatOpen={conditionalFormatOpen()}
           functionsOpen={functionsOpen()}
+          chartsOpen={chartsOpen()}
           freezeActive={
             props.repository.freezeState().rows > 0 ||
             props.repository.freezeState().columns > 0
@@ -465,6 +476,7 @@ export function SheetShell(props: SheetShellProps) {
           onToggleQuery={() => setQueryOpen((value) => !value)}
           onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
           onToggleFunctions={toggleFunctionsSidebar}
+          onToggleCharts={toggleChartsSidebar}
           onFreezeAtSelection={() => props.controller.freezeAtSelection()}
           onFreezeTopRow={() => props.controller.freezeTopRow()}
           onFreezeFirstColumn={() => props.controller.freezeFirstColumn()}
@@ -967,6 +979,14 @@ export function SheetShell(props: SheetShellProps) {
             onInsertDraft={insertFunctionDraft}
           />
         </Show>
+        <Show when={chartsOpen()}>
+          <SheetChartsSidebar
+            controller={props.controller}
+            repository={props.repository}
+            language={props.language}
+            onClose={() => setChartsOpen(false)}
+          />
+        </Show>
       </div>
 
       <footer class="sheet-statusbar">
@@ -1008,6 +1028,9 @@ export function SheetShell(props: SheetShellProps) {
         </span>
         <span>
           {props.language.text("sheetConditionalRules")}: {props.repository.document()?.conditionalFormats.length ?? 0}
+        </span>
+        <span>
+          {props.language.text("sheetCharts")}: {props.repository.document()?.charts.length ?? 0}
         </span>
       </footer>
     </div>

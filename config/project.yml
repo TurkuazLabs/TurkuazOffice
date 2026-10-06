@@ -348,8 +348,7 @@ sheet_desktop_ui:
   planned_sidebar_modules:
     - styles
     - gallery
-  planned_productivity:
-    - charts
+  planned_productivity: []
 
 sheet_cell_model:
   active: true
@@ -579,6 +578,7 @@ sheet_conditional_formatting:
 
 sheet_basic_charts:
   active: true
+  version: 0.11.0
   canonical_definition: true
   types:
     - bar
@@ -589,7 +589,20 @@ sheet_basic_charts:
     - number
     - formula_numeric
   max_points: 1000
-  render_engine: none
+  desktop_ipc: true
+  desktop_create_from_selection: first_two_columns
+  desktop_remove: true
+  desktop_sidebar: true
+  render_engine: solid_svg
+  external_chart_dependency: false
+  editor_scope:
+    - chart_type
+    - title
+    - selected_range
+  out_of_scope:
+    - drag_resize
+    - multi_series
+    - xlsx_chart_round_trip
 
 
 sheet_100k_benchmark:

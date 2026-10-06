@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/tauri-sheet.tool.ts
 // # 📌 Amac: Desktop frontend ile Tauri Rust backend arasindaki Sheet IPC adaptasyonunu yapar
 // # 📌 Modul - FileType: Tool - TypeScript
-// Version: 0.7.0
-// Aciklama: Create/get/format/table/conditional-format/range-summary/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
+// Version: 0.11.0
+// Aciklama: Create/get/format/table/conditional-format/chart/range-summary/query/evaluated-cell/text/number/boolean/formula/clear commandlarini typed olarak tasir
 // Bagimli Oldugu Katman: Tool
 
 import { invoke } from "@tauri-apps/api/core";
@@ -11,6 +11,10 @@ import { IPC_COMMANDS } from "../config/ipc-commands";
 import type {
   SheetCellFormatView,
   SheetCellView,
+  SheetChartCreateRequestView,
+  SheetChartDataRequestView,
+  SheetChartDataView,
+  SheetChartRemoveRequestView,
   SheetConditionalFormatCreateRequestView,
   SheetConditionalFormatMatchView,
   SheetConditionalFormatMatchesRequestView,
@@ -77,6 +81,18 @@ export class TauriSheetTool {
       IPC_COMMANDS.sheetGetConditionalFormatMatches,
       { request },
     );
+  }
+
+  public createChart(request: SheetChartCreateRequestView): Promise<SheetDocumentView> {
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetCreateChart, { request });
+  }
+
+  public removeChart(request: SheetChartRemoveRequestView): Promise<SheetDocumentView> {
+    return invoke<SheetDocumentView>(IPC_COMMANDS.sheetRemoveChart, { request });
+  }
+
+  public getChartData(request: SheetChartDataRequestView): Promise<SheetChartDataView> {
+    return invoke<SheetChartDataView>(IPC_COMMANDS.sheetGetChartData, { request });
   }
 
   public getRangeSummary(request: SheetRangeSummaryRequestView): Promise<SheetRangeSummaryView> {

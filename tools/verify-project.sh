@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.10.0
-# Aciklama: Umbrella release versionini korur; Sheet Functions sidebar dahil M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
+# Version: 0.11.0
+# Aciklama: Umbrella release versionini korur; Sheet Basic Charts UI dahil M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -19,6 +19,7 @@ SHEET_CONDITIONAL_VERSION="0.7.0"
 SHEET_FUNCTION_VERSION="0.8.0"
 SHEET_OOXML_VERSION="0.9.0"
 SHEET_FUNCTION_SIDEBAR_VERSION="0.10.0"
+SHEET_CHART_UI_VERSION="0.11.0"
 
 required_files=(
   "README.md"
@@ -98,6 +99,11 @@ required_files=(
   "apps/desktop/src/views/sheet-functions-sidebar.tsx"
   "docs/08-implementation/sheet-functions-sidebar-v0.10.0.md"
   "docs/07-quality/sheet-functions-sidebar-test-matrix.md"
+  "apps/desktop/src/config/sheet-charts.ts"
+  "apps/desktop/src/views/sheet-chart-renderer.tsx"
+  "apps/desktop/src/views/sheet-charts-sidebar.tsx"
+  "docs/08-implementation/sheet-basic-charts-ui-v0.11.0.md"
+  "docs/07-quality/sheet-basic-charts-ui-test-matrix.md"
   "docs/08-implementation/sheet-hybrid-office-ui-v0.5.0.md"
   "docs/07-quality/sheet-hybrid-office-ui-test-matrix.md"
   "crates/turkuaz-office-sheet/tests/sheet_range_summary_tests.rs"
@@ -377,7 +383,7 @@ grep -q 'SHEET_GRID_ROW_COUNT = 100' "$ROOT/apps/desktop/src/config/sheet.ts"
 grep -q 'SHEET_GRID_COLUMN_COUNT = 26' "$ROOT/apps/desktop/src/config/sheet.ts"
 grep -q 'M3 Web WASM Runtime Loader' "$ROOT/docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md"
 grep -q '## R2 - Sheet Desktop Integration Baseline' "$ROOT/docs/05-roadmap/roadmap.md"
-grep -q '## R2.x - Sheet Productivity Extensions v0.5.0-v0.10.0' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q '## R2.x - Sheet Productivity Extensions v0.5.0-v0.11.0' "$ROOT/docs/05-roadmap/roadmap.md"
 grep -q '## Sheet Productivity Extensions' "$ROOT/README.md"
 grep -q '## Unreleased - Sheet Productivity Extensions' "$ROOT/CHANGELOG.md"
 grep -q 'R2 Sheet Desktop baseline' "$ROOT/README.md"
@@ -836,17 +842,8 @@ for sheet_functions_sidebar_file in \
   "$ROOT/apps/desktop/src/config/sheet-functions.ts" \
   "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.ts" \
   "$ROOT/apps/desktop/src/tools/sheet-formula-helper.tool.test.ts" \
-  "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts" \
   "$ROOT/apps/desktop/src/config/app-container.ts" \
-  "$ROOT/apps/desktop/src/services/sheet-session.service.ts" \
-  "$ROOT/apps/desktop/src/controllers/sheet.controller.ts" \
-  "$ROOT/apps/desktop/src/views/sheet-functions-sidebar.tsx" \
-  "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
-  "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
-  "$ROOT/apps/desktop/src/language/labels.ts" \
-  "$ROOT/apps/desktop/src/language/tr.ts" \
-  "$ROOT/apps/desktop/src/language/en.ts" \
-  "$ROOT/apps/desktop/src/views/app.css"; do
+  "$ROOT/apps/desktop/src/views/sheet-functions-sidebar.tsx"; do
   grep -q "Version: $SHEET_FUNCTION_SIDEBAR_VERSION" "$sheet_functions_sidebar_file"
 done
 
@@ -920,6 +917,47 @@ grep -q 'pub fn chart_data' "$ROOT/crates/turkuaz-office-sheet/src/services/shee
 grep -q 'pub struct ChartDataView' "$ROOT/crates/turkuaz-office-sheet/src/views/sheet_view.rs"
 grep -q 'chart_creation_is_canonical_and_revision_aware' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
 grep -q 'chart_data_supports_formula_values' "$ROOT/crates/turkuaz-office-sheet/tests/sheet_basic_charts_tests.rs"
+
+
+grep -q 'version: 0.11.0' "$ROOT/config/project.yml"
+grep -q 'desktop_ipc: true' "$ROOT/config/project.yml"
+grep -q 'render_engine: solid_svg' "$ROOT/config/project.yml"
+grep -q 'external_chart_dependency: false' "$ROOT/config/project.yml"
+grep -q 'sheet_create_chart' "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs"
+grep -q 'sheet_get_chart_data' "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs"
+grep -q 'sheetCreateChart' "$ROOT/apps/desktop/src/config/ipc-commands.ts"
+grep -q 'createChartFromSelection' "$ROOT/apps/desktop/src/services/sheet-session.service.ts"
+grep -q 'createChartFromSelection' "$ROOT/apps/desktop/src/controllers/sheet.controller.ts"
+grep -q 'export function SheetChartsSidebar' "$ROOT/apps/desktop/src/views/sheet-charts-sidebar.tsx"
+grep -q 'export function SheetChartRenderer' "$ROOT/apps/desktop/src/views/sheet-chart-renderer.tsx"
+grep -q 'sheetChartsToggle' "$ROOT/apps/desktop/src/language/labels.ts"
+grep -q 'creates and selects a canonical chart from an exact two-column range' "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts"
+grep -q 'Sheet Basic Charts UI v0.11.0' "$ROOT/docs/08-implementation/sheet-basic-charts-ui-v0.11.0.md"
+
+for sheet_chart_ui_file in \
+  "$ROOT/apps/desktop/src/config/sheet-charts.ts" \
+  "$ROOT/apps/desktop/src/config/ipc-commands.ts" \
+  "$ROOT/apps/desktop/src/config/error-codes.ts" \
+  "$ROOT/apps/desktop/src/repositories/sheet-session.repository.ts" \
+  "$ROOT/apps/desktop/src/services/sheet-session.service.ts" \
+  "$ROOT/apps/desktop/src/services/sheet-session.service.test.ts" \
+  "$ROOT/apps/desktop/src/controllers/sheet.controller.ts" \
+  "$ROOT/apps/desktop/src/tools/tauri-sheet.tool.ts" \
+  "$ROOT/apps/desktop/src/views/sheet-types.ts" \
+  "$ROOT/apps/desktop/src/views/sheet-chart-renderer.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-charts-sidebar.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-menubar.tsx" \
+  "$ROOT/apps/desktop/src/views/sheet-shell.tsx" \
+  "$ROOT/apps/desktop/src/language/labels.ts" \
+  "$ROOT/apps/desktop/src/language/tr.ts" \
+  "$ROOT/apps/desktop/src/language/en.ts" \
+  "$ROOT/apps/desktop/src/views/app.css" \
+  "$ROOT/apps/desktop/src-tauri/src/views/sheet_dto.rs" \
+  "$ROOT/apps/desktop/src-tauri/src/services/sheet_desktop_service.rs" \
+  "$ROOT/apps/desktop/src-tauri/src/controllers/sheet_desktop_controller.rs" \
+  "$ROOT/apps/desktop/src-tauri/src/lib.rs"; do
+  grep -q "Version: $SHEET_CHART_UI_VERSION" "$sheet_chart_ui_file"
+done
 
 
 

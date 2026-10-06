@@ -10,6 +10,11 @@ Bagimli Oldugu Katman: Documentation
 
 ## Unreleased - Sheet Productivity Extensions
 
+- v0.11.0 Basic Charts Desktop UI eklendi.
+- Canonical chart create/remove/chart_data hatti Tauri IPC uzerinden Desktop'a acildi.
+- Tam iki kolonluk selection'dan Bar/Line/Pie chart olusturma ve sag panel SVG preview eklendi.
+- Chart data async generation guard ve cell mutation sonrasi aktif chart refresh eklendi.
+- Ucuncu taraf chart kutuphanesi kullanilmadan dependency-free SVG renderer eklendi.
 - v0.10.0 searchable Functions sidebar ve formula bar draft helper eklendi.
 - Function aramasi engine kimliklerinde locale-bagimsiz, lokalize metinlerde locale-duyarli hale getirildi.
 - AVERAGE icin AVG searchable alias eklendi.

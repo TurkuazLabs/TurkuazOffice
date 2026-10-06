@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/error-codes.ts
 // # 📌 Amac: Desktop frontend stabil error code sabitlerini merkezi tutar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.8.0
+// # Version: 0.11.0
 // # Aciklama: Writer ve Sheet Service/View katmanlarinda magic error string kullanilmasini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -19,4 +19,10 @@ export const ERROR_CODES = {
   sheetConditionalFormatNotFound: "sheet.conditional_format_not_found",
   sheetInvalidConditionalFormat: "sheet.invalid_conditional_format",
   sheetConditionalFormatLimit: "sheet.conditional_format_limit",
+  sheetChartNotFound: "sheet.chart_not_found",
+  sheetInvalidChartRange: "sheet.invalid_chart_range",
+  sheetInvalidChartTitle: "sheet.invalid_chart_title",
+  sheetChartTooManyPoints: "sheet.chart_too_many_points",
+  sheetChartCategoryNotText: "sheet.chart_category_not_text",
+  sheetChartValueNotNumeric: "sheet.chart_value_not_numeric",
 } as const;
