@@ -84,6 +84,21 @@ describe("BrowserFileTransferTool", () => {
     await expect(picking).resolves.toBeNull();
   });
 
+  it("removes the temporary picker when browser click throws synchronously", async () => {
+    vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(() => {
+      throw new Error();
+    });
+    const tool = new BrowserFileTransferTool(document, {
+      createObjectURL: vi.fn(),
+      revokeObjectURL: vi.fn(),
+    });
+
+    await expect(
+      tool.pickFile({ accept: ACCEPT, maxBytes: MAX_BYTES }),
+    ).rejects.toThrow();
+    expect(document.querySelector('input[type="file"]')).toBeNull();
+  });
+
   it("rejects oversized input before reading file bytes", async () => {
     const arrayBuffer = vi.fn(async () => Uint8Array.from([1]).buffer);
     const file = {
@@ -130,5 +145,31 @@ describe("BrowserFileTransferTool", () => {
     vi.advanceTimersByTime(WEB_DOWNLOAD_URL_REVOKE_DELAY_MS);
 
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:test");
+  });
+
+  it("still schedules delayed URL cleanup when anchor click throws", () => {
+    vi.useFakeTimers();
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {
+      throw new Error();
+    });
+    const revokeObjectURL = vi.fn();
+    const tool = new BrowserFileTransferTool(document, {
+      createObjectURL: vi.fn(() => "blob:failed-click"),
+      revokeObjectURL,
+    });
+
+    expect(() =>
+      tool.downloadFile({
+        fileName: "sample.tko",
+        mediaType: "application/x-turkuaz-office",
+        bytes: new Uint8Array([1]),
+      }),
+    ).toThrow();
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+    expect(document.querySelector("a[download]")).toBeNull();
+
+    vi.advanceTimersByTime(WEB_DOWNLOAD_URL_REVOKE_DELAY_MS);
+
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:failed-click");
   });
 });
