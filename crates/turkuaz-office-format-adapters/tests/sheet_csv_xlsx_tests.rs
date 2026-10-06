@@ -419,7 +419,9 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
                         start_column: 0,
                         end_column: 0,
                     },
-                    condition: SheetConditionalFormatCondition::TextContains("Tur*?~kuaz".to_owned()),
+                    condition: SheetConditionalFormatCondition::TextContains(
+                        "Tur*?~kuaz".to_owned(),
+                    ),
                     style: SheetConditionalFormatStyle::Accent,
                     priority: 2,
                 },
@@ -461,19 +463,17 @@ fn xlsx_round_trip_preserves_canonical_table_and_conditional_format_metadata() {
     assert!(worksheet_xml.contains(r#"SEARCH("Tur~*~?~~kuaz",A2)"#));
     assert!(!worksheet_xml.contains(r#"SEARCH(\"Turkuaz",A2)"#));
 
-    let parsed_styles = SheetXlsxXmlTool::parse_differential_styles(
-        entries.get("xl/styles.xml").expect("styles"),
-    )
-    .expect("parse differential styles");
+    let parsed_styles =
+        SheetXlsxXmlTool::parse_differential_styles(entries.get("xl/styles.xml").expect("styles"))
+            .expect("parse differential styles");
     assert_eq!(parsed_styles.len(), 3);
 
-    let (parsed_rules, parsed_table_relationships) =
-        SheetXlsxXmlTool::parse_worksheet_metadata(
-            entries
-                .get("xl/worksheets/sheet1.xml")
-                .expect("worksheet metadata"),
-        )
-        .expect("parse worksheet metadata");
+    let (parsed_rules, parsed_table_relationships) = SheetXlsxXmlTool::parse_worksheet_metadata(
+        entries
+            .get("xl/worksheets/sheet1.xml")
+            .expect("worksheet metadata"),
+    )
+    .expect("parse worksheet metadata");
     assert_eq!(parsed_rules.len(), 2);
     assert_eq!(parsed_rules[0].differential_style_id, 0);
     assert_eq!(parsed_rules[1].differential_style_id, 2);
@@ -563,10 +563,7 @@ fn xlsx_import_resolves_table_relationships_from_physical_worksheet_target() {
         .remove("xl/worksheets/_rels/sheet1.xml.rels")
         .expect("sheet1 rels");
     entries.insert("xl/custom/sheet.xml".to_owned(), worksheet);
-    entries.insert(
-        "xl/custom/_rels/sheet.xml.rels".to_owned(),
-        relationships,
-    );
+    entries.insert("xl/custom/_rels/sheet.xml.rels".to_owned(), relationships);
 
     let workbook_rels = String::from_utf8(
         entries
