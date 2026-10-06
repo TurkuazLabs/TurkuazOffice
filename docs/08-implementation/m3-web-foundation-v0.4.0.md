@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/08-implementation/m3-web-foundation-v0.4.0.md
 # 📌 Amac: M3 Web v0.4.0 ilk foundation diliminin kapsam, mimari sinir ve dogrulama kurallarini kaydeder
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.0
+# Version: 0.1.1
 # Aciklama: Browser shell, metadata index, Core Tool boundary ve CI gate baseline'ini dokumante eder
 
 Bagimli Oldugu Katman: Documentation
