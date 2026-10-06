@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/workspace-ci.yml
-# 📌 Amac: Rust Core/Writer/Sheet, Desktop, M3 Web, WASM Core ve generated binding artifact kalite kontrollerini calistirir
+# 📌 Amac: Rust Core/Writer/Sheet/Web bridge, Desktop, M3 Web ve generated WASM binding artifact kalite kontrollerini calistirir
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.3.1
-# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core check, generated binding artifact ve iki platformlu workspace testlerini dogrular
+# Aciklama: Desktop/Web build-test, project contract, Rust quality, wasm32 Core+Web bridge check, generated aggregate binding artifact ve iki platformlu workspace testlerini dogrular
 # Bagimli Oldugu Katman: CI
 
 name: workspace-ci
@@ -125,7 +125,10 @@ jobs:
         run: cargo check --workspace --all-targets
 
       - name: WASM Core Check
-        run: cargo check -p turkuaz-office-core --target wasm32-unknown-unknown
+        run: cargo check -p turkuaz-office-core --target wasm32-unknown-unknown --features web-wasm-exports
+
+      - name: WASM Web Bridge Check
+        run: cargo check -p turkuaz-office-web-bridge --target wasm32-unknown-unknown
 
       - name: Format
         run: cargo fmt --all -- --check
