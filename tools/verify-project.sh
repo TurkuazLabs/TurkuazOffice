@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.1
-# Aciklama: Umbrella release versionini korur; Sheet Basic Charts UI ve M3 Web IndexedDB persistence dahil static contract kontrollerini uygular
+# Version: 0.11.2
+# Aciklama: Umbrella release versionini korur; M3 Web IndexedDB ve browser file-transfer foundation static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -297,6 +297,10 @@ required_files=(
   "apps/web/src/repositories/indexeddb-document.repository.test.ts"
   "apps/web/src/tools/indexed-db-document.tool.ts"
   "apps/web/src/tools/indexed-db-document.tool.test.ts"
+  "apps/web/src/tools/browser-file-transfer.tool.ts"
+  "apps/web/src/tools/browser-file-transfer.tool.test.ts"
+  "apps/web/src/services/web-import-export.service.ts"
+  "apps/web/src/services/web-import-export.service.test.ts"
   "apps/web/src/tools/web-core-tool.ts"
   "apps/web/src/tools/web-core-tool.test.ts"
   "apps/web/src/tools/wasm-core-runtime-loader.ts"
@@ -317,6 +321,8 @@ required_files=(
   "docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md"
   "docs/08-implementation/m3-web-indexeddb-persistence-v0.4.0.md"
   "docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md"
+  "docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
+  "docs/07-quality/m3-web-browser-file-transfer-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -410,6 +416,12 @@ grep -q 'indexed_db_version: 1' "$ROOT/config/project.yml"
 grep -q 'indexed_db_store: documents' "$ROOT/config/project.yml"
 grep -q 'canonical_document_payload_in_local_storage: false' "$ROOT/config/project.yml"
 grep -q 'canonical_document_storage_fallback: none' "$ROOT/config/project.yml"
+grep -q 'import_export: file_transfer_foundation' "$ROOT/config/project.yml"
+grep -q 'browser_file_picker: html_input_file' "$ROOT/config/project.yml"
+grep -q 'browser_download: blob_object_url' "$ROOT/config/project.yml"
+grep -q 'browser_import_max_bytes: 16777216' "$ROOT/config/project.yml"
+grep -q 'native_tko_codec: planned_rust_domain_bridge' "$ROOT/config/project.yml"
+grep -q 'import_export_view_actions: false' "$ROOT/config/project.yml"
 grep -q 'wasm_core: runtime_loaded' "$ROOT/config/project.yml"
 grep -q 'wasm_target: wasm32-unknown-unknown' "$ROOT/config/project.yml"
 grep -q 'wasm_binding: generated_artifact_runtime_loader' "$ROOT/config/project.yml"
@@ -444,6 +456,13 @@ grep -q 'rejects unsupported stored schema versions from get and list' "$ROOT/ap
 grep -q 'keeps a blocked open pending until the request later succeeds' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
 grep -q 'retries after a synchronous IDBFactory open failure' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
 grep -q 'evicts a resolved database after an unexpected close event' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
+grep -q 'class BrowserFileTransferTool' "$ROOT/apps/web/src/tools/browser-file-transfer.tool.ts"
+grep -q 'class WebImportExportService' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'WEB_BROWSER_IMPORT_MAX_BYTES = 16 \* 1024 \* 1024' "$ROOT/apps/web/src/config/runtime-config.ts"
+grep -q 'MAX_TKO_PACKAGE_BYTES: u64 = 16 \* 1024 \* 1024' "$ROOT/crates/turkuaz-office-writer/src/config/constants.rs"
+grep -q 'nativeTkoCodecAvailable: false' "$ROOT/apps/web/src/services/web-import-export.service.ts"
+grep -q 'BrowserFileTransferTool(document, URL)' "$ROOT/apps/web/src/main.tsx"
+grep -q 'M3 Web Browser File Transfer v0.4.0' "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
 grep -q 'wasm-bindgen = "=0.2.129"' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'crate-type = \["rlib", "cdylib"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'web_core_abi_version' "$ROOT/crates/turkuaz-office-core/src/tools/web_wasm_exports.rs"
@@ -459,6 +478,10 @@ for m3_web_file in \
   "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts" \
   "$ROOT/apps/web/src/tools/indexed-db-document.tool.ts" \
   "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts" \
+  "$ROOT/apps/web/src/tools/browser-file-transfer.tool.ts" \
+  "$ROOT/apps/web/src/tools/browser-file-transfer.tool.test.ts" \
+  "$ROOT/apps/web/src/services/web-import-export.service.ts" \
+  "$ROOT/apps/web/src/services/web-import-export.service.test.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts" \
   "$ROOT/apps/web/src/controllers/web-controller.ts" \
