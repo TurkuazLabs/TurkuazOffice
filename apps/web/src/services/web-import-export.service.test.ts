@@ -13,18 +13,13 @@ import {
   WEB_NATIVE_DOCUMENT_MIME_TYPE,
   WEB_UNSUPPORTED_IMPORT_FILE_ERROR,
 } from "../config/runtime-config";
-import type { WebPickedFile } from "../models/web-models";
-import type { WebBrowserFileTransferTool } from "../tools/browser-file-transfer.tool";
+import type { WebDownloadFile, WebPickedFile } from "../models/web-models";
 import { WebImportExportService } from "./web-import-export.service";
 
-function toolFixture(picked: WebPickedFile | null): WebBrowserFileTransferTool & {
-  downloadFile: ReturnType<typeof vi.fn>;
-  pickFile: ReturnType<typeof vi.fn>;
-} {
-  return {
-    pickFile: vi.fn(async () => picked),
-    downloadFile: vi.fn(),
-  };
+function toolFixture(picked: WebPickedFile | null) {
+  const pickFile = vi.fn(async () => picked);
+  const downloadFile = vi.fn((_file: WebDownloadFile): void => undefined);
+  return { pickFile, downloadFile };
 }
 
 describe("WebImportExportService", () => {
