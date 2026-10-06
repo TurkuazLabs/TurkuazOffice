@@ -56,6 +56,8 @@ Bu ilk dilimde asagidakiler tamamlanmis sayilmaz:
 
 ## Takip eden durum
 
-Bu foundation sonrasindaki compile-verified Rust WASM Core slice ayri `m3-web-wasm-core-v0.4.0.md` dokumaninda tamamlanmistir.
+Foundation sonrasinda compile-verified Rust WASM Core, pinned wasm-bindgen generated artifact pipeline'i ve browser runtime loader tamamlanmistir.
 
-Siradaki M3 adimi generated Rust/WASM JavaScript binding ve browser runtime loader'dir. localStorage yalniz metadata indexidir; canonical document payload persistence'i mevcut storage mimarisine uygun olarak IndexedDB adapter diliminde ele alinir.
+Canonical Core document payload persistence'i `m3-web-indexeddb-persistence-v0.4.0.md` diliminde IndexedDB adapterine tasinmistir. localStorage yalniz metadata indexidir.
+
+M3 kalan urun kapsami browser import/export, offline cache boundary ve Writer/Sheet web read-model entegrasyonudur.
