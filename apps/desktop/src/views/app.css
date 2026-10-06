@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/app.css
 # 📌 Amac: Turkuaz Office Desktop Writer ve Sheet shell, ribbon, grid, page ve statusbar stillerini tanimlar
 # 📌 Modul - FileType: View - CSS
-# Version: 0.6.0
-# Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, dock ve status yuzeylerini tanimlar
+# Version: 0.10.0
+# Aciklama: UI tokenlariyla Writer ribbon ve Excel/Calc esinli Sheet menu, toolbar, grid, properties/functions dock ve status yuzeylerini tanimlar
 # Bagimli Oldugu Katman: View -> Config
 */
 
@@ -1062,16 +1062,33 @@ input {
   background: var(--to-bg-surface);
 }
 
-.sheet-formula-bar::before {
-  content: "fx";
+.sheet-formula-bar__functions-button {
   grid-column: 2;
   grid-row: 1;
-  align-self: center;
+  width: 28px;
+  height: 27px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
   color: var(--to-accent);
   font-size: 13px;
   font-style: italic;
   font-weight: 700;
-  text-align: center;
+  cursor: pointer;
+}
+
+.sheet-formula-bar__functions-button:hover,
+.sheet-formula-bar__functions-button:focus-visible,
+.sheet-formula-bar__functions-button[aria-pressed="true"] {
+  border-color: var(--to-border-soft);
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.sheet-formula-bar__functions-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .sheet-formula-bar__reference {
@@ -1419,4 +1436,78 @@ input {
 .sheet-grid__cell--selected.sheet-grid__cell--conditional-success,
 .sheet-grid__cell--selected.sheet-grid__cell--conditional-accent {
   box-shadow: inset 0 0 0 2px var(--to-accent);
+}
+
+
+/* Sheet Functions Sidebar v0.10.0 */
+
+.sheet-functions-sidebar__search {
+  margin-top: 0;
+}
+
+.sheet-functions-sidebar__search input {
+  width: 100%;
+  min-height: 30px;
+  padding: 0 var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  outline: none;
+}
+
+.sheet-functions-sidebar__search input:focus {
+  border-color: var(--to-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--to-border-focus) 30%, transparent);
+}
+
+.sheet-functions-sidebar__hint {
+  margin: 10px 0 0;
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sheet-functions-sidebar__catalog {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.sheet-function-card {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+}
+
+.sheet-function-card__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sheet-function-card__title code,
+.sheet-function-card__signature {
+  color: var(--to-accent);
+  font-size: 11px;
+}
+
+.sheet-function-card p {
+  margin: 0;
+  color: var(--to-text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sheet-function-card__signature {
+  overflow-wrap: anywhere;
+}
+
+.sheet-function-card .toolbar-button {
+  justify-self: start;
+  min-height: 28px;
 }

@@ -186,6 +186,21 @@ Durum: Tamamlandi ve mevcut Desktop calisma agacinda aktiftir.
 
 Bu kapsam disi maddeler sessizce R2'ye eklenmez. Yeni Sheet urun ozelligi gerekiyorsa once roadmap ve gerekirse ADR guncellenir.
 
+## R2.x - Sheet Productivity Extensions v0.5.0-v0.10.0
+
+Durum: Roadmap onayli ardil Sheet dilimleri aktif gelistirme hattidir.
+
+- v0.5.0: Excel/Calc esinli hybrid Sheet UI.
+- v0.5.1: rectangular selection range ve canonical status aggregates.
+- v0.5.2: session-only freeze panes.
+- v0.6.0: canonical table objects ve table header filter entegrasyonu.
+- v0.7.0: canonical conditional formatting kurallari.
+- v0.8.0: SUM, AVERAGE, MIN, MAX ve IF function library.
+- v0.9.0: OOXML table parts, worksheet relationships ve conditional-format metadata round-trip.
+- v0.10.0: aranabilir Functions sidebar ve formula bar draft helper.
+
+Bu uzanti R2'nin tamamlanmis baseline'ini degistirmez; yeni Sheet productivity dilimlerinin sirasini ve kapsam sinirini resmi olarak tanimlar. v0.10.0 sonrasi yeni fonksiyon gruplari veya yeni spreadsheet yetenekleri ayri roadmap guncellemesi gerektirir.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.

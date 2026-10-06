@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/tr.ts
 // # 📌 Amac: Turkuaz Office Desktop Turkce UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// # Version: 0.7.0
+// # Version: 0.10.0
 // # Aciklama: Writer ve Sheet modul, ribbon, grid ve status alanlari icin ASCII Turkce label kaynagidir
 // Bagimli Oldugu Katman: Language
 
@@ -20,6 +20,22 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   sheetError: "Sheet islemi tamamlanamadi",
   sheetCells: "Hucre",
   sheetFormulaBarLabel: "Formul cubugu",
+  sheetFunctions: "Fonksiyonlar",
+  sheetFunctionsToggle: "Fonksiyonlar paneli",
+  sheetFunctionsSidebarLabel: "Sheet fonksiyonlar paneli",
+  sheetFunctionSearch: "Fonksiyon ara",
+  sheetFunctionInsert: "Formule Ekle",
+  sheetFunctionDraftHint: "Fonksiyon taslagini formul cubuguna ekleyin, argumanlari tamamlayip Enter tusuna basin.",
+  sheetFunctionSum: "Toplam",
+  sheetFunctionSumDescription: "Sayilari ve hucre araliklarini toplar.",
+  sheetFunctionAverage: "Ortalama",
+  sheetFunctionAverageDescription: "Sayilarin aritmetik ortalamasini hesaplar.",
+  sheetFunctionMin: "En Kucuk",
+  sheetFunctionMinDescription: "Verilen sayilar arasindaki en kucuk degeri bulur.",
+  sheetFunctionMax: "En Buyuk",
+  sheetFunctionMaxDescription: "Verilen sayilar arasindaki en buyuk degeri bulur.",
+  sheetFunctionIf: "Kosullu Deger",
+  sheetFunctionIfDescription: "Kosula gore iki sonuctan birini dondurur.",
   sheetSelectedCell: "Secili hucre",
   sheetEvaluatedValue: "Hesaplanan deger",
   sheetAlignGeneral: "Genel hizalama",

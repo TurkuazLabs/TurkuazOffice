@@ -1,15 +1,17 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.test.ts
 // # 📌 Amac: Desktop Sheet typed cell input routing davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.7.0
-// Aciklama: Dirty-state, table object, conditional formatting, range summary, stale query korumasi, freeze, filter-sort ve typed mutation davranislarini dogrular
+// Version: 0.10.0
+// Aciklama: Function draft, dirty-state, table object, conditional formatting, range summary, stale query, freeze, filter-sort ve typed mutation davranislarini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import { describe, expect, it } from "vitest";
 
 import { ERROR_CODES } from "../config/error-codes";
+import { SHEET_FUNCTION_IDS } from "../config/sheet-functions";
 import { LanguageService } from "../language/language-service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import { SheetFormulaHelperTool } from "../tools/sheet-formula-helper.tool";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type { SheetCellFormatView, SheetDocumentView } from "../views/sheet-types";
 import { SheetSessionService } from "./sheet-session.service";
@@ -155,6 +157,7 @@ function createService(
   return new SheetSessionService(
     repository,
     sheetTool,
+    new SheetFormulaHelperTool(),
     { confirmDiscard: async () => confirmDiscard() },
     new LanguageService(),
   );
@@ -169,6 +172,18 @@ describe("SheetSessionService", () => {
 
     expect(repository.document()?.id).toBe(DOCUMENT.id);
     expect(repository.status()).toBe("ready");
+  });
+
+  it("returns function drafts only when a cell is selected", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const service = createService(repository, toolWithCalls([]));
+
+    expect(service.functionFormulaDraft(SHEET_FUNCTION_IDS.sum)).toBeNull();
+
+    await service.selectCell("A1", 0, 0);
+
+    expect(service.functionFormulaDraft(SHEET_FUNCTION_IDS.sum)).toBe("=SUM(");
   });
 
   it("keeps a dirty Sheet when new document discard is cancelled", async () => {

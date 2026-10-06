@@ -1,12 +1,16 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.7.0
-// Aciklama: Hybrid menu, table/filter headers, conditional formatting, Shift range selection, canonical aggregates, freeze panes, formula bari, grid, properties dock ve status View'larini birlestirir
+// Version: 0.10.0
+// Aciklama: Hybrid menu, table/filter, conditional formatting, function helper sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
 import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 
+import {
+  SHEET_FUNCTION_BUTTON_TEXT,
+  type SheetFunctionId,
+} from "../config/sheet-functions";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
@@ -21,6 +25,7 @@ import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { SheetReferenceTool } from "../tools/sheet-reference.tool";
+import { SheetFunctionsSidebar } from "./sheet-functions-sidebar";
 import { SheetMenubar } from "./sheet-menubar";
 import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
 import type {
@@ -57,6 +62,7 @@ export function SheetShell(props: SheetShellProps) {
   const [filterValue, setFilterValue] = createSignal("");
   const [sortDirection, setSortDirection] = createSignal<SheetSortDirectionView>("none");
   const [propertiesOpen, setPropertiesOpen] = createSignal(true);
+  const [functionsOpen, setFunctionsOpen] = createSignal(false);
   const [queryOpen, setQueryOpen] = createSignal(false);
   const [conditionalFormatOpen, setConditionalFormatOpen] = createSignal(false);
   const [conditionalMode, setConditionalMode] =
@@ -231,13 +237,50 @@ export function SheetShell(props: SheetShellProps) {
   const formulaEditorValue = (): string =>
     formulaEditing() ? formulaDraft() : (props.repository.selection()?.rawValue ?? "");
 
+  let formulaEditGeneration = 0;
+
+  const beginFormulaEditGeneration = (): number => {
+    formulaEditGeneration += 1;
+    return formulaEditGeneration;
+  };
+
   const commitFormulaBar = async (value: string): Promise<void> => {
+    const commitGeneration = formulaEditGeneration;
     const selection = props.repository.selection();
     if (selection !== null && selection.rawValue !== value) {
       await props.controller.commitCell(selection.reference, value);
     }
+    if (commitGeneration !== formulaEditGeneration) {
+      return;
+    }
     setFormulaEditing(false);
     setFormulaDraft("");
+  };
+
+  let formulaInput: HTMLInputElement | undefined;
+
+  const togglePropertiesSidebar = (): void => {
+    setFunctionsOpen(false);
+    setPropertiesOpen((value) => !value);
+  };
+
+  const toggleFunctionsSidebar = (): void => {
+    setPropertiesOpen(false);
+    setFunctionsOpen((value) => !value);
+  };
+
+  const insertFunctionDraft = (functionId: SheetFunctionId): void => {
+    const draft = props.controller.functionFormulaDraft(functionId);
+    if (draft === null) {
+      return;
+    }
+    beginFormulaEditGeneration();
+    setFormulaEditing(true);
+    setFormulaDraft(draft);
+    queueMicrotask(() => {
+      formulaInput?.focus();
+      formulaInput?.setSelectionRange(draft.length, draft.length);
+    });
   };
 
   const resetQueryControls = (): void => {
@@ -409,6 +452,7 @@ export function SheetShell(props: SheetShellProps) {
           propertiesOpen={propertiesOpen()}
           queryOpen={queryOpen()}
           conditionalFormatOpen={conditionalFormatOpen()}
+          functionsOpen={functionsOpen()}
           freezeActive={
             props.repository.freezeState().rows > 0 ||
             props.repository.freezeState().columns > 0
@@ -417,9 +461,10 @@ export function SheetShell(props: SheetShellProps) {
           canCreateTable={canCreateTable()}
           canRemoveTable={selectedTable() !== null}
           onNewDocument={() => void createDocument()}
-          onToggleProperties={() => setPropertiesOpen((value) => !value)}
+          onToggleProperties={togglePropertiesSidebar}
           onToggleQuery={() => setQueryOpen((value) => !value)}
           onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
+          onToggleFunctions={toggleFunctionsSidebar}
           onFreezeAtSelection={() => props.controller.freezeAtSelection()}
           onFreezeTopRow={() => props.controller.freezeTopRow()}
           onFreezeFirstColumn={() => props.controller.freezeFirstColumn()}
@@ -703,12 +748,26 @@ export function SheetShell(props: SheetShellProps) {
           <span class="sheet-formula-bar__reference" title={props.language.text("sheetSelectedCell")}>
             {props.repository.selection()?.reference ?? "-"}
           </span>
+          <button
+            type="button"
+            class="sheet-formula-bar__functions-button"
+            aria-label={props.language.text("sheetFunctionsToggle")}
+            aria-pressed={functionsOpen()}
+            disabled={props.repository.selection() === null}
+            onClick={toggleFunctionsSidebar}
+          >
+            {SHEET_FUNCTION_BUTTON_TEXT}
+          </button>
           <input
+            ref={(element) => {
+              formulaInput = element;
+            }}
             class="sheet-formula-bar__input"
             aria-label={props.language.text("sheetFormulaBarLabel")}
             disabled={props.repository.selection() === null}
             value={formulaEditorValue()}
             onFocus={(event) => {
+              beginFormulaEditGeneration();
               setFormulaEditing(true);
               setFormulaDraft(event.currentTarget.value);
             }}
@@ -899,6 +958,13 @@ export function SheetShell(props: SheetShellProps) {
             repository={props.repository}
             language={props.language}
             onClose={() => setPropertiesOpen(false)}
+          />
+        </Show>
+        <Show when={functionsOpen()}>
+          <SheetFunctionsSidebar
+            language={props.language}
+            onClose={() => setFunctionsOpen(false)}
+            onInsertDraft={insertFunctionDraft}
           />
         </Show>
       </div>

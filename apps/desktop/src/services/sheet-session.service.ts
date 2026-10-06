@@ -1,11 +1,12 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-session.service.ts
 // # 📌 Amac: Desktop Sheet oturum ve cell edit is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.7.0
-// Aciklama: Dirty-state korumali create, cell edit/format, table object, conditional formatting, range summary, freeze-pane oturumu ve stale-response guvenli filter-sort akislarini koordine eder
+// Version: 0.10.0
+// Aciklama: Dirty-state korumali create, cell edit/format, function draft, table object, conditional formatting, range summary, freeze-pane ve filter-sort akislarini koordine eder
 // Bagimli Oldugu Katman: Service -> Repo -> Tool -> Language
 
 import { ERROR_CODES } from "../config/error-codes";
+import type { SheetFunctionId } from "../config/sheet-functions";
 import {
   SHEET_BOOLEAN_FALSE,
   SHEET_BOOLEAN_TRUE,
@@ -17,6 +18,7 @@ import {
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
+import type { SheetFormulaHelperTool } from "../tools/sheet-formula-helper.tool";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type {
   SheetCellFormatView,
@@ -45,6 +47,7 @@ export class SheetSessionService {
   public constructor(
     private readonly repository: SheetSessionRepository,
     private readonly sheetTool: TauriSheetTool,
+    private readonly formulaHelperTool: SheetFormulaHelperTool,
     private readonly fileDialogTool: Pick<NativeFileDialogTool, "confirmDiscard">,
     private readonly language: LanguageService,
   ) {}
@@ -381,6 +384,14 @@ export class SheetSessionService {
   public clearRowQuery(): void {
     this.invalidateRowQueryRequests();
     this.repository.clearRowQuery();
+  }
+
+  public functionFormulaDraft(functionId: SheetFunctionId): string | null {
+    if (this.repository.selection() === null) {
+      return null;
+    }
+    const draft = this.formulaHelperTool.draft(functionId);
+    return draft.length === 0 ? null : draft;
   }
 
   public commitCell(reference: string, rawValue: string): Promise<void> {

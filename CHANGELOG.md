@@ -8,6 +8,15 @@ Bagimli Oldugu Katman: Documentation
 
 # Changelog
 
+## Unreleased - Sheet Productivity Extensions
+
+- v0.10.0 searchable Functions sidebar ve formula bar draft helper eklendi.
+- Function aramasi engine kimliklerinde locale-bagimsiz, lokalize metinlerde locale-duyarli hale getirildi.
+- AVERAGE icin AVG searchable alias eklendi.
+- v0.9.0 OOXML table/conditional-format metadata round-trip hatti tamamlandi.
+- TextContains exportunda Excel SEARCH wildcard escaping ve relocated worksheet relationship resolution sertlestirildi.
+
+
 ## v0.3.1 - Community Preview Hardening
 
 - GitHub Actions pipeline stable action surumlerine tasindi.

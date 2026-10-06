@@ -324,6 +324,7 @@ sheet_desktop_ui:
   name_box: true
   properties_sidebar: true
   properties_sidebar_default_open: true
+  functions_sidebar: true
   data_query_toggle: menu
   grid_initial_rows: 100
   grid_initial_columns: 26
@@ -347,7 +348,6 @@ sheet_desktop_ui:
   planned_sidebar_modules:
     - styles
     - gallery
-    - functions
   planned_productivity:
     - charts
 
@@ -436,6 +436,23 @@ sheet_function_library:
   aggregate_formula_evaluation: true
   aggregate_ignores_text_boolean_empty: true
   text_boolean_numeric_coercion: false
+
+sheet_functions_sidebar:
+  active: true
+  version: 0.10.0
+  catalog_source: sheet_function_library
+  search: true
+  formula_bar_toggle: true
+  menu_toggle: true
+  formula_draft_insert: true
+  auto_commit: false
+  dock_mode: mutually_exclusive_with_properties
+  functions:
+    - SUM
+    - AVERAGE
+    - MIN
+    - MAX
+    - IF
 
 sheet_csv_xlsx:
   active: true

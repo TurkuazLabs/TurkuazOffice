@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-menubar.tsx
 // # 📌 Amac: LibreOffice klasik menusu ile Excel hizli akislarini birlestiren Sheet menu satirini sunar
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.7.0
-// Aciklama: Yalnizca gercek islevi olan Dosya/Bicim/Gorunum/Veri komutlarini acar; diger menuleri gelecek kapsami olarak pasif gosterir
+// Version: 0.10.0
+// Aciklama: Dosya, Bicim, Ekle, Gorunum ve Veri menulerinde gercek Sheet komutlarini; Functions sidebar dahil aktif yuzeyleri sunar
 // Bagimli Oldugu Katman: View -> Language
 
 import type { LanguageService } from "../language/language-service";
@@ -12,6 +12,7 @@ interface SheetMenubarProps {
   readonly propertiesOpen: boolean;
   readonly queryOpen: boolean;
   readonly conditionalFormatOpen: boolean;
+  readonly functionsOpen: boolean;
   readonly freezeActive: boolean;
   readonly canFreezeAtSelection: boolean;
   readonly canCreateTable: boolean;
@@ -20,6 +21,7 @@ interface SheetMenubarProps {
   readonly onToggleProperties: () => void;
   readonly onToggleQuery: () => void;
   readonly onToggleConditionalFormat: () => void;
+  readonly onToggleFunctions: () => void;
   readonly onFreezeAtSelection: () => void;
   readonly onFreezeTopRow: () => void;
   readonly onFreezeFirstColumn: () => void;
@@ -60,9 +62,18 @@ export function SheetMenubar(props: SheetMenubarProps) {
         </div>
       </details>
 
-      <span class="sheet-menubar__disabled" aria-disabled="true">
-        {props.language.text("menuInsert")}
-      </span>
+      <details class="sheet-menu">
+        <summary>{props.language.text("menuInsert")}</summary>
+        <div class="sheet-menu__popup">
+          <button
+            type="button"
+            aria-pressed={props.functionsOpen}
+            onClick={props.onToggleFunctions}
+          >
+            {props.language.text("sheetFunctionsToggle")}
+          </button>
+        </div>
+      </details>
 
       <details class="sheet-menu">
         <summary>{props.language.text("menuView")}</summary>
@@ -74,6 +85,13 @@ export function SheetMenubar(props: SheetMenubarProps) {
             {props.queryOpen
               ? props.language.text("sheetHideQuery")
               : props.language.text("sheetShowQuery")}
+          </button>
+          <button
+            type="button"
+            aria-pressed={props.functionsOpen}
+            onClick={props.onToggleFunctions}
+          >
+            {props.language.text("sheetFunctionsToggle")}
           </button>
           <div class="sheet-menu__separator" />
           <button

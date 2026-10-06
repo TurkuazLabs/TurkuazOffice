@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/app-container.ts
 // # 📌 Amac: Desktop katman bagimliliklarini tek composition root icinde kurar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.4.1
-// # Aciklama: Writer ve Sheet controller, repo, service, dialog ve Tauri IPC bagimliliklarini merkezi enjekte eder
+// # Version: 0.10.0
+// # Aciklama: Writer ve Sheet controller, repo, service, formula helper, dialog ve Tauri IPC bagimliliklarini merkezi enjekte eder
 // Bagimli Oldugu Katman: Config
 
 import { SheetController } from "../controllers/sheet.controller";
@@ -24,6 +24,7 @@ import { ImageAssetTool } from "../tools/image-asset.tool";
 import { LanguagePreferenceTool } from "../tools/language-preference.tool";
 import { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import { PrintTool } from "../tools/print.tool";
+import { SheetFormulaHelperTool } from "../tools/sheet-formula-helper.tool";
 import { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import { TauriWriterTool } from "../tools/tauri-writer.tool";
 import { TextOffsetTool } from "../tools/text-offset.tool";
@@ -37,10 +38,12 @@ const languagePreferenceService = new LanguagePreferenceService(
 languagePreferenceService.initialize();
 const sheetSessionRepository = new SheetSessionRepository();
 const sheetTool = new TauriSheetTool();
+const sheetFormulaHelperTool = new SheetFormulaHelperTool();
 const nativeFileDialogTool = new NativeFileDialogTool();
 const sheetSessionService = new SheetSessionService(
   sheetSessionRepository,
   sheetTool,
+  sheetFormulaHelperTool,
   nativeFileDialogTool,
   languageService,
 );
