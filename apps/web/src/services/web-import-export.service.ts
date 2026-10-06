@@ -8,6 +8,7 @@
 import {
   WEB_BROWSER_IMPORT_MAX_BYTES,
   WEB_NATIVE_DOCUMENT_ACCEPT,
+  WEB_IMPORT_FILE_TOO_LARGE_ERROR,
   WEB_NATIVE_DOCUMENT_EXTENSION,
   WEB_NATIVE_DOCUMENT_MIME_TYPE,
   WEB_UNSUPPORTED_IMPORT_FILE_ERROR,
@@ -38,6 +39,9 @@ export class WebImportExportService {
       return null;
     }
 
+    if (picked.bytes.byteLength > WEB_BROWSER_IMPORT_MAX_BYTES) {
+      throw new Error(WEB_IMPORT_FILE_TOO_LARGE_ERROR);
+    }
     if (!picked.name.toLocaleLowerCase("en-US").endsWith(WEB_NATIVE_DOCUMENT_EXTENSION)) {
       throw new Error(WEB_UNSUPPORTED_IMPORT_FILE_ERROR);
     }
