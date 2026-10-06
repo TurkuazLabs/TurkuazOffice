@@ -388,9 +388,7 @@ impl SheetXlsxXmlTool {
                                 current_range.clone().ok_or(SheetXlsxXmlError::InvalidXml)?;
                             current_rule = Some(Self::conditional_rule_state(&start, range)?);
                         }
-                        TAG_CONDITIONAL_FORMULA if current_rule.is_some() => {
-                            in_rule_formula = true
-                        },
+                        TAG_CONDITIONAL_FORMULA if current_rule.is_some() => in_rule_formula = true,
                         TAG_TABLE_PART => {
                             Self::push_table_relationship_id(&start, &mut table_relationship_ids)?;
                         }
@@ -437,7 +435,7 @@ impl SheetXlsxXmlTool {
                     match Self::local_name(end.name().as_ref()) {
                         TAG_CONDITIONAL_FORMULA if current_rule.is_some() => {
                             in_rule_formula = false
-                        },
+                        }
                         TAG_CONDITIONAL_RULE => {
                             let state = current_rule.take().ok_or(SheetXlsxXmlError::InvalidXml)?;
                             conditional_formats.push(Self::finish_conditional_rule(state)?);
