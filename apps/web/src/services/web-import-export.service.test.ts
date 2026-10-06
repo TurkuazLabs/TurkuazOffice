@@ -30,23 +30,22 @@ function fileToolFixture(picked: WebPickedFile | null) {
   return { pickFile, downloadFile };
 }
 
-function codecFixture(): WebWriterTkoTool & {
-  inspect: ReturnType<typeof vi.fn<(bytes: Uint8Array) => WebWriterTkoSummary>>;
-  reencode: ReturnType<
-    typeof vi.fn<(bytes: Uint8Array, appVersion: string) => Uint8Array>
-  >;
-} {
-  return {
-    inspect: vi.fn(() => ({
+function codecFixture() {
+  const inspect = vi.fn(
+    (_bytes: Uint8Array): WebWriterTkoSummary => ({
       id: "writer-1",
       title: "Belge",
       schemaVersion: 1,
       revision: 2,
       sectionCount: 1,
       assetCount: 0,
-    })),
-    reencode: vi.fn((bytes: Uint8Array) => bytes.slice()),
-  };
+    }),
+  );
+  const reencode = vi.fn(
+    (bytes: Uint8Array, _appVersion: string): Uint8Array => bytes.slice(),
+  );
+  const codec: WebWriterTkoTool = { inspect, reencode };
+  return { ...codec, inspect, reencode };
 }
 
 describe("WebImportExportService", () => {
