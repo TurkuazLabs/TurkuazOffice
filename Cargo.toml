@@ -2,7 +2,7 @@
 # 📌 Amac: Turkuaz Office Rust workspace uyelerini ve ortak paket metadatasini tanimlar
 # 📌 Modul - FileType: Config - TOML
 # Version: 0.3.1
-# Aciklama: Core, Writer, Sheet, format adapter ve Desktop Tauri crate'lerini tek workspace icinde yonetir
+# Aciklama: Core, Writer, Sheet, format adapter, Web bridge ve Desktop Tauri crate'lerini tek workspace icinde yonetir
 # Bagimli Oldugu Katman: Config
 
 [workspace]
@@ -12,6 +12,7 @@ members = [
     "crates/turkuaz-office-writer",
     "crates/turkuaz-office-sheet",
     "crates/turkuaz-office-format-adapters",
+    "crates/turkuaz-office-web-bridge",
     "apps/desktop/src-tauri",
 ]
 

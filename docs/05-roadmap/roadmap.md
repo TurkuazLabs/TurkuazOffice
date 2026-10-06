@@ -224,10 +224,13 @@ Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamist
 - Browser file picker + Blob download byte-transfer Tool foundation'i.
 - .tko accept/download profili ve 16 MiB pre-read browser ingress guardi.
 - TKO codec hazir olmadan View aksiyonu acmayan import/export Service siniri.
+- Core + Writer dependency yonunu koruyan aggregate Web WASM bridge crate'i.
+- Mevcut Writer TkoPackageService'i kullanan TKO inspect/re-encode WASM exportlari.
 
 ### M3 kalan kapsam
 
-- Browser TKO codec/domain mapping ve gercek import/export urun akisi.
+- Generated Writer TKO WASM exportlarini typed TypeScript Tool'a baglama.
+- Browser file-transfer Service + TKO Tool composition ve gercek import/export urun akisi.
 - Offline cache boundary.
 - Writer/Sheet web read-model ve kullanici yuzeyi entegrasyonu.
 

@@ -143,7 +143,8 @@ TurkuazOffice/
 |   |-- turkuaz-office-core/
 |   |-- turkuaz-office-writer/
 |   |-- turkuaz-office-sheet/
-|   `-- turkuaz-office-format-adapters/
+|   |-- turkuaz-office-format-adapters/
+|   `-- turkuaz-office-web-bridge/
 |-- config/
 |-- docs/
 |-- tools/
@@ -187,4 +188,4 @@ npm run build
 npm test
 ```
 
-Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Core document payload IndexedDB `documents` store'unda saklanir ve localStorage'a payload fallback yapilmaz. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; pinned wasm-bindgen generated artifact ve browser runtime loader Tool siniri arkasinda aktiftir. Browser file picker ve Blob download byte transport foundation'i aktiftir; TKO encode/decode henuz Rust domain bridge bekledigi icin View import/export aksiyonu acilmaz.
+Web View native filesystem kullanmaz. localStorage yalniz document metadata indexidir; canonical Core document payload IndexedDB `documents` store'unda saklanir ve localStorage'a payload fallback yapilmaz. `turkuaz-office-core` wasm32 hedefinde CI ile derlenir; pinned wasm-bindgen aggregate Web bridge artifact ve browser runtime loader Tool siniri arkasinda aktiftir. Browser file picker ve Blob download byte transport foundation'i aktiftir. Writer TKO inspect/re-encode Rust/WASM exportlari mevcut TkoPackageService'i yeniden kullanir; typed TypeScript TKO Tool composition tamamlanana kadar View import/export aksiyonu acilmaz.

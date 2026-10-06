@@ -12,7 +12,7 @@ export const WEB_STORAGE_NAMESPACE = "turkuaz-office:web:index:v1";
 export const WEB_CORE_BRIDGE_KIND = "browser-contract";
 export const WEB_CORE_ABI_VERSION = 1;
 export const WEB_CORE_SCHEMA_VERSION = 1;
-export const WEB_CORE_WASM_MODULE_URL = "/wasm/turkuaz_office_core.js";
+export const WEB_CORE_WASM_MODULE_URL = "/wasm/turkuaz_office_web_bridge.js";
 export const WEB_CORE_NATIVE_FS_CONTRACT_ERROR =
   "Web Core native filesystem capability false olmali.";
 export const WEB_APP_ROOT_ID = "app";
