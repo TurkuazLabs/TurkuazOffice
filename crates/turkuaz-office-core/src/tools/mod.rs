@@ -7,5 +7,5 @@
 
 pub mod id_tool;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", feature = "web-wasm-exports"))]
 pub mod web_wasm_exports;
