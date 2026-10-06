@@ -22,6 +22,8 @@ Bagimli Oldugu Katman: Documentation
 - Generated WASM artifact turkuaz_office_web_bridge.js olarak aggregate hale getirildi.
 - Writer TKO inspect ve canonical re-encode exportlari mevcut Rust TkoPackageService uzerinden eklendi.
 - Core standalone wasm-bindgen exportlari duplicate aggregate symbol riskini engellemek icin web-wasm-exports feature'i ile gate edildi.
+- Generated Writer TKO WASM exportlari typed `WasmWriterTkoTool` adapterine baglandi.
+- Aggregate runtime loader Writer TKO exportlarini fail-closed dogrular; browser fallback codec capability iddia etmez.
 
 ## Unreleased - Sheet Productivity Extensions
 
