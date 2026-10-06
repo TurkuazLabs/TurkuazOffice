@@ -291,6 +291,7 @@ required_files=(
   "apps/web/vite.config.ts"
   "apps/web/src/main.tsx"
   "apps/web/src/controllers/web-controller.ts"
+  "apps/web/src/controllers/web-controller.test.ts"
   "apps/web/src/services/web-bootstrap-service.ts"
   "apps/web/src/repositories/browser-document-index.repository.ts"
   "apps/web/src/repositories/indexeddb-document.repository.ts"
@@ -463,6 +464,7 @@ grep -q 'MAX_TKO_PACKAGE_BYTES: u64 = 16 \* 1024 \* 1024' "$ROOT/crates/turkuaz-
 grep -q 'nativeTkoCodecAvailable: false' "$ROOT/apps/web/src/services/web-import-export.service.ts"
 grep -q 'BrowserFileTransferTool(document, URL)' "$ROOT/apps/web/src/main.tsx"
 grep -q 'M3 Web Browser File Transfer v0.4.0' "$ROOT/docs/08-implementation/m3-web-browser-file-transfer-v0.4.0.md"
+grep -q 'delegates native file selection to WebImportExportService' "$ROOT/apps/web/src/controllers/web-controller.test.ts"
 grep -q 'wasm-bindgen = "=0.2.129"' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'crate-type = \["rlib", "cdylib"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'web_core_abi_version' "$ROOT/crates/turkuaz-office-core/src/tools/web_wasm_exports.rs"
@@ -482,6 +484,7 @@ for m3_web_file in \
   "$ROOT/apps/web/src/tools/browser-file-transfer.tool.test.ts" \
   "$ROOT/apps/web/src/services/web-import-export.service.ts" \
   "$ROOT/apps/web/src/services/web-import-export.service.test.ts" \
+  "$ROOT/apps/web/src/controllers/web-controller.test.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts" \
   "$ROOT/apps/web/src/controllers/web-controller.ts" \
