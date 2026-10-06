@@ -100,7 +100,12 @@ web_client:
   wasm_binding_url: /wasm/turkuaz_office_core.js
   wasm_bindgen_version: 0.2.129
   wasm_artifact_ci: true
-  import_export: planned
+  import_export: file_transfer_foundation
+  browser_file_picker: html_input_file
+  browser_download: blob_object_url
+  browser_import_max_bytes: 16777216
+  native_tko_codec: planned_rust_domain_bridge
+  import_export_view_actions: false
   offline_cache: planned
 
 writer_input:
