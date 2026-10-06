@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/config/project.yml
 # 📌 Amac: Platform kapsamini, native belge kontratini ve aktif foundation hardening kurallarini merkezi konfigurasyonda tanimlar
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.1
-# Aciklama: Platform, schema, guvenlik, kalite, Desktop suite entrypoint ve M3 Web WASM runtime kararlarini merkezi proje konfigurasyonunda toplar
+# Version: 0.12.0
+# Aciklama: Platform, schema, guvenlik, kalite, modern Desktop Start Center ve M3 Web WASM runtime kararlarini merkezi proje konfigurasyonunda toplar
 # Bagimli Oldugu Katman: Config
 
 project:
@@ -72,9 +72,11 @@ desktop_ui:
   canonical_state_in_frontend: false
   ipc_thin_bridge_required: true
   suite_entrypoints: start_menu_shortcuts
-  in_app_module_switcher: false
-  default_launch_module: writer
+  in_app_module_switcher: true
+  default_launch_module: home
   windows_console_window: false
+  start_center: true
+  distinct_application_icons: true
   applications:
     - writer
     - sheet
@@ -136,12 +138,16 @@ writer_input:
     - align_right
     - align_justify
   ribbon:
-    active_tab: home
+    layout: classic_menu_plus_toolbar
     tabs:
       - file
-      - home
-      - insert
+      - edit
       - view
+      - insert
+      - format
+      - table
+      - tools
+      - help
 
 desktop_storage:
   active: true
