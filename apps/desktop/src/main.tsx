@@ -27,7 +27,9 @@ async function bootstrapDesktopSuite(): Promise<void> {
   const launchTool = new DesktopLaunchTool();
   const initialModule = await launchTool.getModule();
   const [activeModule, setActiveModule] = createSignal<OfficeModule>(initialModule);
-  const openModule = (module: OfficeModule): void => setActiveModule(module);
+  const openModule = (module: OfficeModule): void => {
+    setActiveModule(module);
+  };
 
   render(
     () => (
