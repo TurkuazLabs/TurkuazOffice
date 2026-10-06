@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-ribbon.tsx
 // # 📌 Amac: Writer menu sekmeleri ve Giris ribbon command gruplarini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.2.0
+// Version: 0.12.0
 // Aciklama: New/Open/Save, DOCX import/export, print, gecmis, font, inline style ve paragraph alignment kontrollerini erisilebilir sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language -> Config
 
@@ -47,24 +47,21 @@ export function WriterRibbon(props: WriterRibbonProps) {
 
   return (
     <section class="writer-ribbon" aria-label={props.language.text("ribbonLabel")}>
-      <nav class="writer-ribbon__tabs" role="tablist" aria-label={props.language.text("ribbonLabel")}>
+      <nav class="writer-ribbon__tabs" aria-label={props.language.text("ribbonLabel")}>
         <For each={WRITER_RIBBON_TABS}>
           {(tab: WriterRibbonTabConfig) => (
-            <button
-              type="button"
+            <span
               class={`writer-ribbon__tab${tab.active ? " writer-ribbon__tab--active" : ""}`}
-              role="tab"
-              aria-selected={tab.active}
-              disabled={!tab.enabled}
+              aria-disabled={!tab.enabled}
               title={tab.enabled ? undefined : props.language.text("menuComingSoon")}
             >
               {props.language.text(tab.languageKey as DesktopLabelKey)}
-            </button>
+            </span>
           )}
         </For>
       </nav>
 
-      <div class="writer-ribbon__band" role="toolbar" aria-label={props.language.text("menuHome")}>
+      <div class="writer-ribbon__band" role="toolbar" aria-label={props.language.text("ribbonLabel")}>
         <div class="ribbon-group">
           <div class="ribbon-group__commands">
             <button
