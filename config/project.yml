@@ -102,12 +102,14 @@ web_client:
   wasm_binding_url: /wasm/turkuaz_office_web_bridge.js
   wasm_bindgen_version: 0.2.129
   wasm_artifact_ci: true
-  import_export: file_transfer_foundation
+  import_export: tko_service_composed
   browser_file_picker: html_input_file
   browser_download: blob_object_url
   browser_import_max_bytes: 16777216
-  native_tko_codec: wasm_bridge_exported
+  native_tko_codec: wasm_tool_composed
   writer_tko_ts_tool: runtime_loaded_when_wasm_available
+  tko_import_validation: rust_wasm_inspect
+  tko_export_canonicalization: rust_wasm_reencode
   import_export_view_actions: false
   offline_cache: planned
 
