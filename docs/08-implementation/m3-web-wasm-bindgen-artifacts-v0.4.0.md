@@ -40,6 +40,8 @@ Generated dosyalar source control'e alinmaz.
 
 `workspace-ci` icinde `Web WASM artifact` job'u pinned CLI kurar, build scriptini calistirir ve `turkuaz-office-web-wasm` adiyla GitHub Actions artifact'i yukler.
 
-## Sonraki dilim
+## Takip eden durum
 
-Sonraki adim generated artifact'i Web build/smoke test akisi icinde gercek runtime loader ile yuklemek ve fallback yerine `rust-wasm` capability sonucunu browser seviyesinde dogrulamaktir.
+Browser runtime loader generated modulu Tool katmaninda yukleyecek sekilde tamamlanmistir. Canonical Core document payload persistence de IndexedDB adapteri ile aktif hale gelmistir.
+
+M3 kalan kapsam browser import/export, offline cache boundary ve Writer/Sheet web read-model entegrasyonudur.
