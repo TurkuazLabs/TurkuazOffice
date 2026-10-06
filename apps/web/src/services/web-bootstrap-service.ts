@@ -3,7 +3,7 @@
 // # 📌 Modul - FileType: Service - TypeScript
 // # Version: 0.4.0
 // # Aciklama: Core capability ve browser metadata-index durumunu tek typed ViewModel olarak uretir
-// Bagimli Oldugu Katman: Service
+// Bagimli Oldugu Katman: Service -> Repo -> Tool
 
 import {
   WEB_APP_VERSION,
