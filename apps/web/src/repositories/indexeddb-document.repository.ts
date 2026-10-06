@@ -80,7 +80,7 @@ export class IndexedDbDocumentRepository implements WebCanonicalDocumentReposito
         this.metadataIndex.save(toIndexEntry(document));
       }
     } catch {
-      // Canonical IndexedDB state remains authoritative; a later list repairs metadata.
+      // Canonical IndexedDB durumu otoritedir; sonraki list metadata indexini onarir.
     }
   }
 
@@ -88,7 +88,7 @@ export class IndexedDbDocumentRepository implements WebCanonicalDocumentReposito
     try {
       this.metadataIndex.save(entry);
     } catch {
-      // Canonical commit already succeeded; later list reconciliation repairs metadata.
+      // Canonical commit tamamlandi; sonraki list metadata indexini onarir.
     }
   }
 
@@ -96,7 +96,7 @@ export class IndexedDbDocumentRepository implements WebCanonicalDocumentReposito
     try {
       this.metadataIndex.remove(id);
     } catch {
-      // Canonical delete already succeeded; later list reconciliation repairs metadata.
+      // Canonical silme tamamlandi; sonraki list metadata indexini onarir.
     }
   }
 }
