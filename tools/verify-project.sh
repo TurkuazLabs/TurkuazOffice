@@ -2,8 +2,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.11.0
-# Aciklama: Umbrella release versionini korur; Sheet Basic Charts UI dahil M1/M2/R2 ve M3 Web foundation static contract kontrollerini uygular
+# Version: 0.11.1
+# Aciklama: Umbrella release versionini korur; Sheet Basic Charts UI ve M3 Web IndexedDB persistence dahil static contract kontrollerini uygular
 # Bagimli Oldugu Katman: Tool
 
 set -euo pipefail
@@ -20,6 +20,7 @@ SHEET_FUNCTION_VERSION="0.8.0"
 SHEET_OOXML_VERSION="0.9.0"
 SHEET_FUNCTION_SIDEBAR_VERSION="0.10.0"
 SHEET_CHART_UI_VERSION="0.11.0"
+M3_WEB_VERSION="0.4.0"
 
 required_files=(
   "README.md"
@@ -292,8 +293,15 @@ required_files=(
   "apps/web/src/controllers/web-controller.ts"
   "apps/web/src/services/web-bootstrap-service.ts"
   "apps/web/src/repositories/browser-document-index.repository.ts"
+  "apps/web/src/repositories/indexeddb-document.repository.ts"
+  "apps/web/src/repositories/indexeddb-document.repository.test.ts"
+  "apps/web/src/tools/indexed-db-document.tool.ts"
   "apps/web/src/tools/web-core-tool.ts"
   "apps/web/src/tools/web-core-tool.test.ts"
+  "apps/web/src/tools/wasm-core-runtime-loader.ts"
+  "apps/web/src/tools/wasm-core-runtime-loader.test.ts"
+  "apps/web/src/services/web-bootstrap-service.test.ts"
+  "apps/web/src/models/web-models.ts"
   "apps/web/src/language/tr-TR.ts"
   "crates/turkuaz-office-core/src/services/web_core_service.rs"
   "crates/turkuaz-office-core/src/views/web_core_view.rs"
@@ -305,6 +313,9 @@ required_files=(
   "tools/build-web-wasm.sh"
   "docs/08-implementation/m3-web-wasm-bindgen-artifacts-v0.4.0.md"
   "docs/07-quality/m3-web-wasm-bindgen-artifact-test-matrix.md"
+  "docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md"
+  "docs/08-implementation/m3-web-indexeddb-persistence-v0.4.0.md"
+  "docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md"
 )
 
 for relative_path in "${required_files[@]}"; do
@@ -392,11 +403,15 @@ grep -q 'web_client:' "$ROOT/config/project.yml"
 grep -q 'milestone: m3_foundation' "$ROOT/config/project.yml"
 grep -q 'native_file_system_access: false' "$ROOT/config/project.yml"
 grep -q 'metadata_index_adapter: local_storage' "$ROOT/config/project.yml"
-grep -q 'document_storage_adapter: indexed_db_planned' "$ROOT/config/project.yml"
+grep -q 'document_storage_adapter: indexed_db' "$ROOT/config/project.yml"
+grep -q 'indexed_db_database: turkuaz-office-web' "$ROOT/config/project.yml"
+grep -q 'indexed_db_version: 1' "$ROOT/config/project.yml"
+grep -q 'indexed_db_store: documents' "$ROOT/config/project.yml"
 grep -q 'canonical_document_payload_in_local_storage: false' "$ROOT/config/project.yml"
-grep -q 'wasm_core: compile_verified' "$ROOT/config/project.yml"
+grep -q 'canonical_document_storage_fallback: none' "$ROOT/config/project.yml"
+grep -q 'wasm_core: runtime_loaded' "$ROOT/config/project.yml"
 grep -q 'wasm_target: wasm32-unknown-unknown' "$ROOT/config/project.yml"
-grep -q 'wasm_binding: generated_artifact_ci' "$ROOT/config/project.yml"
+grep -q 'wasm_binding: generated_artifact_runtime_loader' "$ROOT/config/project.yml"
 grep -q 'wasm_bindgen_version: 0.2.129' "$ROOT/config/project.yml"
 grep -q 'wasm_artifact_ci: true' "$ROOT/config/project.yml"
 grep -q 'wasm_binding_url: /wasm/turkuaz_office_core.js' "$ROOT/config/project.yml"
@@ -414,6 +429,16 @@ grep -q 'M3 Web Foundation v0.4.0' "$ROOT/docs/08-implementation/m3-web-foundati
 grep -q 'M3 Web WASM Core v0.4.0' "$ROOT/docs/08-implementation/m3-web-wasm-core-v0.4.0.md"
 grep -q 'M3 Web WASM Runtime Loader' "$ROOT/docs/08-implementation/m3-web-wasm-runtime-loader-v0.4.0.md"
 grep -q 'loadWebCoreTool' "$ROOT/apps/web/src/tools/wasm-core-runtime-loader.ts"
+grep -q 'class BrowserIndexedDbDocumentTool' "$ROOT/apps/web/src/tools/indexed-db-document.tool.ts"
+grep -q 'class IndexedDbDocumentRepository' "$ROOT/apps/web/src/repositories/indexeddb-document.repository.ts"
+grep -q 'WEB_DOCUMENT_DB_NAME' "$ROOT/apps/web/src/config/runtime-config.ts"
+grep -q 'WEB_DOCUMENT_STORAGE_KIND' "$ROOT/apps/web/src/config/runtime-config.ts"
+grep -q 'documentStorageAvailable' "$ROOT/apps/web/src/models/web-models.ts"
+grep -q 'BrowserIndexedDbDocumentTool(window.indexedDB)' "$ROOT/apps/web/src/main.tsx"
+grep -q 'M3 Web IndexedDB Persistence v0.4.0' "$ROOT/docs/08-implementation/m3-web-indexeddb-persistence-v0.4.0.md"
+grep -q 'IndexedDB canonical Core document persistence adapteri' "$ROOT/docs/05-roadmap/roadmap.md"
+grep -q 'stores canonical payload in IndexedDB and mirrors only metadata to localStorage' "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts"
+grep -q 'keeps canonical storage unavailable instead of falling back to localStorage payloads' "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts"
 grep -q 'wasm-bindgen = "=0.2.129"' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'crate-type = \["rlib", "cdylib"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'web_core_abi_version' "$ROOT/crates/turkuaz-office-core/src/tools/web_wasm_exports.rs"
@@ -421,6 +446,24 @@ grep -q 'WASM_BINDGEN_VERSION="0.2.129"' "$ROOT/tools/build-web-wasm.sh"
 grep -q 'name: Web WASM artifact' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'actions/upload-artifact@v4' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'M3 Web wasm-bindgen Artifacts v0.4.0' "$ROOT/docs/08-implementation/m3-web-wasm-bindgen-artifacts-v0.4.0.md"
+
+for m3_web_file in \
+  "$ROOT/apps/web/src/config/runtime-config.ts" \
+  "$ROOT/apps/web/src/models/web-models.ts" \
+  "$ROOT/apps/web/src/repositories/indexeddb-document.repository.ts" \
+  "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts" \
+  "$ROOT/apps/web/src/tools/indexed-db-document.tool.ts" \
+  "$ROOT/apps/web/src/services/web-bootstrap-service.ts" \
+  "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts" \
+  "$ROOT/apps/web/src/controllers/web-controller.ts" \
+  "$ROOT/apps/web/src/main.tsx" \
+  "$ROOT/apps/web/src/views/App.tsx" \
+  "$ROOT/apps/web/src/language/tr-TR.ts" \
+  "$ROOT/docs/08-implementation/m3-web-indexeddb-persistence-v0.4.0.md" \
+  "$ROOT/docs/07-quality/m3-web-indexeddb-persistence-test-matrix.md"; do
+  grep -q "Version: $M3_WEB_VERSION" "$m3_web_file"
+done
+
 grep -q 'framework: solidjs' "$ROOT/config/project.yml"
 grep -q 'canonical_state_in_frontend: false' "$ROOT/config/project.yml"
 grep -q 'surface: contenteditable' "$ROOT/config/project.yml"
