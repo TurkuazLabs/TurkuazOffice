@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/crates/turkuaz-office-core/Cargo.toml
 # 📌 Amac: Platformlardan bagimsiz Turkuaz Office cekirdek kutuphanesini ve Web/WASM export hedefini tanimlar
 # 📌 Modul - FileType: Config - TOML
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: Native rlib kullanimi ile opsiyonel standalone Core wasm-bindgen exportlarini feature-gated olarak tanimlar
 # Bagimli Oldugu Katman: Core | Tool
 
