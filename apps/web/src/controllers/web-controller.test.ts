@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/controllers/web-controller.test.ts
-// # 📌 Amac: WebController bootstrap ve browser import/export requestlerini yalniz Service katmanina delege ettigini dogrular
+// # 📌 Amac: WebController bootstrap ve typed native TKO import/export requestlerini yalniz Service katmanina delege ettigini dogrular
 // # 📌 Modul - FileType: Test - TypeScript
 // Version: 0.4.0
-// Aciklama: Controller logic eklenmesini engelleyen bootstrap, file-select ve download delegation regressionlarini sabitler
+// Aciklama: Controller logic eklenmesini engelleyen bootstrap, import ve export delegation regressionlarini sabitler
 // Bagimli Oldugu Katman: Controller -> Service -> Tool
 
 import { describe, expect, it, vi } from "vitest";
@@ -10,11 +10,13 @@ import { describe, expect, it, vi } from "vitest";
 import type {
   WebCanonicalDocumentRecord,
   WebDownloadFile,
+  WebWriterTkoSummary,
 } from "../models/web-models";
 import type { WebCanonicalDocumentRepository } from "../repositories/indexeddb-document.repository";
 import { WebBootstrapService } from "../services/web-bootstrap-service";
 import { WebImportExportService } from "../services/web-import-export.service";
 import { BrowserCoreContractTool } from "../tools/web-core-tool";
+import type { WebWriterTkoTool } from "../tools/writer-tko.tool";
 import { WebController } from "./web-controller";
 
 function repositoryFixture(): WebCanonicalDocumentRepository {
@@ -33,6 +35,22 @@ function fileToolFixture() {
   return { pickFile, downloadFile };
 }
 
+function codecFixture(): WebWriterTkoTool {
+  return {
+    inspect: vi.fn(
+      (_bytes: Uint8Array): WebWriterTkoSummary => ({
+        id: "writer-1",
+        title: "Belge",
+        schemaVersion: 1,
+        revision: 1,
+        sectionCount: 1,
+        assetCount: 0,
+      }),
+    ),
+    reencode: vi.fn((bytes: Uint8Array) => bytes.slice()),
+  };
+}
+
 describe("WebController", () => {
   it("delegates bootstrap initialization to WebBootstrapService", async () => {
     const bootstrapService = new WebBootstrapService(
@@ -42,7 +60,7 @@ describe("WebController", () => {
     const initialize = vi.spyOn(bootstrapService, "initialize");
     const controller = new WebController(
       bootstrapService,
-      new WebImportExportService(fileToolFixture()),
+      new WebImportExportService(fileToolFixture(), codecFixture()),
     );
 
     await controller.initialize();
@@ -50,32 +68,36 @@ describe("WebController", () => {
     expect(initialize).toHaveBeenCalledOnce();
   });
 
-  it("delegates native file selection to WebImportExportService", async () => {
-    const fileTool = fileToolFixture();
-    const importExportService = new WebImportExportService(fileTool);
-    const select = vi.spyOn(importExportService, "pickNativeDocumentBytes");
+  it("delegates native import to WebImportExportService", async () => {
+    const importExportService = new WebImportExportService(
+      fileToolFixture(),
+      codecFixture(),
+    );
+    const importDocument = vi.spyOn(importExportService, "importNativeDocument");
     const controller = new WebController(
       new WebBootstrapService(repositoryFixture(), new BrowserCoreContractTool()),
       importExportService,
     );
 
-    await controller.selectNativeImportFile();
+    await controller.importNativeDocument();
 
-    expect(select).toHaveBeenCalledOnce();
+    expect(importDocument).toHaveBeenCalledOnce();
   });
 
-  it("delegates native download without transforming bytes in Controller", () => {
-    const fileTool = fileToolFixture();
-    const importExportService = new WebImportExportService(fileTool);
-    const download = vi.spyOn(importExportService, "downloadNativeDocumentBytes");
+  it("delegates native export without transforming bytes in Controller", () => {
+    const importExportService = new WebImportExportService(
+      fileToolFixture(),
+      codecFixture(),
+    );
+    const exportDocument = vi.spyOn(importExportService, "exportNativeDocument");
     const controller = new WebController(
       new WebBootstrapService(repositoryFixture(), new BrowserCoreContractTool()),
       importExportService,
     );
     const bytes = new Uint8Array([9, 10]);
 
-    controller.downloadNativeExportFile("belge", bytes);
+    controller.exportNativeDocument("belge", bytes);
 
-    expect(download).toHaveBeenCalledWith("belge", bytes);
+    expect(exportDocument).toHaveBeenCalledWith("belge", bytes);
   });
 });

@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/src/main.tsx
 // # 📌 Amac: M3 Web katmanlarini composition root uzerinden birlestirir
 // # 📌 Modul - FileType: Web - TypeScript
-// # Version: 0.4.0
-// # Aciklama: Browser metadata Repository, runtime WASM Core Tool, Service, Controller ve View baglantilarini kurar
+// Version: 0.4.0
+// Aciklama: Browser Repository, runtime WASM Core/Writer TKO Tool, Service, Controller ve View baglantilarini kurar
 // Bagimli Oldugu Katman: Controller | Service | Repo | Tool | View | Language
 
 import { render } from "solid-js/web";
@@ -26,7 +26,10 @@ async function bootstrap(): Promise<void> {
   const loadedCore = await loadWebCoreTool();
   const bootstrapService = new WebBootstrapService(repository, loadedCore.tool);
   const fileTransferTool = new BrowserFileTransferTool(document, URL);
-  const importExportService = new WebImportExportService(fileTransferTool);
+  const importExportService = new WebImportExportService(
+    fileTransferTool,
+    loadedCore.writerTkoTool,
+  );
   const controller = new WebController(bootstrapService, importExportService);
   const state = await controller.initialize();
 
