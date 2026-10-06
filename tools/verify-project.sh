@@ -296,6 +296,7 @@ required_files=(
   "apps/web/src/repositories/indexeddb-document.repository.ts"
   "apps/web/src/repositories/indexeddb-document.repository.test.ts"
   "apps/web/src/tools/indexed-db-document.tool.ts"
+  "apps/web/src/tools/indexed-db-document.tool.test.ts"
   "apps/web/src/tools/web-core-tool.ts"
   "apps/web/src/tools/web-core-tool.test.ts"
   "apps/web/src/tools/wasm-core-runtime-loader.ts"
@@ -439,6 +440,10 @@ grep -q 'M3 Web IndexedDB Persistence v0.4.0' "$ROOT/docs/08-implementation/m3-w
 grep -q 'IndexedDB canonical Core document persistence adapteri' "$ROOT/docs/05-roadmap/roadmap.md"
 grep -q 'stores canonical payload in IndexedDB and mirrors only metadata to localStorage' "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts"
 grep -q 'keeps canonical storage unavailable instead of falling back to localStorage payloads' "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts"
+grep -q 'rejects unsupported stored schema versions from get and list' "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts"
+grep -q 'keeps a blocked open pending until the request later succeeds' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
+grep -q 'retries after a synchronous IDBFactory open failure' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
+grep -q 'evicts a resolved database after an unexpected close event' "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts"
 grep -q 'wasm-bindgen = "=0.2.129"' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'crate-type = \["rlib", "cdylib"\]' "$ROOT/crates/turkuaz-office-core/Cargo.toml"
 grep -q 'web_core_abi_version' "$ROOT/crates/turkuaz-office-core/src/tools/web_wasm_exports.rs"
@@ -453,6 +458,7 @@ for m3_web_file in \
   "$ROOT/apps/web/src/repositories/indexeddb-document.repository.ts" \
   "$ROOT/apps/web/src/repositories/indexeddb-document.repository.test.ts" \
   "$ROOT/apps/web/src/tools/indexed-db-document.tool.ts" \
+  "$ROOT/apps/web/src/tools/indexed-db-document.tool.test.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.ts" \
   "$ROOT/apps/web/src/services/web-bootstrap-service.test.ts" \
   "$ROOT/apps/web/src/controllers/web-controller.ts" \
