@@ -311,6 +311,7 @@ export class SheetSessionService {
   }
 
   public createChartFromSelection(chartType: SheetChartType, title: string): Promise<void> {
+    const chartSelectionGeneration = this.chartDataGeneration;
     return this.enqueue(async () => {
       const range = this.repository.selectionRange();
       const document = this.requireDocument();
@@ -322,11 +323,15 @@ export class SheetSessionService {
         worksheet === undefined ||
         range.endColumn - range.startColumn + 1 !== SHEET_CHART_REQUIRED_COLUMN_COUNT
       ) {
-        this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartRange);
+        if (chartSelectionGeneration === this.chartDataGeneration) {
+          this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartRange);
+        }
         return;
       }
       if (normalizedTitle.length === 0) {
-        this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartTitle);
+        if (chartSelectionGeneration === this.chartDataGeneration) {
+          this.repository.setChartError(null, ERROR_CODES.sheetInvalidChartTitle);
+        }
         return;
       }
 
@@ -348,13 +353,19 @@ export class SheetSessionService {
 
         const createdChart = updated.charts.find((chart) => !existingChartIds.has(chart.id));
         if (createdChart === undefined) {
-          this.repository.setChartError(null, ERROR_CODES.unknown);
+          if (chartSelectionGeneration === this.chartDataGeneration) {
+            this.repository.setChartError(null, ERROR_CODES.unknown);
+          }
           return;
         }
-        await this.selectChart(createdChart.id);
+        if (chartSelectionGeneration === this.chartDataGeneration) {
+          await this.selectChart(createdChart.id);
+        }
       } catch (error: unknown) {
         this.repository.setDocument(document);
-        this.repository.setChartError(null, this.errorCode(error));
+        if (chartSelectionGeneration === this.chartDataGeneration) {
+          this.repository.setChartError(null, this.errorCode(error));
+        }
       }
     });
   }
