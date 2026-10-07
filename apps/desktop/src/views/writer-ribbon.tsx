@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-ribbon.tsx
 // # 📌 Amac: Writer klasik menu ve iki katmanli kelime islemci arac cubugunu render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.13.0
+// Version: 0.12.0
 // Aciklama: LibreOffice benzeri menu satiri, standart belge komutlari, font ve paragraph kontrollerini Turkuaz Office kimligiyle sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language -> Config
 
