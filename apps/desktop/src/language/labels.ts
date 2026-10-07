@@ -9,7 +9,7 @@ export type DesktopLabelKey =
   | "appName"
   | "startCenterBrandTagline"
   | "startCenterNavigation"
-  | "startCenterHome"
+  | "startCenterName"
   | "startCenterRecent"
   | "startCenterTemplates"
   | "startCenterSettings"
