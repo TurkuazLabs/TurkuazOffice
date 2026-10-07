@@ -19,14 +19,11 @@ const originalCaretRangeFromPoint = (
 
 afterEach(() => {
   document.body.innerHTML = "";
-  const browserDocument = document as Document & {
-    caretRangeFromPoint?: (x: number, y: number) => Range | null;
-  };
-  if (originalCaretRangeFromPoint === undefined) {
-    delete browserDocument.caretRangeFromPoint;
-  } else {
-    browserDocument.caretRangeFromPoint = originalCaretRangeFromPoint;
-  }
+  Object.defineProperty(document, "caretRangeFromPoint", {
+    configurable: true,
+    writable: true,
+    value: originalCaretRangeFromPoint,
+  });
   vi.restoreAllMocks();
 });
 
