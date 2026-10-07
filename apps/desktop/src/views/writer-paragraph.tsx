@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-paragraph.tsx
 // # 📌 Amac: Writer paragraph runlarini IME-aware contenteditable rich-text yuzeyinde render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.2.2
+// # Version: 0.2.3
 // # Aciklama: Typography, paragraph alignment, clipboard, DOM input ve selection eventlerini Controller'a aktarir
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
@@ -94,6 +94,20 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
           });
         });
       return;
+    }
+
+    if (
+      (event.key === KEYBOARD_KEYS.arrowUp || event.key === KEYBOARD_KEYS.arrowDown) &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
+      const direction = event.key === KEYBOARD_KEYS.arrowUp ? "up" : "down";
+      if (props.controller.moveCaretVerticallyFromEditor(props.paragraph.id, editor, direction)) {
+        event.preventDefault();
+        return;
+      }
     }
 
     if (
