@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-paragraph.tsx
 // # 📌 Amac: Writer paragraph runlarini IME-aware contenteditable rich-text yuzeyinde render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.2.0
+// # Version: 0.2.2
 // # Aciklama: Typography, paragraph alignment, clipboard, DOM input ve selection eventlerini Controller'a aktarir
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
@@ -28,6 +28,7 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
   const [isComposing, setIsComposing] = createSignal(false);
   let editor!: HTMLDivElement;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let suppressNextBlurCommit = false;
 
   createEffect(() => {
     props.paragraph.runs.map((run) => `${run.id}:${run.text}`).join("|");
@@ -84,7 +85,14 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
     if (event.key === KEYBOARD_KEYS.enter) {
       event.preventDefault();
       clearPendingCommit();
-      void props.controller.splitParagraphFromEditor(props.paragraph.id, editor);
+      suppressNextBlurCommit = true;
+      void props.controller
+        .splitParagraphFromEditor(props.paragraph.id, editor)
+        .finally(() => {
+          queueMicrotask(() => {
+            suppressNextBlurCommit = false;
+          });
+        });
       return;
     }
 
@@ -152,7 +160,13 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
         clearPendingCommit();
         void props.controller.pasteSelection(props.paragraph.id, editor, event);
       }}
-      onBlur={commitNow}
+      onBlur={() => {
+        if (suppressNextBlurCommit) {
+          suppressNextBlurCommit = false;
+          return;
+        }
+        commitNow();
+      }}
       onKeyDown={onKeyDown}
       onCompositionStart={() => {
         clearPendingCommit();
