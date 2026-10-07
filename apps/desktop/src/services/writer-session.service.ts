@@ -570,10 +570,27 @@ export class WriterSessionService {
       }
 
       const updatedDocument = this.requireDocument();
-      const splitDocument = await this.runDocument(() =>
-        this.writerTool.splitParagraph(updatedDocument.id, paragraphId, splitOffset),
-      );
-      if (splitDocument === null) {
+      this.repository.setLoading();
+
+      let splitDocument: WriterDocumentView;
+      let shouldRestoreCaret = false;
+      try {
+        splitDocument = await this.writerTool.splitParagraph(
+          updatedDocument.id,
+          paragraphId,
+          splitOffset,
+        );
+        shouldRestoreCaret =
+          this.domSelectionTool.activeWriterParagraph()?.dataset.writerParagraphId ===
+          paragraphId;
+        this.repository.setDocument(splitDocument);
+        this.refreshLayoutEnvironment();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+        return;
+      }
+
+      if (!shouldRestoreCaret) {
         return;
       }
 
