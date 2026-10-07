@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/dom-selection.tool.ts
 // # 📌 Amac: Contenteditable DOM selection noktalarini Writer paragraph logical offsetlerine map eder
 // # 📌 Modul - FileType: Tool - TypeScript
-// # Version: 0.2.0
+// # Version: 0.2.1
 // # Aciklama: Browser Range/Selection ve UTF-16 detaylarini Service katmanindan izole eder; selection restore destegi saglar
 // Bagimli Oldugu Katman: Tool
 
@@ -75,6 +75,40 @@ export class DomSelectionTool {
 
   public plainText(root: HTMLElement): string {
     return root.textContent ?? "";
+  }
+
+  public isCaretAtVisualBoundary(
+    root: HTMLElement,
+    direction: "up" | "down",
+  ): boolean {
+    const selection = window.getSelection();
+    if (
+      selection === null ||
+      selection.rangeCount === 0 ||
+      !selection.isCollapsed ||
+      selection.anchorNode === null ||
+      !this.containsPoint(root, selection.anchorNode)
+    ) {
+      return false;
+    }
+
+    const range = selection.getRangeAt(0).cloneRange();
+    const rootRect = root.getBoundingClientRect();
+    const caretRect = range.getBoundingClientRect();
+    const computedLineHeight = Number.parseFloat(window.getComputedStyle(root).lineHeight);
+    const lineHeight =
+      Number.isFinite(computedLineHeight) && computedLineHeight > 0
+        ? computedLineHeight
+        : Math.max(caretRect.height, 16);
+
+    if (rootRect.height <= 0 || caretRect.height <= 0) {
+      return true;
+    }
+
+    const tolerance = Math.max(lineHeight * 0.6, 6);
+    return direction === "up"
+      ? caretRect.top <= rootRect.top + tolerance
+      : caretRect.bottom >= rootRect.bottom - tolerance;
   }
 
   public activeWriterParagraph(): HTMLElement | null {
