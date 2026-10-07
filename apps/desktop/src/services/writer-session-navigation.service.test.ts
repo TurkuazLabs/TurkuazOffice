@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session-navigation.service.test.ts
 // # 📌 Amac: Writer yukari asagi yon tuslariyla paragraph siniri gecisini regression testiyle sabitler
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.2.3
+// Version: 0.2.4
 // Aciklama: Caret yalniz ilk veya son gorsel satirdayken komsu paragrafa tasinir ve yatay logical offset korunur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -67,6 +67,11 @@ function serviceFixture(boundary: boolean) {
       endOffset: 4,
     }),
     isCaretAtVisualBoundary: vi.fn().mockReturnValue(boundary),
+    adjacentParagraphSelection: vi.fn().mockReturnValue({
+      paragraphId: "p3",
+      startOffset: 2,
+      endOffset: 2,
+    }),
     focusAndRestoreParagraphSelection,
   };
 
@@ -98,7 +103,7 @@ function serviceFixture(boundary: boolean) {
 }
 
 describe("WriterSessionService vertical caret navigation", () => {
-  it("moves down to the next paragraph while preserving logical column", async () => {
+  it("moves down using the visual-column selection resolved by the DOM tool", async () => {
     const fixture = serviceFixture(true);
 
     const moved = fixture.service.moveCaretVerticallyFromEditor(
@@ -108,18 +113,23 @@ describe("WriterSessionService vertical caret navigation", () => {
     );
 
     expect(moved).toBe(true);
+    expect(fixture.domSelectionTool.adjacentParagraphSelection).toHaveBeenCalledWith(
+      expect.anything(),
+      "p3",
+      "down",
+    );
     expect(fixture.repository.selection()).toEqual({
       paragraphId: "p3",
-      startOffset: 4,
-      endOffset: 4,
+      startOffset: 2,
+      endOffset: 2,
     });
 
     await Promise.resolve();
 
     expect(fixture.focusAndRestoreParagraphSelection).toHaveBeenCalledWith({
       paragraphId: "p3",
-      startOffset: 4,
-      endOffset: 4,
+      startOffset: 2,
+      endOffset: 2,
     });
   });
 
