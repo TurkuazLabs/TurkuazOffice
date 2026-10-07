@@ -68,6 +68,9 @@ describe("WriterSessionService Enter paragraph split", () => {
     const replaceParagraphText = vi.fn().mockResolvedValue(committed);
     const splitParagraph = vi.fn().mockResolvedValue(split);
     const focusAndRestoreParagraphSelection = vi.fn().mockReturnValue(true);
+    const editor = {
+      dataset: { writerParagraphId: "p1" },
+    } as unknown as HTMLElement;
 
     const service = new WriterSessionService(
       repository,
@@ -80,6 +83,7 @@ describe("WriterSessionService Enter paragraph split", () => {
           endOffset: 3,
         }),
         plainText: vi.fn().mockReturnValue("abc"),
+        activeWriterParagraph: vi.fn().mockReturnValue(editor),
         focusAndRestoreParagraphSelection,
       } as never,
       {} as never,
@@ -101,7 +105,7 @@ describe("WriterSessionService Enter paragraph split", () => {
       {} as never,
     );
 
-    await service.splitParagraphFromEditor("p1", {} as HTMLElement);
+    await service.splitParagraphFromEditor("p1", editor);
 
     expect(replaceParagraphText).toHaveBeenCalledTimes(1);
     expect(replaceParagraphText).toHaveBeenCalledWith(
@@ -124,5 +128,85 @@ describe("WriterSessionService Enter paragraph split", () => {
       startOffset: 0,
       endOffset: 0,
     });
+  });
+
+  it("preserves a newer focus choice while the split request is pending", async () => {
+    const repository = new WriterSessionRepository();
+    repository.setNewDocument(document(0, [paragraph("p1", "r1", "")]));
+
+    const committed = document(1, [paragraph("p1", "r1", "abc")]);
+    const split = document(2, [
+      paragraph("p1", "r1", "abc"),
+      paragraph("p2", "r2", ""),
+    ]);
+
+    let resolveSplit!: (value: WriterDocumentView) => void;
+    const splitPromise = new Promise<WriterDocumentView>((resolve) => {
+      resolveSplit = resolve;
+    });
+    const replaceParagraphText = vi.fn().mockResolvedValue(committed);
+    const splitParagraph = vi.fn().mockReturnValue(splitPromise);
+    const focusAndRestoreParagraphSelection = vi.fn().mockReturnValue(true);
+    let activeParagraphId = "p1";
+    const editor = {
+      dataset: { writerParagraphId: "p1" },
+    } as unknown as HTMLElement;
+
+    const service = new WriterSessionService(
+      repository,
+      { replaceParagraphText, splitParagraph } as never,
+      new TextOffsetTool(),
+      {
+        readParagraphSelection: vi.fn().mockReturnValue({
+          paragraphId: "p1",
+          startOffset: 3,
+          endOffset: 3,
+        }),
+        plainText: vi.fn().mockReturnValue("abc"),
+        activeWriterParagraph: vi.fn().mockImplementation(() => ({
+          dataset: { writerParagraphId: activeParagraphId },
+        })),
+        focusAndRestoreParagraphSelection,
+      } as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {
+        pageLayout: vi.fn().mockReturnValue({
+          pageWidthPx: 794,
+          pageHeightPx: 1123,
+          marginTopPx: 96,
+          marginRightPx: 96,
+          marginBottomPx: 96,
+          marginLeftPx: 96,
+          scale: 1,
+          zoomPercent: 100,
+        }),
+        resolveDocumentFonts: vi.fn().mockReturnValue([]),
+      } as never,
+      {} as never,
+    );
+
+    const operation = service.splitParagraphFromEditor("p1", editor);
+    await vi.waitFor(() => {
+      expect(splitParagraph).toHaveBeenCalledTimes(1);
+    });
+
+    activeParagraphId = "p9";
+    repository.setSelection({
+      paragraphId: "p9",
+      startOffset: 2,
+      endOffset: 2,
+    });
+    resolveSplit(split);
+    await operation;
+
+    expect(repository.document()).toBe(split);
+    expect(repository.selection()).toEqual({
+      paragraphId: "p9",
+      startOffset: 2,
+      endOffset: 2,
+    });
+    expect(focusAndRestoreParagraphSelection).not.toHaveBeenCalled();
   });
 });
