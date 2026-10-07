@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.3
+// # Version: 0.2.4
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -503,15 +503,15 @@ export class WriterSessionService {
       return false;
     }
 
-    const targetOffset = Math.min(
-      selection.startOffset,
-      this.textOffsetTool.logicalLength(targetParagraph.plainText),
+    const nextSelection = this.domSelectionTool.adjacentParagraphSelection(
+      editor,
+      targetParagraph.id,
+      direction,
     );
-    const nextSelection: WriterSelectionView = {
-      paragraphId: targetParagraph.id,
-      startOffset: targetOffset,
-      endOffset: targetOffset,
-    };
+    if (nextSelection === null) {
+      return false;
+    }
+
     this.repository.setSelection(nextSelection);
     queueMicrotask(() => {
       this.domSelectionTool.focusAndRestoreParagraphSelection(nextSelection);
