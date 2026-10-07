@@ -180,6 +180,8 @@ export type DesktopLabelKey =
   | "menuFile"
   | "menuEdit"
   | "menuFormat"
+  | "menuStyles"
+  | "menuForm"
   | "menuData"
   | "menuTools"
   | "menuWindow"
