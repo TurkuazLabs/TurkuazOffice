@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/tools/dom-selection.tool.ts
 // # 📌 Amac: Contenteditable DOM selection noktalarini Writer paragraph logical offsetlerine map eder
 // # 📌 Modul - FileType: Tool - TypeScript
-// # Version: 0.2.1
+// # Version: 0.2.2
 // # Aciklama: Browser Range/Selection ve UTF-16 detaylarini Service katmanindan izole eder; selection restore destegi saglar
 // Bagimli Oldugu Katman: Tool
 
@@ -135,8 +135,103 @@ export class DomSelectionTool {
     return this.restoreParagraphSelection(editor, selectionView);
   }
 
+  public adjacentParagraphSelection(
+    sourceRoot: HTMLElement,
+    targetParagraphId: string,
+    direction: "up" | "down",
+  ): WriterSelectionView | null {
+    const selection = window.getSelection();
+    if (
+      selection === null ||
+      selection.rangeCount === 0 ||
+      !selection.isCollapsed ||
+      selection.anchorNode === null ||
+      !this.containsPoint(sourceRoot, selection.anchorNode)
+    ) {
+      return null;
+    }
+
+    const targetRoot = this.writerParagraphById(targetParagraphId);
+    if (targetRoot === null) {
+      return null;
+    }
+
+    const sourceCaretRect = selection.getRangeAt(0).getBoundingClientRect();
+    const targetRect = targetRoot.getBoundingClientRect();
+    const computedLineHeight = Number.parseFloat(window.getComputedStyle(targetRoot).lineHeight);
+    const lineHeight =
+      Number.isFinite(computedLineHeight) && computedLineHeight > 0
+        ? computedLineHeight
+        : Math.max(sourceCaretRect.height, 16);
+    const targetX = Math.min(
+      Math.max(sourceCaretRect.left, targetRect.left + 1),
+      Math.max(targetRect.left + 1, targetRect.right - 1),
+    );
+    const halfLine = Math.max(lineHeight / 2, 1);
+    const targetY =
+      direction === "down"
+        ? Math.min(targetRect.bottom - 1, targetRect.top + halfLine)
+        : Math.max(targetRect.top + 1, targetRect.bottom - halfLine);
+
+    const point = this.caretPointFromViewport(targetX, targetY);
+    if (point === null || !this.containsPoint(targetRoot, point.node)) {
+      return null;
+    }
+
+    const utf16Offset = this.utf16OffsetFromPoint(targetRoot, point.node, point.offset);
+    if (utf16Offset === null) {
+      return null;
+    }
+    const text = targetRoot.textContent ?? "";
+    const logicalOffset = this.textOffsetTool.utf16ToLogical(text, utf16Offset);
+    return {
+      paragraphId: targetParagraphId,
+      startOffset: logicalOffset,
+      endOffset: logicalOffset,
+    };
+  }
+
   private containsPoint(root: HTMLElement, node: Node): boolean {
     return node === root || root.contains(node);
+  }
+
+  private writerParagraphById(paragraphId: string): HTMLElement | null {
+    const candidates = document.querySelectorAll<HTMLElement>(WRITER_PARAGRAPH_SELECTOR);
+    return (
+      Array.from(candidates).find(
+        (candidate) => candidate.dataset.writerParagraphId === paragraphId,
+      ) ?? null
+    );
+  }
+
+  private caretPointFromViewport(
+    x: number,
+    y: number,
+  ): { readonly node: Node; readonly offset: number } | null {
+    const browserDocument = document as Document & {
+      caretPositionFromPoint?: (
+        x: number,
+        y: number,
+      ) => { readonly offsetNode: Node; readonly offset: number } | null;
+      caretRangeFromPoint?: (x: number, y: number) => Range | null;
+    };
+
+    const caretPosition = browserDocument.caretPositionFromPoint?.(x, y);
+    if (caretPosition !== null && caretPosition !== undefined) {
+      return {
+        node: caretPosition.offsetNode,
+        offset: caretPosition.offset,
+      };
+    }
+
+    const caretRange = browserDocument.caretRangeFromPoint?.(x, y);
+    if (caretRange === null || caretRange === undefined) {
+      return null;
+    }
+    return {
+      node: caretRange.startContainer,
+      offset: caretRange.startOffset,
+    };
   }
 
   private utf16OffsetFromPoint(root: HTMLElement, node: Node, offset: number): number | null {
