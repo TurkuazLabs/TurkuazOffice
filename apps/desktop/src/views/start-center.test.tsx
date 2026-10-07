@@ -58,7 +58,7 @@ describe("StartCenter", () => {
 
     expect(root.querySelector(".suite-icon--writer")).not.toBeNull();
     expect(root.querySelector(".suite-icon--sheet")).not.toBeNull();
-    expect(root.textContent).toContain("Ana Sayfa");
+    expect(root.textContent).toContain("Baslangic Merkezi");
     expect(root.textContent).toContain("Son Belgeler");
     expect(root.textContent).toContain("Sablonlar");
   });

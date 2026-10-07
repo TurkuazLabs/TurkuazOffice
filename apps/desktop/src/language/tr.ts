@@ -11,7 +11,7 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
   startCenterBrandTagline: "Daha fazlasini birlikte yazin",
   startCenterNavigation: "Baslangic Merkezi gezinme",
-  startCenterHome: "Ana Sayfa",
+  startCenterName: "Baslangic Merkezi",
   startCenterRecent: "Son Belgeler",
   startCenterTemplates: "Sablonlar",
   startCenterSettings: "Ayarlar",

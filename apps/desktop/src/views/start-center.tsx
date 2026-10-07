@@ -29,7 +29,7 @@ export function StartCenter(props: StartCenterProps) {
         <nav class="start-center__navigation" aria-label={props.language.text("startCenterNavigation")}>
           <span class="start-center__nav-item start-center__nav-item--active">
             <SuiteIcon kind="home" size={20} decorative />
-            {props.language.text("startCenterHome")}
+            {props.language.text("startCenterName")}
           </span>
           <span class="start-center__nav-item">{props.language.text("startCenterRecent")}</span>
           <span class="start-center__nav-item">{props.language.text("startCenterTemplates")}</span>
@@ -44,7 +44,7 @@ export function StartCenter(props: StartCenterProps) {
       <section class="start-center__content">
         <header class="start-center__hero">
           <div>
-            <span class="start-center__eyebrow">{props.language.text("startCenterHome")}</span>
+            <span class="start-center__eyebrow">{props.language.text("startCenterName")}</span>
             <h1>{props.language.text("startCenterTitle")}</h1>
             <p>{props.language.text("startCenterSubtitle")}</p>
           </div>
