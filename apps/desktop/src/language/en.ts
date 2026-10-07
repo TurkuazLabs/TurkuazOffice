@@ -181,6 +181,8 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   paragraphLabel: "Paragraph",
   menuEdit: "Edit",
   menuFormat: "Format",
+  menuStyles: "Styles",
+  menuForm: "Form",
   menuData: "Data",
   menuTools: "Tools",
   menuWindow: "Window",
