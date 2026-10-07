@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.1
+// # Version: 0.2.2
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -568,10 +568,32 @@ export class WriterSessionService {
       if (!committed) {
         return;
       }
+
       const updatedDocument = this.requireDocument();
-      await this.run(() =>
+      const splitDocument = await this.runDocument(() =>
         this.writerTool.splitParagraph(updatedDocument.id, paragraphId, splitOffset),
       );
+      if (splitDocument === null) {
+        return;
+      }
+
+      const paragraphIndex = splitDocument.paragraphs.findIndex(
+        (paragraph) => paragraph.id === paragraphId,
+      );
+      const nextParagraph = paragraphIndex < 0
+        ? undefined
+        : splitDocument.paragraphs[paragraphIndex + 1];
+      if (nextParagraph === undefined) {
+        return;
+      }
+
+      const nextSelection: WriterSelectionView = {
+        paragraphId: nextParagraph.id,
+        startOffset: 0,
+        endOffset: 0,
+      };
+      this.repository.setSelection(nextSelection);
+      await this.restoreSelectionAfterRender(nextSelection);
     });
   }
 
@@ -960,15 +982,31 @@ export class WriterSessionService {
   }
 
   private async run(operation: () => Promise<WriterDocumentView>): Promise<boolean> {
+    return (await this.runDocument(operation)) !== null;
+  }
+
+  private async runDocument(
+    operation: () => Promise<WriterDocumentView>,
+  ): Promise<WriterDocumentView | null> {
     this.repository.setLoading();
     try {
-      this.repository.setDocument(await operation());
+      const document = await operation();
+      this.repository.setDocument(document);
       this.refreshLayoutEnvironment();
-      return true;
+      return document;
     } catch (error: unknown) {
       this.repository.setError(this.errorCode(error));
-      return false;
+      return null;
     }
+  }
+
+  private restoreSelectionAfterRender(selection: WriterSelectionView): Promise<void> {
+    return new Promise((resolve) => {
+      queueMicrotask(() => {
+        this.domSelectionTool.focusAndRestoreParagraphSelection(selection);
+        resolve();
+      });
+    });
   }
 
   private async takeStartupFile(): Promise<string | null> {
