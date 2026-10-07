@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-paragraph.test.tsx
 // # 📌 Amac: Writer Enter focus gecisinde stale blur commit tekrarini engeller
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.2.2
+// Version: 0.2.3
 // Aciklama: Enter ile split basladiginda eski contenteditable paragraf blur olsa bile ikinci kez commit edilmedigini dogrular
 // Bagimli Oldugu Katman: View -> Controller
 
@@ -41,7 +41,7 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-describe("WriterParagraphEditor Enter", () => {
+describe("WriterParagraphEditor keyboard navigation", () => {
   it("does not re-commit stale paragraph DOM when split focus causes blur", async () => {
     let resolveSplit!: () => void;
     const splitPromise = new Promise<void>((resolve) => {
@@ -100,5 +100,54 @@ describe("WriterParagraphEditor Enter", () => {
     resolveSplit();
     await splitPromise;
     await Promise.resolve();
+  });
+
+  it("delegates ArrowDown paragraph-boundary navigation and prevents native movement when handled", () => {
+    const moveCaretVerticallyFromEditor = vi.fn().mockReturnValue(true);
+    const controller = {
+      restoreSelection: vi.fn().mockReturnValue(false),
+      captureSelection: vi.fn().mockReturnValue(null),
+      clearTypingStyle: vi.fn(),
+      splitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      commitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      isCaretAtParagraphStart: vi.fn().mockReturnValue(false),
+      moveCaretVerticallyFromEditor,
+      mergeWithPreviousFromEditor: vi.fn().mockResolvedValue(undefined),
+      copySelection: vi.fn(),
+      cutSelection: vi.fn().mockResolvedValue(undefined),
+      pasteSelection: vi.fn().mockResolvedValue(undefined),
+    } as never;
+
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(
+      () => (
+        <WriterParagraphEditor
+          paragraph={PARAGRAPH}
+          controller={controller}
+          language={new LanguageService("tr-TR")}
+          canMergeWithPrevious={false}
+          readOnly={false}
+          renderScale={1}
+          fontResolutions={[]}
+        />
+      ),
+      root,
+    );
+
+    const editor = root.querySelector<HTMLDivElement>(".writer-paragraph");
+    const event = new KeyboardEvent("keydown", {
+      key: "ArrowDown",
+      bubbles: true,
+      cancelable: true,
+    });
+    editor?.dispatchEvent(event);
+
+    expect(moveCaretVerticallyFromEditor).toHaveBeenCalledWith(
+      "p1",
+      editor,
+      "down",
+    );
+    expect(event.defaultPrevented).toBe(true);
   });
 });
