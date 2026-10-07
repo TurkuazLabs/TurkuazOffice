@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/language/en.ts
 // # 📌 Amac: Turkuaz Office Desktop English UI metinlerini merkezi saglar
 // # 📌 Modul - FileType: Language - TypeScript
-// Version: 0.11.0
+// Version: 0.12.0
 // Aciklama: Writer and Sheet module, ribbon, grid, file/recovery, print and status labels for en-US
 // Bagimli Oldugu Katman: Language
 
@@ -9,8 +9,36 @@ import type { DesktopLabelKey } from "./labels";
 
 export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   appName: "Turkuaz Office",
+  startCenterBrandTagline: "Create more together",
+  startCenterNavigation: "Start Center navigation",
+  startCenterHome: "Home",
+  startCenterRecent: "Recent Documents",
+  startCenterTemplates: "Templates",
+  startCenterSettings: "Settings",
+  startCenterHelp: "Help",
+  startCenterTitle: "Welcome to Turkuaz Office",
+  startCenterSubtitle: "Make your work more productive and more open.",
+  startCenterSearch: "Search documents...",
+  startCenterApplications: "Turkuaz Office applications",
+  startCenterWriterDescription: "Create and edit text documents",
+  startCenterSheetDescription: "Create and analyze spreadsheets",
+  startCenterPresentation: "Presentation",
+  startCenterPdf: "PDF",
+  startCenterComingSoon: "Coming soon",
+  startCenterRecentDescription: "A quick return point for Writer and Sheet documents.",
+  startCenterRecentWriterTitle: "Writer documents",
+  startCenterRecentWriterDescription: "Recent Writer documents stay managed inside the app.",
+  startCenterRecentSheetTitle: "Sheet workbooks",
+  startCenterRecentSheetDescription: "Sheet sessions and analysis stay in the same product family.",
+  startCenterTemplatesDescription: "Start new work with the right application.",
+  startCenterBudgetTemplate: "Budget Table",
+  backToStartCenter: "Back to Start Center",
   moduleSwitcherLabel: "Application module",
   writerModule: "Writer",
+  writerPages: "Pages",
+  writerProperties: "Properties",
+  writerPageOne: "Page 1",
+  writerDocumentInfo: "Document Info",
   sheetModule: "Sheet",
   sheetToolbarLabel: "Sheet toolbar",
   sheetGridLabel: "Sheet grid",
@@ -160,6 +188,8 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   menuFile: "File",
   menuHome: "Home",
   menuInsert: "Insert",
+  menuTable: "Table",
+  menuFormulas: "Formulas",
   menuView: "View",
   menuComingSoon: "This ribbon tab will be enabled in a later phase",
   documentGroup: "Document",

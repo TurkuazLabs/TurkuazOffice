@@ -1,8 +1,8 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-menubar.tsx
-// # 📌 Amac: LibreOffice klasik menusu ile Excel hizli akislarini birlestiren Sheet menu satirini sunar
+// # 📌 Amac: Modern spreadsheet uygulamalarindaki menu/ribbon akisina uygun Sheet menu satirini sunar
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.11.0
-// Aciklama: Dosya, Bicim, Ekle, Gorunum ve Veri menulerinde Functions ve Charts sidebar dahil gercek Sheet komutlarini sunar
+// Version: 0.12.0
+// Aciklama: Dosya, Giris, Ekle, Bicim, Veri, Formuller, Gorunum ve Yardim siralamasinda gercek Sheet komutlarini gruplar
 // Bagimli Oldugu Katman: View -> Language
 
 import type { LanguageService } from "../language/language-service";
@@ -44,14 +44,24 @@ export function SheetMenubar(props: SheetMenubarProps) {
         </div>
       </details>
 
-      <span class="sheet-menubar__disabled" aria-disabled="true">
-        {props.language.text("menuEdit")}
-      </span>
+      <span class="sheet-menubar__active">{props.language.text("menuHome")}</span>
+
+      <details class="sheet-menu">
+        <summary>{props.language.text("menuInsert")}</summary>
+        <div class="sheet-menu__popup">
+          <button type="button" aria-pressed={props.chartsOpen} onClick={props.onToggleCharts}>
+            {props.language.text("sheetChartsToggle")}
+          </button>
+          <button type="button" disabled={!props.canCreateTable} onClick={props.onCreateTable}>
+            {props.language.text("sheetCreateTable")}
+          </button>
+        </div>
+      </details>
 
       <details class="sheet-menu">
         <summary>{props.language.text("menuFormat")}</summary>
         <div class="sheet-menu__popup">
-          <button type="button" onClick={props.onToggleProperties}>
+          <button type="button" aria-pressed={props.propertiesOpen} onClick={props.onToggleProperties}>
             {props.language.text("sheetPropertiesToggle")}
           </button>
           <button
@@ -65,7 +75,25 @@ export function SheetMenubar(props: SheetMenubarProps) {
       </details>
 
       <details class="sheet-menu">
-        <summary>{props.language.text("menuInsert")}</summary>
+        <summary>{props.language.text("menuData")}</summary>
+        <div class="sheet-menu__popup">
+          <button type="button" disabled={!props.canCreateTable} onClick={props.onCreateTable}>
+            {props.language.text("sheetCreateTable")}
+          </button>
+          <button type="button" disabled={!props.canRemoveTable} onClick={props.onRemoveTable}>
+            {props.language.text("sheetRemoveTable")}
+          </button>
+          <div class="sheet-menu__separator" />
+          <button type="button" aria-pressed={props.queryOpen} onClick={props.onToggleQuery}>
+            {props.queryOpen
+              ? props.language.text("sheetHideQuery")
+              : props.language.text("sheetShowQuery")}
+          </button>
+        </div>
+      </details>
+
+      <details class="sheet-menu">
+        <summary>{props.language.text("menuFormulas")}</summary>
         <div class="sheet-menu__popup">
           <button
             type="button"
@@ -73,13 +101,6 @@ export function SheetMenubar(props: SheetMenubarProps) {
             onClick={props.onToggleFunctions}
           >
             {props.language.text("sheetFunctionsToggle")}
-          </button>
-          <button
-            type="button"
-            aria-pressed={props.chartsOpen}
-            onClick={props.onToggleCharts}
-          >
-            {props.language.text("sheetChartsToggle")}
           </button>
         </div>
       </details>
@@ -95,18 +116,7 @@ export function SheetMenubar(props: SheetMenubarProps) {
               ? props.language.text("sheetHideQuery")
               : props.language.text("sheetShowQuery")}
           </button>
-          <button
-            type="button"
-            aria-pressed={props.functionsOpen}
-            onClick={props.onToggleFunctions}
-          >
-            {props.language.text("sheetFunctionsToggle")}
-          </button>
-          <button
-            type="button"
-            aria-pressed={props.chartsOpen}
-            onClick={props.onToggleCharts}
-          >
+          <button type="button" aria-pressed={props.chartsOpen} onClick={props.onToggleCharts}>
             {props.language.text("sheetChartsToggle")}
           </button>
           <div class="sheet-menu__separator" />
@@ -133,30 +143,6 @@ export function SheetMenubar(props: SheetMenubarProps) {
         </div>
       </details>
 
-      <details class="sheet-menu">
-        <summary>{props.language.text("menuData")}</summary>
-        <div class="sheet-menu__popup">
-          <button type="button" disabled={!props.canCreateTable} onClick={props.onCreateTable}>
-            {props.language.text("sheetCreateTable")}
-          </button>
-          <button type="button" disabled={!props.canRemoveTable} onClick={props.onRemoveTable}>
-            {props.language.text("sheetRemoveTable")}
-          </button>
-          <div class="sheet-menu__separator" />
-          <button type="button" aria-pressed={props.queryOpen} onClick={props.onToggleQuery}>
-            {props.queryOpen
-              ? props.language.text("sheetHideQuery")
-              : props.language.text("sheetShowQuery")}
-          </button>
-        </div>
-      </details>
-
-      <span class="sheet-menubar__disabled" aria-disabled="true">
-        {props.language.text("menuTools")}
-      </span>
-      <span class="sheet-menubar__disabled" aria-disabled="true">
-        {props.language.text("menuWindow")}
-      </span>
       <span class="sheet-menubar__disabled" aria-disabled="true">
         {props.language.text("menuHelp")}
       </span>

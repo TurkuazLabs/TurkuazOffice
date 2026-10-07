@@ -1,12 +1,13 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/tools/desktop_launch_tool.rs
-// # 📌 Amac: Desktop suite baslatma argumanindan Writer veya Sheet hedefini belirler
+// # 📌 Amac: Desktop suite baslatma argumanindan Baslangic Merkezi, Writer veya Sheet hedefini belirler
 // # 📌 Modul - FileType: Tool - Rust
-// Version: 0.5.0
-// Aciklama: --module writer/sheet komut satiri kontratini parse eder ve pencere basligini merkezi olarak saglar
+// Version: 0.12.0
+// Aciklama: Varsayilan suite girisini Baslangic Merkezi yapar; --module writer/sheet/home kontratini parse eder
 // Bagimli Oldugu Katman: Tool
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum DesktopLaunchModule {
+    Home,
     Writer,
     Sheet,
 }
@@ -15,6 +16,7 @@ impl DesktopLaunchModule {
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
+            Self::Home => "home",
             Self::Writer => "writer",
             Self::Sheet => "sheet",
         }
@@ -23,6 +25,7 @@ impl DesktopLaunchModule {
     #[must_use]
     pub const fn window_title(self) -> &'static str {
         match self {
+            Self::Home => "Turkuaz Office",
             Self::Writer => "Turkuaz Office Writer",
             Self::Sheet => "Turkuaz Office Sheet",
         }
@@ -59,14 +62,16 @@ impl DesktopLaunchTool {
             }
         }
 
-        DesktopLaunchModule::Writer
+        DesktopLaunchModule::Home
     }
 
     fn parse_module(value: &str) -> DesktopLaunchModule {
-        if value.eq_ignore_ascii_case("sheet") {
+        if value.eq_ignore_ascii_case("writer") {
+            DesktopLaunchModule::Writer
+        } else if value.eq_ignore_ascii_case("sheet") {
             DesktopLaunchModule::Sheet
         } else {
-            DesktopLaunchModule::Writer
+            DesktopLaunchModule::Home
         }
     }
 }
@@ -76,10 +81,10 @@ mod tests {
     use super::{DesktopLaunchModule, DesktopLaunchTool};
 
     #[test]
-    fn defaults_to_writer() {
+    fn defaults_to_home() {
         assert_eq!(
             DesktopLaunchTool::from_args(["turkuaz-office.exe"]),
-            DesktopLaunchModule::Writer
+            DesktopLaunchModule::Home
         );
     }
 
@@ -96,6 +101,18 @@ mod tests {
         assert_eq!(
             DesktopLaunchTool::from_args(["turkuaz-office.exe", "--module=writer"]),
             DesktopLaunchModule::Writer
+        );
+    }
+
+    #[test]
+    fn parses_home_and_unknown_as_safe_start_center() {
+        assert_eq!(
+            DesktopLaunchTool::from_args(["turkuaz-office.exe", "--module=home"]),
+            DesktopLaunchModule::Home
+        );
+        assert_eq!(
+            DesktopLaunchTool::from_args(["turkuaz-office.exe", "--module=unknown"]),
+            DesktopLaunchModule::Home
         );
     }
 }

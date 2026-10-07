@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.11.0
+// Version: 0.12.0
 // Aciklama: Hybrid menu, table/filter, conditional formatting, Functions/Charts sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
@@ -29,6 +29,7 @@ import { SheetChartsSidebar } from "./sheet-charts-sidebar";
 import { SheetFunctionsSidebar } from "./sheet-functions-sidebar";
 import { SheetMenubar } from "./sheet-menubar";
 import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
+import { SuiteTitlebar } from "./suite-titlebar";
 import type {
   SheetCellValueView,
   SheetConditionalFormatModeView,
@@ -44,6 +45,7 @@ interface SheetShellProps {
   readonly controller: SheetController;
   readonly repository: SheetSessionRepository;
   readonly language: LanguageService;
+  readonly onHome?: () => void;
 }
 
 const ROWS = Array.from({ length: SHEET_GRID_ROW_COUNT }, (_, index) => index + 1);
@@ -448,13 +450,14 @@ export function SheetShell(props: SheetShellProps) {
   };
 
   return (
-    <div class="office-shell">
-      <header class="office-titlebar">
-        <strong>{props.language.text("appName")} {props.language.text("sheetModule")}</strong>
-        <span class="office-titlebar__document">
-          {props.repository.document()?.title ?? props.language.text("sheetModule")}
-        </span>
-      </header>
+    <div class="office-shell office-shell--sheet">
+      <SuiteTitlebar
+        moduleIcon="sheet"
+        moduleName={props.language.text("sheetModule")}
+        documentName={props.repository.document()?.title ?? props.language.text("sheetModule")}
+        language={props.language}
+        onHome={props.onHome}
+      />
 
       <div class="sheet-command-area">
         <SheetMenubar

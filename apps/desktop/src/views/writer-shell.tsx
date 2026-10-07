@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Writer ana pencere kompozisyonunu render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.5.0
+// # Version: 0.12.0
 // # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
@@ -17,6 +17,7 @@ import { WriterPage } from "./writer-page";
 import { WriterPrintPreview } from "./writer-print-preview";
 import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banner";
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
+import { SuiteTitlebar } from "./suite-titlebar";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
 import { WriterRibbon } from "./writer-ribbon";
@@ -25,6 +26,7 @@ interface WriterShellProps {
   readonly controller: WriterController;
   readonly repository: WriterSessionRepository;
   readonly language: LanguageService;
+  readonly onHome?: () => void;
 }
 
 export function WriterShell(props: WriterShellProps) {
@@ -130,6 +132,8 @@ export function WriterShell(props: WriterShellProps) {
     }
   });
 
+  const formatState = () => props.controller.formatState();
+
   const statusText = () => {
     const status = props.repository.status();
     if (status === "loading") {
@@ -142,13 +146,14 @@ export function WriterShell(props: WriterShellProps) {
   };
 
   return (
-    <div class="office-shell">
-      <header class="office-titlebar">
-        <strong>{props.language.text("appName")} {props.language.text("writerModule")}</strong>
-        <span class="office-titlebar__document">
-          {props.repository.filePath() ?? props.language.text("untitledDocument")}
-        </span>
-      </header>
+    <div class="office-shell office-shell--writer">
+      <SuiteTitlebar
+        moduleIcon="writer"
+        moduleName={props.language.text("writerModule")}
+        documentName={props.repository.filePath() ?? props.language.text("untitledDocument")}
+        language={props.language}
+        onHome={props.onHome}
+      />
       <div class="office-command-area">
         <Show when={props.repository.document() !== null || props.repository.recoveryCandidates().length === 0}>
           <WriterRibbon controller={props.controller} language={props.language} />
@@ -172,15 +177,149 @@ export function WriterShell(props: WriterShellProps) {
           />
         </Match>
         <Match when={props.repository.document() !== null && props.repository.pageLayout() !== null}>
-          <WriterPage
-            document={props.repository.document()!}
-            controller={props.controller}
-            language={props.language}
-            ariaLabel={props.language.text("documentAreaLabel")}
-            readOnly={props.repository.fileSession()?.readOnly === true}
-            layout={props.repository.pageLayout()!}
-            fontResolutions={props.repository.fontResolutions()}
-          />
+          <div class="writer-editor-layout">
+            <aside class="writer-pages-panel" aria-label={props.language.text("writerPages")}>
+              <div class="writer-panel__header">
+                <strong>{props.language.text("writerPages")}</strong>
+                <span aria-hidden="true">«</span>
+              </div>
+              <div class="writer-page-thumbnail-wrap" aria-current="page">
+                <div class="writer-page-thumbnail" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span class="writer-page-thumbnail__accent" />
+                  <span />
+                  <span />
+                </div>
+                <span>{props.language.text("writerPageOne")}</span>
+              </div>
+            </aside>
+
+            <WriterPage
+              document={props.repository.document()!}
+              controller={props.controller}
+              language={props.language}
+              ariaLabel={props.language.text("documentAreaLabel")}
+              readOnly={props.repository.fileSession()?.readOnly === true}
+              layout={props.repository.pageLayout()!}
+              fontResolutions={props.repository.fontResolutions()}
+            />
+
+            <aside class="writer-properties-panel" aria-label={props.language.text("writerProperties")}>
+              <div class="writer-panel__header">
+                <strong>{props.language.text("writerProperties")}</strong>
+              </div>
+
+              <section class="writer-properties-panel__section">
+                <h3>{props.language.text("fontGroup")}</h3>
+                <div class="writer-properties-panel__value">
+                  <span>{props.language.text("fontFamily")}</span>
+                  <strong>{formatState().fontFamily || "-"}</strong>
+                </div>
+                <div class="writer-properties-panel__value">
+                  <span>{props.language.text("fontSize")}</span>
+                  <strong>
+                    {formatState().fontSizeHalfPoints > 0
+                      ? formatState().fontSizeHalfPoints / 2
+                      : "-"}
+                  </strong>
+                </div>
+                <div class="writer-properties-panel__format-row">
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format"
+                    aria-label={props.language.text("bold")}
+                    aria-pressed={formatState().bold}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.toggleBold()}
+                  >
+                    {props.language.text("boldShort")}
+                  </button>
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format toolbar-button--italic"
+                    aria-label={props.language.text("italic")}
+                    aria-pressed={formatState().italic}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.toggleItalic()}
+                  >
+                    {props.language.text("italicShort")}
+                  </button>
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format toolbar-button--underline"
+                    aria-label={props.language.text("underline")}
+                    aria-pressed={formatState().underline}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.toggleUnderline()}
+                  >
+                    {props.language.text("underlineShort")}
+                  </button>
+                </div>
+              </section>
+
+              <section class="writer-properties-panel__section">
+                <h3>{props.language.text("paragraphGroup")}</h3>
+                <div class="writer-properties-panel__format-row">
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format"
+                    aria-label={props.language.text("alignLeft")}
+                    aria-pressed={formatState().alignment === "left"}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.setParagraphAlignment("left")}
+                  >
+                    {props.language.text("alignLeftShort")}
+                  </button>
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format"
+                    aria-label={props.language.text("alignCenter")}
+                    aria-pressed={formatState().alignment === "center"}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.setParagraphAlignment("center")}
+                  >
+                    {props.language.text("alignCenterShort")}
+                  </button>
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format"
+                    aria-label={props.language.text("alignRight")}
+                    aria-pressed={formatState().alignment === "right"}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.setParagraphAlignment("right")}
+                  >
+                    {props.language.text("alignRightShort")}
+                  </button>
+                  <button
+                    type="button"
+                    class="toolbar-button toolbar-button--format"
+                    aria-label={props.language.text("alignJustify")}
+                    aria-pressed={formatState().alignment === "justify"}
+                    disabled={!formatState().canFormat}
+                    onClick={() => void props.controller.setParagraphAlignment("justify")}
+                  >
+                    {props.language.text("alignJustifyShort")}
+                  </button>
+                </div>
+              </section>
+
+              <section class="writer-properties-panel__section">
+                <h3>{props.language.text("writerDocumentInfo")}</h3>
+                <dl class="writer-properties-panel__facts">
+                  <div>
+                    <dt>{props.language.text("paragraphs")}</dt>
+                    <dd>{props.repository.document()!.paragraphs.length}</dd>
+                  </div>
+                  <div>
+                    <dt>{props.language.text("revision")}</dt>
+                    <dd>{props.repository.document()!.revision}</dd>
+                  </div>
+                </dl>
+              </section>
+            </aside>
+          </div>
         </Match>
         <Match when={props.repository.status() === "error"}>
           <main class="writer-workspace writer-workspace--message" role="alert">

@@ -1,15 +1,19 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/ribbon.ts
-// # 📌 Amac: Writer ribbon tab ve paragraph alignment command metadata'sini merkezi config olarak tanimlar
+// # 📌 Amac: Writer menu ve paragraph alignment command metadata'sini merkezi config olarak tanimlar
 // # 📌 Modul - FileType: Config - TypeScript
-// Version: 0.2.0
-// Aciklama: View icindeki inline ribbon command listelerini ve magic key degerlerini merkezi konfigurasyona tasir
+// Version: 0.12.0
+// Aciklama: Writer ust menu siralamasini klasik kelime islemci modeline tasir ve alignment command metadata'sini merkezi tutar
 // Bagimli Oldugu Katman: Config
 
 export const WRITER_RIBBON_TABS = [
   { id: "file", languageKey: "menuFile", active: false, enabled: false },
-  { id: "home", languageKey: "menuHome", active: true, enabled: true },
-  { id: "insert", languageKey: "menuInsert", active: false, enabled: false },
+  { id: "edit", languageKey: "menuEdit", active: false, enabled: false },
   { id: "view", languageKey: "menuView", active: false, enabled: false },
+  { id: "insert", languageKey: "menuInsert", active: false, enabled: false },
+  { id: "format", languageKey: "menuFormat", active: false, enabled: false },
+  { id: "table", languageKey: "menuTable", active: false, enabled: false },
+  { id: "tools", languageKey: "menuTools", active: false, enabled: false },
+  { id: "help", languageKey: "menuHelp", active: false, enabled: false },
 ] as const;
 
 export type WriterRibbonTabConfig = (typeof WRITER_RIBBON_TABS)[number];

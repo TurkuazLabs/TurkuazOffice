@@ -8,6 +8,11 @@ Bagimli Oldugu Katman: Documentation
 
 # Turkuaz Office Docs
 
+
+
+Desktop UI refresh uygulama notu: `docs/08-implementation/desktop-ui-refresh-v0.12.0.md`
+
+Desktop UI refresh kalite matrisi: `docs/07-quality/desktop-ui-refresh-test-matrix.md`
 ## 01 Product
 
 - `01-product/vision.md`
