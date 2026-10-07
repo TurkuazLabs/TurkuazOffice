@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.2
+// # Version: 0.2.3
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -474,6 +474,49 @@ export class WriterSessionService {
   public isCaretAtParagraphStart(paragraphId: string, editor: HTMLElement): boolean {
     const selection = this.captureSelection(paragraphId, editor);
     return selection !== null && selection.startOffset === 0 && selection.endOffset === 0;
+  }
+
+  public moveCaretVerticallyFromEditor(
+    paragraphId: string,
+    editor: HTMLElement,
+    direction: "up" | "down",
+  ): boolean {
+    const selection = this.domSelectionTool.readParagraphSelection(editor, paragraphId);
+    if (
+      selection === null ||
+      selection.startOffset !== selection.endOffset ||
+      !this.domSelectionTool.isCaretAtVisualBoundary(editor, direction)
+    ) {
+      return false;
+    }
+
+    const document = this.repository.document();
+    if (document === null) {
+      return false;
+    }
+    const paragraphIndex = document.paragraphs.findIndex(
+      (paragraph) => paragraph.id === paragraphId,
+    );
+    const targetIndex = direction === "up" ? paragraphIndex - 1 : paragraphIndex + 1;
+    const targetParagraph = document.paragraphs[targetIndex];
+    if (paragraphIndex < 0 || targetParagraph === undefined) {
+      return false;
+    }
+
+    const targetOffset = Math.min(
+      selection.startOffset,
+      this.textOffsetTool.logicalLength(targetParagraph.plainText),
+    );
+    const nextSelection: WriterSelectionView = {
+      paragraphId: targetParagraph.id,
+      startOffset: targetOffset,
+      endOffset: targetOffset,
+    };
+    this.repository.setSelection(nextSelection);
+    queueMicrotask(() => {
+      this.domSelectionTool.focusAndRestoreParagraphSelection(nextSelection);
+    });
+    return true;
   }
 
   public commitParagraphFromEditor(paragraphId: string, editor: HTMLElement): Promise<void> {
