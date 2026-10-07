@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/controllers/writer.controller.ts
 // # 📌 Amac: Writer View requestlerini alip yalnizca WriterSessionService cagirir
 // # 📌 Modul - FileType: Controller - TypeScript
-// # Version: 0.2.0
+// # Version: 0.2.1
 // # Aciklama: File, recovery, DOCX, print, IME, clipboard, selection, typography, paragraph ve history requestleri icin ince Controller siniridir
 // Bagimli Oldugu Katman: Controller -> Service
 
@@ -176,6 +176,14 @@ export class WriterController {
 
   public isCaretAtParagraphStart(paragraphId: string, editor: HTMLElement): boolean {
     return this.service.isCaretAtParagraphStart(paragraphId, editor);
+  }
+
+  public moveCaretVerticallyFromEditor(
+    paragraphId: string,
+    editor: HTMLElement,
+    direction: "up" | "down",
+  ): boolean {
+    return this.service.moveCaretVerticallyFromEditor(paragraphId, editor, direction);
   }
 
   public commitParagraphFromEditor(paragraphId: string, editor: HTMLElement): Promise<void> {
