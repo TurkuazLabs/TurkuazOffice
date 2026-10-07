@@ -34,7 +34,7 @@ export function SuiteTitlebar(props: SuiteTitlebarProps) {
           title={props.language.text("backToStartCenter")}
         >
           <SuiteIcon kind="home" size={18} decorative />
-          <span>{props.language.text("startCenterHome")}</span>
+          <span>{props.language.text("startCenterName")}</span>
         </button>
       )}
     </header>
