@@ -132,6 +132,11 @@ export function WriterRibbon(props: WriterRibbonProps) {
     restoreEditorSelection();
   };
 
+  const applyMenuFormat = async (command: () => Promise<void>) => {
+    await command();
+    restoreEditorSelection();
+  };
+
   return (
     <section class="writer-ribbon" aria-label={props.language.text("ribbonLabel")}>
       <nav class="writer-menubar" aria-label={props.language.text("ribbonLabel")}>
@@ -218,14 +223,16 @@ export function WriterRibbon(props: WriterRibbonProps) {
         </span>
 
         <details class="writer-menu">
-          <summary>{props.language.text("menuFormat")}</summary>
+          <summary onMouseDown={flushBeforeSelectFocus}>
+            {props.language.text("menuFormat")}
+          </summary>
           <div class="writer-menu__popup">
             <button
               type="button"
               disabled={!formatState().canFormat}
               aria-pressed={formatState().bold}
               onMouseDown={preserveEditorSelection}
-              onClick={() => void props.controller.toggleBold()}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleBold())}
             >
               {props.language.text("bold")}
             </button>
@@ -234,7 +241,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
               disabled={!formatState().canFormat}
               aria-pressed={formatState().italic}
               onMouseDown={preserveEditorSelection}
-              onClick={() => void props.controller.toggleItalic()}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleItalic())}
             >
               {props.language.text("italic")}
             </button>
@@ -243,7 +250,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
               disabled={!formatState().canFormat}
               aria-pressed={formatState().underline}
               onMouseDown={preserveEditorSelection}
-              onClick={() => void props.controller.toggleUnderline()}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleUnderline())}
             >
               {props.language.text("underline")}
             </button>
