@@ -1040,16 +1040,129 @@ export class WriterSessionService {
   }
 
   private stepFontSize(direction: "increase" | "decrease"): Promise<void> {
-    const state = this.formatState();
-    if (!state.canFormat) {
+    if (this.isReadOnly()) {
       return Promise.resolve();
     }
 
-    const currentSize =
-      state.fontSizeHalfPoints > 0
-        ? state.fontSizeHalfPoints
-        : DEFAULT_WRITER_FONT_SIZE_HALF_POINTS;
+    const selection = this.repository.selection();
+    const document = this.repository.document();
+    if (selection === null || document === null) {
+      return Promise.resolve();
+    }
+    const paragraph = document.paragraphs.find(
+      (item) => item.id === selection.paragraphId,
+    );
+    if (paragraph === undefined) {
+      return Promise.resolve();
+    }
 
+    if (selection.startOffset === selection.endOffset) {
+      const style =
+        this.repository.typingStyle() ??
+        this.styleAtCaret(paragraph, selection.startOffset);
+      if (style === null) {
+        return Promise.resolve();
+      }
+      const targetSize = this.steppedFontSize(
+        style.fontSizeHalfPoints,
+        direction,
+      );
+      if (targetSize === style.fontSizeHalfPoints) {
+        return Promise.resolve();
+      }
+      return this.applyCharacterStyle({ fontSizeHalfPoints: targetSize });
+    }
+
+    return this.stepSelectedRangeFontSizes(selection, direction);
+  }
+
+  private stepSelectedRangeFontSizes(
+    selection: WriterSelectionView,
+    direction: "increase" | "decrease",
+  ): Promise<void> {
+    const activeEditor = this.domSelectionTool.activeWriterParagraph();
+    const activeParagraphId = activeEditor?.dataset.writerParagraphId ?? null;
+    const activeText =
+      activeEditor === null ? null : this.domSelectionTool.plainText(activeEditor);
+    const typingStyle = this.repository.typingStyle();
+
+    return this.enqueue(async () => {
+      let currentDocument = this.requireDocument();
+      if (activeParagraphId === selection.paragraphId && activeText !== null) {
+        const committed = await this.run(() =>
+          this.writerTool.replaceParagraphText(
+            currentDocument.id,
+            selection.paragraphId,
+            activeText,
+            typingStyle,
+          ),
+        );
+        if (!committed) {
+          return;
+        }
+        currentDocument = this.requireDocument();
+      }
+
+      const paragraph = currentDocument.paragraphs.find(
+        (item) => item.id === selection.paragraphId,
+      );
+      if (paragraph === undefined) {
+        return;
+      }
+
+      let cursor = 0;
+      const patches: Array<{
+        readonly startOffset: number;
+        readonly endOffset: number;
+        readonly fontSizeHalfPoints: number;
+      }> = [];
+      for (const run of paragraph.runs) {
+        const runLength = this.textOffsetTool.logicalLength(run.text);
+        const runStart = cursor;
+        const runEnd = cursor + runLength;
+        cursor = runEnd;
+
+        const startOffset = Math.max(selection.startOffset, runStart);
+        const endOffset = Math.min(selection.endOffset, runEnd);
+        if (startOffset >= endOffset) {
+          continue;
+        }
+
+        const targetSize = this.steppedFontSize(
+          run.style.fontSizeHalfPoints,
+          direction,
+        );
+        if (targetSize !== run.style.fontSizeHalfPoints) {
+          patches.push({
+            startOffset,
+            endOffset,
+            fontSizeHalfPoints: targetSize,
+          });
+        }
+      }
+
+      for (const patch of patches) {
+        const changed = await this.run(() =>
+          this.writerTool.applyCharacterStyle(
+            currentDocument.id,
+            selection.paragraphId,
+            patch.startOffset,
+            patch.endOffset,
+            { fontSizeHalfPoints: patch.fontSizeHalfPoints },
+          ),
+        );
+        if (!changed) {
+          return;
+        }
+        currentDocument = this.requireDocument();
+      }
+    });
+  }
+
+  private steppedFontSize(
+    currentSize: number,
+    direction: "increase" | "decrease",
+  ): number {
     const targetSize =
       direction === "increase"
         ? (WRITER_FONT_SIZES_HALF_POINTS.find((size) => size > currentSize) ??
@@ -1059,14 +1172,10 @@ export class WriterSessionService {
             .find((size) => size < currentSize) ??
           MIN_WRITER_FONT_SIZE_HALF_POINTS);
 
-    const clampedSize = Math.min(
+    return Math.min(
       MAX_WRITER_FONT_SIZE_HALF_POINTS,
       Math.max(MIN_WRITER_FONT_SIZE_HALF_POINTS, targetSize),
     );
-    if (clampedSize === currentSize) {
-      return Promise.resolve();
-    }
-    return this.applyCharacterStyle({ fontSizeHalfPoints: clampedSize });
   }
 
   private patchStyle(
