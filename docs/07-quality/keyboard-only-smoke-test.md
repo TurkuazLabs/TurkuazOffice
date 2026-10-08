@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/docs/07-quality/keyboard-only-smoke-test.md
 # 📌 Amac: M1 Desktop Writer keyboard-only smoke test adimlarini ve kabul kriterlerini tanimlar
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
-# Aciklama: Shortcut routing, Tab focus, IME/recovery/print-preview context ve focus-visible davranisini kalite kapisi yapar
+# Version: 0.2.1
+# Aciklama: Shortcut routing, AltGr safe typing, IME/recovery/print-preview ve focus-visible davranisini kalite kapisi yapar
 
 Bagimli Oldugu Katman: Documentation
 
@@ -16,7 +16,8 @@ keyboard-shortcut.service.test.ts asagidaki typed shortcutlari dogrular:
 - Ctrl/Cmd+O: ac.
 - Ctrl/Cmd+S: kaydet.
 - Ctrl/Cmd+Shift+S: farkli kaydet.
-- Ctrl/Cmd+P: print preview.
+- Ctrl/Cmd+P: dogrudan yazdir.
+- Ctrl/Cmd+Shift+P: baski onizleme.
 - Ctrl/Cmd+Z: undo.
 - Ctrl/Cmd+Y ve Ctrl/Cmd+Shift+Z: redo.
 - Ctrl/Cmd+B: bold.
@@ -29,6 +30,9 @@ keyboard-shortcut.service.test.ts asagidaki typed shortcutlari dogrular:
 ## Context smoke
 
 - IME composition aktifken edit shortcut route edilmez.
+- Writer ve Sheet AltGr karakter girisini yakalamaz; Ctrl+Alt kombinasyonlari komut tetiklemez.
+- Sheet'te yalniz Alt+= AutoSum tetikler; AltGr+= tetiklemez.
+- Writer Print Preview acikken bile AltGr/Ctrl+Alt+P yazdirma komutuna gitmez.
 - Startup recovery karari aktifken document shortcut route edilmez.
 - Print Preview acikken Escape preview'i kapatir.
 - Print Preview acikken Ctrl/Cmd+P system print action'ina gider.
@@ -51,6 +55,8 @@ Mouse kullanmadan:
 10. Ctrl/Cmd++, Ctrl/Cmd+- ve Ctrl/Cmd+0 ile zoom davranisini kontrol et.
 11. Statusbar locale select'e Tab ile ulas; keyboard ile Turkish/English sec.
 12. Recovery panel gorunuyorsa Tab ile Recover / Compare / Delete / Close aksiyonlarina ulasilabildigini dogrula.
+13. TR klavye duzeninde Writer ve Sheet giris alanlarina AltGr ile karakter yaz; dosya, stil ve sayfa komutlari tetiklenmemeli.
+14. Sheet'te Alt+= ile SUM taslagini ac, Ctrl+Alt+= kombinasyonuyla taslagin acilmadigini dogrula.
 
 ## Focusability contract
 
