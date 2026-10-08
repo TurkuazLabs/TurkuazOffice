@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.ts
 // # 📌 Amac: Desktop Writer keyboard shortcut girdilerini context'e gore typed action'a cozer
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.4.0
+// Version: 0.4.1
 // Aciklama: IME, recovery ve print-preview context kurallarini View if-zincirinden ayirip test edilebilir hale getirir
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -15,6 +15,8 @@ export interface KeyboardShortcutInput {
   readonly key: string;
   readonly ctrlKey: boolean;
   readonly metaKey: boolean;
+  readonly altKey: boolean;
+  readonly altGraphKey: boolean;
   readonly shiftKey: boolean;
   readonly isComposing: boolean;
   readonly printPreviewOpen: boolean;
@@ -23,6 +25,12 @@ export interface KeyboardShortcutInput {
 
 export class KeyboardShortcutService {
   public resolve(input: KeyboardShortcutInput): WriterShortcutAction | null {
+    // AltGr can be reported as Ctrl+Alt on international keyboards.
+    // It must never dispatch Writer commands or intercept character input.
+    if (input.isComposing || input.altKey || input.altGraphKey) {
+      return null;
+    }
+
     const modifier = input.ctrlKey || input.metaKey;
     const key = input.key.toLowerCase();
 
@@ -36,7 +44,7 @@ export class KeyboardShortcutService {
       return null;
     }
 
-    if (!modifier || input.isComposing || input.recoveryBlocking) {
+    if (!modifier || input.recoveryBlocking) {
       return null;
     }
 
