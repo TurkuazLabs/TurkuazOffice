@@ -445,7 +445,7 @@ describe("SheetShell active drafts", () => {
     expect(document.activeElement).toBe(formula);
   });
 
-  it("commits with Enter and focuses the cell below, with Shift+Enter moving up", async () => {
+  it("commits and navigates cells with Enter, Shift+Enter, Tab and Shift+Tab", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
     const selectCell = vi.fn().mockResolvedValue(undefined);
@@ -482,6 +482,33 @@ describe("SheetShell active drafts", () => {
     a2!.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Enter",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await vi.waitFor(() => {
+      expect(selectCell).toHaveBeenCalledWith("A1", 0, 0);
+      expect(document.activeElement?.getAttribute("aria-label")).toBe("A1");
+    });
+
+    a1!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Tab",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await vi.waitFor(() => {
+      expect(selectCell).toHaveBeenCalledWith("B1", 0, 1);
+      expect(document.activeElement?.getAttribute("aria-label")).toBe("B1");
+    });
+
+    const b1 = root.querySelector<HTMLInputElement>('input[aria-label="B1"]');
+    expect(b1).not.toBeNull();
+    b1!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Tab",
         shiftKey: true,
         bubbles: true,
         cancelable: true,
