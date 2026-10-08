@@ -1,14 +1,14 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Writer ana pencere kompozisyonunu render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.12.0
+// # Version: 0.12.1
 // # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
 import { Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
 import { WRITER_PARAGRAPH_MARKER_VALUE } from "../config/dom-contract";
-import { WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
+import { KEYBOARD_MODIFIER_STATES, WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
 import { WRITER_AUTOSAVE_INTERVAL_MS, WRITER_EXTERNAL_CHANGE_POLL_MS } from "../config/runtime-config";
 import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
@@ -45,6 +45,8 @@ export function WriterShell(props: WriterShellProps) {
       key: event.key,
       ctrlKey: event.ctrlKey,
       metaKey: event.metaKey,
+      altKey: event.altKey,
+      altGraphKey: event.getModifierState(KEYBOARD_MODIFIER_STATES.altGraph),
       shiftKey: event.shiftKey,
       isComposing: event.isComposing,
       printPreviewOpen: props.repository.printPreviewLayout() !== null,
