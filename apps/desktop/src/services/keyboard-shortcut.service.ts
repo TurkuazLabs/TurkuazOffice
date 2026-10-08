@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.ts
 // # 📌 Amac: Desktop Writer keyboard shortcut girdilerini context'e gore typed action'a cozer
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.3.0
+// Version: 0.4.0
 // Aciklama: IME, recovery ve print-preview context kurallarini View if-zincirinden ayirip test edilebilir hale getirir
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -93,6 +93,12 @@ export class KeyboardShortcutService {
     }
     if (key === KEYBOARD_KEYS.j) {
       return WRITER_SHORTCUT_ACTIONS.alignJustify;
+    }
+    if (input.shiftKey && key === KEYBOARD_KEYS.greaterThan) {
+      return WRITER_SHORTCUT_ACTIONS.increaseFontSize;
+    }
+    if (input.shiftKey && key === KEYBOARD_KEYS.lessThan) {
+      return WRITER_SHORTCUT_ACTIONS.decreaseFontSize;
     }
 
     return null;
