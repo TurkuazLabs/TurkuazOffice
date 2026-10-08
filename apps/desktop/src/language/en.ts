@@ -208,6 +208,8 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   paragraphGroup: "Paragraph",
   fontFamily: "Font family",
   fontSize: "Point size",
+  increaseFontSize: "Increase Font Size",
+  decreaseFontSize: "Decrease Font Size",
   mixedValue: "Mixed",
   alignLeft: "Align left",
   alignCenter: "Center",
