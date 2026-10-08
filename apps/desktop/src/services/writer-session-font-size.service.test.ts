@@ -5,7 +5,7 @@
 // Aciklama: Collapsed caret icin standart punto listesindeki bir sonraki/onceki font boyutunun typing-style'a uygulandigini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Config
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { TextOffsetTool } from "../tools/text-offset.tool";
@@ -84,5 +84,96 @@ describe("WriterSessionService font size stepping", () => {
     await service.decreaseFontSize();
 
     expect(repository.typingStyle()?.fontSizeHalfPoints).toBe(22);
+  });
+
+  it("steps mixed selected runs independently instead of flattening their sizes", async () => {
+    const repository = new WriterSessionRepository();
+    const mixedDocument: WriterDocumentView = {
+      ...DOCUMENT,
+      plainText: "abc",
+      paragraphs: [
+        {
+          id: "p1",
+          plainText: "abc",
+          style: { alignment: "left" },
+          runs: [
+            {
+              id: "r1",
+              text: "a",
+              style: {
+                bold: false,
+                italic: false,
+                underline: false,
+                fontFamily: "Arial",
+                fontSizeHalfPoints: 96,
+              },
+            },
+            {
+              id: "r2",
+              text: "bc",
+              style: {
+                bold: false,
+                italic: false,
+                underline: false,
+                fontFamily: "Arial",
+                fontSizeHalfPoints: 144,
+              },
+            },
+          ],
+        },
+      ],
+    };
+    repository.setNewDocument(mixedDocument);
+    repository.setSelection({
+      paragraphId: "p1",
+      startOffset: 0,
+      endOffset: 3,
+    });
+
+    const applyCharacterStyle = vi.fn().mockResolvedValue(mixedDocument);
+    const service = new WriterSessionService(
+      repository,
+      { applyCharacterStyle } as never,
+      new TextOffsetTool(),
+      {
+        activeWriterParagraph: vi.fn().mockReturnValue(null),
+      } as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {
+        pageLayout: vi.fn().mockReturnValue({
+          pageWidthPx: 794,
+          pageHeightPx: 1123,
+          marginTopPx: 96,
+          marginRightPx: 96,
+          marginBottomPx: 96,
+          marginLeftPx: 96,
+          scale: 1,
+          zoomPercent: 100,
+        }),
+        resolveDocumentFonts: vi.fn().mockReturnValue([]),
+      } as never,
+      {} as never,
+    );
+
+    await service.increaseFontSize();
+
+    expect(applyCharacterStyle).toHaveBeenNthCalledWith(
+      1,
+      "writer-font-size-test",
+      "p1",
+      0,
+      1,
+      { fontSizeHalfPoints: 144 },
+    );
+    expect(applyCharacterStyle).toHaveBeenNthCalledWith(
+      2,
+      "writer-font-size-test",
+      "p1",
+      1,
+      3,
+      { fontSizeHalfPoints: 192 },
+    );
   });
 });
