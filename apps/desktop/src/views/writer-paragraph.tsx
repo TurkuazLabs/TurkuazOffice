@@ -29,14 +29,22 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
   const [renderedRuns, setRenderedRuns] = createSignal<readonly WriterRunView[]>(
     props.paragraph.runs,
   );
+  let renderedParagraphId = props.paragraph.id;
   let editor!: HTMLDivElement;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let suppressNextBlurCommit = false;
 
   createEffect(() => {
+    const nextParagraphId = props.paragraph.id;
     const nextRuns = props.paragraph.runs;
     const nextText = props.paragraph.plainText;
     props.paragraph.style.alignment;
+
+    if (renderedParagraphId !== nextParagraphId) {
+      renderedParagraphId = nextParagraphId;
+      setRenderedRuns(nextRuns);
+      return;
+    }
 
     queueMicrotask(() => {
       const editorIsActive = document.activeElement === editor;
