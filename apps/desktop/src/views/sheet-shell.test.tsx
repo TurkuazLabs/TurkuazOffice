@@ -100,7 +100,7 @@ describe("SheetShell active drafts", () => {
     const root = mount(repository);
 
     const showQuery = Array.from(root.querySelectorAll("button")).find(
-      (button) => button.textContent?.trim() === "Show filter and sort",
+      (button) => button.textContent?.trim().startsWith("Show filter and sort") === true,
     );
     expect(showQuery).not.toBeUndefined();
     showQuery!.click();
@@ -120,7 +120,7 @@ describe("SheetShell active drafts", () => {
     expect(sort!.value).toBe("ascending");
 
     const newSheet = Array.from(root.querySelectorAll("button")).find(
-      (button) => button.textContent?.trim() === "New Sheet",
+      (button) => button.textContent?.trim().startsWith("New Sheet") === true,
     );
     expect(newSheet).not.toBeUndefined();
     newSheet!.click();
