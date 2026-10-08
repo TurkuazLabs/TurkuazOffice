@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-keyboard-shortcut.service.test.ts
 // # 📌 Amac: Sheet keyboard shortcut routing ve context kurallarini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.1.0
+// Version: 0.1.1
 // Aciklama: Spreadsheet kisa yollarinin Ctrl/Meta, Alt, Shift ve IME durumlarinda dogru typed action'a cozuldugunu test eder
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -23,6 +23,7 @@ function input(
     metaKey: false,
     shiftKey: false,
     altKey: false,
+    altGraphKey: false,
     isComposing: false,
     editingActive: false,
     ...overrides,
@@ -73,6 +74,13 @@ describe("SheetKeyboardShortcutService", () => {
         }),
       ),
     ).toBe(SHEET_SHORTCUT_ACTIONS.insertSum);
+  });
+
+  it("preserves AltGr character entry without dispatching commands", () => {
+    expect(service.resolve(input("b", { altKey: true }))).toBeNull();
+    expect(service.resolve(input("n", { altGraphKey: true }))).toBeNull();
+    expect(service.resolve(input("=", { ctrlKey: false, altKey: true, altGraphKey: true }))).toBeNull();
+    expect(service.resolve(input("=", { altKey: true }))).toBeNull();
   });
 
   it("accepts Meta as the platform modifier", () => {
