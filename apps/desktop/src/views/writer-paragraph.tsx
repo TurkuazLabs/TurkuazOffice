@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-paragraph.tsx
 // # 📌 Amac: Writer paragraph runlarini IME-aware contenteditable rich-text yuzeyinde render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.2.3
+// # Version: 0.2.4
 // # Aciklama: Typography, paragraph alignment, clipboard, DOM input ve selection eventlerini Controller'a aktarir
 // Bagimli Oldugu Katman: View -> Controller -> Language
 
@@ -26,15 +26,27 @@ interface WriterParagraphProps {
 
 export function WriterParagraphEditor(props: WriterParagraphProps) {
   const [isComposing, setIsComposing] = createSignal(false);
+  const [renderedRuns, setRenderedRuns] = createSignal<readonly WriterRunView[]>(
+    props.paragraph.runs,
+  );
   let editor!: HTMLDivElement;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let suppressNextBlurCommit = false;
 
   createEffect(() => {
-    props.paragraph.runs.map((run) => `${run.id}:${run.text}`).join("|");
+    const nextRuns = props.paragraph.runs;
+    const nextText = props.paragraph.plainText;
     props.paragraph.style.alignment;
+
     queueMicrotask(() => {
-      if (document.activeElement === editor) {
+      const editorIsActive = document.activeElement === editor;
+      const liveText = editor.textContent ?? "";
+
+      if (!editorIsActive || liveText === nextText) {
+        setRenderedRuns(nextRuns);
+      }
+
+      if (editorIsActive) {
         props.controller.restoreSelection(props.paragraph.id, editor);
       }
     });
@@ -192,7 +204,7 @@ export function WriterParagraphEditor(props: WriterParagraphProps) {
         queueMicrotask(commitNow);
       }}
     >
-      <Index each={props.paragraph.runs}>
+      <Index each={renderedRuns()}>
         {(run: Accessor<WriterRunView>) => (
           <span
             data-writer-run-id={run().id}
