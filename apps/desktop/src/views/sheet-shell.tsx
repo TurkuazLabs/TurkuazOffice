@@ -80,6 +80,7 @@ export function SheetShell(props: SheetShellProps) {
   const [conditionalValue, setConditionalValue] = createSignal("");
   const [conditionalStyle, setConditionalStyle] =
     createSignal<SheetConditionalFormatStyleView>("warning");
+  let suppressBlurCommitReference: string | null = null;
 
   onMount(() => {
     window.addEventListener("keydown", onShortcut);
@@ -269,6 +270,7 @@ export function SheetShell(props: SheetShellProps) {
     value: string,
     rowDelta: number,
   ): Promise<void> => {
+    suppressBlurCommitReference = reference;
     await commitCell(reference, row, column, value);
     const targetRow = Math.min(
       SHEET_GRID_ROW_COUNT,
@@ -278,6 +280,11 @@ export function SheetShell(props: SheetShellProps) {
     const address = REFERENCE_TOOL.domainAddress(targetRow, column);
     await props.controller.selectCell(targetReference, address.row, address.column);
     focusCellInput(targetReference);
+    queueMicrotask(() => {
+      if (suppressBlurCommitReference === reference) {
+        suppressBlurCommitReference = null;
+      }
+    });
   };
 
   const cancelActiveEdit = (): void => {
@@ -1042,6 +1049,10 @@ export function SheetShell(props: SheetShellProps) {
                                   }
                                 }}
                                 onBlur={(event) => {
+                                  if (suppressBlurCommitReference === reference) {
+                                    suppressBlurCommitReference = null;
+                                    return;
+                                  }
                                   void commitCell(
                                     reference,
                                     row,
