@@ -18,6 +18,7 @@ export interface SheetKeyboardShortcutInput {
   readonly shiftKey: boolean;
   readonly altKey: boolean;
   readonly isComposing: boolean;
+  readonly editingActive: boolean;
 }
 
 export class SheetKeyboardShortcutService {
@@ -32,7 +33,12 @@ export class SheetKeyboardShortcutService {
     if (!modifier && !input.altKey && key === KEYBOARD_KEYS.f2) {
       return SHEET_SHORTCUT_ACTIONS.editCell;
     }
-    if (!modifier && !input.altKey && key === KEYBOARD_KEYS.escape) {
+    if (
+      !modifier &&
+      !input.altKey &&
+      input.editingActive &&
+      key === KEYBOARD_KEYS.escape
+    ) {
       return SHEET_SHORTCUT_ACTIONS.cancelEdit;
     }
     if (input.altKey && !modifier && key === KEYBOARD_KEYS.equal) {
