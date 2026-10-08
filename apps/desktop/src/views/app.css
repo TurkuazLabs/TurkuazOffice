@@ -2596,3 +2596,18 @@ button.start-center__module-card:focus-visible {
     width: 160px;
   }
 }
+
+
+.writer-menu__popup button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.writer-menu__popup button kbd {
+  color: var(--to-text-secondary);
+  font: inherit;
+  font-size: 11px;
+  white-space: nowrap;
+}
