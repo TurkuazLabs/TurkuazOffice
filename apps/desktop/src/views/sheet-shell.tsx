@@ -12,7 +12,11 @@ import {
   SHEET_FUNCTION_IDS,
   type SheetFunctionId,
 } from "../config/sheet-functions";
-import { SHEET_SHORTCUT_ACTIONS } from "../config/keyboard";
+import {
+  SHEET_ARIA_SHORTCUTS,
+  SHEET_SHORTCUT_ACTIONS,
+  SHEET_SHORTCUT_HINTS,
+} from "../config/keyboard";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
@@ -590,6 +594,7 @@ export function SheetShell(props: SheetShellProps) {
           onToggleQuery={() => setQueryOpen((value) => !value)}
           onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
           onToggleFunctions={toggleFunctionsSidebar}
+          onInsertSum={() => insertFunctionDraft(SHEET_FUNCTION_IDS.sum)}
           onToggleCharts={toggleChartsSidebar}
           onFreezeAtSelection={() => props.controller.freezeAtSelection()}
           onFreezeTopRow={() => props.controller.freezeTopRow()}
@@ -612,6 +617,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format"
             aria-label={props.language.text("bold")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.bold}
+            title={`${props.language.text("bold")} — ${SHEET_SHORTCUT_HINTS.bold}`}
             aria-pressed={selectedFormat()?.bold ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleBold()}
@@ -622,6 +629,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format toolbar-button--italic"
             aria-label={props.language.text("italic")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.italic}
+            title={`${props.language.text("italic")} — ${SHEET_SHORTCUT_HINTS.italic}`}
             aria-pressed={selectedFormat()?.italic ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleItalic()}
@@ -632,6 +641,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format toolbar-button--underline"
             aria-label={props.language.text("underline")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.underline}
+            title={`${props.language.text("underline")} — ${SHEET_SHORTCUT_HINTS.underline}`}
             aria-pressed={selectedFormat()?.underline ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleUnderline()}
