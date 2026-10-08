@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/keyboard.ts
 // # 📌 Amac: Desktop keyboard event key degerlerini merkezi sabit olarak tanimlar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.4.0
+// # Version: 0.4.1
 // # Aciklama: Writer shortcut ve caret navigation magic string kullanimini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -39,6 +39,10 @@ export const KEYBOARD_KEYS = {
   equal: "=",
   minus: "-",
   zero: "0",
+} as const;
+
+export const KEYBOARD_MODIFIER_STATES = {
+  altGraph: "AltGraph",
 } as const;
 
 export const CARET_NAVIGATION_KEYS: readonly string[] = [
