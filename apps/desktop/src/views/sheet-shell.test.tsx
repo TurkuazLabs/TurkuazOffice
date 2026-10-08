@@ -8,7 +8,7 @@
 // Bagimli Oldugu Katman: View -> Controller -> Repo
 
 import { render } from "solid-js/web";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { SheetController } from "../controllers/sheet.controller";
 import { LanguageService } from "../language/language-service";
@@ -42,6 +42,7 @@ const DOCUMENT: SheetDocumentView = {
 
 function controllerStub(): SheetController {
   return {
+    resolveKeyboardShortcut: () => null,
     initializeSession: async () => undefined,
     createDocument: async () => true,
     selectCell: async () => undefined,
@@ -65,13 +66,16 @@ function controllerStub(): SheetController {
   } as unknown as SheetController;
 }
 
-function mount(repository: SheetSessionRepository): HTMLElement {
+function mount(
+  repository: SheetSessionRepository,
+  controller: SheetController = controllerStub(),
+): HTMLElement {
   const root = document.createElement("div");
   document.body.append(root);
   dispose = render(
     () => (
       <SheetShell
-        controller={controllerStub()}
+        controller={controller}
         repository={repository}
         language={new LanguageService("en-US")}
       />
@@ -341,4 +345,153 @@ describe("SheetShell active drafts", () => {
 
     expect(formula!.value).toBe("=1+2");
   });
+
+  it("routes Ctrl+B through the Sheet shortcut resolver", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setSelection({
+      reference: "A1",
+      row: 0,
+      column: 0,
+      rawValue: "12.34",
+      evaluatedValue: { kind: "number", value: 12.34 },
+      evaluationErrorCode: null,
+      format: {
+        bold: false,
+        italic: false,
+        underline: false,
+        horizontalAlignment: "general",
+        decimalPlaces: null,
+      },
+    });
+
+    const toggleBold = vi.fn().mockResolvedValue(undefined);
+    const controller = {
+      ...controllerStub(),
+      resolveKeyboardShortcut: vi.fn().mockReturnValue("bold"),
+      toggleBold,
+    } as unknown as SheetController;
+
+    mount(repository, controller);
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "b",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await Promise.resolve();
+
+    expect(controller.resolveKeyboardShortcut).toHaveBeenCalled();
+    expect(toggleBold).toHaveBeenCalledTimes(1);
+  });
+
+  it("toggles the properties panel with Ctrl+1", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const controller = {
+      ...controllerStub(),
+      resolveKeyboardShortcut: vi.fn().mockReturnValue("toggle-properties"),
+    } as unknown as SheetController;
+
+    const root = mount(repository, controller);
+    expect(root.querySelector(".sheet-properties-sidebar")).not.toBeNull();
+
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "1",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await Promise.resolve();
+
+    expect(root.querySelector(".sheet-properties-sidebar")).toBeNull();
+  });
+
+  it("opens a SUM formula draft with Alt+=", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    repository.setSelection({
+      reference: "A1",
+      row: 0,
+      column: 0,
+      rawValue: "12.34",
+      evaluatedValue: { kind: "number", value: 12.34 },
+      evaluationErrorCode: null,
+      format: null,
+    });
+    const controller = {
+      ...controllerStub(),
+      resolveKeyboardShortcut: vi.fn().mockReturnValue("insert-sum"),
+      functionFormulaDraft: vi.fn().mockReturnValue("=SUM("),
+    } as unknown as SheetController;
+
+    const root = mount(repository, controller);
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "=",
+        altKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await Promise.resolve();
+
+    const formula = root.querySelector<HTMLInputElement>(".sheet-formula-bar__input");
+    expect(formula?.value).toBe("=SUM(");
+    expect(document.activeElement).toBe(formula);
+  });
+
+  it("commits with Enter and focuses the cell below, with Shift+Enter moving up", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const selectCell = vi.fn().mockResolvedValue(undefined);
+    const commitCell = vi.fn().mockResolvedValue(undefined);
+    const controller = {
+      ...controllerStub(),
+      resolveKeyboardShortcut: vi.fn().mockReturnValue(null),
+      selectCell,
+      commitCell,
+    } as unknown as SheetController;
+
+    const root = mount(repository, controller);
+    const a1 = root.querySelector<HTMLInputElement>('input[aria-label="A1"]');
+    expect(a1).not.toBeNull();
+    a1!.focus();
+    a1!.value = "15";
+
+    a1!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(commitCell).toHaveBeenCalledWith("A1", "15");
+    expect(selectCell).toHaveBeenCalledWith("A2", 1, 0);
+
+    const a2 = root.querySelector<HTMLInputElement>('input[aria-label="A2"]');
+    expect(document.activeElement).toBe(a2);
+
+    a2!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(selectCell).toHaveBeenCalledWith("A1", 0, 0);
+    expect(document.activeElement).toBe(a1);
+  });
+
 });
