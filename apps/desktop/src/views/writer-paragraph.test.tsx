@@ -142,7 +142,7 @@ describe("WriterParagraphEditor keyboard navigation", () => {
 
     const run = editor?.querySelector("span");
     expect(run).not.toBeNull();
-    if (run !== null) {
+    if (run !== null && run !== undefined) {
       run.textContent = "abcd";
     }
 
