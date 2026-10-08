@@ -5,6 +5,7 @@
 // Aciklama: Dosya, Giris, Ekle, Bicim, Veri, Formuller, Gorunum ve Yardim siralamasinda gercek Sheet komutlarini gruplar
 // Bagimli Oldugu Katman: View -> Language
 
+import { SHEET_SHORTCUT_HINTS } from "../config/keyboard";
 import type { LanguageService } from "../language/language-service";
 
 interface SheetMenubarProps {
@@ -23,6 +24,7 @@ interface SheetMenubarProps {
   readonly onToggleQuery: () => void;
   readonly onToggleConditionalFormat: () => void;
   readonly onToggleFunctions: () => void;
+  readonly onInsertSum: () => void;
   readonly onToggleCharts: () => void;
   readonly onFreezeAtSelection: () => void;
   readonly onFreezeTopRow: () => void;
@@ -39,7 +41,8 @@ export function SheetMenubar(props: SheetMenubarProps) {
         <summary>{props.language.text("menuFile")}</summary>
         <div class="sheet-menu__popup">
           <button type="button" onClick={props.onNewDocument}>
-            {props.language.text("sheetNewDocument")}
+            <span>{props.language.text("sheetNewDocument")}</span>
+            <kbd>{SHEET_SHORTCUT_HINTS.newDocument}</kbd>
           </button>
         </div>
       </details>
@@ -62,7 +65,8 @@ export function SheetMenubar(props: SheetMenubarProps) {
         <summary>{props.language.text("menuFormat")}</summary>
         <div class="sheet-menu__popup">
           <button type="button" aria-pressed={props.propertiesOpen} onClick={props.onToggleProperties}>
-            {props.language.text("sheetPropertiesToggle")}
+            <span>{props.language.text("sheetPropertiesToggle")}</span>
+            <kbd>{SHEET_SHORTCUT_HINTS.toggleProperties}</kbd>
           </button>
           <button
             type="button"
@@ -85,9 +89,12 @@ export function SheetMenubar(props: SheetMenubarProps) {
           </button>
           <div class="sheet-menu__separator" />
           <button type="button" aria-pressed={props.queryOpen} onClick={props.onToggleQuery}>
-            {props.queryOpen
-              ? props.language.text("sheetHideQuery")
-              : props.language.text("sheetShowQuery")}
+            <span>
+              {props.queryOpen
+                ? props.language.text("sheetHideQuery")
+                : props.language.text("sheetShowQuery")}
+            </span>
+            <kbd>{SHEET_SHORTCUT_HINTS.toggleQuery}</kbd>
           </button>
         </div>
       </details>
@@ -101,6 +108,10 @@ export function SheetMenubar(props: SheetMenubarProps) {
             onClick={props.onToggleFunctions}
           >
             {props.language.text("sheetFunctionsToggle")}
+          </button>
+          <button type="button" onClick={props.onInsertSum}>
+            <span>{props.language.text("sheetFunctionSum")}</span>
+            <kbd>{SHEET_SHORTCUT_HINTS.insertSum}</kbd>
           </button>
         </div>
       </details>
