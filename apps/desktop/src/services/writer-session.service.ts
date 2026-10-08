@@ -331,7 +331,10 @@ export class WriterSessionService {
 
   public async printDocument(): Promise<void> {
     await this.prepareFileOperation();
-    const document = this.requireDocument();
+    const document = this.repository.document();
+    if (document === null) {
+      return;
+    }
     this.repository.setPrintPreviewLayout(
       this.layoutService.pageLayout(document.pageSettings, WRITER_PRINT_PREVIEW_ZOOM_PERCENT),
     );
