@@ -2598,14 +2598,16 @@ button.start-center__module-card:focus-visible {
 }
 
 
-.writer-menu__popup button {
+.writer-menu__popup button,
+.sheet-menu__popup button {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
 
-.writer-menu__popup button kbd {
+.writer-menu__popup button kbd,
+.sheet-menu__popup button kbd {
   color: var(--to-text-secondary);
   font: inherit;
   font-size: 11px;
