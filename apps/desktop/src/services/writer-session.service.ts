@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.4
+// # Version: 0.2.5
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -523,12 +523,32 @@ export class WriterSessionService {
     if (this.isReadOnly()) {
       return Promise.resolve();
     }
+
     const text = this.domSelectionTool.plainText(editor);
     const selection = this.domSelectionTool.readParagraphSelection(editor, paragraphId);
     if (selection !== null) {
       this.repository.setSelection(selection);
     }
-    return this.replaceParagraphText(paragraphId, text, this.repository.typingStyle());
+    const typingStyle = this.repository.typingStyle();
+
+    return this.enqueue(async () => {
+      const document = this.requireDocument();
+      try {
+        const updatedDocument = await this.writerTool.replaceParagraphText(
+          document.id,
+          paragraphId,
+          text,
+          typingStyle,
+        );
+        if (this.activeEditorHasNewerText(updatedDocument)) {
+          return;
+        }
+        this.repository.setDocument(updatedDocument);
+        this.refreshLayoutEnvironment();
+      } catch (error: unknown) {
+        this.repository.setError(this.errorCode(error));
+      }
+    });
   }
 
   public async loadImageAssetUrl(documentId: string, assetId: string): Promise<string> {
@@ -877,6 +897,23 @@ export class WriterSessionService {
 
   private isReadOnly(): boolean {
     return this.repository.fileSession()?.readOnly === true;
+  }
+
+  private activeEditorHasNewerText(document: WriterDocumentView): boolean {
+    const activeEditor = this.domSelectionTool.activeWriterParagraph();
+    const activeParagraphId = activeEditor?.dataset.writerParagraphId ?? null;
+    if (activeEditor === null || activeParagraphId === null) {
+      return false;
+    }
+
+    const paragraph = document.paragraphs.find(
+      (item) => item.id === activeParagraphId,
+    );
+    if (paragraph === undefined) {
+      return false;
+    }
+
+    return this.domSelectionTool.plainText(activeEditor) !== paragraph.plainText;
   }
 
   private refreshLayoutEnvironment(): void {
