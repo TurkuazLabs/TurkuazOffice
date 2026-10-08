@@ -9,6 +9,11 @@ import type { SheetChartType } from "../config/sheet-charts";
 import type { SheetFunctionId } from "../config/sheet-functions";
 import type { SheetSessionService } from "../services/sheet-session.service";
 import type {
+  SheetKeyboardShortcutInput,
+  SheetKeyboardShortcutService,
+} from "../services/sheet-keyboard-shortcut.service";
+import type { SheetShortcutAction } from "../config/keyboard";
+import type {
   SheetConditionalFormatModeView,
   SheetConditionalFormatStyleView,
   SheetFilterModeView,
@@ -17,7 +22,16 @@ import type {
 } from "../views/sheet-types";
 
 export class SheetController {
-  public constructor(private readonly service: SheetSessionService) {}
+  public constructor(
+    private readonly service: SheetSessionService,
+    private readonly keyboardShortcutService: SheetKeyboardShortcutService,
+  ) {}
+
+  public resolveKeyboardShortcut(
+    input: SheetKeyboardShortcutInput,
+  ): SheetShortcutAction | null {
+    return this.keyboardShortcutService.resolve(input);
+  }
 
   public initializeSession(): Promise<void> {
     return this.service.initializeSession();
