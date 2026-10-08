@@ -29,6 +29,8 @@ export const KEYBOARD_KEYS = {
   e: "e",
   r: "r",
   j: "j",
+  one: "1",
+  f2: "f2",
   escape: "escape",
   plus: "+",
   equal: "=",
@@ -114,4 +116,47 @@ export const WRITER_SHORTCUT_HINTS = {
   zoomIn: "Ctrl++",
   zoomOut: "Ctrl+-",
   zoomReset: "Ctrl+0",
+} as const;
+
+
+export const SHEET_SHORTCUT_ACTIONS = {
+  newDocument: "new-document",
+  bold: "bold",
+  italic: "italic",
+  underline: "underline",
+  editCell: "edit-cell",
+  cancelEdit: "cancel-edit",
+  firstCell: "first-cell",
+  toggleProperties: "toggle-properties",
+  toggleQuery: "toggle-query",
+  insertSum: "insert-sum",
+} as const;
+
+export type SheetShortcutAction =
+  (typeof SHEET_SHORTCUT_ACTIONS)[keyof typeof SHEET_SHORTCUT_ACTIONS];
+
+export const SHEET_ARIA_SHORTCUTS = {
+  newDocument: "Control+N Meta+N",
+  bold: "Control+B Meta+B",
+  italic: "Control+I Meta+I",
+  underline: "Control+U Meta+U",
+  editCell: "F2",
+  cancelEdit: "Escape",
+  firstCell: "Control+Home Meta+Home",
+  toggleProperties: "Control+1 Meta+1",
+  toggleQuery: "Control+Shift+L Meta+Shift+L",
+  insertSum: "Alt+=",
+} as const;
+
+export const SHEET_SHORTCUT_HINTS = {
+  newDocument: "Ctrl+N",
+  bold: "Ctrl+B",
+  italic: "Ctrl+I",
+  underline: "Ctrl+U",
+  editCell: "F2",
+  cancelEdit: "Esc",
+  firstCell: "Ctrl+Home",
+  toggleProperties: "Ctrl+1",
+  toggleQuery: "Ctrl+Shift+L",
+  insertSum: "Alt+=",
 } as const;
