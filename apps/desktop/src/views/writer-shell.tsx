@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Writer ana pencere kompozisyonunu render eder
 // # 📌 Modul - FileType: View - TSX
-// # Version: 0.12.1
+// # Version: 0.12.0
 // # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
