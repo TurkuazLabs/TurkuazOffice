@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/config/keyboard.ts
 // # 📌 Amac: Desktop keyboard event key degerlerini merkezi sabit olarak tanimlar
 // # 📌 Modul - FileType: Config - TypeScript
-// # Version: 0.2.0
+// # Version: 0.4.0
 // # Aciklama: Writer shortcut ve caret navigation magic string kullanimini engeller
 // Bagimli Oldugu Katman: Config
 
@@ -31,8 +31,11 @@ export const KEYBOARD_KEYS = {
   j: "j",
   one: "1",
   f2: "f2",
+  tab: "Tab",
   escape: "escape",
   plus: "+",
+  greaterThan: ">",
+  lessThan: "<",
   equal: "=",
   minus: "-",
   zero: "0",
@@ -70,6 +73,8 @@ export const WRITER_SHORTCUT_ACTIONS = {
   alignCenter: "align-center",
   alignRight: "align-right",
   alignJustify: "align-justify",
+  increaseFontSize: "increase-font-size",
+  decreaseFontSize: "decrease-font-size",
 } as const;
 
 export type WriterShortcutAction =
@@ -91,6 +96,8 @@ export const WRITER_ARIA_SHORTCUTS = {
   alignCenter: "Control+E Meta+E",
   alignRight: "Control+R Meta+R",
   alignJustify: "Control+J Meta+J",
+  increaseFontSize: "Control+Shift+> Meta+Shift+>",
+  decreaseFontSize: "Control+Shift+< Meta+Shift+<",
   zoomIn: "Control++ Meta++ Control+= Meta+=",
   zoomOut: "Control+- Meta+-",
   zoomReset: "Control+0 Meta+0",
@@ -113,6 +120,8 @@ export const WRITER_SHORTCUT_HINTS = {
   alignCenter: "Ctrl+E",
   alignRight: "Ctrl+R",
   alignJustify: "Ctrl+J",
+  increaseFontSize: "Ctrl+Shift+>",
+  decreaseFontSize: "Ctrl+Shift+<",
   zoomIn: "Ctrl++",
   zoomOut: "Ctrl+-",
   zoomReset: "Ctrl+0",
@@ -146,6 +155,10 @@ export const SHEET_ARIA_SHORTCUTS = {
   toggleProperties: "Control+1 Meta+1",
   toggleQuery: "Control+Shift+L Meta+Shift+L",
   insertSum: "Alt+=",
+  nextRow: "Enter",
+  previousRow: "Shift+Enter",
+  nextCell: "Tab",
+  previousCell: "Shift+Tab",
 } as const;
 
 export const SHEET_SHORTCUT_HINTS = {
@@ -159,4 +172,8 @@ export const SHEET_SHORTCUT_HINTS = {
   toggleProperties: "Ctrl+1",
   toggleQuery: "Ctrl+Shift+L",
   insertSum: "Alt+=",
+  nextRow: "Enter",
+  previousRow: "Shift+Enter",
+  nextCell: "Tab",
+  previousCell: "Shift+Tab",
 } as const;

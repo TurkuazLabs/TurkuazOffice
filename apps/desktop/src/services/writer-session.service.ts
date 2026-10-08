@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.5
+// # Version: 0.2.6
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -10,6 +10,9 @@ import { WRITER_PRINT_PREVIEW_ZOOM_PERCENT } from "../config/print";
 import {
   DEFAULT_WRITER_FONT_FAMILY,
   DEFAULT_WRITER_FONT_SIZE_HALF_POINTS,
+  MAX_WRITER_FONT_SIZE_HALF_POINTS,
+  MIN_WRITER_FONT_SIZE_HALF_POINTS,
+  WRITER_FONT_SIZES_HALF_POINTS,
 } from "../config/typography";
 import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
@@ -781,6 +784,14 @@ export class WriterSessionService {
     return this.applyCharacterStyle({ fontSizeHalfPoints });
   }
 
+  public increaseFontSize(): Promise<void> {
+    return this.stepFontSize("increase");
+  }
+
+  public decreaseFontSize(): Promise<void> {
+    return this.stepFontSize("decrease");
+  }
+
   public setParagraphAlignment(alignment: WriterTextAlignmentView): Promise<void> {
     if (this.isReadOnly()) {
       return Promise.resolve();
@@ -1026,6 +1037,145 @@ export class WriterSessionService {
         ),
       );
     });
+  }
+
+  private stepFontSize(direction: "increase" | "decrease"): Promise<void> {
+    if (this.isReadOnly()) {
+      return Promise.resolve();
+    }
+
+    const selection = this.repository.selection();
+    const document = this.repository.document();
+    if (selection === null || document === null) {
+      return Promise.resolve();
+    }
+    const paragraph = document.paragraphs.find(
+      (item) => item.id === selection.paragraphId,
+    );
+    if (paragraph === undefined) {
+      return Promise.resolve();
+    }
+
+    if (selection.startOffset === selection.endOffset) {
+      const style =
+        this.repository.typingStyle() ??
+        this.styleAtCaret(paragraph, selection.startOffset);
+      if (style === null) {
+        return Promise.resolve();
+      }
+      const targetSize = this.steppedFontSize(
+        style.fontSizeHalfPoints,
+        direction,
+      );
+      if (targetSize === style.fontSizeHalfPoints) {
+        return Promise.resolve();
+      }
+      return this.applyCharacterStyle({ fontSizeHalfPoints: targetSize });
+    }
+
+    return this.stepSelectedRangeFontSizes(selection, direction);
+  }
+
+  private stepSelectedRangeFontSizes(
+    selection: WriterSelectionView,
+    direction: "increase" | "decrease",
+  ): Promise<void> {
+    const activeEditor = this.domSelectionTool.activeWriterParagraph();
+    const activeParagraphId = activeEditor?.dataset.writerParagraphId ?? null;
+    const activeText =
+      activeEditor === null ? null : this.domSelectionTool.plainText(activeEditor);
+    const typingStyle = this.repository.typingStyle();
+
+    return this.enqueue(async () => {
+      let currentDocument = this.requireDocument();
+      if (activeParagraphId === selection.paragraphId && activeText !== null) {
+        const committed = await this.run(() =>
+          this.writerTool.replaceParagraphText(
+            currentDocument.id,
+            selection.paragraphId,
+            activeText,
+            typingStyle,
+          ),
+        );
+        if (!committed) {
+          return;
+        }
+        currentDocument = this.requireDocument();
+      }
+
+      const paragraph = currentDocument.paragraphs.find(
+        (item) => item.id === selection.paragraphId,
+      );
+      if (paragraph === undefined) {
+        return;
+      }
+
+      let cursor = 0;
+      const patches: Array<{
+        readonly startOffset: number;
+        readonly endOffset: number;
+        readonly fontSizeHalfPoints: number;
+      }> = [];
+      for (const run of paragraph.runs) {
+        const runLength = this.textOffsetTool.logicalLength(run.text);
+        const runStart = cursor;
+        const runEnd = cursor + runLength;
+        cursor = runEnd;
+
+        const startOffset = Math.max(selection.startOffset, runStart);
+        const endOffset = Math.min(selection.endOffset, runEnd);
+        if (startOffset >= endOffset) {
+          continue;
+        }
+
+        const targetSize = this.steppedFontSize(
+          run.style.fontSizeHalfPoints,
+          direction,
+        );
+        if (targetSize !== run.style.fontSizeHalfPoints) {
+          patches.push({
+            startOffset,
+            endOffset,
+            fontSizeHalfPoints: targetSize,
+          });
+        }
+      }
+
+      for (const patch of patches) {
+        const changed = await this.run(() =>
+          this.writerTool.applyCharacterStyle(
+            currentDocument.id,
+            selection.paragraphId,
+            patch.startOffset,
+            patch.endOffset,
+            { fontSizeHalfPoints: patch.fontSizeHalfPoints },
+          ),
+        );
+        if (!changed) {
+          return;
+        }
+        currentDocument = this.requireDocument();
+      }
+    });
+  }
+
+  private steppedFontSize(
+    currentSize: number,
+    direction: "increase" | "decrease",
+  ): number {
+    const targetSize =
+      direction === "increase"
+        ? (WRITER_FONT_SIZES_HALF_POINTS.find((size) => size > currentSize) ??
+          MAX_WRITER_FONT_SIZE_HALF_POINTS)
+        : ([...WRITER_FONT_SIZES_HALF_POINTS]
+            .reverse()
+            .find((size) => size < currentSize) ??
+          MIN_WRITER_FONT_SIZE_HALF_POINTS);
+
+    return Math.min(
+      MAX_WRITER_FONT_SIZE_HALF_POINTS,
+      Math.max(MIN_WRITER_FONT_SIZE_HALF_POINTS, targetSize),
+    );
   }
 
   private patchStyle(

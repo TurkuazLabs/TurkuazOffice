@@ -269,6 +269,25 @@ export function WriterRibbon(props: WriterRibbonProps) {
               <span>{props.language.text("underline")}</span>
               <kbd>{WRITER_SHORTCUT_HINTS.underline}</kbd>
             </button>
+            <div class="writer-menu__separator" />
+            <button
+              type="button"
+              disabled={!formatState().canFormat}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void applyMenuFormat(() => props.controller.increaseFontSize())}
+            >
+              <span>{props.language.text("increaseFontSize")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.increaseFontSize}</kbd>
+            </button>
+            <button
+              type="button"
+              disabled={!formatState().canFormat}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void applyMenuFormat(() => props.controller.decreaseFontSize())}
+            >
+              <span>{props.language.text("decreaseFontSize")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.decreaseFontSize}</kbd>
+            </button>
           </div>
         </details>
 
@@ -408,6 +427,31 @@ export function WriterRibbon(props: WriterRibbonProps) {
             {(size) => <option value={String(size * 2)}>{size}</option>}
           </For>
         </select>
+
+        <button
+          type="button"
+          class="writer-tool-button writer-tool-button--text"
+          disabled={!formatState().canFormat}
+          title={`${props.language.text("increaseFontSize")} — ${WRITER_SHORTCUT_HINTS.increaseFontSize}`}
+          aria-label={props.language.text("increaseFontSize")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.increaseFontSize}
+          onMouseDown={preserveEditorSelection}
+          onClick={() => void props.controller.increaseFontSize()}
+        >
+          A+
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button writer-tool-button--text"
+          disabled={!formatState().canFormat}
+          title={`${props.language.text("decreaseFontSize")} — ${WRITER_SHORTCUT_HINTS.decreaseFontSize}`}
+          aria-label={props.language.text("decreaseFontSize")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.decreaseFontSize}
+          onMouseDown={preserveEditorSelection}
+          onClick={() => void props.controller.decreaseFontSize()}
+        >
+          A-
+        </button>
 
         <span class="writer-toolbar__separator" />
 

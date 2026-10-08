@@ -206,6 +206,8 @@ export type DesktopLabelKey =
   | "paragraphGroup"
   | "fontFamily"
   | "fontSize"
+  | "increaseFontSize"
+  | "decreaseFontSize"
   | "mixedValue"
   | "alignLeft"
   | "alignCenter"

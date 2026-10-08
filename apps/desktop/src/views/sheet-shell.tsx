@@ -13,6 +13,7 @@ import {
   type SheetFunctionId,
 } from "../config/sheet-functions";
 import {
+  KEYBOARD_KEYS,
   SHEET_ARIA_SHORTCUTS,
   SHEET_SHORTCUT_ACTIONS,
   SHEET_SHORTCUT_HINTS,
@@ -30,7 +31,10 @@ import {
 import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
-import { SheetReferenceTool } from "../tools/sheet-reference.tool";
+import {
+  SheetReferenceTool,
+  type SheetGridNavigationDirection,
+} from "../tools/sheet-reference.tool";
 import { SheetChartsSidebar } from "./sheet-charts-sidebar";
 import { SheetFunctionsSidebar } from "./sheet-functions-sidebar";
 import { SheetMenubar } from "./sheet-menubar";
@@ -266,18 +270,23 @@ export function SheetShell(props: SheetShellProps) {
     row: number,
     column: number,
     value: string,
-    rowDelta: number,
+    direction: SheetGridNavigationDirection,
   ): Promise<void> => {
     suppressBlurCommitReference = reference;
     await commitCell(reference, row, column, value);
-    const targetRow = Math.min(
+    const target = REFERENCE_TOOL.adjacentGridCell(
+      row,
+      column,
+      direction,
       SHEET_GRID_ROW_COUNT,
-      Math.max(1, row + rowDelta),
+      SHEET_GRID_COLUMN_COUNT,
     );
-    const targetReference = REFERENCE_TOOL.reference(targetRow, column);
-    const address = REFERENCE_TOOL.domainAddress(targetRow, column);
-    await props.controller.selectCell(targetReference, address.row, address.column);
-    focusCellInput(targetReference);
+    await props.controller.selectCell(
+      target.reference,
+      target.address.row,
+      target.address.column,
+    );
+    focusCellInput(target.reference);
     queueMicrotask(() => {
       if (suppressBlurCommitReference === reference) {
         suppressBlurCommitReference = null;
@@ -1059,15 +1068,32 @@ export function SheetShell(props: SheetShellProps) {
                                     event.currentTarget.value,
                                   );
                                 }}
+                                aria-keyshortcuts={`${SHEET_ARIA_SHORTCUTS.editCell} ${SHEET_ARIA_SHORTCUTS.cancelEdit} ${SHEET_ARIA_SHORTCUTS.nextRow} ${SHEET_ARIA_SHORTCUTS.previousRow} ${SHEET_ARIA_SHORTCUTS.nextCell} ${SHEET_ARIA_SHORTCUTS.previousCell}`}
                                 onKeyDown={(event) => {
-                                  if (event.key === "Enter") {
+                                  if (event.key === KEYBOARD_KEYS.enter) {
                                     event.preventDefault();
                                     void moveAfterCellCommit(
                                       reference,
                                       row,
                                       column,
                                       event.currentTarget.value,
-                                      event.shiftKey ? -1 : 1,
+                                      event.shiftKey ? "up" : "down",
+                                    );
+                                    return;
+                                  }
+                                  if (
+                                    event.key === KEYBOARD_KEYS.tab &&
+                                    !event.ctrlKey &&
+                                    !event.metaKey &&
+                                    !event.altKey
+                                  ) {
+                                    event.preventDefault();
+                                    void moveAfterCellCommit(
+                                      reference,
+                                      row,
+                                      column,
+                                      event.currentTarget.value,
+                                      event.shiftKey ? "left" : "right",
                                     );
                                   }
                                 }}

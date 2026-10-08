@@ -46,6 +46,8 @@ describe("WriterRibbon classic format menu", () => {
       toggleUnderline: vi.fn().mockResolvedValue(undefined),
       setFontFamily: vi.fn().mockResolvedValue(undefined),
       setFontSizeHalfPoints: vi.fn().mockResolvedValue(undefined),
+      increaseFontSize: vi.fn().mockResolvedValue(undefined),
+      decreaseFontSize: vi.fn().mockResolvedValue(undefined),
       setParagraphAlignment: vi.fn().mockResolvedValue(undefined),
       createDocument: vi.fn().mockResolvedValue(undefined),
       openDocument: vi.fn().mockResolvedValue(undefined),
@@ -115,6 +117,8 @@ describe("WriterRibbon classic format menu", () => {
       toggleUnderline: vi.fn().mockResolvedValue(undefined),
       setFontFamily: vi.fn().mockResolvedValue(undefined),
       setFontSizeHalfPoints: vi.fn().mockResolvedValue(undefined),
+      increaseFontSize: vi.fn().mockResolvedValue(undefined),
+      decreaseFontSize: vi.fn().mockResolvedValue(undefined),
       setParagraphAlignment: vi.fn().mockResolvedValue(undefined),
       createDocument: vi.fn().mockResolvedValue(undefined),
       openDocument: vi.fn().mockResolvedValue(undefined),
@@ -146,6 +150,8 @@ describe("WriterRibbon classic format menu", () => {
     expect(root.textContent).toContain("Ctrl+N");
     expect(root.textContent).toContain("Ctrl+Shift+S");
     expect(root.textContent).toContain("Ctrl+Shift+P");
+    expect(root.textContent).toContain("Ctrl+Shift+>");
+    expect(root.textContent).toContain("Ctrl+Shift+<");
 
     const printButton = Array.from(
       root.querySelectorAll<HTMLButtonElement>(".writer-menu__popup button"),

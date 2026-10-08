@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.test.ts
 // # 📌 Amac: Writer keyboard-only shortcut routing, context block ve print-preview davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.3.0
+// Version: 0.4.0
 // Aciklama: Ctrl/Meta file-edit-format-zoom shortcutlari ile IME/recovery/preview context kurallarini smoke test eder
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -54,7 +54,7 @@ describe("KeyboardShortcutService", () => {
     expect(service.resolve(input(key))).toBe(expected);
   });
 
-  it("maps shifted save, print preview and undo alternatives", () => {
+  it("maps shifted save, print preview, undo and font-size alternatives", () => {
     expect(service.resolve(input("s", { shiftKey: true }))).toBe(
       WRITER_SHORTCUT_ACTIONS.saveAs,
     );
@@ -63,6 +63,12 @@ describe("KeyboardShortcutService", () => {
     );
     expect(service.resolve(input("z", { shiftKey: true }))).toBe(
       WRITER_SHORTCUT_ACTIONS.redo,
+    );
+    expect(service.resolve(input(">", { shiftKey: true }))).toBe(
+      WRITER_SHORTCUT_ACTIONS.increaseFontSize,
+    );
+    expect(service.resolve(input("<", { shiftKey: true }))).toBe(
+      WRITER_SHORTCUT_ACTIONS.decreaseFontSize,
     );
   });
 

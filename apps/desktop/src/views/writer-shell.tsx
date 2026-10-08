@@ -117,6 +117,12 @@ export function WriterShell(props: WriterShellProps) {
       case WRITER_SHORTCUT_ACTIONS.alignJustify:
         void props.controller.setParagraphAlignment("justify");
         return;
+      case WRITER_SHORTCUT_ACTIONS.increaseFontSize:
+        void props.controller.increaseFontSize();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.decreaseFontSize:
+        void props.controller.decreaseFontSize();
+        return;
     }
   };
 

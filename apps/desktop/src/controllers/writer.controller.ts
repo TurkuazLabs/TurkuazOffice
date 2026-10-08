@@ -273,6 +273,14 @@ export class WriterController {
     return this.service.setFontSizeHalfPoints(fontSizeHalfPoints);
   }
 
+  public increaseFontSize(): Promise<void> {
+    return this.service.increaseFontSize();
+  }
+
+  public decreaseFontSize(): Promise<void> {
+    return this.service.decreaseFontSize();
+  }
+
   public setParagraphAlignment(alignment: WriterTextAlignmentView): Promise<void> {
     return this.service.setParagraphAlignment(alignment);
   }
