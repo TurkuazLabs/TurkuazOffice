@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-shell.tsx
 // # 📌 Amac: Turkuaz Office Desktop Sheet grid, format, formula ve filter/sort yuzeyini render eder
 // # 📌 Modul - FileType: View - TSX
-// Version: 0.12.0
+// Version: 0.12.1
 // Aciklama: Hybrid menu, table/filter, conditional formatting, Functions/Charts sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
@@ -14,6 +14,7 @@ import {
 } from "../config/sheet-functions";
 import {
   KEYBOARD_KEYS,
+  KEYBOARD_MODIFIER_STATES,
   SHEET_ARIA_SHORTCUTS,
   SHEET_SHORTCUT_ACTIONS,
   SHEET_SHORTCUT_HINTS,
@@ -326,6 +327,7 @@ export function SheetShell(props: SheetShellProps) {
       metaKey: event.metaKey,
       shiftKey: event.shiftKey,
       altKey: event.altKey,
+      altGraphKey: event.getModifierState(KEYBOARD_MODIFIER_STATES.altGraph),
       isComposing: event.isComposing,
       editingActive: editingReference() !== null || formulaEditing(),
     });
