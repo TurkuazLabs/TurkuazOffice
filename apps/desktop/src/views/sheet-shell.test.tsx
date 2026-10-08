@@ -10,6 +10,7 @@
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { KEYBOARD_MODIFIER_STATES } from "../config/keyboard";
 import type { SheetController } from "../controllers/sheet.controller";
 import { LanguageService } from "../language/language-service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
@@ -405,7 +406,7 @@ describe("SheetShell active drafts", () => {
       cancelable: true,
     });
     Object.defineProperty(event, "getModifierState", {
-      value: (modifier: string) => modifier === "AltGraph",
+      value: (modifier: string) => modifier === KEYBOARD_MODIFIER_STATES.altGraph,
     });
     window.dispatchEvent(event);
 
