@@ -251,6 +251,7 @@ required_files=(
   "apps/desktop/src/services/keyboard-shortcut.service.test.ts"
   "apps/desktop/src/services/sheet-keyboard-shortcut.service.ts"
   "apps/desktop/src/services/sheet-keyboard-shortcut.service.test.ts"
+  "apps/desktop/src/services/writer-session-print.service.test.ts"
   "docs/07-quality/keyboard-only-smoke-test.md"
   "docs/08-implementation/m1-keyboard-only-smoke-v0.2.0.md"
   "docs/08-implementation/m1-keyboard-only-smoke-validation.md"
