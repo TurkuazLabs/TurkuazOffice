@@ -251,16 +251,14 @@ export function SheetShell(props: SheetShellProps) {
   };
 
   const focusCellInput = (reference: string): void => {
-    queueMicrotask(() => {
-      const input = Array.from(
-        document.querySelectorAll<HTMLInputElement>(".sheet-grid__input"),
-      ).find((candidate) => candidate.getAttribute("aria-label") === reference);
-      if (input === undefined) {
-        return;
-      }
-      input.focus();
-      input.setSelectionRange(input.value.length, input.value.length);
-    });
+    const input = Array.from(
+      document.querySelectorAll<HTMLInputElement>(".sheet-grid__input"),
+    ).find((candidate) => candidate.getAttribute("aria-label") === reference);
+    if (input === undefined) {
+      return;
+    }
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
   };
 
   const moveAfterCellCommit = async (
