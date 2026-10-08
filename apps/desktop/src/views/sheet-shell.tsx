@@ -5,12 +5,18 @@
 // Aciklama: Hybrid menu, table/filter, conditional formatting, Functions/Charts sidebar, formula bari, grid, properties dock ve status View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Tool -> Language
 
-import { createSignal, For, Match, onMount, Show, Switch } from "solid-js";
+import { createSignal, For, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
 import {
   SHEET_FUNCTION_BUTTON_TEXT,
+  SHEET_FUNCTION_IDS,
   type SheetFunctionId,
 } from "../config/sheet-functions";
+import {
+  SHEET_ARIA_SHORTCUTS,
+  SHEET_SHORTCUT_ACTIONS,
+  SHEET_SHORTCUT_HINTS,
+} from "../config/keyboard";
 import {
   SHEET_DECIMAL_GENERAL_VALUE,
   SHEET_GRID_COLUMN_COUNT,
@@ -74,9 +80,15 @@ export function SheetShell(props: SheetShellProps) {
   const [conditionalValue, setConditionalValue] = createSignal("");
   const [conditionalStyle, setConditionalStyle] =
     createSignal<SheetConditionalFormatStyleView>("warning");
+  let suppressBlurCommitReference: string | null = null;
 
   onMount(() => {
+    window.addEventListener("keydown", onShortcut);
     void props.controller.initializeSession();
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", onShortcut);
   });
 
   const activeWorksheet = () => props.repository.document()?.worksheets[0] ?? null;
@@ -235,6 +247,115 @@ export function SheetShell(props: SheetShellProps) {
     if (editingReference() === reference) {
       setEditingReference(null);
       setEditingDraft("");
+    }
+  };
+
+  const focusCellInput = (reference: string): void => {
+    const input = Array.from(
+      document.querySelectorAll<HTMLInputElement>(".sheet-grid__input"),
+    ).find((candidate) => candidate.getAttribute("aria-label") === reference);
+    if (input === undefined) {
+      return;
+    }
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  };
+
+  const moveAfterCellCommit = async (
+    reference: string,
+    row: number,
+    column: number,
+    value: string,
+    rowDelta: number,
+  ): Promise<void> => {
+    suppressBlurCommitReference = reference;
+    await commitCell(reference, row, column, value);
+    const targetRow = Math.min(
+      SHEET_GRID_ROW_COUNT,
+      Math.max(1, row + rowDelta),
+    );
+    const targetReference = REFERENCE_TOOL.reference(targetRow, column);
+    const address = REFERENCE_TOOL.domainAddress(targetRow, column);
+    await props.controller.selectCell(targetReference, address.row, address.column);
+    focusCellInput(targetReference);
+    queueMicrotask(() => {
+      if (suppressBlurCommitReference === reference) {
+        suppressBlurCommitReference = null;
+      }
+    });
+  };
+
+  const cancelActiveEdit = (): void => {
+    if (formulaEditing()) {
+      setFormulaEditing(false);
+      setFormulaDraft("");
+    }
+    if (editingReference() !== null) {
+      setEditingReference(null);
+      setEditingDraft("");
+    }
+  };
+
+  const focusSelectedCell = (): void => {
+    const selection = props.repository.selection();
+    if (selection !== null) {
+      focusCellInput(selection.reference);
+    }
+  };
+
+  const focusFirstCell = async (): Promise<void> => {
+    const reference = REFERENCE_TOOL.reference(1, 1);
+    const address = REFERENCE_TOOL.domainAddress(1, 1);
+    await props.controller.selectCell(reference, address.row, address.column);
+    focusCellInput(reference);
+  };
+
+  const onShortcut = (event: KeyboardEvent): void => {
+    const action = props.controller.resolveKeyboardShortcut({
+      key: event.key,
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+      altKey: event.altKey,
+      isComposing: event.isComposing,
+      editingActive: editingReference() !== null || formulaEditing(),
+    });
+    if (action === null) {
+      return;
+    }
+
+    event.preventDefault();
+    switch (action) {
+      case SHEET_SHORTCUT_ACTIONS.newDocument:
+        void createDocument();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.bold:
+        void props.controller.toggleBold();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.italic:
+        void props.controller.toggleItalic();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.underline:
+        void props.controller.toggleUnderline();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.editCell:
+        focusSelectedCell();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.cancelEdit:
+        cancelActiveEdit();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.firstCell:
+        void focusFirstCell();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.toggleProperties:
+        togglePropertiesSidebar();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.toggleQuery:
+        setQueryOpen((value) => !value);
+        return;
+      case SHEET_SHORTCUT_ACTIONS.insertSum:
+        insertFunctionDraft(SHEET_FUNCTION_IDS.sum);
+        return;
     }
   };
 
@@ -479,6 +600,7 @@ export function SheetShell(props: SheetShellProps) {
           onToggleQuery={() => setQueryOpen((value) => !value)}
           onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
           onToggleFunctions={toggleFunctionsSidebar}
+          onInsertSum={() => insertFunctionDraft(SHEET_FUNCTION_IDS.sum)}
           onToggleCharts={toggleChartsSidebar}
           onFreezeAtSelection={() => props.controller.freezeAtSelection()}
           onFreezeTopRow={() => props.controller.freezeTopRow()}
@@ -501,6 +623,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format"
             aria-label={props.language.text("bold")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.bold}
+            title={`${props.language.text("bold")} — ${SHEET_SHORTCUT_HINTS.bold}`}
             aria-pressed={selectedFormat()?.bold ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleBold()}
@@ -511,6 +635,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format toolbar-button--italic"
             aria-label={props.language.text("italic")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.italic}
+            title={`${props.language.text("italic")} — ${SHEET_SHORTCUT_HINTS.italic}`}
             aria-pressed={selectedFormat()?.italic ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleItalic()}
@@ -521,6 +647,8 @@ export function SheetShell(props: SheetShellProps) {
             type="button"
             class="toolbar-button toolbar-button--format toolbar-button--underline"
             aria-label={props.language.text("underline")}
+            aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.underline}
+            title={`${props.language.text("underline")} — ${SHEET_SHORTCUT_HINTS.underline}`}
             aria-pressed={selectedFormat()?.underline ?? false}
             disabled={selectedFormat() === null}
             onClick={() => void props.controller.toggleUnderline()}
@@ -920,6 +1048,10 @@ export function SheetShell(props: SheetShellProps) {
                                   }
                                 }}
                                 onBlur={(event) => {
+                                  if (suppressBlurCommitReference === reference) {
+                                    suppressBlurCommitReference = null;
+                                    return;
+                                  }
                                   void commitCell(
                                     reference,
                                     row,
@@ -929,7 +1061,14 @@ export function SheetShell(props: SheetShellProps) {
                                 }}
                                 onKeyDown={(event) => {
                                   if (event.key === "Enter") {
-                                    event.currentTarget.blur();
+                                    event.preventDefault();
+                                    void moveAfterCellCommit(
+                                      reference,
+                                      row,
+                                      column,
+                                      event.currentTarget.value,
+                                      event.shiftKey ? -1 : 1,
+                                    );
                                   }
                                 }}
                               />

@@ -7,7 +7,7 @@
 
 import { For, Show } from "solid-js";
 
-import { WRITER_ARIA_SHORTCUTS } from "../config/keyboard";
+import { WRITER_ARIA_SHORTCUTS, WRITER_SHORTCUT_HINTS } from "../config/keyboard";
 import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
 import {
   WRITER_ALIGNMENT_COMMANDS,
@@ -144,16 +144,20 @@ export function WriterRibbon(props: WriterRibbonProps) {
           <summary>{props.language.text("menuFile")}</summary>
           <div class="writer-menu__popup">
             <button type="button" onClick={() => void props.controller.createDocument()}>
-              {props.language.text("newDocument")}
+              <span>{props.language.text("newDocument")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.newDocument}</kbd>
             </button>
             <button type="button" onClick={() => void props.controller.openDocument()}>
-              {props.language.text("open")}
+              <span>{props.language.text("open")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.open}</kbd>
             </button>
             <button type="button" onClick={() => void props.controller.saveDocument()}>
-              {props.language.text("save")}
+              <span>{props.language.text("save")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.save}</kbd>
             </button>
             <button type="button" onClick={() => void props.controller.saveDocumentAs()}>
-              {props.language.text("saveAs")}
+              <span>{props.language.text("saveAs")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.saveAs}</kbd>
             </button>
             <div class="writer-menu__separator" />
             <button type="button" onClick={() => void props.controller.importDocx()}>
@@ -165,8 +169,13 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button type="button" onClick={() => void props.controller.exportPdf()}>
               {props.language.text("exportPdf")}
             </button>
+            <button type="button" onClick={() => void props.controller.printDocument()}>
+              <span>{props.language.text("print")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.print}</kbd>
+            </button>
             <button type="button" onClick={() => void props.controller.openPrintPreview()}>
-              {props.language.text("print")}
+              <span>{props.language.text("printPreviewTitle")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.printPreview}</kbd>
             </button>
 
             <Show when={props.controller.templates().some((item) => item.quickCreate)}>
@@ -201,10 +210,12 @@ export function WriterRibbon(props: WriterRibbonProps) {
           <summary>{props.language.text("menuEdit")}</summary>
           <div class="writer-menu__popup">
             <button type="button" onClick={() => void props.controller.undo()}>
-              {props.language.text("undo")}
+              <span>{props.language.text("undo")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.undo}</kbd>
             </button>
             <button type="button" onClick={() => void props.controller.redo()}>
-              {props.language.text("redo")}
+              <span>{props.language.text("redo")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.redo}</kbd>
             </button>
           </div>
         </details>
@@ -213,7 +224,8 @@ export function WriterRibbon(props: WriterRibbonProps) {
           <summary>{props.language.text("menuView")}</summary>
           <div class="writer-menu__popup">
             <button type="button" onClick={() => void props.controller.openPrintPreview()}>
-              {props.language.text("printPreviewTitle")}
+              <span>{props.language.text("printPreviewTitle")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.printPreview}</kbd>
             </button>
           </div>
         </details>
@@ -234,7 +246,8 @@ export function WriterRibbon(props: WriterRibbonProps) {
               onMouseDown={preserveEditorSelection}
               onClick={() => void applyMenuFormat(() => props.controller.toggleBold())}
             >
-              {props.language.text("bold")}
+              <span>{props.language.text("bold")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.bold}</kbd>
             </button>
             <button
               type="button"
@@ -243,7 +256,8 @@ export function WriterRibbon(props: WriterRibbonProps) {
               onMouseDown={preserveEditorSelection}
               onClick={() => void applyMenuFormat(() => props.controller.toggleItalic())}
             >
-              {props.language.text("italic")}
+              <span>{props.language.text("italic")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.italic}</kbd>
             </button>
             <button
               type="button"
@@ -252,7 +266,8 @@ export function WriterRibbon(props: WriterRibbonProps) {
               onMouseDown={preserveEditorSelection}
               onClick={() => void applyMenuFormat(() => props.controller.toggleUnderline())}
             >
-              {props.language.text("underline")}
+              <span>{props.language.text("underline")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.underline}</kbd>
             </button>
           </div>
         </details>
@@ -281,7 +296,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
         <button
           type="button"
           class="writer-tool-button"
-          title={props.language.text("newDocument")}
+          title={`${props.language.text("newDocument")} — ${WRITER_SHORTCUT_HINTS.newDocument}`}
           aria-label={props.language.text("newDocument")}
           aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.newDocument}
           onClick={() => void props.controller.createDocument()}
@@ -291,7 +306,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
         <button
           type="button"
           class="writer-tool-button"
-          title={props.language.text("open")}
+          title={`${props.language.text("open")} — ${WRITER_SHORTCUT_HINTS.open}`}
           aria-label={props.language.text("open")}
           aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.open}
           onClick={() => void props.controller.openDocument()}
@@ -301,7 +316,7 @@ export function WriterRibbon(props: WriterRibbonProps) {
         <button
           type="button"
           class="writer-tool-button"
-          title={props.language.text("save")}
+          title={`${props.language.text("save")} — ${WRITER_SHORTCUT_HINTS.save}`}
           aria-label={props.language.text("save")}
           aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.save}
           onClick={() => void props.controller.saveDocument()}
@@ -323,10 +338,10 @@ export function WriterRibbon(props: WriterRibbonProps) {
         <button
           type="button"
           class="writer-tool-button"
-          title={props.language.text("print")}
+          title={`${props.language.text("print")} — ${WRITER_SHORTCUT_HINTS.print}`}
           aria-label={props.language.text("print")}
           aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.print}
-          onClick={() => void props.controller.openPrintPreview()}
+          onClick={() => void props.controller.printDocument()}
         >
           <WriterToolbarIcon name="print" />
         </button>
@@ -443,6 +458,15 @@ export function WriterRibbon(props: WriterRibbonProps) {
               disabled={!formatState().canFormat}
               aria-label={props.language.text(item.languageKey as DesktopLabelKey)}
               aria-pressed={formatState().alignment === item.alignment}
+              aria-keyshortcuts={
+                item.alignment === "left"
+                  ? WRITER_ARIA_SHORTCUTS.alignLeft
+                  : item.alignment === "center"
+                    ? WRITER_ARIA_SHORTCUTS.alignCenter
+                    : item.alignment === "right"
+                      ? WRITER_ARIA_SHORTCUTS.alignRight
+                      : WRITER_ARIA_SHORTCUTS.alignJustify
+              }
               onMouseDown={preserveEditorSelection}
               onClick={() => void props.controller.setParagraphAlignment(item.alignment as WriterTextAlignmentView)}
             >

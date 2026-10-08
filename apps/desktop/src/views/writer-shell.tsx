@@ -105,6 +105,18 @@ export function WriterShell(props: WriterShellProps) {
       case WRITER_SHORTCUT_ACTIONS.underline:
         void props.controller.toggleUnderline();
         return;
+      case WRITER_SHORTCUT_ACTIONS.alignLeft:
+        void props.controller.setParagraphAlignment("left");
+        return;
+      case WRITER_SHORTCUT_ACTIONS.alignCenter:
+        void props.controller.setParagraphAlignment("center");
+        return;
+      case WRITER_SHORTCUT_ACTIONS.alignRight:
+        void props.controller.setParagraphAlignment("right");
+        return;
+      case WRITER_SHORTCUT_ACTIONS.alignJustify:
+        void props.controller.setParagraphAlignment("justify");
+        return;
     }
   };
 

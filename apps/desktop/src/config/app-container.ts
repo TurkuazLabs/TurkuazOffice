@@ -14,6 +14,7 @@ import { KeyboardShortcutService } from "../services/keyboard-shortcut.service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import { WriterSessionRepository } from "../repositories/writer-session.repository";
 import { SheetSessionService } from "../services/sheet-session.service";
+import { SheetKeyboardShortcutService } from "../services/sheet-keyboard-shortcut.service";
 import { WriterLayoutService } from "../services/writer-layout.service";
 import { WriterSessionService } from "../services/writer-session.service";
 import { ClipboardDomTool } from "../tools/clipboard-dom.tool";
@@ -40,6 +41,7 @@ const sheetSessionRepository = new SheetSessionRepository();
 const sheetTool = new TauriSheetTool();
 const sheetFormulaHelperTool = new SheetFormulaHelperTool();
 const nativeFileDialogTool = new NativeFileDialogTool();
+const sheetKeyboardShortcutService = new SheetKeyboardShortcutService();
 const sheetSessionService = new SheetSessionService(
   sheetSessionRepository,
   sheetTool,
@@ -77,7 +79,10 @@ const clipboardService = new ClipboardService(
 const keyboardShortcutService = new KeyboardShortcutService();
 
 export const APP_CONTAINER = {
-  sheetController: new SheetController(sheetSessionService),
+  sheetController: new SheetController(
+    sheetSessionService,
+    sheetKeyboardShortcutService,
+  ),
   sheetSessionRepository,
   writerController: new WriterController(
     writerSessionService,

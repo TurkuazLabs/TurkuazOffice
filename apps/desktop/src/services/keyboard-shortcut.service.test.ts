@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.test.ts
 // # 📌 Amac: Writer keyboard-only shortcut routing, context block ve print-preview davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.2.0
+// Version: 0.3.0
 // Aciklama: Ctrl/Meta file-edit-format-zoom shortcutlari ile IME/recovery/preview context kurallarini smoke test eder
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -36,12 +36,16 @@ describe("KeyboardShortcutService", () => {
     ["n", WRITER_SHORTCUT_ACTIONS.newDocument],
     ["o", WRITER_SHORTCUT_ACTIONS.open],
     ["s", WRITER_SHORTCUT_ACTIONS.save],
-    ["p", WRITER_SHORTCUT_ACTIONS.printPreview],
+    ["p", WRITER_SHORTCUT_ACTIONS.print],
     ["z", WRITER_SHORTCUT_ACTIONS.undo],
     ["y", WRITER_SHORTCUT_ACTIONS.redo],
     ["b", WRITER_SHORTCUT_ACTIONS.bold],
     ["i", WRITER_SHORTCUT_ACTIONS.italic],
     ["u", WRITER_SHORTCUT_ACTIONS.underline],
+    ["l", WRITER_SHORTCUT_ACTIONS.alignLeft],
+    ["e", WRITER_SHORTCUT_ACTIONS.alignCenter],
+    ["r", WRITER_SHORTCUT_ACTIONS.alignRight],
+    ["j", WRITER_SHORTCUT_ACTIONS.alignJustify],
     ["+", WRITER_SHORTCUT_ACTIONS.zoomIn],
     ["=", WRITER_SHORTCUT_ACTIONS.zoomIn],
     ["-", WRITER_SHORTCUT_ACTIONS.zoomOut],
@@ -50,9 +54,12 @@ describe("KeyboardShortcutService", () => {
     expect(service.resolve(input(key))).toBe(expected);
   });
 
-  it("maps shifted save and undo alternatives", () => {
+  it("maps shifted save, print preview and undo alternatives", () => {
     expect(service.resolve(input("s", { shiftKey: true }))).toBe(
       WRITER_SHORTCUT_ACTIONS.saveAs,
+    );
+    expect(service.resolve(input("p", { shiftKey: true }))).toBe(
+      WRITER_SHORTCUT_ACTIONS.printPreview,
     );
     expect(service.resolve(input("z", { shiftKey: true }))).toBe(
       WRITER_SHORTCUT_ACTIONS.redo,
@@ -85,6 +92,9 @@ describe("KeyboardShortcutService", () => {
     expect(
       service.resolve(input("p", { printPreviewOpen: true })),
     ).toBe(WRITER_SHORTCUT_ACTIONS.print);
+    expect(
+      service.resolve(input("p", { printPreviewOpen: true, shiftKey: true })),
+    ).toBeNull();
     expect(
       service.resolve(input("s", { printPreviewOpen: true })),
     ).toBeNull();

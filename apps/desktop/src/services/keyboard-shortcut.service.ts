@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.ts
 // # 📌 Amac: Desktop Writer keyboard shortcut girdilerini context'e gore typed action'a cozer
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.2.0
+// Version: 0.3.0
 // Aciklama: IME, recovery ve print-preview context kurallarini View if-zincirinden ayirip test edilebilir hale getirir
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -30,7 +30,7 @@ export class KeyboardShortcutService {
       if (key === KEYBOARD_KEYS.escape) {
         return WRITER_SHORTCUT_ACTIONS.closePrintPreview;
       }
-      if (modifier && key === KEYBOARD_KEYS.p) {
+      if (modifier && key === KEYBOARD_KEYS.p && !input.shiftKey) {
         return WRITER_SHORTCUT_ACTIONS.print;
       }
       return null;
@@ -61,8 +61,11 @@ export class KeyboardShortcutService {
     if (key === KEYBOARD_KEYS.o) {
       return WRITER_SHORTCUT_ACTIONS.open;
     }
-    if (key === KEYBOARD_KEYS.p) {
+    if (key === KEYBOARD_KEYS.p && input.shiftKey) {
       return WRITER_SHORTCUT_ACTIONS.printPreview;
+    }
+    if (key === KEYBOARD_KEYS.p) {
+      return WRITER_SHORTCUT_ACTIONS.print;
     }
     if (key === KEYBOARD_KEYS.s && input.shiftKey) {
       return WRITER_SHORTCUT_ACTIONS.saveAs;
@@ -78,6 +81,18 @@ export class KeyboardShortcutService {
     }
     if (key === KEYBOARD_KEYS.u) {
       return WRITER_SHORTCUT_ACTIONS.underline;
+    }
+    if (key === KEYBOARD_KEYS.l) {
+      return WRITER_SHORTCUT_ACTIONS.alignLeft;
+    }
+    if (key === KEYBOARD_KEYS.e) {
+      return WRITER_SHORTCUT_ACTIONS.alignCenter;
+    }
+    if (key === KEYBOARD_KEYS.r) {
+      return WRITER_SHORTCUT_ACTIONS.alignRight;
+    }
+    if (key === KEYBOARD_KEYS.j) {
+      return WRITER_SHORTCUT_ACTIONS.alignJustify;
     }
 
     return null;

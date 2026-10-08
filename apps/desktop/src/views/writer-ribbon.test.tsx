@@ -55,6 +55,7 @@ describe("WriterRibbon classic format menu", () => {
       exportDocx: vi.fn().mockResolvedValue(undefined),
       exportPdf: vi.fn().mockResolvedValue(undefined),
       openPrintPreview: vi.fn().mockResolvedValue(undefined),
+      printDocument: vi.fn().mockResolvedValue(undefined),
       createDocumentFromTemplate: vi.fn().mockResolvedValue(undefined),
       openRecentFile: vi.fn().mockResolvedValue(undefined),
       undo: vi.fn().mockResolvedValue(undefined),
@@ -80,7 +81,7 @@ describe("WriterRibbon classic format menu", () => {
     formatSummary?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
     const boldButton = Array.from(root.querySelectorAll<HTMLButtonElement>(".writer-menu__popup button")).find(
-      (button) => button.textContent === "Kalin",
+      (button) => button.textContent?.startsWith("Kalin") === true,
     );
     expect(boldButton).not.toBeUndefined();
     boldButton?.click();
@@ -91,5 +92,69 @@ describe("WriterRibbon classic format menu", () => {
     expect(flushFocusedParagraph).toHaveBeenCalledTimes(1);
     expect(toggleBold).toHaveBeenCalledTimes(1);
     expect(restoreSessionSelection).toHaveBeenCalledTimes(1);
+  });  
+  it("shows shortcut hints and keeps print separate from print preview", () => {
+    const printDocument = vi.fn().mockResolvedValue(undefined);
+    const openPrintPreview = vi.fn().mockResolvedValue(undefined);
+    const controller = {
+      formatState: vi.fn().mockReturnValue({
+        canFormat: true,
+        bold: false,
+        italic: false,
+        underline: false,
+        fontFamily: "Arial",
+        fontSizeHalfPoints: 22,
+        alignment: "left",
+      }),
+      templates: vi.fn().mockReturnValue([]),
+      recentFiles: vi.fn().mockReturnValue([]),
+      flushFocusedParagraph: vi.fn().mockResolvedValue(undefined),
+      restoreSessionSelection: vi.fn().mockReturnValue(true),
+      toggleBold: vi.fn().mockResolvedValue(undefined),
+      toggleItalic: vi.fn().mockResolvedValue(undefined),
+      toggleUnderline: vi.fn().mockResolvedValue(undefined),
+      setFontFamily: vi.fn().mockResolvedValue(undefined),
+      setFontSizeHalfPoints: vi.fn().mockResolvedValue(undefined),
+      setParagraphAlignment: vi.fn().mockResolvedValue(undefined),
+      createDocument: vi.fn().mockResolvedValue(undefined),
+      openDocument: vi.fn().mockResolvedValue(undefined),
+      saveDocument: vi.fn().mockResolvedValue(undefined),
+      saveDocumentAs: vi.fn().mockResolvedValue(undefined),
+      importDocx: vi.fn().mockResolvedValue(undefined),
+      exportDocx: vi.fn().mockResolvedValue(undefined),
+      exportPdf: vi.fn().mockResolvedValue(undefined),
+      printDocument,
+      openPrintPreview,
+      createDocumentFromTemplate: vi.fn().mockResolvedValue(undefined),
+      openRecentFile: vi.fn().mockResolvedValue(undefined),
+      undo: vi.fn().mockResolvedValue(undefined),
+      redo: vi.fn().mockResolvedValue(undefined),
+    } as never;
+
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(
+      () => (
+        <WriterRibbon
+          controller={controller}
+          language={new LanguageService("tr-TR")}
+        />
+      ),
+      root,
+    );
+
+    expect(root.textContent).toContain("Ctrl+N");
+    expect(root.textContent).toContain("Ctrl+Shift+S");
+    expect(root.textContent).toContain("Ctrl+Shift+P");
+
+    const printButton = Array.from(
+      root.querySelectorAll<HTMLButtonElement>(".writer-menu__popup button"),
+    ).find((button) => button.textContent?.endsWith("Ctrl+P") === true);
+    expect(printButton).not.toBeUndefined();
+    printButton?.click();
+
+    expect(printDocument).toHaveBeenCalledTimes(1);
+    expect(openPrintPreview).not.toHaveBeenCalled();
   });
+
 });
