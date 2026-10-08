@@ -2387,3 +2387,212 @@ button.start-center__module-card:focus-visible {
     display: none;
   }
 }
+
+
+/* Writer Classic Office UI v0.13.0 */
+
+.writer-menubar {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  min-height: 28px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  font-size: 12px;
+}
+
+.writer-menu {
+  position: relative;
+}
+
+.writer-menu > summary,
+.writer-menubar__disabled {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 3px;
+  list-style: none;
+  white-space: nowrap;
+}
+
+.writer-menu > summary {
+  cursor: pointer;
+}
+
+.writer-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.writer-menu > summary:hover,
+.writer-menu[open] > summary {
+  background: var(--to-bg-toolbar-hover);
+}
+
+.writer-menubar__disabled {
+  color: var(--to-text-secondary);
+  opacity: 0.62;
+}
+
+.writer-menu__popup {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  z-index: 60;
+  display: grid;
+  min-width: 220px;
+  max-width: 360px;
+  padding: 4px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  box-shadow: var(--to-shadow-page);
+}
+
+.writer-menu__popup button {
+  min-height: 30px;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--to-text-primary);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.writer-menu__popup button:hover:not(:disabled),
+.writer-menu__popup button:focus-visible:not(:disabled),
+.writer-menu__popup button[aria-pressed="true"] {
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.writer-menu__popup button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.writer-menu__separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--to-border-soft);
+}
+
+.writer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.writer-toolbar--standard {
+  min-height: 36px;
+}
+
+.writer-toolbar--format {
+  min-height: 36px;
+}
+
+.writer-toolbar__separator {
+  width: 1px;
+  min-width: 1px;
+  height: 24px;
+  margin: 0 3px;
+  background: var(--to-border-soft);
+}
+
+.writer-tool-button {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--to-text-primary);
+  cursor: pointer;
+}
+
+.writer-tool-button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.writer-tool-button:hover:not(:disabled),
+.writer-tool-button:focus-visible:not(:disabled) {
+  border-color: var(--to-border-soft);
+  background: var(--to-bg-toolbar-hover);
+  outline: none;
+}
+
+.writer-tool-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--to-border-focus);
+}
+
+.writer-tool-button:disabled {
+  color: var(--to-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.writer-tool-button[aria-pressed="true"] {
+  border-color: var(--to-border-focus);
+  background: color-mix(in srgb, var(--to-accent) 10%, var(--to-bg-surface));
+}
+
+.writer-tool-button--text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.writer-tool-button--italic {
+  font-style: italic;
+}
+
+.writer-tool-button--underline {
+  text-decoration: underline;
+}
+
+.writer-toolbar .ribbon-select {
+  height: 28px;
+  min-height: 28px;
+  border-radius: 2px;
+}
+
+.writer-toolbar__font {
+  width: 220px;
+}
+
+.writer-toolbar__size {
+  width: 66px;
+}
+
+@media (max-width: 900px) {
+  .writer-menubar {
+    overflow-x: auto;
+  }
+
+  .writer-toolbar__font {
+    width: 160px;
+  }
+}

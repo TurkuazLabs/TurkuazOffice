@@ -179,6 +179,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   paragraphLabel: "Paragraf",
   menuEdit: "Duzenle",
   menuFormat: "Bicim",
+  menuStyles: "Bicemler",
+  menuForm: "Form",
   menuData: "Veri",
   menuTools: "Araclar",
   menuWindow: "Pencere",

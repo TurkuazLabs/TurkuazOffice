@@ -1,19 +1,17 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-ribbon.tsx
-// # 📌 Amac: Writer menu sekmeleri ve Giris ribbon command gruplarini render eder
+// # 📌 Amac: Writer klasik menu ve iki katmanli kelime islemci arac cubugunu render eder
 // # 📌 Modul - FileType: View - TSX
 // Version: 0.12.0
-// Aciklama: New/Open/Save, DOCX import/export, print, gecmis, font, inline style ve paragraph alignment kontrollerini erisilebilir sunar
+// Aciklama: LibreOffice benzeri menu satiri, standart belge komutlari, font ve paragraph kontrollerini Turkuaz Office kimligiyle sunar
 // Bagimli Oldugu Katman: View -> Controller -> Language -> Config
 
 import { For, Show } from "solid-js";
 
-import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
 import { WRITER_ARIA_SHORTCUTS } from "../config/keyboard";
+import { RECENT_FILES_RIBBON_LIMIT } from "../config/recent-files";
 import {
   WRITER_ALIGNMENT_COMMANDS,
-  WRITER_RIBBON_TABS,
   type WriterAlignmentCommandConfig,
-  type WriterRibbonTabConfig,
 } from "../config/ribbon";
 import {
   WRITER_FONT_FAMILIES,
@@ -29,11 +27,100 @@ interface WriterRibbonProps {
   readonly language: LanguageService;
 }
 
+type WriterToolbarIconName =
+  | "new"
+  | "open"
+  | "save"
+  | "pdf"
+  | "print"
+  | "undo"
+  | "redo";
+
+function WriterToolbarIcon(props: { readonly name: WriterToolbarIconName }) {
+  switch (props.name) {
+    case "new":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 3h8l4 4v14H6z" />
+          <path d="M14 3v5h5M12 11v6M9 14h6" />
+        </svg>
+      );
+    case "open":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 7h7l2 2h9l-2 10H4z" />
+          <path d="M4 7V5h6l2 2" />
+        </svg>
+      );
+    case "save":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 3h12l2 2v16H5z" />
+          <path d="M8 3v6h8V3M8 15h8v6H8z" />
+        </svg>
+      );
+    case "pdf":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 3h9l4 4v14H6z" />
+          <path d="M15 3v5h5M9 13h6M9 16h6" />
+        </svg>
+      );
+    case "print":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 8V3h10v5M7 17H4v-7h16v7h-3" />
+          <path d="M7 14h10v7H7z" />
+        </svg>
+      );
+    case "undo":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 7 4 12l5 5" />
+          <path d="M5 12h8a6 6 0 0 1 6 6" />
+        </svg>
+      );
+    case "redo":
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m15 7 5 5-5 5" />
+          <path d="M19 12h-8a6 6 0 0 0-6 6" />
+        </svg>
+      );
+  }
+}
+
+function AlignmentIcon(props: { readonly alignment: WriterTextAlignmentView }) {
+  const starts =
+    props.alignment === "center"
+      ? [5, 7, 4, 6]
+      : props.alignment === "right"
+        ? [7, 5, 8, 6]
+        : [3, 3, 3, 3];
+  const ends =
+    props.alignment === "center"
+      ? [19, 17, 20, 18]
+      : props.alignment === "right"
+        ? [21, 21, 21, 21]
+        : props.alignment === "justify"
+          ? [21, 21, 21, 21]
+          : [19, 17, 20, 16];
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <For each={[0, 1, 2, 3]}>
+        {(index) => <path d={`M${starts[index]} ${6 + index * 4}H${ends[index]}`} />}
+      </For>
+    </svg>
+  );
+}
+
 export function WriterRibbon(props: WriterRibbonProps) {
   const formatState = () => props.controller.formatState();
   const preserveEditorSelection = (event: MouseEvent) => event.preventDefault();
   const flushBeforeSelectFocus = () => void props.controller.flushFocusedParagraph();
-  const restoreEditorSelection = () => queueMicrotask(() => props.controller.restoreSessionSelection());
+  const restoreEditorSelection = () =>
+    queueMicrotask(() => props.controller.restoreSessionSelection());
 
   const setFontFamily = async (fontFamily: string) => {
     await props.controller.setFontFamily(fontFamily);
@@ -45,276 +132,324 @@ export function WriterRibbon(props: WriterRibbonProps) {
     restoreEditorSelection();
   };
 
+  const applyMenuFormat = async (command: () => Promise<void>) => {
+    await command();
+    restoreEditorSelection();
+  };
+
   return (
     <section class="writer-ribbon" aria-label={props.language.text("ribbonLabel")}>
-      <nav class="writer-ribbon__tabs" aria-label={props.language.text("ribbonLabel")}>
-        <For each={WRITER_RIBBON_TABS}>
-          {(tab: WriterRibbonTabConfig) => (
-            <span
-              class={`writer-ribbon__tab${tab.active ? " writer-ribbon__tab--active" : ""}`}
-              aria-disabled={!tab.enabled}
-              title={tab.enabled ? undefined : props.language.text("menuComingSoon")}
-            >
-              {props.language.text(tab.languageKey as DesktopLabelKey)}
-            </span>
-          )}
-        </For>
-      </nav>
-
-      <div class="writer-ribbon__band" role="toolbar" aria-label={props.language.text("ribbonLabel")}>
-        <div class="ribbon-group">
-          <div class="ribbon-group__commands">
-            <button
-              type="button"
-              class="toolbar-button toolbar-button--primary"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.newDocument}
-              onClick={() => void props.controller.createDocument()}
-            >
+      <nav class="writer-menubar" aria-label={props.language.text("ribbonLabel")}>
+        <details class="writer-menu">
+          <summary>{props.language.text("menuFile")}</summary>
+          <div class="writer-menu__popup">
+            <button type="button" onClick={() => void props.controller.createDocument()}>
               {props.language.text("newDocument")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.open}
-              onClick={() => void props.controller.openDocument()}
-            >
+            <button type="button" onClick={() => void props.controller.openDocument()}>
               {props.language.text("open")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.save}
-              onClick={() => void props.controller.saveDocument()}
-            >
+            <button type="button" onClick={() => void props.controller.saveDocument()}>
               {props.language.text("save")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.saveAs}
-              onClick={() => void props.controller.saveDocumentAs()}
-            >
+            <button type="button" onClick={() => void props.controller.saveDocumentAs()}>
               {props.language.text("saveAs")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              onClick={() => void props.controller.importDocx()}
-            >
+            <div class="writer-menu__separator" />
+            <button type="button" onClick={() => void props.controller.importDocx()}>
               {props.language.text("importDocx")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              onClick={() => void props.controller.exportDocx()}
-            >
+            <button type="button" onClick={() => void props.controller.exportDocx()}>
               {props.language.text("exportDocx")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              onClick={() => void props.controller.exportPdf()}
-            >
+            <button type="button" onClick={() => void props.controller.exportPdf()}>
               {props.language.text("exportPdf")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.print}
-              onClick={() => void props.controller.openPrintPreview()}
-            >
+            <button type="button" onClick={() => void props.controller.openPrintPreview()}>
               {props.language.text("print")}
             </button>
+
+            <Show when={props.controller.templates().some((item) => item.quickCreate)}>
+              <div class="writer-menu__separator" />
+              <For each={props.controller.templates().filter((item) => item.quickCreate)}>
+                {(item) => (
+                  <button
+                    type="button"
+                    title={props.language.text(item.descriptionKey as DesktopLabelKey)}
+                    onClick={() => void props.controller.createDocumentFromTemplate(item.id)}
+                  >
+                    {props.language.text(item.nameKey as DesktopLabelKey)}
+                  </button>
+                )}
+              </For>
+            </Show>
+
+            <Show when={props.controller.recentFiles().length > 0}>
+              <div class="writer-menu__separator" />
+              <For each={props.controller.recentFiles().slice(0, RECENT_FILES_RIBBON_LIMIT)}>
+                {(item) => (
+                  <button type="button" title={item.path} onClick={() => void props.controller.openRecentFile(item.path)}>
+                    {item.title}
+                  </button>
+                )}
+              </For>
+            </Show>
           </div>
-          <span class="ribbon-group__label">{props.language.text("documentGroup")}</span>
-        </div>
+        </details>
 
-        <Show when={props.controller.templates().some((item) => item.quickCreate)}>
-          <>
-            <div class="writer-ribbon__separator" aria-hidden="true" />
-
-            <div class="ribbon-group">
-              <div class="ribbon-group__commands">
-                <For each={props.controller.templates().filter((item) => item.quickCreate)}>
-                  {(item) => (
-                    <button
-                      type="button"
-                      class="toolbar-button"
-                      title={props.language.text(item.descriptionKey as DesktopLabelKey)}
-                      onClick={() => void props.controller.createDocumentFromTemplate(item.id)}
-                    >
-                      {props.language.text(item.nameKey as DesktopLabelKey)}
-                    </button>
-                  )}
-                </For>
-              </div>
-              <span class="ribbon-group__label">{props.language.text("templateGroup")}</span>
-            </div>
-          </>
-        </Show>
-
-        <Show when={props.controller.recentFiles().length > 0}>
-          <>
-            <div class="writer-ribbon__separator" aria-hidden="true" />
-
-            <div class="ribbon-group ribbon-group--recent">
-              <div class="ribbon-group__commands ribbon-group__commands--recent">
-                <For each={props.controller.recentFiles().slice(0, RECENT_FILES_RIBBON_LIMIT)}>
-                  {(item) => (
-                    <button
-                      type="button"
-                      class="toolbar-button toolbar-button--recent"
-                      title={item.path}
-                      onClick={() => void props.controller.openRecentFile(item.path)}
-                    >
-                      {item.title}
-                    </button>
-                  )}
-                </For>
-              </div>
-              <span class="ribbon-group__label">{props.language.text("recentFilesGroup")}</span>
-            </div>
-
-            <div class="writer-ribbon__separator" aria-hidden="true" />
-          </>
-        </Show>
-
-        <div class="ribbon-group">
-          <div class="ribbon-group__commands">
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.undo}
-              onClick={() => void props.controller.undo()}
-            >
+        <details class="writer-menu">
+          <summary>{props.language.text("menuEdit")}</summary>
+          <div class="writer-menu__popup">
+            <button type="button" onClick={() => void props.controller.undo()}>
               {props.language.text("undo")}
             </button>
-            <button
-              type="button"
-              class="toolbar-button"
-              aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.redo}
-              onClick={() => void props.controller.redo()}
-            >
+            <button type="button" onClick={() => void props.controller.redo()}>
               {props.language.text("redo")}
             </button>
           </div>
-          <span class="ribbon-group__label">{props.language.text("historyGroup")}</span>
-        </div>
+        </details>
 
-        <div class="writer-ribbon__separator" aria-hidden="true" />
-
-        <div class="ribbon-group ribbon-group--font">
-          <div class="ribbon-group__commands ribbon-group__commands--stacked">
-            <div class="ribbon-select-row">
-              <label class="sr-only" for="writer-font-family">
-                {props.language.text("fontFamily")}
-              </label>
-              <select
-                id="writer-font-family"
-                class="ribbon-select ribbon-select--font"
-                disabled={!formatState().canFormat}
-                value={formatState().fontFamily}
-                onMouseDown={flushBeforeSelectFocus}
-                onChange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-                  void setFontFamily(event.currentTarget.value)
-                }
-              >
-                {formatState().fontFamily === "" && (
-                  <option value="" disabled>{props.language.text("mixedValue")}</option>
-                )}
-                <For each={WRITER_FONT_FAMILIES}>
-                  {(family: string) => <option value={family}>{family}</option>}
-                </For>
-              </select>
-
-              <label class="sr-only" for="writer-font-size">
-                {props.language.text("fontSize")}
-              </label>
-              <select
-                id="writer-font-size"
-                class="ribbon-select ribbon-select--size"
-                disabled={!formatState().canFormat}
-                value={formatState().fontSizeHalfPoints === 0 ? "" : String(formatState().fontSizeHalfPoints)}
-                onMouseDown={flushBeforeSelectFocus}
-                onChange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-                  void setFontSize(Number(event.currentTarget.value))
-                }
-              >
-                {formatState().fontSizeHalfPoints === 0 && (
-                  <option value="" disabled>{props.language.text("mixedValue")}</option>
-                )}
-                <For each={WRITER_FONT_SIZES_POINTS}>
-                  {(size: number) => <option value={String(size * 2)}>{size}</option>}
-                </For>
-              </select>
-            </div>
-
-            <div class="ribbon-inline-format-row">
-              <button
-                type="button"
-                class="toolbar-button toolbar-button--format"
-                disabled={!formatState().canFormat}
-                aria-label={props.language.text("bold")}
-                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.bold}
-                aria-pressed={formatState().bold}
-                onMouseDown={preserveEditorSelection}
-                onClick={() => void props.controller.toggleBold()}
-              >
-                {props.language.text("boldShort")}
-              </button>
-              <button
-                type="button"
-                class="toolbar-button toolbar-button--format toolbar-button--italic"
-                disabled={!formatState().canFormat}
-                aria-label={props.language.text("italic")}
-                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.italic}
-                aria-pressed={formatState().italic}
-                onMouseDown={preserveEditorSelection}
-                onClick={() => void props.controller.toggleItalic()}
-              >
-                {props.language.text("italicShort")}
-              </button>
-              <button
-                type="button"
-                class="toolbar-button toolbar-button--format toolbar-button--underline"
-                disabled={!formatState().canFormat}
-                aria-label={props.language.text("underline")}
-                aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.underline}
-                aria-pressed={formatState().underline}
-                onMouseDown={preserveEditorSelection}
-                onClick={() => void props.controller.toggleUnderline()}
-              >
-                {props.language.text("underlineShort")}
-              </button>
-            </div>
+        <details class="writer-menu">
+          <summary>{props.language.text("menuView")}</summary>
+          <div class="writer-menu__popup">
+            <button type="button" onClick={() => void props.controller.openPrintPreview()}>
+              {props.language.text("printPreviewTitle")}
+            </button>
           </div>
-          <span class="ribbon-group__label">{props.language.text("fontGroup")}</span>
-        </div>
+        </details>
 
-        <div class="writer-ribbon__separator" aria-hidden="true" />
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuInsert")}
+        </span>
 
-        <div class="ribbon-group">
-          <div class="ribbon-group__commands ribbon-group__commands--alignment">
-            <For each={WRITER_ALIGNMENT_COMMANDS}>
-              {(item: WriterAlignmentCommandConfig) => (
-                <button
-                  type="button"
-                  class="toolbar-button toolbar-button--format"
-                  disabled={!formatState().canFormat}
-                  aria-label={props.language.text(item.languageKey as DesktopLabelKey)}
-                  aria-pressed={formatState().alignment === item.alignment}
-                  onMouseDown={preserveEditorSelection}
-                  onClick={() =>
-                    void props.controller.setParagraphAlignment(item.alignment as WriterTextAlignmentView)
-                  }
-                >
-                  {props.language.text(item.shortLanguageKey as DesktopLabelKey)}
-                </button>
-              )}
-            </For>
+        <details class="writer-menu">
+          <summary onMouseDown={flushBeforeSelectFocus}>
+            {props.language.text("menuFormat")}
+          </summary>
+          <div class="writer-menu__popup">
+            <button
+              type="button"
+              disabled={!formatState().canFormat}
+              aria-pressed={formatState().bold}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleBold())}
+            >
+              {props.language.text("bold")}
+            </button>
+            <button
+              type="button"
+              disabled={!formatState().canFormat}
+              aria-pressed={formatState().italic}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleItalic())}
+            >
+              {props.language.text("italic")}
+            </button>
+            <button
+              type="button"
+              disabled={!formatState().canFormat}
+              aria-pressed={formatState().underline}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void applyMenuFormat(() => props.controller.toggleUnderline())}
+            >
+              {props.language.text("underline")}
+            </button>
           </div>
-          <span class="ribbon-group__label">{props.language.text("paragraphGroup")}</span>
-        </div>
+        </details>
+
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuStyles")}
+        </span>
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuTable")}
+        </span>
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuForm")}
+        </span>
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuTools")}
+        </span>
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuWindow")}
+        </span>
+        <span class="writer-menubar__disabled" aria-disabled="true">
+          {props.language.text("menuHelp")}
+        </span>
+      </nav>
+
+      <div class="writer-toolbar writer-toolbar--standard" role="toolbar" aria-label={props.language.text("documentGroup")}>
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("newDocument")}
+          aria-label={props.language.text("newDocument")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.newDocument}
+          onClick={() => void props.controller.createDocument()}
+        >
+          <WriterToolbarIcon name="new" />
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("open")}
+          aria-label={props.language.text("open")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.open}
+          onClick={() => void props.controller.openDocument()}
+        >
+          <WriterToolbarIcon name="open" />
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("save")}
+          aria-label={props.language.text("save")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.save}
+          onClick={() => void props.controller.saveDocument()}
+        >
+          <WriterToolbarIcon name="save" />
+        </button>
+
+        <span class="writer-toolbar__separator" />
+
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("exportPdf")}
+          aria-label={props.language.text("exportPdf")}
+          onClick={() => void props.controller.exportPdf()}
+        >
+          <WriterToolbarIcon name="pdf" />
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("print")}
+          aria-label={props.language.text("print")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.print}
+          onClick={() => void props.controller.openPrintPreview()}
+        >
+          <WriterToolbarIcon name="print" />
+        </button>
+
+        <span class="writer-toolbar__separator" />
+
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("undo")}
+          aria-label={props.language.text("undo")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.undo}
+          onClick={() => void props.controller.undo()}
+        >
+          <WriterToolbarIcon name="undo" />
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button"
+          title={props.language.text("redo")}
+          aria-label={props.language.text("redo")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.redo}
+          onClick={() => void props.controller.redo()}
+        >
+          <WriterToolbarIcon name="redo" />
+        </button>
+      </div>
+
+      <div class="writer-toolbar writer-toolbar--format" role="toolbar" aria-label={props.language.text("fontGroup")}>
+        <label class="sr-only" for="writer-font-family">
+          {props.language.text("fontFamily")}
+        </label>
+        <select
+          id="writer-font-family"
+          class="ribbon-select writer-toolbar__font"
+          disabled={!formatState().canFormat}
+          value={formatState().fontFamily}
+          onMouseDown={flushBeforeSelectFocus}
+          onChange={(event) => void setFontFamily(event.currentTarget.value)}
+        >
+          {formatState().fontFamily === "" && (
+            <option value="" disabled>{props.language.text("mixedValue")}</option>
+          )}
+          <For each={WRITER_FONT_FAMILIES}>
+            {(family) => <option value={family}>{family}</option>}
+          </For>
+        </select>
+
+        <label class="sr-only" for="writer-font-size">
+          {props.language.text("fontSize")}
+        </label>
+        <select
+          id="writer-font-size"
+          class="ribbon-select writer-toolbar__size"
+          disabled={!formatState().canFormat}
+          value={formatState().fontSizeHalfPoints === 0 ? "" : String(formatState().fontSizeHalfPoints)}
+          onMouseDown={flushBeforeSelectFocus}
+          onChange={(event) => void setFontSize(Number(event.currentTarget.value))}
+        >
+          {formatState().fontSizeHalfPoints === 0 && (
+            <option value="" disabled>{props.language.text("mixedValue")}</option>
+          )}
+          <For each={WRITER_FONT_SIZES_POINTS}>
+            {(size) => <option value={String(size * 2)}>{size}</option>}
+          </For>
+        </select>
+
+        <span class="writer-toolbar__separator" />
+
+        <button
+          type="button"
+          class="writer-tool-button writer-tool-button--text"
+          disabled={!formatState().canFormat}
+          aria-label={props.language.text("bold")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.bold}
+          aria-pressed={formatState().bold}
+          onMouseDown={preserveEditorSelection}
+          onClick={() => void props.controller.toggleBold()}
+        >
+          <strong>{props.language.text("boldShort")}</strong>
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button writer-tool-button--text writer-tool-button--italic"
+          disabled={!formatState().canFormat}
+          aria-label={props.language.text("italic")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.italic}
+          aria-pressed={formatState().italic}
+          onMouseDown={preserveEditorSelection}
+          onClick={() => void props.controller.toggleItalic()}
+        >
+          {props.language.text("italicShort")}
+        </button>
+        <button
+          type="button"
+          class="writer-tool-button writer-tool-button--text writer-tool-button--underline"
+          disabled={!formatState().canFormat}
+          aria-label={props.language.text("underline")}
+          aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.underline}
+          aria-pressed={formatState().underline}
+          onMouseDown={preserveEditorSelection}
+          onClick={() => void props.controller.toggleUnderline()}
+        >
+          {props.language.text("underlineShort")}
+        </button>
+
+        <span class="writer-toolbar__separator" />
+
+        <For each={WRITER_ALIGNMENT_COMMANDS}>
+          {(item: WriterAlignmentCommandConfig) => (
+            <button
+              type="button"
+              class="writer-tool-button"
+              disabled={!formatState().canFormat}
+              aria-label={props.language.text(item.languageKey as DesktopLabelKey)}
+              aria-pressed={formatState().alignment === item.alignment}
+              onMouseDown={preserveEditorSelection}
+              onClick={() => void props.controller.setParagraphAlignment(item.alignment as WriterTextAlignmentView)}
+            >
+              <AlignmentIcon alignment={item.alignment as WriterTextAlignmentView} />
+            </button>
+          )}
+        </For>
       </div>
     </section>
   );
