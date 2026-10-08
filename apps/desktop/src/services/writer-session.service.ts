@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/writer-session.service.ts
 // # 📌 Amac: Desktop Writer oturum, selection, typing-style ve typography is akisini koordine eder
 // # 📌 Modul - FileType: Service - TypeScript
-// # Version: 0.2.5
+// # Version: 0.2.6
 // # Aciklama: DOM, Repo, dialog, print, DOCX ve Tauri Tool uzerinden edit, import/export, Open/Save, preview, autosave recovery, dirty guard ve history kurallarini yurutur
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
@@ -10,6 +10,9 @@ import { WRITER_PRINT_PREVIEW_ZOOM_PERCENT } from "../config/print";
 import {
   DEFAULT_WRITER_FONT_FAMILY,
   DEFAULT_WRITER_FONT_SIZE_HALF_POINTS,
+  MAX_WRITER_FONT_SIZE_HALF_POINTS,
+  MIN_WRITER_FONT_SIZE_HALF_POINTS,
+  WRITER_FONT_SIZES_HALF_POINTS,
 } from "../config/typography";
 import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
@@ -781,6 +784,14 @@ export class WriterSessionService {
     return this.applyCharacterStyle({ fontSizeHalfPoints });
   }
 
+  public increaseFontSize(): Promise<void> {
+    return this.stepFontSize("increase");
+  }
+
+  public decreaseFontSize(): Promise<void> {
+    return this.stepFontSize("decrease");
+  }
+
   public setParagraphAlignment(alignment: WriterTextAlignmentView): Promise<void> {
     if (this.isReadOnly()) {
       return Promise.resolve();
@@ -1026,6 +1037,36 @@ export class WriterSessionService {
         ),
       );
     });
+  }
+
+  private stepFontSize(direction: "increase" | "decrease"): Promise<void> {
+    const state = this.formatState();
+    if (!state.canFormat) {
+      return Promise.resolve();
+    }
+
+    const currentSize =
+      state.fontSizeHalfPoints > 0
+        ? state.fontSizeHalfPoints
+        : DEFAULT_WRITER_FONT_SIZE_HALF_POINTS;
+
+    const targetSize =
+      direction === "increase"
+        ? (WRITER_FONT_SIZES_HALF_POINTS.find((size) => size > currentSize) ??
+          MAX_WRITER_FONT_SIZE_HALF_POINTS)
+        : ([...WRITER_FONT_SIZES_HALF_POINTS]
+            .reverse()
+            .find((size) => size < currentSize) ??
+          MIN_WRITER_FONT_SIZE_HALF_POINTS);
+
+    const clampedSize = Math.min(
+      MAX_WRITER_FONT_SIZE_HALF_POINTS,
+      Math.max(MIN_WRITER_FONT_SIZE_HALF_POINTS, targetSize),
+    );
+    if (clampedSize === currentSize) {
+      return Promise.resolve();
+    }
+    return this.applyCharacterStyle({ fontSizeHalfPoints: clampedSize });
   }
 
   private patchStyle(
