@@ -24,6 +24,7 @@ function input(
     shiftKey: false,
     altKey: false,
     isComposing: false,
+    editingActive: false,
     ...overrides,
   };
 }
@@ -60,6 +61,7 @@ describe("SheetKeyboardShortcutService", () => {
       service.resolve(
         input("Escape", {
           ctrlKey: false,
+          editingActive: true,
         }),
       ),
     ).toBe(SHEET_SHORTCUT_ACTIONS.cancelEdit);
@@ -81,6 +83,9 @@ describe("SheetKeyboardShortcutService", () => {
 
   it("blocks shortcuts during IME composition and unknown combinations", () => {
     expect(service.resolve(input("b", { isComposing: true }))).toBeNull();
+    expect(
+      service.resolve(input("Escape", { ctrlKey: false, editingActive: false })),
+    ).toBeNull();
     expect(service.resolve(input("q"))).toBeNull();
     expect(
       service.resolve(input("=", { ctrlKey: false, altKey: false })),
