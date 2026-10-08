@@ -206,6 +206,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   paragraphGroup: "Paragraf",
   fontFamily: "Yazi tipi",
   fontSize: "Punto",
+  increaseFontSize: "Yazi Boyutunu Buyut",
+  decreaseFontSize: "Yazi Boyutunu Kucult",
   mixedValue: "Karisik",
   alignLeft: "Sola hizala",
   alignCenter: "Ortala",
