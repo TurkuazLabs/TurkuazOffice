@@ -42,7 +42,7 @@ export class SheetKeyboardShortcutService {
       return null;
     }
 
-    if (key === KEYBOARD_KEYS.home) {
+    if (key === KEYBOARD_KEYS.home.toLowerCase()) {
       return SHEET_SHORTCUT_ACTIONS.firstCell;
     }
     if (key === KEYBOARD_KEYS.n && !input.shiftKey) {
