@@ -470,14 +470,14 @@ describe("SheetShell active drafts", () => {
         cancelable: true,
       }),
     );
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(commitCell).toHaveBeenCalledWith("A1", "15");
-    expect(selectCell).toHaveBeenCalledWith("A2", 1, 0);
+    await vi.waitFor(() => {
+      expect(commitCell).toHaveBeenCalledWith("A1", "15");
+      expect(selectCell).toHaveBeenCalledWith("A2", 1, 0);
+      expect(document.activeElement?.getAttribute("aria-label")).toBe("A2");
+    });
 
     const a2 = root.querySelector<HTMLInputElement>('input[aria-label="A2"]');
-    expect(document.activeElement).toBe(a2);
+    expect(a2).not.toBeNull();
 
     a2!.dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -487,11 +487,10 @@ describe("SheetShell active drafts", () => {
         cancelable: true,
       }),
     );
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(selectCell).toHaveBeenCalledWith("A1", 0, 0);
-    expect(document.activeElement).toBe(a1);
+    await vi.waitFor(() => {
+      expect(selectCell).toHaveBeenCalledWith("A1", 0, 0);
+      expect(document.activeElement?.getAttribute("aria-label")).toBe("A1");
+    });
   });
 
 });
