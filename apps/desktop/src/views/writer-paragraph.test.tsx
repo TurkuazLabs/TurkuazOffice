@@ -3,10 +3,11 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-paragraph.test.tsx
 // # 📌 Amac: Writer Enter focus gecisinde stale blur commit tekrarini engeller
 // # 📌 Modul - FileType: Test - TSX
-// Version: 0.2.3
+// Version: 0.2.4
 // Aciklama: Enter ile split basladiginda eski contenteditable paragraf blur olsa bile ikinci kez commit edilmedigini dogrular
 // Bagimli Oldugu Katman: View -> Controller
 
+import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -100,6 +101,116 @@ describe("WriterParagraphEditor keyboard navigation", () => {
     resolveSplit();
     await splitPromise;
     await Promise.resolve();
+  });
+
+  it("keeps newer live DOM text when an older paragraph snapshot arrives", async () => {
+    const [paragraph, setParagraph] = createSignal<WriterParagraphView>(PARAGRAPH);
+    const controller = {
+      restoreSelection: vi.fn().mockReturnValue(true),
+      captureSelection: vi.fn().mockReturnValue(null),
+      clearTypingStyle: vi.fn(),
+      splitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      commitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      isCaretAtParagraphStart: vi.fn().mockReturnValue(false),
+      moveCaretVerticallyFromEditor: vi.fn().mockReturnValue(false),
+      mergeWithPreviousFromEditor: vi.fn().mockResolvedValue(undefined),
+      copySelection: vi.fn(),
+      cutSelection: vi.fn().mockResolvedValue(undefined),
+      pasteSelection: vi.fn().mockResolvedValue(undefined),
+    } as never;
+
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(
+      () => (
+        <WriterParagraphEditor
+          paragraph={paragraph()}
+          controller={controller}
+          language={new LanguageService("tr-TR")}
+          canMergeWithPrevious={false}
+          readOnly={false}
+          renderScale={1}
+          fontResolutions={[]}
+        />
+      ),
+      root,
+    );
+
+    const editor = root.querySelector<HTMLDivElement>(".writer-paragraph");
+    expect(editor).not.toBeNull();
+    editor?.focus();
+
+    const run = editor?.querySelector("span");
+    expect(run).not.toBeNull();
+    if (run !== null && run !== undefined) {
+      run.textContent = "abcd";
+    }
+
+    setParagraph({
+      ...PARAGRAPH,
+      runs: [{ ...PARAGRAPH.runs[0]!, text: "abc" }],
+      plainText: "abc",
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.activeElement).toBe(editor);
+    expect(editor?.textContent).toBe("abcd");
+  });
+
+  it("resets cached runs when the reused paragraph component receives a new paragraph id", async () => {
+    const [paragraph, setParagraph] = createSignal<WriterParagraphView>(PARAGRAPH);
+    const controller = {
+      restoreSelection: vi.fn().mockReturnValue(false),
+      captureSelection: vi.fn().mockReturnValue(null),
+      clearTypingStyle: vi.fn(),
+      splitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      commitParagraphFromEditor: vi.fn().mockResolvedValue(undefined),
+      isCaretAtParagraphStart: vi.fn().mockReturnValue(false),
+      moveCaretVerticallyFromEditor: vi.fn().mockReturnValue(false),
+      mergeWithPreviousFromEditor: vi.fn().mockResolvedValue(undefined),
+      copySelection: vi.fn(),
+      cutSelection: vi.fn().mockResolvedValue(undefined),
+      pasteSelection: vi.fn().mockResolvedValue(undefined),
+    } as never;
+
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(
+      () => (
+        <WriterParagraphEditor
+          paragraph={paragraph()}
+          controller={controller}
+          language={new LanguageService("tr-TR")}
+          canMergeWithPrevious={false}
+          readOnly={false}
+          renderScale={1}
+          fontResolutions={[]}
+        />
+      ),
+      root,
+    );
+
+    const editor = root.querySelector<HTMLDivElement>(".writer-paragraph");
+    expect(editor).not.toBeNull();
+    editor?.focus();
+
+    const run = editor?.querySelector("span");
+    if (run !== null && run !== undefined) {
+      run.textContent = "stale removed paragraph";
+    }
+
+    setParagraph({
+      ...PARAGRAPH,
+      id: "p2",
+      plainText: "next paragraph",
+      runs: [{ ...PARAGRAPH.runs[0]!, id: "r2", text: "next paragraph" }],
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(editor?.dataset.writerParagraphId).toBe("p2");
+    expect(editor?.textContent).toBe("next paragraph");
   });
 
   it("delegates ArrowDown paragraph-boundary navigation and prevents native movement when handled", () => {
