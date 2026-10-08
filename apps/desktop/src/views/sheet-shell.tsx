@@ -320,6 +320,7 @@ export function SheetShell(props: SheetShellProps) {
       shiftKey: event.shiftKey,
       altKey: event.altKey,
       isComposing: event.isComposing,
+      editingActive: editingReference() !== null || formulaEditing(),
     });
     if (action === null) {
       return;
