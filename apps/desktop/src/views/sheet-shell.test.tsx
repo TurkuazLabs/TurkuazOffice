@@ -396,7 +396,7 @@ describe("SheetShell active drafts", () => {
     } as unknown as SheetController;
 
     const root = mount(repository, controller);
-    expect(root.querySelector(".sheet-properties-sidebar")).not.toBeNull();
+    expect(root.querySelector(".sheet-sidebar")).not.toBeNull();
 
     window.dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -408,7 +408,7 @@ describe("SheetShell active drafts", () => {
     );
     await Promise.resolve();
 
-    expect(root.querySelector(".sheet-properties-sidebar")).toBeNull();
+    expect(root.querySelector(".sheet-sidebar")).toBeNull();
   });
 
   it("opens a SUM formula draft with Alt+=", async () => {
