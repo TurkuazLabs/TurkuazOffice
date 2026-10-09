@@ -156,7 +156,9 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 - Writer/Sheet pencere seviyesi `keydown` handler'larinin baska metin alanlarinda local undo/format tuslarini ele gecirmesini engellemek icin tek gercek ortak consumer Tool'u eklendi: `shortcut-focus.tool.ts`.
 - Writer icin `WRITER_PARAGRAPH_SELECTOR`; Sheet icin `SHEET_GRID_EDITOR_SELECTOR` izinli gercek editor yuzeyleridir. Sheet formula bar ve diger input/textarea/select/contenteditable yuzeyleri yerel format ve edit klavyesini korur. Writer icin dosya/yazdirma/print-preview, Sheet icin yeni belge gibi gercek global komutlar text-input odaginda bile kullanilabilir; placeholder eklenmez.
 - Hem pure jsdom tool regression'i hem gercek SheetShell formulu/hucresi `Ctrl+B` event routing testi bulunur. AltGr, IME ve native Editor action-service mantigi degistirilmemistir.
-- Find/Replace veya baska olmayan komut icin kisa yol/menu placeholder'i eklenmedi. Bu ozellik canonical Writer/Sheet Service mutation, undo, read-only, IME ve focus acceptance testleri tamamlandiginda ayri gelistirilecektir.
+- Writer Bul (#64) ile Sheet gorunen hucrelerde Bul (#65) gercek Controller -> Service -> Tool -> View zincirleriyle tamamlandi ve Windows/Linux CI'ya tabi tutuldu. Replace henuz yoktur; salt-okunur belge/undo/atomic edit kabul testleri olmadan Ctrl+H eklenmeyecektir.
+- Bu sonraki refactor'da iki gercek production consumer vardir: `writer-find-bar.tsx` ve `sheet-find-bar.tsx` ikisi de `suite-find-bar.tsx` kullaniyor. Ortak kisim query input, Enter/Shift+Enter, Escape, result count, wraparound, async navigation'in tamamlanmasini bekleme ve stale query onlemidir.
+- Canonical arama motorlari `writer-find.tool.ts` (Unicode paragraph offset) ve `sheet-find.tool.ts` (sparse gorunen hucre) AYRI korunur; belge Service'i, Controller'i, editor secim araci ve Pro siniri degismez. CSS zaten her iki Find paneli icin ortaktir.
 
 ## Denetim raporu kontrol listesi
 
@@ -168,7 +170,7 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 - [ ] Rust Cargo unused-dependency raporu ve macro/feature istisnalari kaydedildi.
 - [ ] Kullanilmayan her kod silme PR'si runtime ve CI ile ayri onaylandi.
 - [ ] PR #33 roadmap uyumu netlestirildi.
-- [ ] Find/Replace baska yerde yalniz kisa yol olarak degil tam calisan feature olarak test edildi.
+- [x] Writer ve Sheet Bul calisan panel + Controller/Service/UI regresyonlariyla test edildi; Replace henuz ayri gelistirme hedefidir.
 
 ## Referanslar
 
