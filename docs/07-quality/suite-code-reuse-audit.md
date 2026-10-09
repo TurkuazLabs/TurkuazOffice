@@ -62,14 +62,14 @@ Karar: Buradaki riskler, otomatik olarak "silinebilir olu kod" sonucunu vermez.
 3. `Ctrl+H` replacement mutation, undo/redo, dirty revision, file protection, read-only, IME ve type check'ler olmadan acilmaz.
 4. Yeni command registry, sadece gercek iki production handler ortak oldugunda shared olur.
 
-## Ilk uygulanan dilim - TypeScript advisory + keyboard metadata parity
+## Ilk uygulanan dilim - Strict TypeScript + keyboard metadata parity
 
-- `apps/desktop/src/config/keyboard-contract.test.ts` Writer/Sheet command ID benzersizligini, gorunen kisa yol etiketlerini ve `aria-keyshortcuts` anahtarlarini regression testiyle esler.
-- `tools/audit-unused-typescript.sh` mevcut TypeScript compiler ile `noUnusedLocals` / `noUnusedParameters` diagnostiklerini raporlar. Ek npm dependency, generated artifact veya otomatik silme yoktur.
-- `.github/workflows/workspace-ci.yml` mevcut Desktop/Web kurulum ve build/test adimlarindan sonra ayni scripti iki kez, kendi kurulu modullerinde calistirir. Basarisiz ordinary build/test hala blocking'dir; unused adaylari advisory'dir.
-- Bu dilim Knip/Rust icin dogrulanmis sonuc iddia etmez. Ayrica production entrypoint/feature-gated/Pro public API analizi gereklidir.
-- Raporda TS6133/TS6192/TS6196 sayilari gorulebilir; sayi tek basina silinebilir kod miktari degildir.
-- Gercek CI logundaki adaylar incelenmeden `noUnusedLocals` genel zorunlu hale getirilmez.
+- `apps/desktop/src/config/keyboard-contract.test.ts` Writer/Sheet komut kimligi benzersizligini, kisa yol gorunen yazilarini ve ARIA eslemelerini Vitest ile dogrular.
+- 2026-10-09 CI advisory ilk olcum: Web 0; Desktop 1 TS6133. Tek bulgu `apps/desktop/src/services/sheet-session.service.test.ts` dosyasindaki kullanilmayan chart mock callback parametresidir; test davranisi degismeden parametre kaldirildi.
+- Aynı CI'nin ikinci olcumu: Web 0 ve Desktop 0. Bu sayilar yalniz TS6133/TS6192/TS6196 sembol diagnostikleridir; unused exports/dependencies taramasi degildir.
+- `apps/desktop/tsconfig.json` ve `apps/web/tsconfig.json` icin `noUnusedLocals` ve `noUnusedParameters` artik `true`. Mevcut `npm run build` quality gate bu hatalarda dogrudan fail verir.
+- Gecici advisory script ve CI adimlari, strict gate'de gereksiz tekrar olusturacagi icin ayni PR icinde kaldirildi. Final PR'da yeni npm paketi veya ayri arka plan tarayici yoktur.
+- Knip, Rust Cargo dependency ve dinamik Tauri/WASM/Pro referanslari henuz tam taranmadigi icin, bu alanlarin silinmesi onaylanmamistir.
 
 ## Denetim raporu kontrol listesi
 
