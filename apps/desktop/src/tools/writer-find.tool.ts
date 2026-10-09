@@ -16,9 +16,16 @@ export function findWriterMatches(
   document: WriterDocumentView,
   query: string,
   locale: string,
+  maxResults = WRITER_FIND_MAX_RESULTS,
 ): readonly WriterFindMatch[] {
   const needle = Array.from(query);
-  if (needle.length === 0 || needle.length > WRITER_FIND_MAX_QUERY_SCALARS) {
+  if (
+    needle.length === 0 ||
+    needle.length > WRITER_FIND_MAX_QUERY_SCALARS ||
+    !Number.isSafeInteger(maxResults) ||
+    maxResults < 1 ||
+    maxResults > WRITER_FIND_MAX_RESULTS + 1
+  ) {
     return [];
   }
 
@@ -39,7 +46,7 @@ export function findWriterMatches(
           startOffset: start,
           endOffset: start + needle.length,
         });
-        if (results.length >= WRITER_FIND_MAX_RESULTS) {
+        if (results.length >= maxResults) {
           return results;
         }
       }
