@@ -14,6 +14,8 @@ import { KEYBOARD_MODIFIER_STATES } from "../config/keyboard";
 import type { SheetController } from "../controllers/sheet.controller";
 import { LanguageService } from "../language/language-service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import { SheetKeyboardShortcutService } from "../services/sheet-keyboard-shortcut.service";
+import { findSheetMatches } from "../tools/sheet-find.tool";
 import type { SheetDocumentView } from "./sheet-types";
 import { SheetShell } from "./sheet-shell";
 
@@ -401,6 +403,51 @@ describe("SheetShell active drafts", () => {
     expect(gridEvent.defaultPrevented).toBe(true);
     expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(3);
     expect(toggleBold).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens real Find from Ctrl+F, selects a grid cell and leaves dirty unchanged", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const resolver = new SheetKeyboardShortcutService();
+    const findMatches = vi.fn((query: string, locale: string, rows: readonly number[]) =>
+      findSheetMatches(DOCUMENT, query, locale, rows),
+    );
+    const selectCell = vi.fn().mockResolvedValue(undefined);
+    const controller = {
+      ...controllerStub(),
+      findMatches,
+      selectCell,
+      resolveKeyboardShortcut: (input: Parameters<SheetKeyboardShortcutService["resolve"]>[0]) =>
+        resolver.resolve(input),
+    } as unknown as SheetController;
+    const root = mount(repository, controller);
+
+    const shortcut = new KeyboardEvent("keydown", {
+      key: "f", ctrlKey: true, bubbles: true, cancelable: true,
+    });
+    window.dispatchEvent(shortcut);
+    expect(shortcut.defaultPrevented).toBe(true);
+    await vi.waitFor(() => expect(root.querySelector(".sheet-find-bar__query")).not.toBeNull());
+
+    const input = root.querySelector<HTMLInputElement>(".sheet-find-bar__query")!;
+    input.value = "12";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(root.textContent).toContain("0 / 1");
+    expect(findMatches).toHaveBeenCalledWith("12", "en-US", expect.arrayContaining([0]));
+
+    root.querySelector<HTMLButtonElement>('[aria-label="Next"]')!.click();
+    await vi.waitFor(() => expect(selectCell).toHaveBeenCalledWith("A1", 0, 0));
+    await vi.waitFor(() => expect(document.activeElement?.getAttribute("aria-label")).toBe("A1"));
+    expect(repository.document()?.revision).toBe(DOCUMENT.revision);
+    expect(repository.dirty()).toBe(false);
+
+    root.querySelector<HTMLButtonElement>('[aria-label="Close"]')!.click();
+    await vi.waitFor(() => expect(root.querySelector(".sheet-find-bar__query")).toBeNull());
+    const menuFind = Array.from(root.querySelectorAll<HTMLButtonElement>(".sheet-menu__popup button"))
+      .find((button) => button.textContent?.includes("Ctrl+F"));
+    expect(menuFind).not.toBeUndefined();
+    menuFind!.click();
+    await vi.waitFor(() => expect(root.querySelector(".sheet-find-bar__query")).not.toBeNull());
   });
 
   it("routes Ctrl+B through the Sheet shortcut resolver", async () => {
