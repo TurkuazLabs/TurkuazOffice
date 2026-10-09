@@ -19,6 +19,7 @@ import type { WriterSessionRepository } from "../repositories/writer-session.rep
 import type { WriterLayoutService } from "./writer-layout.service";
 import type { DomSelectionTool } from "../tools/dom-selection.tool";
 import { findWriterMatches, type WriterFindMatch } from "../tools/writer-find.tool";
+import { planWriterReplaceOne } from "../tools/writer-replace.tool";
 import type { ImageAssetTool } from "../tools/image-asset.tool";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import type { PrintTool } from "../tools/print.tool";
@@ -463,6 +464,59 @@ export class WriterSessionService {
       return false;
     }
     return this.domSelectionTool.focusAndRestoreParagraphSelection(selection);
+  }
+
+  public canReplaceFoundMatch(): boolean {
+    return this.repository.document() !== null && !this.isReadOnly();
+  }
+
+  public replaceFoundMatch(
+    match: WriterFindMatch,
+    query: string,
+    replacement: string,
+    locale: string,
+  ): Promise<boolean> {
+    const initial = this.repository.document();
+    if (initial === null || this.isReadOnly()) {
+      return Promise.resolve(false);
+    }
+    const plan = planWriterReplaceOne(initial, match, query, replacement, locale);
+    if (plan === null) {
+      return Promise.resolve(false);
+    }
+
+    let completed = false;
+    return this.enqueue(async () => {
+      const current = this.repository.document();
+      if (
+        current === null ||
+        current.id !== plan.documentId ||
+        current.revision !== plan.revision ||
+        this.isReadOnly() ||
+        this.activeEditorHasNewerText(current) ||
+        planWriterReplaceOne(current, match, query, replacement, locale) === null
+      ) {
+        return;
+      }
+
+      // One canonical Rust command = one history entry; never replace entire paragraph text.
+      completed = await this.run(() => this.writerTool.replaceRangeWithStyledRuns(
+        current.id,
+        plan.paragraphId,
+        plan.startOffset,
+        plan.endOffset,
+        plan.runs,
+      ));
+      if (completed) {
+        const caretOffset = plan.startOffset + Array.from(replacement).length;
+        this.repository.setSelection({
+          paragraphId: plan.paragraphId,
+          startOffset: caretOffset,
+          endOffset: caretOffset,
+        });
+        this.repository.setTypingStyle(null);
+      }
+    }).then(() => completed);
   }
 
   public findMatches(query: string, locale: string): readonly WriterFindMatch[] {
