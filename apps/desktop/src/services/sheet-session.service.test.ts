@@ -375,7 +375,7 @@ describe("SheetSessionService", () => {
     const createStarted = new Promise<void>((resolve) => {
       signalCreateStarted = resolve;
     });
-    sheetTool.createChart = async (request) => {
+    sheetTool.createChart = async () => {
       signalCreateStarted();
       return new Promise<SheetDocumentView>((resolve) => {
         resolveCreate = resolve;
