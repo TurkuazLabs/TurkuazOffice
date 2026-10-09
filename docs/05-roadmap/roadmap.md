@@ -218,6 +218,18 @@ Durum: Aktif. Onaylanan Turkuaz Office gorsel konseptinin gercek Desktop uygulam
 
 Kapsam disi: canonical document modeli, format/schema degisikligi, Sheet native Open/Save, Sunum/PDF urun implementasyonu ve yeni Writer editing semantigi.
 
+## R2.y Quality Gate - Shared Command Reuse Audit
+
+Durum: Planlandi; runtime ozelligi degildir ve M3 Web milestone sirasini degistirmez.
+
+- Yeni Writer/Sheet kisa yol veya Find/Replace ozelligi gelmeden once mevcut command/action/menu/hint/aria envanteri tamamlanir.
+- Ortak kabul edilen tek kontrat keyboard normalization, typed command metadata, capability ve UI status/focus sozlesmesidir; Writer/Sheet canonical arama ve mutation servisleri modulde kalir.
+- Her ortak export en az iki gercek production tuketici ile kanitlanir. Gelmesi planlanan modul icin bos abstract class olusturulmaz.
+- Unused TS/Rust code raporlanir; dinamik Tauri/WASM/pro plugin entrypoint teyidi olmadan kod silinmez.
+- Find ilk gercek UX dilimi; Replace ise read-only, undo, dirty revision ve atomic edit semantigi testlerinden sonra acilir.
+- PR #33'un ayri process mimarisi, bu roadmap'deki ayni pencere modulu ile uyumsuzdur; PR #33 merge kararindan once ayrica guncelleme gerekir.
+- Referanslar: `docs/06-adr/0021-suite-command-reuse-boundary.md` ve `docs/07-quality/suite-code-reuse-audit.md`.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
