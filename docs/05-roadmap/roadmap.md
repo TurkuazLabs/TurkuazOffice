@@ -241,6 +241,17 @@ Durum: PR uzerinde gelistirme; CI ve Desktop kabul testleri tamamlanmadan bitmis
 - Sheet Bul, Writer Replace, Sheet Replace, tum-belge aralik/OOXML/tablolar ve shortcut metadata genisletmeleri sonraki ayri acceptance PR'larina birakilir.
 - M3 Web'in mevcut baseline'i degistirilmez; yeni app veya kopya Find engine kurulmaz.
 
+## R2.aa - Sheet Find Visible Grid v0.1.0
+
+Durum: PR uzerinde gelistirme; tum platform CI ve kabul testleri olmadan tamamlandi sayilmaz.
+
+- Sheet ilk aktif worksheet'in sparse canonical cell read-model degerlerinde, raw formula dahil, Turkce locale duyarliligiyla buyuk/kucuk harf duyarsiz Bul.
+- Kapsam acik: Desktop tarafinda gorunen/erisebilen A-Z sutunlari ve ilk 100 satir, aktif filtre/siralama sonucu gorunen satirlar. Gizlenmis satirlar, 101+ satir, AA+ sutun ve diger worksheet'ler sonuca dahil DEGILDIR.
+- Ctrl+F ile Edit > Bul ayni gercek Find panelini acar. Onceki/sonraki, sonuc sayaci, bos eslesme durumu ve mevcut SheetController.selectCell uzerinden secim/odak calisir.
+- Edit/Find sadece read-model sorgusudur; dirty state, belge revision'i ve cell mutation degismez. Hesaplanmis/formullu degerin sonucunu degil, canonical cell raw formula metnini arar.
+- Ilerideki tum-sheet arama ve Replace icin sadece plan kaydi vardir; kullanilmayan backend abstraction veya sahte menu yoktur.
+- Writer/Sheet Find panel CSS'i ayni stil kontratini paylasir; canonical arama uygulamalari veri tipleri farkli oldugundan modul Tools'larda ayri kalir.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
