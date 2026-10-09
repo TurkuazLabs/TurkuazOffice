@@ -40,6 +40,7 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
   const [activeIndex, setActiveIndex] = createSignal(-1);
   const [replacementText, setReplacementText] = createSignal("");
   const matches = createMemo(() => props.findMatches(query()));
+  const replaceOne = props.replaceOne;
   let generation = 0;
   let navigating = false;
 
@@ -142,22 +143,22 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
         aria-label={props.language.text(props.labels.next)}
         onClick={() => navigate(1)}
       >{props.language.text(props.labels.next)}</button>
-      {props.replaceOne !== undefined && (
+      {replaceOne !== undefined && (
         <>
           <input
             type="text"
             class={`${props.className}__replacement`}
-            aria-label={props.language.text(props.replaceOne.placeholder)}
-            placeholder={props.language.text(props.replaceOne.placeholder)}
+            aria-label={props.language.text(replaceOne.placeholder)}
+            placeholder={props.language.text(replaceOne.placeholder)}
             value={replacementText()}
             onInput={(event) => setReplacementText(event.currentTarget.value)}
           />
           <button
             type="button"
-            aria-label={props.language.text(props.replaceOne.label)}
-            disabled={activeIndex() < 0 || activeIndex() >= matches().length || !props.replaceOne.canReplace()}
+            aria-label={props.language.text(replaceOne.label)}
+            disabled={activeIndex() < 0 || activeIndex() >= matches().length || !replaceOne.canReplace()}
             onClick={replaceSelected}
-          >{props.language.text(props.replaceOne.label)}</button>
+          >{props.language.text(replaceOne.label)}</button>
         </>
       )}
       <button
