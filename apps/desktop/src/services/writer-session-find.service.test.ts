@@ -32,48 +32,48 @@ describe("WriterSessionService read-only Find", () => {
     createRoot((dispose) => {
       disposeRoot = dispose;
       const repository = new WriterSessionRepository();
-    const documentModel = {
-      id: "doc-1",
-      revision: 7,
-      paragraphs: [{ id: "p1", plainText: "💠alpha 💠alpha" }],
-    } as unknown as WriterDocumentView;
-    repository.setNewDocument(documentModel);
+      const documentModel = {
+        id: "doc-1",
+        revision: 7,
+        paragraphs: [{ id: "p1", plainText: "💠alpha 💠alpha" }],
+      } as unknown as WriterDocumentView;
+      repository.setNewDocument(documentModel);
 
-    const textOffsetTool = new TextOffsetTool();
-    const domSelectionTool = new DomSelectionTool(textOffsetTool);
-    const service = new WriterSessionService(
-      repository,
-      null as never,
-      textOffsetTool,
-      domSelectionTool,
-      null as never,
-      null as never,
-      null as never,
-      null as never,
-      new LanguageService("en-US"),
-    );
+      const textOffsetTool = new TextOffsetTool();
+      const domSelectionTool = new DomSelectionTool(textOffsetTool);
+      const service = new WriterSessionService(
+        repository,
+        null as never,
+        textOffsetTool,
+        domSelectionTool,
+        null as never,
+        null as never,
+        null as never,
+        null as never,
+        new LanguageService("en-US"),
+      );
 
-    const editor = document.createElement("div");
-    editor.contentEditable = "true";
-    editor.tabIndex = 0;
-    editor.dataset.writerParagraph = WRITER_PARAGRAPH_MARKER_VALUE;
-    editor.dataset.writerParagraphId = "p1";
-    editor.textContent = "💠alpha 💠alpha";
-    editor.scrollIntoView = vi.fn();
-    document.body.append(editor);
+      const editor = document.createElement("div");
+      editor.contentEditable = "true";
+      editor.tabIndex = 0;
+      editor.dataset.writerParagraph = WRITER_PARAGRAPH_MARKER_VALUE;
+      editor.dataset.writerParagraphId = "p1";
+      editor.textContent = "💠alpha 💠alpha";
+      editor.scrollIntoView = vi.fn();
+      document.body.append(editor);
 
-    const results = service.findMatches("alpha", "en-US");
-    expect(results).toEqual([
-      { paragraphId: "p1", startOffset: 1, endOffset: 6 },
-      { paragraphId: "p1", startOffset: 8, endOffset: 13 },
-    ]);
-    expect(service.focusFindMatch(results[1]!)).toBe(true);
-    expect(repository.selection()).toEqual(results[1]);
-    expect(window.getSelection()?.toString()).toBe("alpha");
-    expect(editor.scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
-    expect(repository.document()?.revision).toBe(7);
-    expect(repository.dirty()).toBe(false);
-    expect(service.focusFindMatch({ paragraphId: "p1", startOffset: 99, endOffset: 100 })).toBe(false);
+      const results = service.findMatches("alpha", "en-US");
+      expect(results).toEqual([
+        { paragraphId: "p1", startOffset: 1, endOffset: 6 },
+        { paragraphId: "p1", startOffset: 8, endOffset: 13 },
+      ]);
+      expect(service.focusFindMatch(results[1]!)).toBe(true);
+      expect(repository.selection()).toEqual(results[1]);
+      expect(window.getSelection()?.toString()).toBe("alpha");
+      expect(editor.scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
+      expect(repository.document()?.revision).toBe(7);
+      expect(repository.dirty()).toBe(false);
+      expect(service.focusFindMatch({ paragraphId: "p1", startOffset: 99, endOffset: 100 })).toBe(false);
     });
   });
 });
