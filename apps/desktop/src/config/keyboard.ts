@@ -21,6 +21,7 @@ export const KEYBOARD_KEYS = {
   n: "n",
   o: "o",
   s: "s",
+  f: "f",
   b: "b",
   i: "i",
   u: "u",
@@ -67,6 +68,7 @@ export const WRITER_SHORTCUT_ACTIONS = {
   redo: "redo",
   newDocument: "new-document",
   open: "open",
+  find: "find",
   printPreview: "print-preview",
   saveAs: "save-as",
   save: "save",
@@ -87,6 +89,7 @@ export type WriterShortcutAction =
 export const WRITER_ARIA_SHORTCUTS = {
   newDocument: "Control+N Meta+N",
   open: "Control+O Meta+O",
+  find: "Control+F Meta+F",
   save: "Control+S Meta+S",
   saveAs: "Control+Shift+S Meta+Shift+S",
   print: "Control+P Meta+P",
@@ -111,6 +114,7 @@ export const WRITER_ARIA_SHORTCUTS = {
 export const WRITER_SHORTCUT_HINTS = {
   newDocument: "Ctrl+N",
   open: "Ctrl+O",
+  find: "Ctrl+F",
   save: "Ctrl+S",
   saveAs: "Ctrl+Shift+S",
   print: "Ctrl+P",
