@@ -42,9 +42,6 @@ export function WriterShell(props: WriterShellProps) {
   };
 
   const onShortcut = (event: KeyboardEvent) => {
-    if (shortcutBelongsToOtherTextControl(event.target, WRITER_PARAGRAPH_SELECTOR)) {
-      return;
-    }
     const action = props.controller.resolveKeyboardShortcut({
       key: event.key,
       ctrlKey: event.ctrlKey,
@@ -59,6 +56,21 @@ export function WriterShell(props: WriterShellProps) {
         props.repository.recoveryCandidates().length > 0,
     });
     if (action === null) {
+      return;
+    }
+
+    // Document-wide file commands keep working even when a form control is focused.
+    // Text-editing and formatting commands belong to the focused input instead.
+    if (
+      shortcutBelongsToOtherTextControl(event.target, WRITER_PARAGRAPH_SELECTOR) &&
+      action !== WRITER_SHORTCUT_ACTIONS.closePrintPreview &&
+      action !== WRITER_SHORTCUT_ACTIONS.print &&
+      action !== WRITER_SHORTCUT_ACTIONS.printPreview &&
+      action !== WRITER_SHORTCUT_ACTIONS.newDocument &&
+      action !== WRITER_SHORTCUT_ACTIONS.open &&
+      action !== WRITER_SHORTCUT_ACTIONS.save &&
+      action !== WRITER_SHORTCUT_ACTIONS.saveAs
+    ) {
       return;
     }
 
