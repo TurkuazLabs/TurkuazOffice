@@ -20,6 +20,7 @@ import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import type { SheetFormulaHelperTool } from "../tools/sheet-formula-helper.tool";
+import { findSheetMatches, type SheetFindMatch } from "../tools/sheet-find.tool";
 import type { TauriSheetTool } from "../tools/tauri-sheet.tool";
 import type {
   SheetCellFormatView,
@@ -89,6 +90,15 @@ export class SheetSessionService {
         return false;
       }
     });
+  }
+
+  public findMatches(
+    query: string,
+    locale: string,
+    visibleRows: readonly number[],
+  ): readonly SheetFindMatch[] {
+    const document = this.repository.document();
+    return document === null ? [] : findSheetMatches(document, query, locale, visibleRows);
   }
 
   public async selectCell(reference: string, row: number, column: number): Promise<void> {
