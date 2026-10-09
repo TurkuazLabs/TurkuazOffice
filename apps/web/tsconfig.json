@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/web/tsconfig.json
 // # 📌 Amac: M3 Web TypeScript ve SolidJS compiler kurallarini tanimlar
 // # 📌 Modul - FileType: Config - JSONC
-// # Version: 0.4.0
+// # Version: 0.4.1
 // # Aciklama: Browser istemcisi icin strict typing ve Solid JSX kontratini etkinlestirir
 // Bagimli Oldugu Katman: Config
 {
@@ -19,6 +19,8 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
