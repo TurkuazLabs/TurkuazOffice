@@ -35,6 +35,7 @@ describe("SheetKeyboardShortcutService", () => {
 
   it.each([
     ["n", SHEET_SHORTCUT_ACTIONS.newDocument],
+    ["f", SHEET_SHORTCUT_ACTIONS.find],
     ["b", SHEET_SHORTCUT_ACTIONS.bold],
     ["i", SHEET_SHORTCUT_ACTIONS.italic],
     ["u", SHEET_SHORTCUT_ACTIONS.underline],
@@ -95,6 +96,7 @@ describe("SheetKeyboardShortcutService", () => {
       service.resolve(input("Escape", { ctrlKey: false, editingActive: false })),
     ).toBeNull();
     expect(service.resolve(input("q"))).toBeNull();
+    expect(service.resolve(input("f", { shiftKey: true }))).toBeNull();
     expect(
       service.resolve(input("=", { ctrlKey: false, altKey: false })),
     ).toBeNull();
