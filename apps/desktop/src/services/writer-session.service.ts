@@ -484,7 +484,7 @@ export class WriterSessionService {
     }
 
     this.repository.setSelection(match);
-    const restored = this.domSelectionTool.focusAndRestoreParagraphSelection(match);
+    const restored = this.domSelectionTool.focusAndRestoreParagraphSelection(match, true);
     if (restored) {
       // Focus handlers can capture an older selection before the DOM Range is restored.
       this.repository.setSelection(match);
