@@ -77,7 +77,7 @@ describe("WriterSessionService Replace one safety", () => {
     expect(service.canReplaceFoundMatch()).toBe(true);
     expect(await service.replaceFoundMatch(match, "alpha", "beta", "en-US")).toBe(true);
     expect(replaceRangeWithStyledRuns).toHaveBeenCalledExactlyOnceWith(
-      "doc1", "p1", 1, 6, [{ text: "beta", style: STYLE }],
+      "doc1", "p1", 1, 6, [{ text: "beta", style: STYLE }], 1,
     );
     expect(repository.document()?.revision).toBe(2);
     expect(repository.dirty()).toBe(true);

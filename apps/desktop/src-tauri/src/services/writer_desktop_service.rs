@@ -17,7 +17,8 @@ use turkuaz_office_writer::{
 
 use crate::config::constants::RECENT_FILES_METADATA_NAME;
 use crate::config::constants::{
-    ERROR_ASSET_NOT_FOUND, ERROR_INVALID_OFFSET, ERROR_PARAGRAPH_NOT_FOUND,
+    ERROR_ASSET_NOT_FOUND, ERROR_DOCUMENT_REVISION_CONFLICT, ERROR_INVALID_OFFSET,
+    ERROR_PARAGRAPH_NOT_FOUND,
 };
 use crate::repositories::recent_files_repository::RecentFilesRepository;
 use crate::services::recent_files_service::{RecentFileEntry, RecentFilesService};
@@ -436,10 +437,32 @@ impl WriterDesktopService {
         end_offset: usize,
         runs: Vec<StyledTextRun>,
     ) -> Result<WriterDocumentView, DesktopErrorDto> {
+        self.replace_range_with_styled_runs_checked(
+            document_id,
+            paragraph_id,
+            start_offset,
+            end_offset,
+            runs,
+            None,
+        )
+    }
+
+    pub fn replace_range_with_styled_runs_checked(
+        &mut self,
+        document_id: &str,
+        paragraph_id: &str,
+        start_offset: usize,
+        end_offset: usize,
+        runs: Vec<StyledTextRun>,
+        expected_revision: Option<u64>,
+    ) -> Result<WriterDocumentView, DesktopErrorDto> {
         self.file_session_service
             .ensure_writable(document_id)
             .map_err(DesktopErrorDto::from)?;
         let current = self.document(document_id)?;
+        if expected_revision.is_some_and(|expected| current.revision != expected) {
+            return Err(DesktopErrorDto::new(ERROR_DOCUMENT_REVISION_CONFLICT));
+        }
         let paragraph = current
             .paragraphs
             .iter()

@@ -350,17 +350,19 @@ pub fn writer_replace_range_with_styled_runs(
     start_offset: usize,
     end_offset: usize,
     runs: Vec<WriterStyledRunInputDto>,
+    expected_revision: Option<u64>,
 ) -> Result<WriterDocumentDto, DesktopErrorDto> {
     let mut service = state
         .lock()
         .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
     service
-        .replace_range_with_styled_runs(
+        .replace_range_with_styled_runs_checked(
             &document_id,
             &paragraph_id,
             start_offset,
             end_offset,
             runs.into_iter().map(Into::into).collect(),
+            expected_revision,
         )
         .map(WriterDocumentDto::from)
 }
