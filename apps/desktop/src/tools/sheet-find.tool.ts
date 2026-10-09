@@ -17,7 +17,7 @@ export interface SheetFindMatch {
 }
 
 export const SHEET_FIND_MAX_QUERY_SCALARS = 128;
-export const SHEET_FIND_MAX_RESULTS = 1000;
+const SHEET_FIND_MAX_RESULTS = 1000;
 
 function rawCellText(value: SheetCellValueView): string {
   switch (value.kind) {
