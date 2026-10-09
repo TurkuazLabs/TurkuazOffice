@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/sheet-keyboard-shortcut.service.ts
 // # 📌 Amac: Desktop Sheet keyboard shortcut girdilerini context'e gore typed action'a cozer
 // # 📌 Modul - FileType: Service - TypeScript
-// Version: 0.1.0
+// Version: 0.1.1
 // Aciklama: Spreadsheet kisa yollarini View if-zincirinden ayirir ve ortak keyboard config kontratini kullanir
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -17,18 +17,23 @@ export interface SheetKeyboardShortcutInput {
   readonly metaKey: boolean;
   readonly shiftKey: boolean;
   readonly altKey: boolean;
+  readonly altGraphKey: boolean;
   readonly isComposing: boolean;
   readonly editingActive: boolean;
 }
 
 export class SheetKeyboardShortcutService {
   public resolve(input: SheetKeyboardShortcutInput): SheetShortcutAction | null {
-    if (input.isComposing) {
+    if (input.isComposing || input.altGraphKey) {
       return null;
     }
 
     const key = input.key.toLowerCase();
     const modifier = input.ctrlKey || input.metaKey;
+    // AltGr can produce a Ctrl+Alt combination. Allow only bare Alt+=.
+    if (modifier && input.altKey) {
+      return null;
+    }
 
     if (!modifier && !input.altKey && key === KEYBOARD_KEYS.f2) {
       return SHEET_SHORTCUT_ACTIONS.editCell;

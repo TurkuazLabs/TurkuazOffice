@@ -10,6 +10,7 @@
 import { render } from "solid-js/web";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { KEYBOARD_MODIFIER_STATES } from "../config/keyboard";
 import type { SheetController } from "../controllers/sheet.controller";
 import { LanguageService } from "../language/language-service";
 import { SheetSessionRepository } from "../repositories/sheet-session.repository";
@@ -385,6 +386,34 @@ describe("SheetShell active drafts", () => {
 
     expect(controller.resolveKeyboardShortcut).toHaveBeenCalled();
     expect(toggleBold).toHaveBeenCalledTimes(1);
+  });
+
+  it("forwards AltGraph state to the Sheet shortcut service without consuming the key", () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const resolveKeyboardShortcut = vi.fn().mockReturnValue(null);
+    const controller = {
+      ...controllerStub(),
+      resolveKeyboardShortcut,
+    } as unknown as SheetController;
+
+    mount(repository, controller);
+    const event = new KeyboardEvent("keydown", {
+      key: "b",
+      ctrlKey: true,
+      altKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    Object.defineProperty(event, "getModifierState", {
+      value: (modifier: string) => modifier === KEYBOARD_MODIFIER_STATES.altGraph,
+    });
+    window.dispatchEvent(event);
+
+    expect(resolveKeyboardShortcut).toHaveBeenCalledWith(
+      expect.objectContaining({ altKey: true, altGraphKey: true }),
+    );
+    expect(event.defaultPrevented).toBe(false);
   });
 
   it("toggles the properties panel with Ctrl+1", async () => {

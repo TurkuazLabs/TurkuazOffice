@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/services/keyboard-shortcut.service.test.ts
 // # 📌 Amac: Writer keyboard-only shortcut routing, context block ve print-preview davranisini regression testiyle dogrular
 // # 📌 Modul - FileType: Test - TypeScript
-// Version: 0.4.0
+// Version: 0.4.1
 // Aciklama: Ctrl/Meta file-edit-format-zoom shortcutlari ile IME/recovery/preview context kurallarini smoke test eder
 // Bagimli Oldugu Katman: Service -> Config
 
@@ -21,6 +21,8 @@ function input(
     key,
     ctrlKey: true,
     metaKey: false,
+    altKey: false,
+    altGraphKey: false,
     shiftKey: false,
     isComposing: false,
     printPreviewOpen: false,
@@ -80,6 +82,13 @@ describe("KeyboardShortcutService", () => {
 
   it("blocks edit shortcuts during IME composition", () => {
     expect(service.resolve(input("b", { isComposing: true }))).toBeNull();
+  });
+
+  it("does not intercept AltGr or Ctrl+Alt character entry", () => {
+    expect(service.resolve(input("s", { altKey: true }))).toBeNull();
+    expect(service.resolve(input("b", { altKey: true, altGraphKey: true }))).toBeNull();
+    expect(service.resolve(input("p", { altKey: true, printPreviewOpen: true }))).toBeNull();
+    expect(service.resolve(input("s", { altGraphKey: true }))).toBeNull();
   });
 
   it("blocks document shortcuts while startup recovery decision is active", () => {

@@ -14,6 +14,7 @@ import {
 } from "../config/sheet-functions";
 import {
   KEYBOARD_KEYS,
+  KEYBOARD_MODIFIER_STATES,
   SHEET_ARIA_SHORTCUTS,
   SHEET_SHORTCUT_ACTIONS,
   SHEET_SHORTCUT_HINTS,
@@ -326,6 +327,7 @@ export function SheetShell(props: SheetShellProps) {
       metaKey: event.metaKey,
       shiftKey: event.shiftKey,
       altKey: event.altKey,
+      altGraphKey: event.getModifierState(KEYBOARD_MODIFIER_STATES.altGraph),
       isComposing: event.isComposing,
       editingActive: editingReference() !== null || formulaEditing(),
     });
