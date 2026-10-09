@@ -506,6 +506,7 @@ export class WriterSessionService {
         plan.startOffset,
         plan.endOffset,
         plan.runs,
+        plan.revision,
       ));
       if (completed) {
         const caretOffset = plan.startOffset + Array.from(replacement).length;

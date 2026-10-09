@@ -261,7 +261,7 @@ Durum: PR uzerinde gelistirme; tam CI ve kullanici kabulunden once tamamlandi sa
 - Frontend WriterReplace planlama Tool'u canonical UTF-32 scalar karakter araligini, kaynak query ve locale eslesmesini, run toplamini, ilk eslesen karakter stilini, bos/uzun replacement ve paragraph disi aralik risklerini dogrular.
 - Service mutation queue'sunda beklenen belge ID/revision, read-only file session, degismis paragraf metni ve henuz commit edilmemis aktif DOM text yeniden kontrol edilir. Backend kendi file write lock kontrolunu uygular.
 - Degisen araligin disindaki rich text run'lari ve paragraf stilleri Rust command tarafindan korunur. Tek operation sonrasinda undo/redo, tekstil mutasyonu ve read-only regresyonlari istenir.
-- Yetkinin UI'da pasif gorunmesi backend write lock'un yerine GECMEZ. Harici surecler arasi revizyon race'lerinin mutlak korunmasi icin sonraki backend beklenen-revision IPC kontrati gerekecektir.
+- Yetkinin UI'da pasif gorunmesi backend write lock'un yerine GECMEZ. Native `expectedRevision` precondition'i Rust state lock icinde yanlis revizyonlu istegi typed `writer.document_revision_conflict` ile reddeder. Harici dis sureclerin disk degisiklikleri hala ayri lock/external file change protokolune tabidir.
 - Sheet Replace, cross-paragraph Replace, regex, toplu Replace ve Ctrl+H sonraki ayri kabul/guvenlik asamalarina birakilir.
 
 ## M3 - Web v0.4.0

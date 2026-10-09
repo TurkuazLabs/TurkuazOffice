@@ -168,6 +168,14 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 - UI read-only'de eylemi disable eder. Native write-lock hatalari backend tarafindan yine ayrica denetlenir. Mevcut IPC imzasinda beklenen revision parametresi olmadigindan dis surecli race condition mutlak koruma garanti EDILMEZ; bunu tumunu degistirden once ayri backend kontratina tasimak gerekir.
 - Coverage: kaynagi degismis span, yanlis paragraph, surrogate + Turkce, tutarsiz rich runs, bitmis revision, read-only, aktif unsaved DOM typing, undo ve onaylanmis tek mutasyon.
 
+## Writer Replace one: native revizyon onkosulu
+
+- `WriterSessionService.replaceFoundMatch` secilen belgede planlanan `revision` degerini, TypeScript `TauriWriterTool.replaceRangeWithStyledRuns(..., expectedRevision)` uzerinden Rust IPC'sine gonderir.
+- Native `WriterDesktopState` mutex'i altinda `WriterDesktopService.replace_range_with_styled_runs_checked`, OS dosya kilidi `ensure_writable` kontrolunden sonra canonical belge revizyonunu yeniden okur; fark varsa `writer.document_revision_conflict` typed error doner. Bu hata icin hicbir command, revision artisi veya undo kaydi olusmaz.
+- Geri uyumluluk: Bu arguman eski clipboard/diger yollarda `Option<u64>` ve Rust eski fonksiyon imzasi wrapper olarak korundu. Normal Writer Replace-one bu parametreyi zorunlu olarak saglar.
+- Kaydedilmis dis surec dosya degisiklikleri icin var olan dosya lock/external change mekanizmalari ayrica isletilir. Bu precondition, ayni native state icindeki stale request'i engeller; disk uzerindeki harici dosya mutasyonunu anlik kontrol eden bir file hashing protokolu degildir.
+- Rust kabul testi stale revision -> typed error ve ayni undo gecmisi; guncel revision -> tek degisiklik. Frontend servis testi planlanan revizyonun IPC Tool'a iletildigini dogrular.
+
 ## Denetim raporu kontrol listesi
 
 - [ ] `entrypoint-graph` olusturuldu ve dinamik/generator/Tauri/WASM referanslari manuel teyit edildi.

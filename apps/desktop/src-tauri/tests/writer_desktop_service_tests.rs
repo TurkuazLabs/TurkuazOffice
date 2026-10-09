@@ -6,7 +6,7 @@
 // Bagimli Oldugu Katman: Service
 
 use turkuaz_office_desktop_lib::config::constants::{
-    ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID,
+    ERROR_DOCUMENT_REVISION_CONFLICT, ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID,
 };
 use turkuaz_office_desktop_lib::services::writer_desktop_service::WriterDesktopService;
 use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, StyledTextRun, TextAlignment};
@@ -569,4 +569,55 @@ fn writer_replace_one_preserves_surrounding_runs_and_one_step_undo_redo() {
         .redo(&replacement.id)
         .expect("one redo should replay Replace");
     assert_eq!(redone.plain_text, "💠alpha BETA");
+}
+
+#[test]
+fn writer_replace_rejects_stale_revision_before_history_is_mutated() {
+    let mut service = WriterDesktopService::new();
+    let created = service.create_document();
+    let paragraph_id = created.paragraphs[0].id.clone();
+    let seeded = service
+        .replace_paragraph_text(&created.id, &paragraph_id, "alpha")
+        .expect("seed document");
+    let changed = service
+        .replace_paragraph_text(&created.id, &paragraph_id, "alpha beta")
+        .expect("second editor mutation");
+
+    let stale = service
+        .replace_range_with_styled_runs_checked(
+            &changed.id,
+            &paragraph_id,
+            6,
+            10,
+            vec![StyledTextRun {
+                text: "BETA".to_string(),
+                style: CharacterStyle::default(),
+            }],
+            Some(seeded.revision),
+        )
+        .expect_err("old revisions must never write");
+    assert_eq!(stale.code, ERROR_DOCUMENT_REVISION_CONFLICT);
+
+    let undone = service
+        .undo(&changed.id)
+        .expect("stale check added no undo");
+    assert_eq!(undone.plain_text, "alpha");
+    let redone = service.redo(&changed.id).expect("redo only original edit");
+    assert_eq!(redone.plain_text, "alpha beta");
+
+    let accepted = service
+        .replace_range_with_styled_runs_checked(
+            &redone.id,
+            &paragraph_id,
+            6,
+            10,
+            vec![StyledTextRun {
+                text: "BETA".to_string(),
+                style: CharacterStyle::default(),
+            }],
+            Some(redone.revision),
+        )
+        .expect("current expected revision must write");
+    assert_eq!(accepted.plain_text, "alpha BETA");
+    assert_eq!(accepted.revision, redone.revision + 1);
 }

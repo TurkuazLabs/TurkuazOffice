@@ -167,6 +167,7 @@ export class TauriWriterTool {
     startOffset: number,
     endOffset: number,
     runs: readonly WriterStyledRunInputView[],
+    expectedRevision?: number,
   ): Promise<WriterDocumentView> {
     return invoke<WriterDocumentView>(IPC_COMMANDS.writerReplaceRangeWithStyledRuns, {
       documentId,
@@ -174,6 +175,7 @@ export class TauriWriterTool {
       startOffset,
       endOffset,
       runs,
+      expectedRevision,
     });
   }
 
