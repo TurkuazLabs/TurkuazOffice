@@ -501,7 +501,6 @@ fn image_asset_survives_save_reopen_and_lazy_fetch() {
     let _ = std::fs::remove_file(saved_path);
 }
 
-
 #[test]
 fn writer_replace_one_preserves_surrounding_runs_and_one_step_undo_redo() {
     let mut service = WriterDesktopService::new();
@@ -542,22 +541,32 @@ fn writer_replace_one_preserves_surrounding_runs_and_one_step_undo_redo() {
 
     assert_eq!(replacement.plain_text, "💠alpha BETA");
     assert_eq!(replacement.revision, styled.revision + 1);
-    assert!(replacement.paragraphs[0]
-        .runs
-        .iter()
-        .any(|run| run.text == "BETA" && run.style.bold));
-    assert!(replacement.paragraphs[0]
-        .runs
-        .iter()
-        .any(|run| run.text.contains("alpha") && !run.style.bold));
+    assert!(
+        replacement.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text == "BETA" && run.style.bold)
+    );
+    assert!(
+        replacement.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text.contains("alpha") && !run.style.bold)
+    );
 
-    let undone = service.undo(&replacement.id).expect("one undo should revert Replace");
+    let undone = service
+        .undo(&replacement.id)
+        .expect("one undo should revert Replace");
     assert_eq!(undone.plain_text, "💠alpha beta");
-    assert!(undone.paragraphs[0]
-        .runs
-        .iter()
-        .any(|run| run.text == "beta" && run.style.bold));
+    assert!(
+        undone.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text == "beta" && run.style.bold)
+    );
 
-    let redone = service.redo(&replacement.id).expect("one redo should replay Replace");
+    let redone = service
+        .redo(&replacement.id)
+        .expect("one redo should replay Replace");
     assert_eq!(redone.plain_text, "💠alpha BETA");
 }
