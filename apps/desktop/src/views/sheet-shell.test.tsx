@@ -351,9 +351,13 @@ describe("SheetShell active drafts", () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);
     const toggleBold = vi.fn().mockResolvedValue(undefined);
-    const resolveKeyboardShortcut = vi.fn().mockReturnValue("bold");
+    const createDocument = vi.fn().mockResolvedValue(true);
+    const resolveKeyboardShortcut = vi.fn().mockImplementation((input: { key: string }) =>
+      input.key === "n" ? "new-document" : "bold",
+    );
     const controller = {
       ...controllerStub(),
+      createDocument,
       resolveKeyboardShortcut,
       toggleBold,
     } as unknown as SheetController;
@@ -372,8 +376,19 @@ describe("SheetShell active drafts", () => {
     });
     formula!.dispatchEvent(nativeEvent);
     expect(nativeEvent.defaultPrevented).toBe(false);
-    expect(resolveKeyboardShortcut).not.toHaveBeenCalled();
+    expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(1);
     expect(toggleBold).not.toHaveBeenCalled();
+
+    const globalEvent = new KeyboardEvent("keydown", {
+      key: "n",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    formula!.dispatchEvent(globalEvent);
+    await Promise.resolve();
+    expect(globalEvent.defaultPrevented).toBe(true);
+    expect(createDocument).toHaveBeenCalledTimes(1);
 
     const gridEvent = new KeyboardEvent("keydown", {
       key: "b",
@@ -384,7 +399,7 @@ describe("SheetShell active drafts", () => {
     grid!.dispatchEvent(gridEvent);
     await Promise.resolve();
     expect(gridEvent.defaultPrevented).toBe(true);
-    expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(1);
+    expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(3);
     expect(toggleBold).toHaveBeenCalledTimes(1);
   });
 
