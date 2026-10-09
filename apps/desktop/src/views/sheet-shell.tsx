@@ -29,9 +29,11 @@ import {
   SHEET_GRID_ROW_HEIGHT_PX,
   SHEET_MAX_DECIMAL_PLACES,
 } from "../config/sheet";
+import { SHEET_GRID_EDITOR_CLASS, SHEET_GRID_EDITOR_SELECTOR } from "../config/dom-contract";
 import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import { shortcutBelongsToOtherTextControl } from "../tools/shortcut-focus.tool";
 import {
   SheetReferenceTool,
   type SheetGridNavigationDirection,
@@ -321,6 +323,9 @@ export function SheetShell(props: SheetShellProps) {
   };
 
   const onShortcut = (event: KeyboardEvent): void => {
+    if (shortcutBelongsToOtherTextControl(event.target, SHEET_GRID_EDITOR_SELECTOR)) {
+      return;
+    }
     const action = props.controller.resolveKeyboardShortcut({
       key: event.key,
       ctrlKey: event.ctrlKey,
@@ -1026,7 +1031,7 @@ export function SheetShell(props: SheetShellProps) {
                               }}
                             >
                               <input
-                                class="sheet-grid__input"
+                                class={SHEET_GRID_EDITOR_CLASS}
                                 aria-label={reference}
                                 value={editorValue(reference, row, column)}
                                 style={cellStyle(reference)}
