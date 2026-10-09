@@ -255,6 +255,7 @@ required_files=(
   "apps/desktop/src/tools/writer-find.tool.test.ts"
   "apps/desktop/src/tools/sheet-find.tool.ts"
   "apps/desktop/src/tools/sheet-find.tool.test.ts"
+  "apps/desktop/src/services/sheet-session-find.service.test.ts"
   "apps/desktop/src/views/sheet-find-bar.tsx"
   "apps/desktop/src/views/sheet-find-bar.test.tsx"
   "apps/desktop/src/services/writer-session-find.service.test.ts"
