@@ -12,6 +12,7 @@ import type {
   KeyboardShortcutService,
 } from "../services/keyboard-shortcut.service";
 import type { WriterSessionService } from "../services/writer-session.service";
+import type { WriterFindMatch } from "../tools/writer-find.tool";
 import type { DesktopLocale } from "../config/localization";
 import type { DesktopLocaleOption } from "../language/language-packs";
 import type { WriterShortcutAction } from "../config/keyboard";
@@ -165,6 +166,15 @@ export class WriterController {
   public restoreSessionSelection(): boolean {
     return this.service.restoreSessionSelection();
   }
+
+  public findMatches(query: string, locale: string): readonly WriterFindMatch[] {
+    return this.service.findMatches(query, locale);
+  }
+
+  public focusFindMatch(match: WriterFindMatch): boolean {
+    return this.service.focusFindMatch(match);
+  }
+
 
   public clearTypingStyle(): void {
     this.service.clearTypingStyle();
