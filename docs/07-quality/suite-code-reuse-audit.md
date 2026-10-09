@@ -20,13 +20,15 @@ Karar: Buradaki riskler, otomatik olarak "silinebilir olu kod" sonucunu vermez.
 | `apps/desktop/src/config/keyboard.ts` | `WRITER_SHORTCUT_ACTIONS`, `WRITER_ARIA_SHORTCUTS`, `WRITER_SHORTCUT_HINTS`, Sheet esdegerleri ayri tablolar | Metadata tekrar/drift riski | Etkin komutlar icin tek typed descriptor kaynagi |
 | `apps/desktop/src/services/keyboard-shortcut.service.ts` ve `sheet-keyboard-shortcut.service.ts` | Iki resolver ortak modifier/kucuk harf normalizasyonu kullaniyor | Sinirli davranis tekrari | Yalniz normalization ortak; command policy modul bazli |
 | `apps/desktop/src/views/writer-shell.tsx` ve `sheet-shell.tsx` | Ikisi de `window.addEventListener("keydown")` kurup temizliyor | Olay baglama tekrari | Once parity testi, sonra gercek gereksinim varsa ortak adapter |
+| `apps/desktop/src/views/suite-titlebar.tsx` ve `suite-icon.tsx` | Writer/Sheet icin mevcut ortak baslik ve ikon View'u var | Mevcut dogru reuse | Ikinci shared header/icon kutuphanesi ekleme |
+| `apps/desktop/src/config/ipc-commands.ts` | Tauri IPC adlari tek merkezi tabloya alinmis | Mevcut dogru reuse | Ayrica ikinci IPC registry olusturma |
 | `apps/desktop/src/config/app-container.ts` | Iki modulun repository, service ve Tool instance'lari tek yerde olusturuluyor | Startup/memory aday maliyeti | Gercek sure/memory olcmeden lazy composition yok |
 | `apps/desktop/src/services/writer-session.service.ts` | 1321 satir ve file/edit/print/selection/IME akislari | Sorumluluk yogunlasmasi | Odakli Service'lere sadece testli ve gercek ihtiyac varsa bol |
 | `apps/desktop/src/services/sheet-session.service.ts` | 978 satir ve cell/table/query/chart/format akislari | Sorumluluk yogunlasmasi | Siklikla degisen akislar icin parcali refactor oncesi test |
 | `apps/desktop/src/views/sheet-functions-sidebar.tsx` | Local `search` state yalniz function catalog'u filtreliyor | Yanlis soyutlama riski | Belge Find motoru olarak yeniden kullanma |
 | `apps/desktop/tsconfig.json` ve `apps/web/tsconfig.json` | `strict` var; `noUnusedLocals` ve `noUnusedParameters` yok | Olasi erisilemeyen yerel kod | Ilk compiler raporundan sonra staged gate |
 | `Cargo.toml` | Workspace Rust lints ve shared crates var | Bagimlilik/feature birikimi olasigi | Mevcut Cargo lint + onayli periodic audit |
-| `docs/05-roadmap/roadmap.md`, `config/project.yml`, PR #33 | Mevcut kontrat in-window switcher; PR #33 ayri process pencereleri talep ediyor | Mimari karar/roadmap uyumsuzlugu | PR #33 merge edilmeden karar ve roadmap uyumu |
+| `docs/05-roadmap/roadmap.md`, `config/project.yml`, `apps/desktop/src/main.tsx`, `docs/08-implementation/desktop-suite-entrypoints-v0.5.0.md`, PR #33 | Runtime in-window, roadmap ve config in-window diyor; mevcut desktop suite entrypoints dokumani ve PR #33 ayri process hedefliyor | Mimari karar ve dokumantasyon uyumsuzlugu | PR #33 oncesinde tek hedef sec, gercek runtime'a gore dokumani duzelt |
 | PR #32 | Gercek WASM Chromium smoke eklemeyi hedefliyor; acik | Tamamlanmamis kalite kapisi | Bugun zaten varmis gibi kabul etme |
 | PR #57 | AltGr korumasi acik PR'da; main'de degil | Kopya bugfix riski | Ayni korumayi ayri ikinci implementation olarak ekleme |
 
