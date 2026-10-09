@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.11.0
+// Version: 0.11.1
 // Aciklama: Sheet belge, cell/format, table, conditional formatting, chart, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
@@ -19,7 +19,7 @@ export interface SheetCellView {
   readonly value: SheetCellValueView;
 }
 
-export interface SheetWorksheetView {
+interface SheetWorksheetView {
   readonly id: string;
   readonly name: string;
   readonly cellCount: number;
@@ -127,7 +127,7 @@ export interface SheetTableRemoveRequestView {
 
 export type SheetChartTypeView = SheetChartType;
 
-export interface SheetChartView {
+interface SheetChartView {
   readonly id: string;
   readonly worksheetId: string;
   readonly chartType: SheetChartTypeView;
