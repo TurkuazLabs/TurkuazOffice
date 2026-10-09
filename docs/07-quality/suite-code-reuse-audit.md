@@ -71,6 +71,58 @@ Karar: Buradaki riskler, otomatik olarak "silinebilir olu kod" sonucunu vermez.
 - Gecici advisory script ve CI adimlari, strict gate'de gereksiz tekrar olusturacagi icin ayni PR icinde kaldirildi. Final PR'da yeni npm paketi veya ayri arka plan tarayici yoktur.
 - Knip, Rust Cargo dependency ve dinamik Tauri/WASM/Pro referanslari henuz tam taranmadigi icin, bu alanlarin silinmesi onaylanmamistir.
 
+## Ikinci dilim - Files / Exports / Dependencies candidate audit
+
+CI workflow: `.github/workflows/code-reachability-audit.yml` (PR + elle tetikleme).
+
+- Desktop ve Web ayri npm projeleri olarak incelenir. Knip 6.39.0 kendi Vite/Vitest konfigunu ve `src/main.tsx` entrypoint'ini otomatik cozer; varsayilan kurallar kullanilir. Ikinci bir entrypoint listesi ve ignore-all config eklenmez.
+- `knip-full.json` gelistirme/test baglantilarini; `knip-production.json` gercek uygulama baglantilarini ayri raporlar. Aradaki fark test-only erisimi belirlemek icin kullanilir. `--fix` ve `--allow-remove-files` ASLA calistirilmaz.
+- Rust icin sabit `cargo-machete 0.9.2` taramasi workspace `Cargo.toml` bagimliliklarini inceler. Pinned CLI tarafinda `--json` uyumsuzlugu goruldugu icin metin raporu (`cargo-machete.txt`) uretir; CLI hatalari fail-closed kontrol edilir. Kod uretimi, Rust proc-macro, renamed crates, cfg/feature-gated kod ve harici FFI false-positive nedenleridir.
+- Tum analizler normal `workspace-ci` build/test gate'lerinden bagimsizdir. Rapor var diye CI basarisiz olmaz; arac gercekten calismazsa CI hata verir. Ilk denemede Tauri JSON5 Knip parse uyumsuzlugu ve Rust `--json` CLI uyumsuzlugu CI loglariyla saptanmistir; taramanin gercekten tamamlanmasi zorunludur.
+- Sadece 14 gunluk artifacts ve job summary tutulur; gereksiz kalici package/binary dependency repo uzerine eklenmez.
+- `apps/desktop/src/config/ipc-commands.ts` Tauri command string'leri frontend Tool'larindan cagrilir; Rust tarafinda `apps/desktop/src-tauri/src/lib.rs` `tauri::generate_handler!` ile register edilir. Yalniz TS graph'a bakarak Rust IPC command silinmez.
+- `apps/web/src/main.tsx` dinamik WASM loader ve generated public module ile calisir. Generated WASM tarama disinda kalabilir; baglantilar manuel teyit edilir.
+- Pro repo Community public API'sini dependency olarak kullanir. Community dis kullanici/Pro reference analizi olmadan export silme onaylanmaz.
+
+### 2026-10-09 CI'da olculen ilk gercek sonuclar
+
+Gecerli denetim: `code-reachability-audit` run #37914196700; Knip 6.39.0 ve cargo-machete 0.9.2.
+
+| Kapsam | Full (test dahil) | Production | Yorum |
+| --- | --- | --- | --- |
+| Desktop unused files | 0 | 0 | Tum dosyalar graph uzerinden ulasilabilir gorunuyor; dinamik giris noktasi istisnalari saklidir |
+| Desktop unused npm dependencies | 0 | 0 | Knip candidate yok |
+| Desktop unused exports + types | 13 | 15 | 2 ek dev-host/port sabiti sadece Vite config'te kullanildigi icin production taramasinda ayrica isaretlenir |
+| Web unused files | 0 | 0 | Graph candidate yok |
+| Web unused npm dependencies | 0 | 0 | Knip candidate yok |
+| Web unused exports + types | 1 | 4 | 2 ek dev-host/port sabiti Vite config icin gercekten kullanilir |
+| Rust unused dependencies | 0 | 0 | `cargo machete .` workspace taramasi "didn't find any unused dependencies" raporu verdi |
+
+Dogrulanan false-positive / must-keep:
+- `apps/desktop/src/config/runtime-config.ts`: `DESKTOP_DEV_HOST` ve `DESKTOP_DEV_PORT` `apps/desktop/vite.config.ts` tarafindan kullanilir; production Knip bu build config'i production giris noktasi saymaz. Silinmez.
+- `apps/web/src/config/runtime-config.ts`: `WEB_DEV_HOST` ve `WEB_DEV_PORT` `apps/web/vite.config.ts` tarafindan kullanilir. Silinmez.
+- `apps/desktop/src/config/file-format.ts`: `TKO_FILE_EXTENSION`, `DOCX_FILE_EXTENSION`, `PDF_FILE_EXTENSION` dogrudan kendi `*_FILE_EXTENSIONS` listelerini kurar. Gerekiyorsa sadece disari export kaldirilir, ic tanim korunur.
+- `apps/web/src/tools/wasm-core-runtime-loader.ts`: `WasmBindgenCoreModule` interface'i importer ve runtime WASM kontrolunde kullanilir; silinmez.
+- `apps/web/src/models/web-models.ts`: `WebDocumentStorageKind` yerel `WebBootstrapViewModel` tarafindan kullanilir; silinmez.
+
+Sadece odakli removal/reduction PR'sinde incelenecek adaylar:
+- Desktop `DEFAULT_LOCALE` export'u: eski `tr` sabiti ile yeni `tr-TR` localization sozlesmesi uyumu teyit edilmeli.
+- Desktop `WRITER_RIBBON_TABS` ve `WriterRibbonTabConfig`: artik gercek `writer-ribbon.tsx` klasik menu kontrol listesi yerine pasif placeholder olabilir.
+- Desktop `WRITER_PRINT_SYSTEM_DIALOG_CAPABILITIES`: merkez `config/project.yml` print ownership kontratiyla tekrar etme ihtimali var.
+- Desktop `ClipboardDomTextNodeModel`, `WriterParagraphStyleView`, `WriterDocxCompatibilityView`, `WriterExternalChangeStateView`, `SheetWorksheetView`, `SheetChartView`: dahili type union ve public API kullanimlari tek tek denetlenmeden kaldirilmaz.
+
+Arac/sonuc farki:
+- Ilk cargo-machete denemesinde desteklenmeyen `--json` parametresi stdout'u bos birakip CI'yi yanlis PASS gosterebildi. Nihai calisma `cargo machete .` ve status/output dogrulamasi ile gecerli tarama yapti.
+- Knip Desktop ilk denemesinde geceli Tauri JSON5 konfigunu JSON parser ile okuma hatasi vardi. `apps/desktop/knip.jsonc` yalnizca Tauri config parsing'i bosaltir; entrypoint, Vite/Vitest ve kaynak kod taramasi korunur.
+
+### Sadece aday olarak isaretleme kurali
+
+Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
+1. Production entrypoint/import/IPC/WASM/Pro consumer yok.
+2. Dinamik import, test fixture, build script, cfg flag veya reflection referansi yok.
+3. Public API uyumluluk riski incelendi, gerekiyorsa deprecation yapildi.
+4. Silme degisikliginin Windows/Linux Rust, frontend/web, WASM ve desktop package CI sonucu PASS.
+
 ## Denetim raporu kontrol listesi
 
 - [ ] `entrypoint-graph` olusturuldu ve dinamik/generator/Tauri/WASM referanslari manuel teyit edildi.

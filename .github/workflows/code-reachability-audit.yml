@@ -1,0 +1,147 @@
+# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/code-reachability-audit.yml
+# 📌 Amac: Desktop/Web unreachable code ve Rust dependency adaylarini silmeden CI artifact olarak raporlar
+# 📌 Modul - FileType: Config - YAML
+# Version: 0.1.0
+# Aciklama: Knip full/production ve cargo-machete text audit'lerini typed build CI'dan ayri advisory kalite hattinda calistirir
+# Bagimli Oldugu Katman: CI -> Tool -> Config
+
+name: code-reachability-audit
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/code-reachability-audit.yml"
+      - "apps/desktop/**"
+      - "apps/web/**"
+      - "crates/**"
+      - "Cargo.toml"
+      - "docs/07-quality/suite-code-reuse-audit.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: code-reachability-audit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typescript:
+    name: Knip (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - desktop
+          - web
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.module }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Existing Dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Knip Full And Production Audit
+        shell: bash
+        run: |
+          npx --yes knip@6.39.0 --reporter json --no-exit-code --no-progress > knip-full.json
+          npx --yes knip@6.39.0 --production --reporter json --no-exit-code --no-progress > knip-production.json
+
+      - name: Display Candidate Counts
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require("node:fs");
+          for (const name of ["knip-full.json", "knip-production.json"]) {
+            const report = JSON.parse(fs.readFileSync(name, "utf8"));
+            const categories = {};
+            const references = [];
+            for (const item of report.issues ?? []) {
+              for (const [category, findings] of Object.entries(item)) {
+                if (Array.isArray(findings)) {
+                  categories[category] = (categories[category] ?? 0) + findings.length;
+                  for (const finding of findings) {
+                    if (references.length < 80) {
+                      references.push({
+                        file: item.file,
+                        category,
+                        name: finding.name ?? finding.symbol ?? null,
+                        line: finding.line ?? null,
+                      });
+                    }
+                  }
+                }
+              }
+            }
+            const output = JSON.stringify({ report: name, candidates: categories });
+            console.log(output);
+            console.log(JSON.stringify({ report: name, sampled_findings: references }));
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, output + "\n\n");
+          }
+          NODE
+
+      - name: Upload Knip Candidate Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: knip-${{ matrix.module }}
+          path: |
+            apps/${{ matrix.module }}/knip-full.json
+            apps/${{ matrix.module }}/knip-production.json
+          if-no-files-found: error
+          retention-days: 14
+
+  rust:
+    name: Rust Dependency Candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Install Pinned cargo-machete
+        run: cargo install cargo-machete --version 0.9.2 --locked
+
+      - name: Collect Dependency Candidates
+        shell: bash
+        run: |
+          set +e
+          cargo machete . > cargo-machete.txt 2>&1
+          audit_status=$?
+          set -e
+          cat cargo-machete.txt
+          echo "cargo_machete_status=$audit_status" >> "$GITHUB_STEP_SUMMARY"
+          # The pinned binary supports plain-text output. An unsupported option is a scan failure.
+          if grep -Eq 'Unrecognized argument|error:|USAGE:' cargo-machete.txt; then
+            exit 1
+          fi
+          # 0 = clean, 1 = candidates. Scanner errors are not advisory.
+          if [[ "$audit_status" -ne 0 && "$audit_status" -ne 1 ]]; then
+            exit 1
+          fi
+          if [[ ! -s cargo-machete.txt ]]; then
+            echo "audit_error: cargo-machete produced an empty report" >&2
+            exit 1
+          fi
+
+      - name: Upload Rust Candidate Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-machete
+          path: cargo-machete.txt
+          if-no-files-found: error
+          retention-days: 14
