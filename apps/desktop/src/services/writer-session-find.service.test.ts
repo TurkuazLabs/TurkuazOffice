@@ -7,6 +7,7 @@
 // Aciklama: Unicode scalar secim, DOM range/focus, scroll ve read-only revision korunmasini dogrular
 // Bagimli Oldugu Katman: Service -> Repo -> Tool
 
+import { createRoot } from "solid-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { WRITER_PARAGRAPH_MARKER_VALUE } from "../config/dom-contract";
@@ -17,14 +18,20 @@ import { TextOffsetTool } from "../tools/text-offset.tool";
 import type { WriterDocumentView } from "../views/writer-types";
 import { WriterSessionService } from "./writer-session.service";
 
+let disposeRoot: (() => void) | null = null;
+
 afterEach(() => {
+  disposeRoot?.();
+  disposeRoot = null;
   document.body.innerHTML = "";
   window.getSelection()?.removeAllRanges();
 });
 
 describe("WriterSessionService read-only Find", () => {
   it("uses the real DOM selection tool for Unicode text without changing revision", () => {
-    const repository = new WriterSessionRepository();
+    createRoot((dispose) => {
+      disposeRoot = dispose;
+      const repository = new WriterSessionRepository();
     const documentModel = {
       id: "doc-1",
       revision: 7,
@@ -67,5 +74,6 @@ describe("WriterSessionService read-only Find", () => {
     expect(repository.document()?.revision).toBe(7);
     expect(repository.dirty()).toBe(false);
     expect(service.focusFindMatch({ paragraphId: "p1", startOffset: 99, endOffset: 100 })).toBe(false);
+    });
   });
 });
