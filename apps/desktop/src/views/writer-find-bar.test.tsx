@@ -31,7 +31,7 @@ describe("WriterFindBar", () => {
     document.body.append(root);
     dispose = render(() => (
       <WriterFindBar
-        controller={{ findMatches, focusFindMatch } as never}
+        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch: vi.fn() } as never}
         language={new LanguageService("en-US")}
         onClose={onClose}
         inputRef={() => undefined}
@@ -71,7 +71,7 @@ describe("WriterFindBar", () => {
     document.body.append(root);
     dispose = render(() => (
       <WriterFindBar
-        controller={{ findMatches, focusFindMatch: vi.fn() } as never}
+        controller={{ findMatches, focusFindMatch: vi.fn(), canReplaceFoundMatch: () => false, replaceFoundMatch: vi.fn() } as never}
         language={new LanguageService("en-US")}
         onClose={vi.fn()}
         inputRef={() => undefined}
@@ -85,4 +85,66 @@ describe("WriterFindBar", () => {
     expect(root.querySelector<HTMLButtonElement>('[aria-label="Next"]')?.disabled).toBe(true);
     expect(root.querySelector<HTMLButtonElement>('[aria-label="Previous"]')?.disabled).toBe(true);
   });
+  it("replaces only the selected match and resets the counter through the real Writer adapter", async () => {
+    const match = { paragraphId: "p1", startOffset: 0, endOffset: 3 };
+    const findMatches = vi.fn((query: string) => query === "abc" ? [match] : []);
+    const focusFindMatch = vi.fn().mockReturnValue(true);
+    const replaceFoundMatch = vi.fn().mockResolvedValue(true);
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(() => (
+      <WriterFindBar
+        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch } as never}
+        language={new LanguageService("en-US")}
+        onClose={vi.fn()}
+        inputRef={() => undefined}
+      />
+    ), root);
+
+    const search = root.querySelector<HTMLInputElement>('input[type="search"]')!;
+    search.value = "abc";
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+    const replace = root.querySelector<HTMLButtonElement>('[aria-label="Replace Match"]')!;
+    expect(replace.disabled).toBe(true);
+    root.querySelector<HTMLButtonElement>('[aria-label="Next"]')!.click();
+    expect(replace.disabled).toBe(false);
+
+    const replacement = root.querySelector<HTMLInputElement>('[aria-label="Replacement text"]')!;
+    replacement.value = "xyz";
+    replacement.dispatchEvent(new Event("input", { bubbles: true }));
+    replace.click();
+    await vi.waitFor(() => expect(replaceFoundMatch).toHaveBeenCalledWith(
+      match, "abc", "xyz", "en-US",
+    ));
+    await vi.waitFor(() => expect(root.textContent).toContain("0 / 1"));
+  });
+
+  it("does not offer Replace on a read-only Writer document", () => {
+    const match = { paragraphId: "p1", startOffset: 0, endOffset: 3 };
+    const root = document.createElement("div");
+    document.body.append(root);
+    const replaceFoundMatch = vi.fn();
+    dispose = render(() => (
+      <WriterFindBar
+        controller={{
+          findMatches: () => [match],
+          focusFindMatch: () => true,
+          canReplaceFoundMatch: () => false,
+          replaceFoundMatch,
+        } as never}
+        language={new LanguageService("en-US")}
+        onClose={vi.fn()}
+        inputRef={() => undefined}
+      />
+    ), root);
+    const search = root.querySelector<HTMLInputElement>('input[type="search"]')!;
+    search.value = "abc";
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+    root.querySelector<HTMLButtonElement>('[aria-label="Next"]')!.click();
+    const replace = root.querySelector<HTMLButtonElement>('[aria-label="Replace Match"]')!;
+    expect(replace.disabled).toBe(true);
+    replace.click();
+    expect(replaceFoundMatch).not.toHaveBeenCalled();
+  });
+
 });
