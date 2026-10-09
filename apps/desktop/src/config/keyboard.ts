@@ -138,6 +138,7 @@ export const WRITER_SHORTCUT_HINTS = {
 
 export const SHEET_SHORTCUT_ACTIONS = {
   newDocument: "new-document",
+  find: "find",
   bold: "bold",
   italic: "italic",
   underline: "underline",
@@ -154,6 +155,7 @@ export type SheetShortcutAction =
 
 export const SHEET_ARIA_SHORTCUTS = {
   newDocument: "Control+N Meta+N",
+  find: "Control+F Meta+F",
   bold: "Control+B Meta+B",
   italic: "Control+I Meta+I",
   underline: "Control+U Meta+U",
@@ -171,6 +173,7 @@ export const SHEET_ARIA_SHORTCUTS = {
 
 export const SHEET_SHORTCUT_HINTS = {
   newDocument: "Ctrl+N",
+  find: "Ctrl+F",
   bold: "Ctrl+B",
   italic: "Ctrl+I",
   underline: "Ctrl+U",

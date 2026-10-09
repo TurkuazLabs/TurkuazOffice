@@ -59,6 +59,9 @@ export class SheetKeyboardShortcutService {
     if (key === KEYBOARD_KEYS.n && !input.shiftKey) {
       return SHEET_SHORTCUT_ACTIONS.newDocument;
     }
+    if (key === KEYBOARD_KEYS.f && !input.shiftKey) {
+      return SHEET_SHORTCUT_ACTIONS.find;
+    }
     if (key === KEYBOARD_KEYS.b && !input.shiftKey) {
       return SHEET_SHORTCUT_ACTIONS.bold;
     }

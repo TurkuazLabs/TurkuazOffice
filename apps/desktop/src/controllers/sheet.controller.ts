@@ -7,6 +7,7 @@
 
 import type { SheetChartType } from "../config/sheet-charts";
 import type { SheetFunctionId } from "../config/sheet-functions";
+import type { SheetFindMatch } from "../tools/sheet-find.tool";
 import type { SheetSessionService } from "../services/sheet-session.service";
 import type {
   SheetKeyboardShortcutInput,
@@ -39,6 +40,14 @@ export class SheetController {
 
   public createDocument(): Promise<boolean> {
     return this.service.createDocument();
+  }
+
+  public findMatches(
+    query: string,
+    locale: string,
+    visibleRows: readonly number[],
+  ): readonly SheetFindMatch[] {
+    return this.service.findMatches(query, locale, visibleRows);
   }
 
   public selectCell(reference: string, row: number, column: number): Promise<void> {

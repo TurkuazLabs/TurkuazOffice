@@ -2616,7 +2616,8 @@ button.start-center__module-card:focus-visible {
 
 
 /* Writer Find v0.1.0: read-only canonical paragraph search */
-.writer-find-bar {
+.writer-find-bar,
+.sheet-find-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2625,7 +2626,8 @@ button.start-center__module-card:focus-visible {
   border-top: 1px solid var(--to-border-soft);
   background: var(--to-bg-surface);
 }
-.writer-find-bar__query {
+.writer-find-bar__query,
+.sheet-find-bar__query {
   flex: 1 1 180px;
   min-height: 30px;
   min-width: 140px;
@@ -2635,17 +2637,20 @@ button.start-center__module-card:focus-visible {
   background: var(--to-bg-surface);
   color: var(--to-text-primary);
 }
-.writer-find-bar__query:focus {
+.writer-find-bar__query:focus,
+.sheet-find-bar__query:focus {
   border-color: var(--to-border-focus);
   outline: 2px solid var(--to-border-focus);
   outline-offset: 1px;
 }
-.writer-find-bar__results {
+.writer-find-bar__results,
+.sheet-find-bar__results {
   min-width: 72px;
   color: var(--to-text-secondary);
   font-size: 12px;
 }
-.writer-find-bar button {
+.writer-find-bar button,
+.sheet-find-bar button {
   min-height: 30px;
   border: 1px solid var(--to-border-soft);
   border-radius: var(--to-radius-sm);
@@ -2653,7 +2658,8 @@ button.start-center__module-card:focus-visible {
   color: var(--to-text-primary);
   cursor: pointer;
 }
-.writer-find-bar button:disabled {
+.writer-find-bar button:disabled,
+.sheet-find-bar button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
