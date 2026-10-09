@@ -253,6 +253,7 @@ required_files=(
   "apps/desktop/src/tools/shortcut-focus.tool.test.ts"
   "apps/desktop/src/tools/writer-find.tool.ts"
   "apps/desktop/src/tools/writer-find.tool.test.ts"
+  "apps/desktop/src/services/writer-session-find.service.test.ts"
   "apps/desktop/src/views/writer-find-bar.tsx"
   "apps/desktop/src/views/writer-find-bar.test.tsx"
   "apps/desktop/src/services/keyboard-shortcut.service.ts"
