@@ -2,7 +2,7 @@
 # 📌 Amac: Desktop/Web unreachable code ve Rust dependency adaylarini silmeden CI artifact olarak raporlar
 # 📌 Modul - FileType: Config - YAML
 # Version: 0.1.0
-# Aciklama: Knip full/production ve cargo-machete audit'lerini typed build CI'dan ayri advisory kalite hattinda calistirir
+# Aciklama: Knip full/production ve cargo-machete text audit'lerini typed build CI'dan ayri advisory kalite hattinda calistirir
 # Bagimli Oldugu Katman: CI -> Tool -> Config
 
 name: code-reachability-audit
@@ -65,15 +65,27 @@ jobs:
           for (const name of ["knip-full.json", "knip-production.json"]) {
             const report = JSON.parse(fs.readFileSync(name, "utf8"));
             const categories = {};
+            const references = [];
             for (const item of report.issues ?? []) {
               for (const [category, findings] of Object.entries(item)) {
                 if (Array.isArray(findings)) {
                   categories[category] = (categories[category] ?? 0) + findings.length;
+                  for (const finding of findings) {
+                    if (references.length < 80) {
+                      references.push({
+                        file: item.file,
+                        category,
+                        name: finding.name ?? finding.symbol ?? null,
+                        line: finding.line ?? null,
+                      });
+                    }
+                  }
                 }
               }
             }
             const output = JSON.stringify({ report: name, candidates: categories });
             console.log(output);
+            console.log(JSON.stringify({ report: name, sampled_findings: references }));
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, output + "\n\n");
           }
           NODE
@@ -108,23 +120,28 @@ jobs:
         shell: bash
         run: |
           set +e
-          cargo machete --json . > cargo-machete.json
+          cargo machete . > cargo-machete.txt 2>&1
           audit_status=$?
           set -e
-          cat cargo-machete.json
+          cat cargo-machete.txt
           echo "cargo_machete_status=$audit_status" >> "$GITHUB_STEP_SUMMARY"
-          # 1 means candidates exist. 2 means the scanner failed, not unused code.
-          if [[ "$audit_status" -eq 2 ]]; then
+          # The pinned binary supports plain-text output. An unsupported option is a scan failure.
+          if grep -Eq 'Unrecognized argument|error:|USAGE:' cargo-machete.txt; then
             exit 1
           fi
-          if [[ "$audit_status" -gt 2 ]]; then
-            exit "$audit_status"
+          # 0 = clean, 1 = candidates. Scanner errors are not advisory.
+          if [[ "$audit_status" -ne 0 && "$audit_status" -ne 1 ]]; then
+            exit 1
+          fi
+          if [[ ! -s cargo-machete.txt ]]; then
+            echo "audit_error: cargo-machete produced an empty report" >&2
+            exit 1
           fi
 
       - name: Upload Rust Candidate Report
         uses: actions/upload-artifact@v4
         with:
           name: cargo-machete
-          path: cargo-machete.json
+          path: cargo-machete.txt
           if-no-files-found: error
           retention-days: 14
