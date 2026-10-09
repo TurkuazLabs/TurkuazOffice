@@ -35,7 +35,7 @@ Karar: Buradaki riskler, otomatik olarak "silinebilir olu kod" sonucunu vermez.
 - Kesin unused source/exports/dependencies sayisi.
 - Dinamik Tauri command invocation, WASM generated artifact, conditional feature ve test fixture kullanimlari dahil tum entrypoint erisimi.
 - Tekrar eden kodun runtime bundle olcekli maliyeti.
-- Bir Service'i parcala(man)in performans/net kod azaltma kazanimi.
+- Bir Service'i parcalamanin performans/net kod azaltma kazanimi.
 - Native Search/Replace motorunun halihazirda var oldugu: incelenen Writer/Sheet Desktop Service + keyboard kontratinda bir belge Find/Replace komutu tespit edilmedi; bu tum git gecmisinin tarandigi anlamina gelmez.
 
 ## Aksiyon oncelikleri
@@ -46,7 +46,7 @@ Karar: Buradaki riskler, otomatik olarak "silinebilir olu kod" sonucunu vermez.
 3. Menu/toolbar/key event'in gercek handler'a, handler'in Service'e ve gerekiyorsa Core mutation'a kadar ulasmasini testle.
 4. PR #33 icin "tek pencere mi ayri process mi" kontratini onceden sec; roadmap guncellenmeden birlestirme.
 
-### P1 - Olası olu kodu dogrula
+### P1 - Olasi olu kodu dogrula
 1. Her TS entrypoint'i belirle: Desktop main, Web main, test, config, generated WASM/IPC ve lazy import.
 2. Desktop/Web TS compiler'a `noUnusedLocals` ve `noUnusedParameters` acildiginda kac ve hangi hata ciktigini raporla; mevcut CI'yi bozma.
 3. Knip icin Desktop ve Web entrypoint, Tauri IPC string bridge ve generated modul/config girislerini acikca tanimla. Ilk calismasi rapor odakli ve non-blocking olsun.
