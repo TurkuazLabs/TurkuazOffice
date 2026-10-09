@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/models/clipboard-model.ts
 // # 📌 Amac: Clipboard transfer, internal fragment ve inert HTML parse modellerini tanimlar
 // # 📌 Modul - FileType: Model - TypeScript
-// # Version: 0.2.0
+// # Version: 0.2.1
 // # Aciklama: Service ve Tool katmanlari arasinda browser nesnesi tasimayan typed clipboard kontratini saglar
 // Bagimli Oldugu Katman: Model
 
@@ -49,7 +49,7 @@ export interface ClipboardDomStyleModel {
   readonly textDecoration: string;
 }
 
-export interface ClipboardDomTextNodeModel {
+interface ClipboardDomTextNodeModel {
   readonly kind: "text";
   readonly text: string;
 }
