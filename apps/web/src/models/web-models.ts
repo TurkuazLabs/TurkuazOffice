@@ -19,7 +19,7 @@ export interface WebCanonicalDocumentRecord {
   readonly revision: number;
 }
 
-export type WebDocumentStorageKind = "indexed-db";
+type WebDocumentStorageKind = "indexed-db";
 
 export interface WebFilePickRequest {
   readonly accept: string;

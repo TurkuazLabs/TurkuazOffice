@@ -126,6 +126,20 @@ Uygulanan degisiklikler:
 Korunan kontratlar: Vite development host/port, Writer active alignments, native file dialog extension arrays, Web WASM importer, internal type unions, Rust IPC ve Pro public API.
 Temizlik sirasinda dokuman schema ve ekran davranisi degistirilmez; ayri PR'da tam CI gerekir.
 
+### Internal export daraltma - sonraki dilim
+
+Knip full taramasinda kullanilmayan export olarak raporlanan fakat dosya icinde hala gereken tanimlar **silinmez**; yalnizca disariya `export` edilmesi kaldirilir.
+
+- Desktop `file-format.ts`: `TKO_FILE_EXTENSION`, `DOCX_FILE_EXTENSION`, `PDF_FILE_EXTENSION` lokal kalir; gercekten kullanilan `*_FILE_EXTENSIONS` listeleri export edilmeye devam eder.
+- Desktop `clipboard-model.ts`: `ClipboardDomTextNodeModel` lokal kalir; `ClipboardDomNodeModel` union type disari aciktir.
+- Desktop `writer-types.ts`: `WriterParagraphStyleView`, `WriterDocxCompatibilityView`, `WriterExternalChangeStateView` daha ust seviyede export edilen DTO'larin ic alanlarinda kullanilmaya devam eder.
+- Desktop `sheet-types.ts`: `SheetWorksheetView` ve `SheetChartView` ust belge DTO'larinin icinde korunur.
+- Web `web-models.ts`: `WebDocumentStorageKind` `WebBootstrapViewModel` icinde kullanilan lokal type olur.
+
+Community Desktop ve Web `package.json` kayitlari `private: true` olarak isaretlidir. 2026-10-09 tarihinde Pro repo tree'si iki Rust crate'i ve ilgili operasyon/dokuman dosyalarindan olusur; bu tipler icin herhangi bir TypeScript importu bulunmaz. Pro canonical Core/Rust contract'ini degistirmiyoruz.
+
+Bu adim **runtime veri veya belge schema temizligi degildir**. Internal type baglantilari ve tam CI korunur. Hedef Knip full-mode unused export/type adaylarinin sifira inmesi; sonuc gercek CI'da ayrica dogrulanmadan tamamlandi denmez. Production modunda Vite host/port adaylari build config bagimliligidir ve silinmez.
+
 ### Sadece aday olarak isaretleme kurali
 
 Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:

@@ -19,7 +19,7 @@ export interface SheetCellView {
   readonly value: SheetCellValueView;
 }
 
-export interface SheetWorksheetView {
+interface SheetWorksheetView {
   readonly id: string;
   readonly name: string;
   readonly cellCount: number;
@@ -127,7 +127,7 @@ export interface SheetTableRemoveRequestView {
 
 export type SheetChartTypeView = SheetChartType;
 
-export interface SheetChartView {
+interface SheetChartView {
   readonly id: string;
   readonly worksheetId: string;
   readonly chartType: SheetChartTypeView;

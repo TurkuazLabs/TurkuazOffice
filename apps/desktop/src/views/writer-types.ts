@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/writer-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Writer read-only View DTO ve UI selection tiplerini tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// # Version: 0.2.0
+// # Version: 0.2.1
 // # Aciklama: Belge, recovery, typography, paragraph alignment, selection ve typing-style kontratlarini typed tutar
 // Bagimli Oldugu Katman: View
 
@@ -26,7 +26,7 @@ export interface WriterStyledRunInputView {
   readonly style: WriterCharacterStyleView;
 }
 
-export interface WriterParagraphStyleView {
+interface WriterParagraphStyleView {
   readonly alignment: WriterTextAlignmentView;
 }
 
@@ -71,7 +71,7 @@ export type DocxUnsupportedFeatureView =
   | "tracked_changes"
   | "fields";
 
-export interface WriterDocxCompatibilityView {
+interface WriterDocxCompatibilityView {
   readonly unsupportedFeatures: readonly DocxUnsupportedFeatureView[];
 }
 
@@ -111,7 +111,7 @@ export interface WriterResolvedFontView {
 
 
 
-export type WriterExternalChangeStateView = "untracked" | "unchanged" | "modified" | "missing";
+type WriterExternalChangeStateView = "untracked" | "unchanged" | "modified" | "missing";
 
 export interface WriterFileSessionView {
   readonly path: string | null;
