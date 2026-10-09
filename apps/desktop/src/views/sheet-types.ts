@@ -1,7 +1,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src/views/sheet-types.ts
 // # 📌 Amac: Tauri backend tarafindan gelen Sheet read-only DTO kontratlarini typed tanimlar
 // # 📌 Modul - FileType: View - TypeScript
-// Version: 0.11.1
+// Version: 0.11.0
 // Aciklama: Sheet belge, cell/format, table, conditional formatting, chart, selection range, aggregate, row-query ve stabil desktop error read-model tiplerini tasir
 // Bagimli Oldugu Katman: View
 
