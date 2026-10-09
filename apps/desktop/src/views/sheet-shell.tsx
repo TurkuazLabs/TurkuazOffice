@@ -29,9 +29,11 @@ import {
   SHEET_GRID_ROW_HEIGHT_PX,
   SHEET_MAX_DECIMAL_PLACES,
 } from "../config/sheet";
+import { SHEET_GRID_EDITOR_CLASS, SHEET_GRID_EDITOR_SELECTOR } from "../config/dom-contract";
 import type { SheetController } from "../controllers/sheet.controller";
 import type { LanguageService } from "../language/language-service";
 import type { SheetSessionRepository } from "../repositories/sheet-session.repository";
+import { shortcutBelongsToOtherTextControl } from "../tools/shortcut-focus.tool";
 import {
   SheetReferenceTool,
   type SheetGridNavigationDirection,
@@ -332,6 +334,15 @@ export function SheetShell(props: SheetShellProps) {
       editingActive: editingReference() !== null || formulaEditing(),
     });
     if (action === null) {
+      return;
+    }
+
+    // Document-wide file commands keep working even when a form control is focused.
+    // Text-editing and formatting commands belong to the focused input instead.
+    if (
+      shortcutBelongsToOtherTextControl(event.target, SHEET_GRID_EDITOR_SELECTOR) &&
+      action !== SHEET_SHORTCUT_ACTIONS.newDocument
+    ) {
       return;
     }
 
@@ -1026,7 +1037,7 @@ export function SheetShell(props: SheetShellProps) {
                               }}
                             >
                               <input
-                                class="sheet-grid__input"
+                                class={SHEET_GRID_EDITOR_CLASS}
                                 aria-label={reference}
                                 value={editorValue(reference, row, column)}
                                 style={cellStyle(reference)}

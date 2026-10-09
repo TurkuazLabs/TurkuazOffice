@@ -347,6 +347,62 @@ describe("SheetShell active drafts", () => {
     expect(formula!.value).toBe("=1+2");
   });
 
+  it("preserves native formula shortcuts without losing grid format shortcuts", async () => {
+    const repository = new SheetSessionRepository();
+    repository.setDocument(DOCUMENT);
+    const toggleBold = vi.fn().mockResolvedValue(undefined);
+    const createDocument = vi.fn().mockResolvedValue(true);
+    const resolveKeyboardShortcut = vi.fn().mockImplementation((input: { key: string }) =>
+      input.key === "n" ? "new-document" : "bold",
+    );
+    const controller = {
+      ...controllerStub(),
+      createDocument,
+      resolveKeyboardShortcut,
+      toggleBold,
+    } as unknown as SheetController;
+
+    const root = mount(repository, controller);
+    const formula = root.querySelector<HTMLInputElement>(".sheet-formula-bar__input");
+    const grid = root.querySelector<HTMLInputElement>(".sheet-grid__input");
+    expect(formula).not.toBeNull();
+    expect(grid).not.toBeNull();
+
+    const nativeEvent = new KeyboardEvent("keydown", {
+      key: "b",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    formula!.dispatchEvent(nativeEvent);
+    expect(nativeEvent.defaultPrevented).toBe(false);
+    expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(1);
+    expect(toggleBold).not.toHaveBeenCalled();
+
+    const globalEvent = new KeyboardEvent("keydown", {
+      key: "n",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    formula!.dispatchEvent(globalEvent);
+    await Promise.resolve();
+    expect(globalEvent.defaultPrevented).toBe(true);
+    expect(createDocument).toHaveBeenCalledTimes(1);
+
+    const gridEvent = new KeyboardEvent("keydown", {
+      key: "b",
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    grid!.dispatchEvent(gridEvent);
+    await Promise.resolve();
+    expect(gridEvent.defaultPrevented).toBe(true);
+    expect(resolveKeyboardShortcut).toHaveBeenCalledTimes(3);
+    expect(toggleBold).toHaveBeenCalledTimes(1);
+  });
+
   it("routes Ctrl+B through the Sheet shortcut resolver", async () => {
     const repository = new SheetSessionRepository();
     repository.setDocument(DOCUMENT);

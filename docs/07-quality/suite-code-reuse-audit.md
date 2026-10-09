@@ -148,6 +148,16 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 3. Public API uyumluluk riski incelendi, gerekiyorsa deprecation yapildi.
 4. Silme degisikliginin Windows/Linux Rust, frontend/web, WASM ve desktop package CI sonucu PASS.
 
+## Mevcut komut yuzeylerinin somut eslesmesi ve odak sahipligi
+
+2026-10-09 Writer/Sheet View denetiminde:
+- Writer Ribbon (menu + toolbar) `createDocument/openDocument/saveDocument/printDocument/undo/redo`, `toggleBold/Italic/Underline` ve `setParagraphAlignment` icin ayni WriterController'i cagirir. WriterShell klavye action'lari da ayni Controller'a gider; tekrar document engine yoktur.
+- SheetMenubar menu callback'lerini SheetShell'den alir. `newDocument`, `toggleProperties`, `toggleQuery` ve `insertFunctionDraft` klavye ve UI tarafinda ayni gercek mutation/panel state fonksiyonlarini kullanir.
+- Writer/Sheet pencere seviyesi `keydown` handler'larinin baska metin alanlarinda local undo/format tuslarini ele gecirmesini engellemek icin tek gercek ortak consumer Tool'u eklendi: `shortcut-focus.tool.ts`.
+- Writer icin `WRITER_PARAGRAPH_SELECTOR`; Sheet icin `SHEET_GRID_EDITOR_SELECTOR` izinli gercek editor yuzeyleridir. Sheet formula bar ve diger input/textarea/select/contenteditable yuzeyleri yerel format ve edit klavyesini korur. Writer icin dosya/yazdirma/print-preview, Sheet icin yeni belge gibi gercek global komutlar text-input odaginda bile kullanilabilir; placeholder eklenmez.
+- Hem pure jsdom tool regression'i hem gercek SheetShell formulu/hucresi `Ctrl+B` event routing testi bulunur. AltGr, IME ve native Editor action-service mantigi degistirilmemistir.
+- Find/Replace veya baska olmayan komut icin kisa yol/menu placeholder'i eklenmedi. Bu ozellik canonical Writer/Sheet Service mutation, undo, read-only, IME ve focus acceptance testleri tamamlandiginda ayri gelistirilecektir.
+
 ## Denetim raporu kontrol listesi
 
 - [ ] `entrypoint-graph` olusturuldu ve dinamik/generator/Tauri/WASM referanslari manuel teyit edildi.
