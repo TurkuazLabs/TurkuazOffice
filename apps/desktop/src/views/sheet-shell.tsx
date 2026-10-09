@@ -323,9 +323,6 @@ export function SheetShell(props: SheetShellProps) {
   };
 
   const onShortcut = (event: KeyboardEvent): void => {
-    if (shortcutBelongsToOtherTextControl(event.target, SHEET_GRID_EDITOR_SELECTOR)) {
-      return;
-    }
     const action = props.controller.resolveKeyboardShortcut({
       key: event.key,
       ctrlKey: event.ctrlKey,
@@ -337,6 +334,15 @@ export function SheetShell(props: SheetShellProps) {
       editingActive: editingReference() !== null || formulaEditing(),
     });
     if (action === null) {
+      return;
+    }
+
+    // Document-wide file commands keep working even when a form control is focused.
+    // Text-editing and formatting commands belong to the focused input instead.
+    if (
+      shortcutBelongsToOtherTextControl(event.target, SHEET_GRID_EDITOR_SELECTOR) &&
+      action !== SHEET_SHORTCUT_ACTIONS.newDocument
+    ) {
       return;
     }
 
