@@ -77,11 +77,13 @@ Desktop UI refresh kalite matrisi: `docs/07-quality/desktop-ui-refresh-test-matr
 - `06-adr/0018-external-change-cooperative-lock.md`
 - `06-adr/0019-twip-page-layout-font-fallback.md`
 - `06-adr/0020-sheet-basic-formula-evaluation.md`
+- `06-adr/0021-suite-command-reuse-boundary.md`
 
 ## 07 Quality
 
 - `07-quality/compatibility-matrix.md`
 - `07-quality/definition-of-done.md`
+- `07-quality/suite-code-reuse-audit.md`
 - `07-quality/accessibility-keyboard.md`
 - `07-quality/performance-budgets.md`
 - `07-quality/foundation-hardening-checklist.md`
