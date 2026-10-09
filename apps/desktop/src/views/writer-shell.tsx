@@ -7,12 +7,13 @@
 
 import { Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
-import { WRITER_PARAGRAPH_MARKER_VALUE } from "../config/dom-contract";
+import { WRITER_PARAGRAPH_MARKER_VALUE, WRITER_PARAGRAPH_SELECTOR } from "../config/dom-contract";
 import { KEYBOARD_MODIFIER_STATES, WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
 import { WRITER_AUTOSAVE_INTERVAL_MS, WRITER_EXTERNAL_CHANGE_POLL_MS } from "../config/runtime-config";
 import type { WriterController } from "../controllers/writer.controller";
 import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
+import { shortcutBelongsToOtherTextControl } from "../tools/shortcut-focus.tool";
 import { WriterPage } from "./writer-page";
 import { WriterPrintPreview } from "./writer-print-preview";
 import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banner";
@@ -41,6 +42,9 @@ export function WriterShell(props: WriterShellProps) {
   };
 
   const onShortcut = (event: KeyboardEvent) => {
+    if (shortcutBelongsToOtherTextControl(event.target, WRITER_PARAGRAPH_SELECTOR)) {
+      return;
+    }
     const action = props.controller.resolveKeyboardShortcut({
       key: event.key,
       ctrlKey: event.ctrlKey,
