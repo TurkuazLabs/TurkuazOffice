@@ -1,0 +1,12 @@
+// # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/knip.jsonc
+// # 📌 Amac: Knip taramasinda Tauri JSON5 konfig parsing uyumsuzlugunu uygulama config'ine dokunmadan sinirlar
+// # 📌 Modul - FileType: Config - JSONC
+// # Version: 0.1.0
+// # Aciklama: Tauri plugin sadece sorunlu JSON5 parsing'ini atlar; default TS entrypoint ve dependency graph korunur
+// Bagimli Oldugu Katman: Config
+
+{
+  "tauri": {
+    "config": []
+  }
+}
