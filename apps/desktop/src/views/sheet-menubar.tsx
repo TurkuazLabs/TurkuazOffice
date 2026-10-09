@@ -5,7 +5,7 @@
 // Aciklama: Dosya, Giris, Ekle, Bicim, Veri, Formuller, Gorunum ve Yardim siralamasinda gercek Sheet komutlarini gruplar
 // Bagimli Oldugu Katman: View -> Language
 
-import { SHEET_SHORTCUT_HINTS } from "../config/keyboard";
+import { SHEET_ARIA_SHORTCUTS, SHEET_SHORTCUT_HINTS } from "../config/keyboard";
 import type { LanguageService } from "../language/language-service";
 
 interface SheetMenubarProps {
@@ -51,7 +51,7 @@ export function SheetMenubar(props: SheetMenubarProps) {
       <details class="sheet-menu">
         <summary>{props.language.text("menuEdit")}</summary>
         <div class="sheet-menu__popup">
-          <button type="button" aria-keyshortcuts="Control+F Meta+F" onClick={props.onFind}>
+          <button type="button" aria-keyshortcuts={SHEET_ARIA_SHORTCUTS.find} onClick={props.onFind}>
             <span>{props.language.text("sheetFind")}</span>
             <kbd>{SHEET_SHORTCUT_HINTS.find}</kbd>
           </button>
