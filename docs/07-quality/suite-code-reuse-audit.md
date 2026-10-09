@@ -115,6 +115,17 @@ Arac/sonuc farki:
 - Ilk cargo-machete denemesinde desteklenmeyen `--json` parametresi stdout'u bos birakip CI'yi yanlis PASS gosterebildi. Nihai calisma `cargo machete .` ve status/output dogrulamasi ile gecerli tarama yapti.
 - Knip Desktop ilk denemesinde geceli Tauri JSON5 konfigunu JSON parser ile okuma hatasi vardi. `apps/desktop/knip.jsonc` yalnizca Tauri config parsing'i bosaltir; entrypoint, Vite/Vitest ve kaynak kod taramasi korunur.
 
+### Odakli temizleme - PR #61
+
+Uygulanan degisiklikler:
+- `WRITER_RIBBON_TABS` ve bundan tureyen `WriterRibbonTabConfig` gercek `writer-ribbon.tsx` menusunun kullanmadigi tumu disabled placeholder kayitlariydi; kaldirildi.
+- `WRITER_PRINT_SYSTEM_DIALOG_CAPABILITIES` ikinci listeydi ve print dialog'u zaten platforma delege ediliyordu; kaldirildi.
+- `DEFAULT_LOCALE = "tr"` mevcut `tr-TR` / `en-US` kontratina bagli degildi ve kullanilmiyordu; kaldirildi.
+- `tools/verify-project.sh` eski disabled listeyi dogrulamak yerine canli `WRITER_ALIGNMENT_COMMANDS` metadata'sini dogrular.
+
+Korunan kontratlar: Vite development host/port, Writer active alignments, native file dialog extension arrays, Web WASM importer, internal type unions, Rust IPC ve Pro public API.
+Temizlik sirasinda dokuman schema ve ekran davranisi degistirilmez; ayri PR'da tam CI gerekir.
+
 ### Sadece aday olarak isaretleme kurali
 
 Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
