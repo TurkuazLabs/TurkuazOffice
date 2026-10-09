@@ -77,8 +77,8 @@ CI workflow: `.github/workflows/code-reachability-audit.yml` (PR + elle tetiklem
 
 - Desktop ve Web ayri npm projeleri olarak incelenir. Knip 6.39.0 kendi Vite/Vitest konfigunu ve `src/main.tsx` entrypoint'ini otomatik cozer; varsayilan kurallar kullanilir. Ikinci bir entrypoint listesi ve ignore-all config eklenmez.
 - `knip-full.json` gelistirme/test baglantilarini; `knip-production.json` gercek uygulama baglantilarini ayri raporlar. Aradaki fark test-only erisimi belirlemek icin kullanilir. `--fix` ve `--allow-remove-files` ASLA calistirilmaz.
-- Rust icin sabit `cargo-machete 0.9.2` taramasi workspace `Cargo.toml` bagimliliklarini inceler. Kod uretimi, Rust proc-macro, renamed crates, cfg/feature-gated kod ve harici FFI false-positive nedenleridir.
-- Tum analizler normal `workspace-ci` build/test gate'lerinden bagimsizdir. Rapor var diye CI basarisiz olmaz; arac gercekten calismazsa CI hata verir.
+- Rust icin sabit `cargo-machete 0.9.2` taramasi workspace `Cargo.toml` bagimliliklarini inceler. Pinned CLI tarafinda `--json` uyumsuzlugu goruldugu icin metin raporu (`cargo-machete.txt`) uretir; CLI hatalari fail-closed kontrol edilir. Kod uretimi, Rust proc-macro, renamed crates, cfg/feature-gated kod ve harici FFI false-positive nedenleridir.
+- Tum analizler normal `workspace-ci` build/test gate'lerinden bagimsizdir. Rapor var diye CI basarisiz olmaz; arac gercekten calismazsa CI hata verir. Ilk denemede Tauri JSON5 Knip parse uyumsuzlugu ve Rust `--json` CLI uyumsuzlugu CI loglariyla saptanmistir; taramanin gercekten tamamlanmasi zorunludur.
 - Sadece 14 gunluk artifacts ve job summary tutulur; gereksiz kalici package/binary dependency repo uzerine eklenmez.
 - `apps/desktop/src/config/ipc-commands.ts` Tauri command string'leri frontend Tool'larindan cagrilir; Rust tarafinda `apps/desktop/src-tauri/src/lib.rs` `tauri::generate_handler!` ile register edilir. Yalniz TS graph'a bakarak Rust IPC command silinmez.
 - `apps/web/src/main.tsx` dinamik WASM loader ve generated public module ile calisir. Generated WASM tarama disinda kalabilir; baglantilar manuel teyit edilir.
