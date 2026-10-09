@@ -5,7 +5,7 @@
 // # Aciklama: Modul secici, ribbon, rich-text page, loading/error ve statusbar View'larini birlestirir
 // Bagimli Oldugu Katman: View -> Controller -> Repo -> Language
 
-import { Match, onCleanup, onMount, Show, Switch } from "solid-js";
+import { createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 
 import { WRITER_PARAGRAPH_MARKER_VALUE, WRITER_PARAGRAPH_SELECTOR } from "../config/dom-contract";
 import { KEYBOARD_MODIFIER_STATES, WRITER_SHORTCUT_ACTIONS } from "../config/keyboard";
@@ -18,6 +18,7 @@ import { WriterPage } from "./writer-page";
 import { WriterPrintPreview } from "./writer-print-preview";
 import { WriterDocxCompatibilityBanner } from "./writer-docx-compatibility-banner";
 import { WriterFileProtectionBanner } from "./writer-file-protection-banner";
+import { WriterFindBar } from "./writer-find-bar";
 import { SuiteTitlebar } from "./suite-titlebar";
 import { WriterStatusbar } from "./writer-statusbar";
 import { WriterRecoveryPanel } from "./writer-recovery-panel";
@@ -31,6 +32,20 @@ interface WriterShellProps {
 }
 
 export function WriterShell(props: WriterShellProps) {
+  const [findOpen, setFindOpen] = createSignal(false);
+  let findInput: HTMLInputElement | undefined;
+
+  const openFind = async (): Promise<void> => {
+    await props.controller.flushFocusedParagraph();
+    setFindOpen(true);
+    queueMicrotask(() => findInput?.focus());
+  };
+
+  const closeFind = (): void => {
+    setFindOpen(false);
+    queueMicrotask(() => props.controller.restoreSessionSelection());
+  };
+
   const commitFocusedParagraph = () => {
     const activeElement = document.activeElement;
     if (
@@ -69,7 +84,8 @@ export function WriterShell(props: WriterShellProps) {
       action !== WRITER_SHORTCUT_ACTIONS.newDocument &&
       action !== WRITER_SHORTCUT_ACTIONS.open &&
       action !== WRITER_SHORTCUT_ACTIONS.save &&
-      action !== WRITER_SHORTCUT_ACTIONS.saveAs
+      action !== WRITER_SHORTCUT_ACTIONS.saveAs &&
+      action !== WRITER_SHORTCUT_ACTIONS.find
     ) {
       return;
     }
@@ -113,6 +129,9 @@ export function WriterShell(props: WriterShellProps) {
         return;
       case WRITER_SHORTCUT_ACTIONS.save:
         void props.controller.saveDocument();
+        return;
+      case WRITER_SHORTCUT_ACTIONS.find:
+        void openFind();
         return;
       case WRITER_SHORTCUT_ACTIONS.bold:
         void props.controller.toggleBold();
@@ -192,7 +211,7 @@ export function WriterShell(props: WriterShellProps) {
       />
       <div class="office-command-area">
         <Show when={props.repository.document() !== null || props.repository.recoveryCandidates().length === 0}>
-          <WriterRibbon controller={props.controller} language={props.language} />
+          <WriterRibbon controller={props.controller} language={props.language} onFind={() => void openFind()} />
         </Show>
         <WriterFileProtectionBanner
           controller={props.controller}
@@ -203,6 +222,14 @@ export function WriterShell(props: WriterShellProps) {
           features={props.repository.docxCompatibilityFeatures()}
           language={props.language}
         />
+        <Show when={findOpen() && props.repository.document() !== null}>
+          <WriterFindBar
+            controller={props.controller}
+            language={props.language}
+            onClose={closeFind}
+            inputRef={(element) => { findInput = element; }}
+          />
+        </Show>
       </div>
       <Switch>
         <Match when={props.repository.document() === null && props.repository.recoveryCandidates().length > 0}>

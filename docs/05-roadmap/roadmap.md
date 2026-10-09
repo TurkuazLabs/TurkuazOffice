@@ -230,6 +230,17 @@ Durum: Planlandi; runtime ozelligi degildir ve M3 Web milestone sirasini degisti
 - PR #33'un ayri process mimarisi, bu roadmap'deki ayni pencere modulu ile uyumsuzdur; PR #33 merge kararindan once ayrica guncelleme gerekir.
 - Referanslar: `docs/06-adr/0021-suite-command-reuse-boundary.md` ve `docs/07-quality/suite-code-reuse-audit.md`.
 
+## R2.z - Writer Find Read-Only v0.1.0
+
+Durum: PR uzerinde gelistirme; CI ve Desktop kabul testleri tamamlanmadan bitmis sayilmaz.
+
+- Writer canonical paragraph read-model (DOM text aramasi degil) uzerinde locale-aware case-insensitive Bul.
+- Ctrl+F ve Edit > Bul ayni acilan Find paneline gider; query ve onceki/sonraki eslesme ile secim/odak mevcut DomSelection Tool'dan geri yuklenir.
+- Unicode scalar offset; Turkce I/i locale testi; paragraph ve document boundary; 1000 eslesme koruma limiti.
+- Metin degisikligi, replace, dirty revision, undo history mutation YOK; read-only .tko belge acilsa dahi Bul calisabilir.
+- Sheet Bul, Writer Replace, Sheet Replace, tum-belge aralik/OOXML/tablolar ve shortcut metadata genisletmeleri sonraki ayri acceptance PR'larina birakilir.
+- M3 Web'in mevcut baseline'i degistirilmez; yeni app veya kopya Find engine kurulmaz.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.

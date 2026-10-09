@@ -18,6 +18,7 @@ import type { LanguageService } from "../language/language-service";
 import type { WriterSessionRepository } from "../repositories/writer-session.repository";
 import type { WriterLayoutService } from "./writer-layout.service";
 import type { DomSelectionTool } from "../tools/dom-selection.tool";
+import { findWriterMatches, type WriterFindMatch } from "../tools/writer-find.tool";
 import type { ImageAssetTool } from "../tools/image-asset.tool";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
 import type { PrintTool } from "../tools/print.tool";
@@ -463,6 +464,34 @@ export class WriterSessionService {
     }
     return this.domSelectionTool.focusAndRestoreParagraphSelection(selection);
   }
+
+  public findMatches(query: string, locale: string): readonly WriterFindMatch[] {
+    const document = this.repository.document();
+    return document === null ? [] : findWriterMatches(document, query, locale);
+  }
+
+  public focusFindMatch(match: WriterFindMatch): boolean {
+    const paragraph = this.repository.document()?.paragraphs.find(
+      (item) => item.id === match.paragraphId,
+    );
+    if (
+      paragraph === undefined ||
+      match.startOffset < 0 ||
+      match.endOffset <= match.startOffset ||
+      match.endOffset > Array.from(paragraph.plainText).length
+    ) {
+      return false;
+    }
+
+    this.repository.setSelection(match);
+    const restored = this.domSelectionTool.focusAndRestoreParagraphSelection(match, true);
+    if (restored) {
+      // Focus handlers can capture an older selection before the DOM Range is restored.
+      this.repository.setSelection(match);
+    }
+    return restored;
+  }
+
 
   public clearTypingStyle(): void {
     this.repository.setTypingStyle(null);

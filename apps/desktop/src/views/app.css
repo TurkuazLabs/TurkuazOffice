@@ -2613,3 +2613,47 @@ button.start-center__module-card:focus-visible {
   font-size: 11px;
   white-space: nowrap;
 }
+
+
+/* Writer Find v0.1.0: read-only canonical paragraph search */
+.writer-find-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--to-space-2);
+  padding: var(--to-space-2);
+  border-top: 1px solid var(--to-border-soft);
+  background: var(--to-bg-surface);
+}
+.writer-find-bar__query {
+  flex: 1 1 180px;
+  min-height: 30px;
+  min-width: 140px;
+  padding: 0 var(--to-space-2);
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+}
+.writer-find-bar__query:focus {
+  border-color: var(--to-border-focus);
+  outline: 2px solid var(--to-border-focus);
+  outline-offset: 1px;
+}
+.writer-find-bar__results {
+  min-width: 72px;
+  color: var(--to-text-secondary);
+  font-size: 12px;
+}
+.writer-find-bar button {
+  min-height: 30px;
+  border: 1px solid var(--to-border-soft);
+  border-radius: var(--to-radius-sm);
+  background: var(--to-bg-surface);
+  color: var(--to-text-primary);
+  cursor: pointer;
+}
+.writer-find-bar button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

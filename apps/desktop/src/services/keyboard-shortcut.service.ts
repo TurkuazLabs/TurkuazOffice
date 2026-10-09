@@ -69,6 +69,9 @@ export class KeyboardShortcutService {
     if (key === KEYBOARD_KEYS.o) {
       return WRITER_SHORTCUT_ACTIONS.open;
     }
+    if (key === KEYBOARD_KEYS.f && !input.shiftKey) {
+      return WRITER_SHORTCUT_ACTIONS.find;
+    }
     if (key === KEYBOARD_KEYS.p && input.shiftKey) {
       return WRITER_SHORTCUT_ACTIONS.printPreview;
     }

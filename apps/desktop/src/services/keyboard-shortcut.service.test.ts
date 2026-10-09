@@ -37,6 +37,7 @@ describe("KeyboardShortcutService", () => {
   it.each([
     ["n", WRITER_SHORTCUT_ACTIONS.newDocument],
     ["o", WRITER_SHORTCUT_ACTIONS.open],
+    ["f", WRITER_SHORTCUT_ACTIONS.find],
     ["s", WRITER_SHORTCUT_ACTIONS.save],
     ["p", WRITER_SHORTCUT_ACTIONS.print],
     ["z", WRITER_SHORTCUT_ACTIONS.undo],
@@ -118,5 +119,6 @@ describe("KeyboardShortcutService", () => {
   it("ignores unmodified and unknown keys", () => {
     expect(service.resolve(input("n", { ctrlKey: false }))).toBeNull();
     expect(service.resolve(input("q"))).toBeNull();
+    expect(service.resolve(input("f", { shiftKey: true }))).toBeNull();
   });
 });

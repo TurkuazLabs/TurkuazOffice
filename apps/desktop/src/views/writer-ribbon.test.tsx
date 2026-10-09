@@ -71,6 +71,7 @@ describe("WriterRibbon classic format menu", () => {
         <WriterRibbon
           controller={controller}
           language={new LanguageService("tr-TR")}
+          onFind={() => undefined}
         />
       ),
       root,
@@ -142,6 +143,7 @@ describe("WriterRibbon classic format menu", () => {
         <WriterRibbon
           controller={controller}
           language={new LanguageService("tr-TR")}
+          onFind={() => undefined}
         />
       ),
       root,

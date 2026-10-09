@@ -25,6 +25,7 @@ import type { WriterTextAlignmentView } from "./writer-types";
 interface WriterRibbonProps {
   readonly controller: WriterController;
   readonly language: LanguageService;
+  readonly onFind: () => void;
 }
 
 type WriterToolbarIconName =
@@ -216,6 +217,10 @@ export function WriterRibbon(props: WriterRibbonProps) {
             <button type="button" onClick={() => void props.controller.redo()}>
               <span>{props.language.text("redo")}</span>
               <kbd>{WRITER_SHORTCUT_HINTS.redo}</kbd>
+            </button>
+            <button type="button" aria-keyshortcuts={WRITER_ARIA_SHORTCUTS.find} onClick={props.onFind}>
+              <span>{props.language.text("writerFind")}</span>
+              <kbd>{WRITER_SHORTCUT_HINTS.find}</kbd>
             </button>
           </div>
         </details>

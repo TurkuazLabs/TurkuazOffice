@@ -123,7 +123,10 @@ export class DomSelectionTool {
     return null;
   }
 
-  public focusAndRestoreParagraphSelection(selectionView: WriterSelectionView): boolean {
+  public focusAndRestoreParagraphSelection(
+    selectionView: WriterSelectionView,
+    scrollIntoView = false,
+  ): boolean {
     const candidates = document.querySelectorAll<HTMLElement>(WRITER_PARAGRAPH_SELECTOR);
     const editor = Array.from(candidates).find(
       (candidate) => candidate.dataset.writerParagraphId === selectionView.paragraphId,
@@ -132,7 +135,11 @@ export class DomSelectionTool {
       return false;
     }
     editor.focus({ preventScroll: true });
-    return this.restoreParagraphSelection(editor, selectionView);
+    const restored = this.restoreParagraphSelection(editor, selectionView);
+    if (restored && scrollIntoView) {
+      editor.scrollIntoView?.({ block: "nearest" });
+    }
+    return restored;
   }
 
   public adjacentParagraphSelection(
