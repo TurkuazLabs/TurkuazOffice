@@ -34,6 +34,13 @@ export function WriterFindBar(props: WriterFindBarProps) {
       maxQueryScalars={WRITER_FIND_MAX_QUERY_SCALARS}
       findMatches={(query) => props.controller.findMatches(query, props.language.locale())}
       onNavigate={(match) => props.controller.focusFindMatch(match)}
+      replaceOne={{
+        label: "writerReplaceOne",
+        placeholder: "writerReplaceWith",
+        canReplace: () => props.controller.canReplaceFoundMatch(),
+        perform: (match, query, replacement) =>
+          props.controller.replaceFoundMatch(match, query, replacement, props.language.locale()),
+      }}
       onClose={props.onClose}
       inputRef={props.inputRef}
     />
