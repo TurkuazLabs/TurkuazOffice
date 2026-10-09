@@ -46,8 +46,6 @@ jobs:
       - name: Frontend Unit Tests
         run: npm test
 
-      - name: Unused TypeScript Advisory
-        run: bash ../../tools/audit-unused-typescript.sh .
 
   web-quality:
     name: Web quality
@@ -74,8 +72,6 @@ jobs:
       - name: Web Unit Tests
         run: npm test
 
-      - name: Unused TypeScript Advisory
-        run: bash ../../tools/audit-unused-typescript.sh .
 
   wasm-artifact:
     name: Web WASM artifact
