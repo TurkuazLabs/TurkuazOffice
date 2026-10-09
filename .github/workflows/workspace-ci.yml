@@ -46,7 +46,6 @@ jobs:
       - name: Frontend Unit Tests
         run: npm test
 
-
   web-quality:
     name: Web quality
     runs-on: ubuntu-latest
@@ -71,7 +70,6 @@ jobs:
 
       - name: Web Unit Tests
         run: npm test
-
 
   wasm-artifact:
     name: Web WASM artifact
