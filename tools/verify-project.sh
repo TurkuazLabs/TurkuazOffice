@@ -31,6 +31,7 @@ required_files=(
   ".gitignore"
   "config/project.yml"
   "docs/README.md"
+  ".github/workflows/code-reachability-audit.yml"
   "docs/08-implementation/m1-writer-domain-v0.2.0.md"
   "docs/08-implementation/m1-desktop-shell-v0.2.0.md"
   "docs/08-implementation/m1-rich-text-ime-v0.2.0.md"
@@ -529,6 +530,9 @@ grep -q 'M3 Web Writer TKO TypeScript Tool v0.4.0' "$ROOT/docs/08-implementation
 grep -q 'M3 Web TKO Import Export Composition v0.4.0' "$ROOT/docs/08-implementation/m3-web-tko-import-export-composition-v0.4.0.md"
 grep -q 'M3 Web Writer TKO WASM Bridge v0.4.0' "$ROOT/docs/08-implementation/m3-web-writer-tko-wasm-bridge-v0.4.0.md"
 grep -q 'name: Web WASM artifact' "$ROOT/.github/workflows/workspace-ci.yml"
+grep -q 'knip@6.39.0' "$ROOT/.github/workflows/code-reachability-audit.yml"
+grep -q 'cargo-machete --version 0.9.2' "$ROOT/.github/workflows/code-reachability-audit.yml"
+grep -q 'knip-production.json' "$ROOT/.github/workflows/code-reachability-audit.yml"
 grep -q 'actions/upload-artifact@v4' "$ROOT/.github/workflows/workspace-ci.yml"
 grep -q 'M3 Web wasm-bindgen Artifacts v0.4.0' "$ROOT/docs/08-implementation/m3-web-wasm-bindgen-artifacts-v0.4.0.md"
 
