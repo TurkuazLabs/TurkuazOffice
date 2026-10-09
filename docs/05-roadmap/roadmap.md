@@ -252,6 +252,18 @@ Durum: PR uzerinde gelistirme; tum platform CI ve kabul testleri olmadan tamamla
 - Ilerideki tum-sheet arama ve Replace icin sadece plan kaydi vardir; kullanilmayan backend abstraction veya sahte menu yoktur.
 - Writer/Sheet Find panel CSS'i ayni stil kontratini paylasir; canonical arama uygulamalari veri tipleri farkli oldugundan modul Tools'larda ayri kalir.
 
+## R2.ab - Writer Replace One (tek eslesme) v0.1.0
+
+Durum: PR uzerinde gelistirme; tam CI ve kullanici kabulunden once tamamlandi sayilmaz.
+
+- Mevcut Writer Bul panelinde yalniz SECILI TEK eslesmeyi degistirme komutu; Ctrl+H ve tumunu degistir YOK.
+- Gercek mutasyon writer_replace_range_with_styled_runs native Rust command ile yapilir. Bu command bir undo snapshot olusturur ve dosya kilidinde ensure_writable calistirir.
+- Frontend WriterReplace planlama Tool'u canonical UTF-32 scalar karakter araligini, kaynak query ve locale eslesmesini, run toplamini, ilk eslesen karakter stilini, bos/uzun replacement ve paragraph disi aralik risklerini dogrular.
+- Service mutation queue'sunda beklenen belge ID/revision, read-only file session, degismis paragraf metni ve henuz commit edilmemis aktif DOM text yeniden kontrol edilir. Backend kendi file write lock kontrolunu uygular.
+- Degisen araligin disindaki rich text run'lari ve paragraf stilleri Rust command tarafindan korunur. Tek operation sonrasinda undo/redo, tekstil mutasyonu ve read-only regresyonlari istenir.
+- Yetkinin UI'da pasif gorunmesi backend write lock'un yerine GECMEZ. Harici surecler arasi revizyon race'lerinin mutlak korunmasi icin sonraki backend beklenen-revision IPC kontrati gerekecektir.
+- Sheet Replace, cross-paragraph Replace, regex, toplu Replace ve Ctrl+H sonraki ayri kabul/guvenlik asamalarina birakilir.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.

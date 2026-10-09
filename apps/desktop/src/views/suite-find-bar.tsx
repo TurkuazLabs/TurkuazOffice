@@ -26,13 +26,21 @@ interface SuiteFindBarProps<TMatch> {
   readonly findMatches: (query: string) => readonly TMatch[];
   readonly onNavigate: (match: TMatch) => boolean | void | Promise<boolean | void>;
   readonly onClose: () => void;
+  readonly replaceOne?: {
+    readonly label: DesktopLabelKey;
+    readonly placeholder: DesktopLabelKey;
+    readonly canReplace: () => boolean;
+    readonly perform: (match: TMatch, query: string, replacement: string) => Promise<boolean>;
+  };
   readonly inputRef: (element: HTMLInputElement) => void;
 }
 
 export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
   const [query, setQuery] = createSignal("");
   const [activeIndex, setActiveIndex] = createSignal(-1);
+  const [replacementText, setReplacementText] = createSignal("");
   const matches = createMemo(() => props.findMatches(query()));
+  const replaceOne = props.replaceOne;
   let generation = 0;
   let navigating = false;
 
@@ -68,6 +76,27 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
     } else if (outcome !== false && requestGeneration === generation) {
       setActiveIndex(next);
     }
+  };
+
+  const replaceSelected = (): void => {
+    const replace = props.replaceOne;
+    const match = matches()[activeIndex()];
+    if (replace === undefined || match === undefined || navigating || !replace.canReplace()) {
+      return;
+    }
+
+    const requestGeneration = generation;
+    navigating = true;
+    void replace.perform(match, query(), replacementText()).then(
+      (replaced) => {
+        if (replaced && requestGeneration === generation) {
+          setActiveIndex(-1);
+        }
+      },
+      () => undefined,
+    ).finally(() => {
+      navigating = false;
+    });
   };
 
   return (
@@ -114,6 +143,24 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
         aria-label={props.language.text(props.labels.next)}
         onClick={() => navigate(1)}
       >{props.language.text(props.labels.next)}</button>
+      {replaceOne !== undefined && (
+        <>
+          <input
+            type="text"
+            class={`${props.className}__replacement`}
+            aria-label={props.language.text(replaceOne.placeholder)}
+            placeholder={props.language.text(replaceOne.placeholder)}
+            value={replacementText()}
+            onInput={(event) => setReplacementText(event.currentTarget.value)}
+          />
+          <button
+            type="button"
+            aria-label={props.language.text(replaceOne.label)}
+            disabled={activeIndex() < 0 || activeIndex() >= matches().length || !replaceOne.canReplace()}
+            onClick={replaceSelected}
+          >{props.language.text(replaceOne.label)}</button>
+        </>
+      )}
       <button
         type="button"
         aria-label={props.language.text(props.labels.close)}

@@ -167,6 +167,19 @@ export class WriterController {
     return this.service.restoreSessionSelection();
   }
 
+  public canReplaceFoundMatch(): boolean {
+    return this.service.canReplaceFoundMatch();
+  }
+
+  public replaceFoundMatch(
+    match: WriterFindMatch,
+    query: string,
+    replacement: string,
+    locale: string,
+  ): Promise<boolean> {
+    return this.service.replaceFoundMatch(match, query, replacement, locale);
+  }
+
   public findMatches(query: string, locale: string): readonly WriterFindMatch[] {
     return this.service.findMatches(query, locale);
   }

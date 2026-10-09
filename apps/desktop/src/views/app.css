@@ -2626,6 +2626,7 @@ button.start-center__module-card:focus-visible {
   border-top: 1px solid var(--to-border-soft);
   background: var(--to-bg-surface);
 }
+.writer-find-bar__replacement,
 .writer-find-bar__query,
 .sheet-find-bar__query {
   flex: 1 1 180px;
@@ -2637,6 +2638,7 @@ button.start-center__module-card:focus-visible {
   background: var(--to-bg-surface);
   color: var(--to-text-primary);
 }
+.writer-find-bar__replacement:focus,
 .writer-find-bar__query:focus,
 .sheet-find-bar__query:focus {
   border-color: var(--to-border-focus);

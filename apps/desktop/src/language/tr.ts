@@ -147,6 +147,8 @@ export const TR_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   writerFindPrevious: "Onceki",
   writerFindClose: "Kapat",
   writerFindNoMatches: "Eslesme bulunamadi",
+  writerReplaceOne: "Bu Eslesmeyi Degistir",
+  writerReplaceWith: "Yeni metin",
   undo: "Geri Al",
   redo: "Yinele",
   saveComingSoon: "Kaydet - sonraki faz",

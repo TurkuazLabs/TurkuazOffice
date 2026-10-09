@@ -9,7 +9,7 @@ use turkuaz_office_desktop_lib::config::constants::{
     ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID,
 };
 use turkuaz_office_desktop_lib::services::writer_desktop_service::WriterDesktopService;
-use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, TextAlignment};
+use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, StyledTextRun, TextAlignment};
 
 #[test]
 fn replace_split_merge_and_undo_flow_is_stable() {
@@ -499,4 +499,74 @@ fn image_asset_survives_save_reopen_and_lazy_fetch() {
 
     drop(reopened_service);
     let _ = std::fs::remove_file(saved_path);
+}
+
+#[test]
+fn writer_replace_one_preserves_surrounding_runs_and_one_step_undo_redo() {
+    let mut service = WriterDesktopService::new();
+    let original = service.create_document();
+    let paragraph_id = original.paragraphs[0].id.clone();
+
+    let initial = service
+        .replace_paragraph_text(&original.id, &paragraph_id, "💠alpha beta")
+        .expect("seed text should succeed");
+    let styled = service
+        .apply_character_style(
+            &initial.id,
+            &paragraph_id,
+            7,
+            11,
+            CharacterStylePatch {
+                bold: Some(true),
+                ..CharacterStylePatch::default()
+            },
+        )
+        .expect("seed formatting should succeed");
+
+    let replacement = service
+        .replace_range_with_styled_runs(
+            &styled.id,
+            &paragraph_id,
+            7,
+            11,
+            vec![StyledTextRun {
+                text: "BETA".to_string(),
+                style: CharacterStyle {
+                    bold: true,
+                    ..CharacterStyle::default()
+                },
+            }],
+        )
+        .expect("single range Replace should succeed");
+
+    assert_eq!(replacement.plain_text, "💠alpha BETA");
+    assert_eq!(replacement.revision, styled.revision + 1);
+    assert!(
+        replacement.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text == "BETA" && run.style.bold)
+    );
+    assert!(
+        replacement.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text.contains("alpha") && !run.style.bold)
+    );
+
+    let undone = service
+        .undo(&replacement.id)
+        .expect("one undo should revert Replace");
+    assert_eq!(undone.plain_text, "💠alpha beta");
+    assert!(
+        undone.paragraphs[0]
+            .runs
+            .iter()
+            .any(|run| run.text == "beta" && run.style.bold)
+    );
+
+    let redone = service
+        .redo(&replacement.id)
+        .expect("one redo should replay Replace");
+    assert_eq!(redone.plain_text, "💠alpha BETA");
 }
