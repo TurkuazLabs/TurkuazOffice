@@ -160,6 +160,14 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 - Bu sonraki refactor'da iki gercek production consumer vardir: `writer-find-bar.tsx` ve `sheet-find-bar.tsx` ikisi de `suite-find-bar.tsx` kullaniyor. Ortak kisim query input, Enter/Shift+Enter, Escape, result count, wraparound, async navigation'in tamamlanmasini bekleme ve stale query onlemidir.
 - Canonical arama motorlari `writer-find.tool.ts` (Unicode paragraph offset) ve `sheet-find.tool.ts` (sparse gorunen hucre) AYRI korunur; belge Service'i, Controller'i, editor secim araci ve Pro siniri degismez. CSS zaten her iki Find paneli icin ortaktir.
 
+## Writer Replace One - gercek write siniri ve guvenlik kontrati
+
+- Writer Bul panelinde secili tek eslesmeyi degistirme eklendi. Sheet paneli salt-okunur kaldi ve `Ctrl+H`/toplu replace kaydi eklenmedi.
+- `writer-replace.tool.ts` mutasyon yapmadan Unicode scalar aralik, kaynagin gercek matched metni, locale ve mevcut rich-text run stillerinin tutarliligini dogrular; metni DOM uzerinden degistirmez.
+- `WriterSessionService.replaceFoundMatch` sikismis mutation queue icerisinde file session read-only, snapshot document ID/revision ve unsaved aktif editor DOM metnini tekrar dogrular. Yazma eylemi `TauriWriterTool.replaceRangeWithStyledRuns` -> Rust `ensure_writable` -> `WriterCommand::ReplaceRangeWithStyledRuns` uzerinden tek backend history adimidir.
+- UI read-only'de eylemi disable eder. Native write-lock hatalari backend tarafindan yine ayrica denetlenir. Mevcut IPC imzasinda beklenen revision parametresi olmadigindan dis surecli race condition mutlak koruma garanti EDILMEZ; bunu tumunu degistirden once ayri backend kontratina tasimak gerekir.
+- Coverage: kaynagi degismis span, yanlis paragraph, surrogate + Turkce, tutarsiz rich runs, bitmis revision, read-only, aktif unsaved DOM typing, undo ve onaylanmis tek mutasyon.
+
 ## Denetim raporu kontrol listesi
 
 - [ ] `entrypoint-graph` olusturuldu ve dinamik/generator/Tauri/WASM referanslari manuel teyit edildi.
