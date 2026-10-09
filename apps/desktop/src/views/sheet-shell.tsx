@@ -40,6 +40,8 @@ import {
 } from "../tools/sheet-reference.tool";
 import { SheetChartsSidebar } from "./sheet-charts-sidebar";
 import { SheetFunctionsSidebar } from "./sheet-functions-sidebar";
+import { SheetFindBar } from "./sheet-find-bar";
+import type { SheetFindMatch } from "../tools/sheet-find.tool";
 import { SheetMenubar } from "./sheet-menubar";
 import { SheetPropertiesSidebar } from "./sheet-properties-sidebar";
 import { SuiteTitlebar } from "./suite-titlebar";
@@ -81,6 +83,8 @@ export function SheetShell(props: SheetShellProps) {
   const [functionsOpen, setFunctionsOpen] = createSignal(false);
   const [chartsOpen, setChartsOpen] = createSignal(false);
   const [queryOpen, setQueryOpen] = createSignal(false);
+  const [findOpen, setFindOpen] = createSignal(false);
+  let findInput: HTMLInputElement | undefined;
   const [conditionalFormatOpen, setConditionalFormatOpen] = createSignal(false);
   const [conditionalMode, setConditionalMode] =
     createSignal<SheetConditionalFormatModeView>("numberGreaterThan");
@@ -322,6 +326,26 @@ export function SheetShell(props: SheetShellProps) {
     focusCellInput(reference);
   };
 
+  const openFind = (): void => {
+    setFindOpen(true);
+    queueMicrotask(() => findInput?.focus());
+  };
+
+  const closeFind = (): void => {
+    setFindOpen(false);
+    queueMicrotask(() => focusSelectedCell());
+  };
+
+  const navigateFindMatch = async (match: SheetFindMatch): Promise<void> => {
+    const reference = REFERENCE_TOOL.reference(match.row + 1, match.column + 1);
+    await props.controller.selectCell(reference, match.row, match.column);
+    focusCellInput(reference);
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement) {
+      focused.scrollIntoView?.({ block: "nearest" });
+    }
+  };
+
   const onShortcut = (event: KeyboardEvent): void => {
     const action = props.controller.resolveKeyboardShortcut({
       key: event.key,
@@ -341,7 +365,8 @@ export function SheetShell(props: SheetShellProps) {
     // Text-editing and formatting commands belong to the focused input instead.
     if (
       shortcutBelongsToOtherTextControl(event.target, SHEET_GRID_EDITOR_SELECTOR) &&
-      action !== SHEET_SHORTCUT_ACTIONS.newDocument
+      action !== SHEET_SHORTCUT_ACTIONS.newDocument &&
+      action !== SHEET_SHORTCUT_ACTIONS.find
     ) {
       return;
     }
@@ -350,6 +375,9 @@ export function SheetShell(props: SheetShellProps) {
     switch (action) {
       case SHEET_SHORTCUT_ACTIONS.newDocument:
         void createDocument();
+        return;
+      case SHEET_SHORTCUT_ACTIONS.find:
+        openFind();
         return;
       case SHEET_SHORTCUT_ACTIONS.bold:
         void props.controller.toggleBold();
@@ -446,6 +474,7 @@ export function SheetShell(props: SheetShellProps) {
 
   const createDocument = async (): Promise<void> => {
     if (await props.controller.createDocument()) {
+      setFindOpen(false);
       resetQueryControls();
     }
   };
@@ -618,6 +647,7 @@ export function SheetShell(props: SheetShellProps) {
           canCreateTable={canCreateTable()}
           canRemoveTable={selectedTable() !== null}
           onNewDocument={() => void createDocument()}
+          onFind={openFind}
           onToggleProperties={togglePropertiesSidebar}
           onToggleQuery={() => setQueryOpen((value) => !value)}
           onToggleConditionalFormat={() => setConditionalFormatOpen((value) => !value)}
@@ -631,6 +661,16 @@ export function SheetShell(props: SheetShellProps) {
           onCreateTable={() => void props.controller.createTableFromSelection()}
           onRemoveTable={() => void props.controller.removeTableAtSelection()}
         />
+        <Show when={findOpen() && props.repository.document() !== null}>
+          <SheetFindBar
+            controller={props.controller}
+            language={props.language}
+            visibleRows={visibleRows().map((row) => row - 1)}
+            onNavigate={navigateFindMatch}
+            onClose={closeFind}
+            inputRef={(element) => { findInput = element; }}
+          />
+        </Show>
         <div class="sheet-toolbar" aria-label={props.language.text("sheetToolbarLabel")}>
           <button
             type="button"
