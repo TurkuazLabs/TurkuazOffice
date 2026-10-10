@@ -148,6 +148,7 @@ export const EN_LABELS: Readonly<Record<DesktopLabelKey, string>> = {
   writerFindClose: "Close",
   writerFindNoMatches: "No matches",
   writerReplaceOne: "Replace Match",
+  writerReplaceAll: "Replace All",
   writerReplaceWith: "Replacement text",
   open: "Open",
   undo: "Undo",
