@@ -26,9 +26,10 @@ use controllers::writer_desktop_controller::{
     writer_export_pdf, writer_get_asset, writer_get_file_session, writer_import_docx,
     writer_insert_image_data, writer_list_recent_files, writer_list_recovery_snapshots,
     writer_list_templates, writer_merge_with_previous, writer_open_document,
-    writer_record_recent_file, writer_redo, writer_reload_from_disk, writer_replace_paragraph_text,
-    writer_replace_range_with_styled_runs, writer_restore_recovery_snapshot, writer_save_document,
-    writer_split_paragraph, writer_take_startup_file, writer_undo,
+    writer_record_recent_file, writer_redo, writer_reload_from_disk, writer_replace_all_ranges,
+    writer_replace_paragraph_text, writer_replace_range_with_styled_runs,
+    writer_restore_recovery_snapshot, writer_save_document, writer_split_paragraph,
+    writer_take_startup_file, writer_undo,
 };
 use services::sheet_desktop_service::SheetDesktopService;
 use services::writer_desktop_service::WriterDesktopService;
@@ -100,6 +101,7 @@ pub fn run() {
             writer_insert_image_data,
             writer_replace_paragraph_text,
             writer_replace_range_with_styled_runs,
+            writer_replace_all_ranges,
             writer_apply_character_style,
             writer_apply_paragraph_alignment,
             writer_split_paragraph,

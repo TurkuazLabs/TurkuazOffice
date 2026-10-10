@@ -18,7 +18,7 @@ use turkuaz_office_writer::{
 use crate::config::constants::RECENT_FILES_METADATA_NAME;
 use crate::config::constants::{
     ERROR_ASSET_NOT_FOUND, ERROR_DOCUMENT_REVISION_CONFLICT, ERROR_INVALID_OFFSET,
-    ERROR_PARAGRAPH_NOT_FOUND,
+    ERROR_INVALID_REPLACE_BATCH, ERROR_PARAGRAPH_NOT_FOUND,
 };
 use crate::repositories::recent_files_repository::RecentFilesRepository;
 use crate::services::recent_files_service::{RecentFileEntry, RecentFilesService};
@@ -36,6 +36,13 @@ use crate::tools::app_state_path_tool::AppStatePathTool;
 use crate::tools::recovery_path_tool::RecoveryPathTool;
 use crate::tools::startup_arguments_tool::StartupArgumentsTool;
 use crate::views::error_dto::DesktopErrorDto;
+
+pub struct WriterReplaceBatchEntry {
+    pub paragraph_id: String,
+    pub start_offset: usize,
+    pub end_offset: usize,
+    pub runs: Vec<StyledTextRun>,
+}
 
 pub struct WriterDesktopService {
     controller: WriterController<InMemoryWriterDocumentRepository, SequentialWriterIdTool>,
@@ -482,6 +489,69 @@ impl WriterDesktopService {
                     runs,
                 },
             )
+            .map_err(DesktopErrorDto::from)
+    }
+
+    pub fn replace_all_ranges_checked(
+        &mut self,
+        document_id: &str,
+        expected_revision: u64,
+        replacements: Vec<WriterReplaceBatchEntry>,
+    ) -> Result<WriterDocumentView, DesktopErrorDto> {
+        // Reuse native file-lock and revision guards. Validate ALL ranges before
+        // invoking the domain's all-or-nothing execute_batch/one-step history.
+        self.file_session_service
+            .ensure_writable(document_id)
+            .map_err(DesktopErrorDto::from)?;
+        let current = self.document(document_id)?;
+        if current.revision != expected_revision {
+            return Err(DesktopErrorDto::new(ERROR_DOCUMENT_REVISION_CONFLICT));
+        }
+        if replacements.is_empty() || replacements.len() > 1000 {
+            return Err(DesktopErrorDto::new(ERROR_INVALID_REPLACE_BATCH));
+        }
+
+        let mut previous: Option<(usize, usize)> = None;
+        let mut commands = Vec::with_capacity(replacements.len());
+        for replacement in replacements {
+            let paragraph_index = current
+                .paragraphs
+                .iter()
+                .position(|item| item.id == replacement.paragraph_id)
+                .ok_or_else(|| DesktopErrorDto::new(ERROR_INVALID_REPLACE_BATCH))?;
+            let paragraph = &current.paragraphs[paragraph_index];
+            if replacement.start_offset >= replacement.end_offset
+                || replacement.end_offset > paragraph.plain_text.chars().count()
+                || replacement.runs.len() > 64
+                || replacement
+                    .runs
+                    .iter()
+                    .any(|run| run.text.contains('\n') || run.text.contains('\r'))
+                || replacement
+                    .runs
+                    .iter()
+                    .map(|run| run.text.chars().count())
+                    .sum::<usize>()
+                    > 4096
+                || previous.is_some_and(|(prior_index, prior_start)| {
+                    paragraph_index > prior_index
+                        || (paragraph_index == prior_index && replacement.end_offset > prior_start)
+                })
+            {
+                return Err(DesktopErrorDto::new(ERROR_INVALID_REPLACE_BATCH));
+            }
+            previous = Some((paragraph_index, replacement.start_offset));
+            commands.push(WriterCommand::ReplaceRangeWithStyledRuns {
+                range: TextRange {
+                    anchor: Self::position_at_offset(paragraph, replacement.start_offset)?,
+                    focus: Self::position_at_offset(paragraph, replacement.end_offset)?,
+                },
+                runs: replacement.runs,
+            });
+        }
+
+        self.controller
+            .execute_batch(document_id, &commands)
             .map_err(DesktopErrorDto::from)
     }
 
