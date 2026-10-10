@@ -41,6 +41,13 @@ export function WriterFindBar(props: WriterFindBarProps) {
         perform: (match, query, replacement) =>
           props.controller.replaceFoundMatch(match, query, replacement, props.language.locale()),
       }}
+      replaceAll={{
+        label: "writerReplaceAll",
+        canReplace: (query, replacement) =>
+          props.controller.canReplaceAllFoundMatches(query, replacement, props.language.locale()),
+        perform: (query, replacement) =>
+          props.controller.replaceAllFoundMatches(query, replacement, props.language.locale()),
+      }}
       onClose={props.onClose}
       inputRef={props.inputRef}
     />
