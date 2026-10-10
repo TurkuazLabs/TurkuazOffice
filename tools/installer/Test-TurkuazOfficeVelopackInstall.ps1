@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.3.0
+# Version: 0.3.1
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -114,13 +114,38 @@ try {
     }
     Write-Host 'OFFICE_REAL_VELOPACK_INSTALL_OK'
 
+    # Windows Update.exe may hand off its own final deletion. Exit code 0
+    # confirms the launcher finished, not necessarily that all files have
+    # disappeared at the same millisecond. Do NOT accept leftover binaries:
+    # poll briefly, then dump the *actual* filesystem state and fail closed.
+    $uninstallLog = Join-Path $testRoot 'velopack-uninstall.log'
     Invoke-CheckedInstaller -Executable $updater -Operation 'uninstall' -Arguments @(
-        '--silent', '--rootDir', $installRoot, 'uninstall'
+        '--silent', '--rootDir', $installRoot, '--log', $uninstallLog, 'uninstall'
     )
 
-    if ((Test-Path -LiteralPath $updater -PathType Leaf) -or
-        (Test-Path -LiteralPath (Join-Path $installRoot 'current'))) {
-        throw 'Velopack uninstall left active installation files.'
+    $uninstallDeadline = [DateTime]::UtcNow.AddSeconds(30)
+    $currentFolder = Join-Path $installRoot 'current'
+    do {
+        $updaterPresent = Test-Path -LiteralPath $updater -PathType Leaf
+        $currentPresent = Test-Path -LiteralPath $currentFolder
+        if (-not $updaterPresent -and -not $currentPresent) {
+            break
+        }
+        Start-Sleep -Milliseconds 500
+    } while ([DateTime]::UtcNow -lt $uninstallDeadline)
+
+    if ($updaterPresent -or $currentPresent) {
+        Write-Warning ('Uninstall retained active paths after bounded wait: Update.exe={0}; current={1}' -f $updaterPresent, $currentPresent)
+        if (Test-Path -LiteralPath $installRoot) {
+            Get-ChildItem -LiteralPath $installRoot -Force -Recurse -ErrorAction Continue |
+                Select-Object -First 50 -ExpandProperty FullName |
+                ForEach-Object { Write-Warning "REMAINING_PATH: $_" }
+        }
+        if (Test-Path -LiteralPath $uninstallLog -PathType Leaf) {
+            Get-Content -LiteralPath $uninstallLog -Tail 100 |
+                ForEach-Object { Write-Warning "VELOPACK_UNINSTALL_LOG: $_" }
+        }
+        throw 'Velopack uninstall did not remove active binaries within 30 seconds.'
     }
     Write-Host 'OFFICE_REAL_VELOPACK_UNINSTALL_OK'
     Write-Host 'OFFICE_REAL_VELOPACK_INSTALL_SMOKE_OK'
