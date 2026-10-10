@@ -284,6 +284,17 @@ Durum: PR icinde backend + Rust acceptance; UI AKTIF DEGIL.
 - Rust acceptance: ayni paragrafta iki eslesme, Unicode, tek Undo/Redo; stale revision reddi, overlap reddi ve basarili ilk komuttan sonra ikinci komut hatasinda tam rollback.
 - Replace All gorunur UI, Ctrl+H, Sheet Replace ve harici disk senkronizasyonu hala kapsam disi. Browser kaynakli canli DOM typing ve busy queue siniri denetlenmeden yeni buton acilmayacak.
 
+## R2.ae - Writer Replace All visible workflow v0.1.0
+
+Durum: PR icinde; Windows/Linux test + paket CI ve merge bitmeden release degil.
+
+- Writer Bul panelindeki mevcut yeni metin girdisi icin gercek `Tumunu Degistir` eylemi; secili tek Find sonucu gerektirmez.
+- Eylem ancak canonical preflight tam, gecersiz olmayan, en fazla 1000 eslesmeli ve salt-okunur olmayan Writer belgesinde etkinlesir. Overlap ve Turkish locale/Unicode scalar offsetleri korunur.
+- Writer Controller -> WriterSessionService -> TauriWriterTool -> `writer_replace_all_ranges` native IPC -> Rust atomic `execute_batch` gercek üretim yoludur.
+- Mutation queue icinde doc id/revision, stale query, salt-okunur kilit ve commit edilmemis aktif DOM text yeniden kontrol edilir; native tarafta zorunlu expected-revision ve dosya kilidi tekrar kontrol edilir.
+- Tek IPC/tek belge revizyonu/tek Undo+Redo. Hata durumunda belgeye kismi edit veya history commit yazilmaz.
+- Sheet hala salt-okunur Find; Ctrl+H, regex, cross-paragraph replacement ve 1000+ eslesme destegi ayri gelecektir.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.

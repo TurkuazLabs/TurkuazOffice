@@ -19,6 +19,7 @@ import type { WriterSessionRepository } from "../repositories/writer-session.rep
 import type { WriterLayoutService } from "./writer-layout.service";
 import type { DomSelectionTool } from "../tools/dom-selection.tool";
 import { findWriterMatches, type WriterFindMatch } from "../tools/writer-find.tool";
+import { planWriterReplaceAll } from "../tools/writer-replace-all.tool";
 import { planWriterReplaceOne } from "../tools/writer-replace.tool";
 import type { ImageAssetTool } from "../tools/image-asset.tool";
 import type { NativeFileDialogTool } from "../tools/native-file-dialog.tool";
@@ -515,6 +516,62 @@ export class WriterSessionService {
           startOffset: caretOffset,
           endOffset: caretOffset,
         });
+        this.repository.setTypingStyle(null);
+      }
+    }).then(() => completed);
+  }
+
+  public canReplaceAllFoundMatches(
+    query: string,
+    replacement: string,
+    locale: string,
+  ): boolean {
+    const document = this.repository.document();
+    return document !== null
+      && !this.isReadOnly()
+      && planWriterReplaceAll(document, query, replacement, locale) !== null;
+  }
+
+  public replaceAllFoundMatches(
+    query: string,
+    replacement: string,
+    locale: string,
+  ): Promise<boolean> {
+    const initial = this.repository.document();
+    if (initial === null || this.isReadOnly()) {
+      return Promise.resolve(false);
+    }
+    const plan = planWriterReplaceAll(initial, query, replacement, locale);
+    if (plan === null) {
+      return Promise.resolve(false);
+    }
+
+    let completed = false;
+    return this.enqueue(async () => {
+      const current = this.repository.document();
+      if (
+        current === null
+        || current.id !== plan.documentId
+        || current.revision !== plan.revision
+        || this.isReadOnly()
+        || this.activeEditorHasNewerText(current)
+        || planWriterReplaceAll(current, query, replacement, locale) === null
+      ) {
+        return;
+      }
+
+      completed = await this.run(() => this.writerTool.replaceAllRanges(
+        plan.documentId,
+        plan.revision,
+        plan.replacements.map((item) => ({
+          paragraphId: item.paragraphId,
+          startOffset: item.startOffset,
+          endOffset: item.endOffset,
+          runs: item.runs,
+        })),
+      ));
+      if (completed) {
+        this.repository.setSelection(null);
         this.repository.setTypingStyle(null);
       }
     }).then(() => completed);

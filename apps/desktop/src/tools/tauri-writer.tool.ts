@@ -21,6 +21,7 @@ import type {
   WriterFileOperationView,
   WriterFileSessionView,
   WriterReloadView,
+  WriterReplaceBatchEntryView,
   WriterStyledRunInputView,
   WriterTextAlignmentView,
   WriterTemplateView,
@@ -176,6 +177,18 @@ export class TauriWriterTool {
       endOffset,
       runs,
       expectedRevision,
+    });
+  }
+
+  public replaceAllRanges(
+    documentId: string,
+    expectedRevision: number,
+    replacements: readonly WriterReplaceBatchEntryView[],
+  ): Promise<WriterDocumentView> {
+    return invoke<WriterDocumentView>(IPC_COMMANDS.writerReplaceAllRanges, {
+      documentId,
+      expectedRevision,
+      replacements,
     });
   }
 

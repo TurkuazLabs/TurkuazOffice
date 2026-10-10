@@ -180,6 +180,14 @@ export class WriterController {
     return this.service.replaceFoundMatch(match, query, replacement, locale);
   }
 
+  public canReplaceAllFoundMatches(query: string, replacement: string, locale: string): boolean {
+    return this.service.canReplaceAllFoundMatches(query, replacement, locale);
+  }
+
+  public replaceAllFoundMatches(query: string, replacement: string, locale: string): Promise<boolean> {
+    return this.service.replaceAllFoundMatches(query, replacement, locale);
+  }
+
   public findMatches(query: string, locale: string): readonly WriterFindMatch[] {
     return this.service.findMatches(query, locale);
   }

@@ -26,6 +26,13 @@ export interface WriterStyledRunInputView {
   readonly style: WriterCharacterStyleView;
 }
 
+export interface WriterReplaceBatchEntryView {
+  readonly paragraphId: string;
+  readonly startOffset: number;
+  readonly endOffset: number;
+  readonly runs: readonly WriterStyledRunInputView[];
+}
+
 interface WriterParagraphStyleView {
   readonly alignment: WriterTextAlignmentView;
 }

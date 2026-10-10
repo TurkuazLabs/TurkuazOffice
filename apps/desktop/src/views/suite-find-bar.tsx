@@ -32,6 +32,11 @@ interface SuiteFindBarProps<TMatch> {
     readonly canReplace: () => boolean;
     readonly perform: (match: TMatch, query: string, replacement: string) => Promise<boolean>;
   };
+  readonly replaceAll?: {
+    readonly label: DesktopLabelKey;
+    readonly canReplace: (query: string, replacement: string) => boolean;
+    readonly perform: (query: string, replacement: string) => Promise<boolean>;
+  };
   readonly inputRef: (element: HTMLInputElement) => void;
 }
 
@@ -41,6 +46,7 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
   const [replacementText, setReplacementText] = createSignal("");
   const matches = createMemo(() => props.findMatches(query()));
   const replaceOne = props.replaceOne;
+  const replaceAll = props.replaceAll;
   let generation = 0;
   let navigating = false;
 
@@ -88,6 +94,30 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
     const requestGeneration = generation;
     navigating = true;
     void replace.perform(match, query(), replacementText()).then(
+      (replaced) => {
+        if (replaced && requestGeneration === generation) {
+          setActiveIndex(-1);
+        }
+      },
+      () => undefined,
+    ).finally(() => {
+      navigating = false;
+    });
+  };
+
+  const replaceAllMatches = (): void => {
+    if (
+      replaceAll === undefined ||
+      navigating ||
+      matches().length === 0 ||
+      !replaceAll.canReplace(query(), replacementText())
+    ) {
+      return;
+    }
+
+    const requestGeneration = generation;
+    navigating = true;
+    void replaceAll.perform(query(), replacementText()).then(
       (replaced) => {
         if (replaced && requestGeneration === generation) {
           setActiveIndex(-1);
@@ -159,6 +189,14 @@ export function SuiteFindBar<TMatch>(props: SuiteFindBarProps<TMatch>) {
             disabled={activeIndex() < 0 || activeIndex() >= matches().length || !replaceOne.canReplace()}
             onClick={replaceSelected}
           >{props.language.text(replaceOne.label)}</button>
+          {replaceAll !== undefined && (
+            <button
+              type="button"
+              aria-label={props.language.text(replaceAll.label)}
+              disabled={matches().length === 0 || !replaceAll.canReplace(query(), replacementText())}
+              onClick={replaceAllMatches}
+            >{props.language.text(replaceAll.label)}</button>
+          )}
         </>
       )}
       <button

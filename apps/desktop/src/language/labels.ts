@@ -146,6 +146,7 @@ export type DesktopLabelKey =
   | "writerFindClose"
   | "writerFindNoMatches"
   | "writerReplaceOne"
+  | "writerReplaceAll"
   | "writerReplaceWith"
   | "open"
   | "undo"
