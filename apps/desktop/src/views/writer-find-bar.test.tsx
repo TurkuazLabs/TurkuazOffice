@@ -31,7 +31,7 @@ describe("WriterFindBar", () => {
     document.body.append(root);
     dispose = render(() => (
       <WriterFindBar
-        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch: vi.fn() } as never}
+        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch: vi.fn(), canReplaceAllFoundMatches: () => false, replaceAllFoundMatches: vi.fn() } as never}
         language={new LanguageService("en-US")}
         onClose={onClose}
         inputRef={() => undefined}
@@ -71,7 +71,7 @@ describe("WriterFindBar", () => {
     document.body.append(root);
     dispose = render(() => (
       <WriterFindBar
-        controller={{ findMatches, focusFindMatch: vi.fn(), canReplaceFoundMatch: () => false, replaceFoundMatch: vi.fn() } as never}
+        controller={{ findMatches, focusFindMatch: vi.fn(), canReplaceFoundMatch: () => false, replaceFoundMatch: vi.fn(), canReplaceAllFoundMatches: () => false, replaceAllFoundMatches: vi.fn() } as never}
         language={new LanguageService("en-US")}
         onClose={vi.fn()}
         inputRef={() => undefined}
@@ -94,7 +94,7 @@ describe("WriterFindBar", () => {
     document.body.append(root);
     dispose = render(() => (
       <WriterFindBar
-        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch } as never}
+        controller={{ findMatches, focusFindMatch, canReplaceFoundMatch: () => true, replaceFoundMatch, canReplaceAllFoundMatches: () => false, replaceAllFoundMatches: vi.fn() } as never}
         language={new LanguageService("en-US")}
         onClose={vi.fn()}
         inputRef={() => undefined}
@@ -131,6 +131,8 @@ describe("WriterFindBar", () => {
           focusFindMatch: () => true,
           canReplaceFoundMatch: () => false,
           replaceFoundMatch,
+          canReplaceAllFoundMatches: () => false,
+          replaceAllFoundMatches: vi.fn(),
         } as never}
         language={new LanguageService("en-US")}
         onClose={vi.fn()}
@@ -145,6 +147,72 @@ describe("WriterFindBar", () => {
     expect(replace.disabled).toBe(true);
     replace.click();
     expect(replaceFoundMatch).not.toHaveBeenCalled();
+  });
+
+  it("offers atomic Replace All without requiring a selected match", async () => {
+    const match = { paragraphId: "p1", startOffset: 0, endOffset: 3 };
+    const findMatches = vi.fn((query: string) => query === "abc" ? [match] : []);
+    const replaceAllFoundMatches = vi.fn().mockResolvedValue(true);
+    const canReplaceAllFoundMatches = vi.fn(
+      (query: string, replacement: string) => query === "abc" && replacement === "xyz",
+    );
+    const root = document.createElement("div");
+    document.body.append(root);
+    dispose = render(() => (
+      <WriterFindBar
+        controller={{
+          findMatches, focusFindMatch: () => true,
+          canReplaceFoundMatch: () => true, replaceFoundMatch: vi.fn(),
+          canReplaceAllFoundMatches, replaceAllFoundMatches,
+        } as never}
+        language={new LanguageService("en-US")}
+        onClose={vi.fn()}
+        inputRef={() => undefined}
+      />
+    ), root);
+
+    const query = root.querySelector<HTMLInputElement>('input[type="search"]')!;
+    query.value = "abc";
+    query.dispatchEvent(new Event("input", { bubbles: true }));
+    const all = root.querySelector<HTMLButtonElement>('[aria-label="Replace All"]')!;
+    expect(all.disabled).toBe(true);
+
+    const replacement = root.querySelector<HTMLInputElement>('[aria-label="Replacement text"]')!;
+    replacement.value = "xyz";
+    replacement.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(all.disabled).toBe(false);
+    expect(root.textContent).toContain("0 / 1");
+    all.click();
+    await vi.waitFor(() =>
+      expect(replaceAllFoundMatches).toHaveBeenCalledExactlyOnceWith("abc", "xyz", "en-US"),
+    );
+    expect(canReplaceAllFoundMatches).toHaveBeenCalledWith("abc", "xyz", "en-US");
+  });
+
+  it("disables Replace All for read-only and incomplete plans", () => {
+    const root = document.createElement("div");
+    document.body.append(root);
+    const replaceAllFoundMatches = vi.fn();
+    dispose = render(() => (
+      <WriterFindBar
+        controller={{
+          findMatches: () => [{ paragraphId: "p1", startOffset: 0, endOffset: 2 }],
+          focusFindMatch: () => true,
+          canReplaceFoundMatch: () => false, replaceFoundMatch: vi.fn(),
+          canReplaceAllFoundMatches: () => false, replaceAllFoundMatches,
+        } as never}
+        language={new LanguageService("en-US")}
+        onClose={vi.fn()}
+        inputRef={() => undefined}
+      />
+    ), root);
+    const input = root.querySelector<HTMLInputElement>('input[type="search"]')!;
+    input.value = "aa";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    const all = root.querySelector<HTMLButtonElement>('[aria-label="Replace All"]')!;
+    expect(all.disabled).toBe(true);
+    all.click();
+    expect(replaceAllFoundMatches).not.toHaveBeenCalled();
   });
 
 });
