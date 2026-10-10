@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
+# Version: 0.2.1
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -83,3 +83,13 @@ manifest signature, artifact SHA-256, staging and Pro policy control.
 
 The pilot is still unsigned and must never be used as a customer
 installer. See https://docs.velopack.io/getting-started/rust .
+
+## Headless lifecycle hook regression
+
+`tools/installer/Test-VelopackLifecycleHooks.ps1` executes all four native
+Velopack lifecycle argument cases (`--veloapp-install`,
+`--veloapp-obsolete`, `--veloapp-updated`, `--veloapp-uninstall`) against
+the opt-in pilot binary. Each must exit successfully within 12 seconds
+without launching the Tauri UI. A timeout kills the test process and fails
+the workflow. This is NOT the same as the actual Setup.exe install/upgrade
+acceptance, which still needs a disposable Windows VM with signed manifests.

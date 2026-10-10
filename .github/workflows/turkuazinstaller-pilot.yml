@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.2.0
+# Version: 0.2.1
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -65,6 +65,10 @@ jobs:
         run: |
           cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot
           if ($LASTEXITCODE -ne 0) { throw 'Opt-in Velopack-aware Tauri build failed' }
+
+      - name: Verify Velopack lifecycle hooks exit without opening Tauri
+        shell: pwsh
+        run: ./tools/installer/Test-VelopackLifecycleHooks.ps1
 
       - name: Install same pinned vpk used by TurkuazInstaller E2E
         shell: pwsh
