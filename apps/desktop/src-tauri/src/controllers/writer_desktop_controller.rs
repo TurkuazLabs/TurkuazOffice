@@ -10,7 +10,7 @@ use std::sync::Mutex;
 use tauri::State;
 
 use crate::config::constants::ERROR_STATE_LOCK;
-use crate::services::writer_desktop_service::WriterDesktopService;
+use crate::services::writer_desktop_service::{WriterDesktopService, WriterReplaceBatchEntry};
 use crate::views::docx_dto::WriterDocxImportDto;
 use crate::views::error_dto::DesktopErrorDto;
 use crate::views::file_session_dto::{WriterFileSessionDto, WriterReloadDto};
@@ -19,7 +19,7 @@ use crate::views::recovery_dto::{RecoveryComparisonDto, RecoveryRestoreDto, Reco
 use crate::views::template_dto::WriterTemplateDto;
 use crate::views::writer_dto::{
     WriterAssetDto, WriterCharacterStyleInputDto, WriterDocumentDto, WriterFileOperationDto,
-    WriterStyledRunInputDto, WriterTextAlignmentDto,
+    WriterReplaceBatchEntryDto, WriterStyledRunInputDto, WriterTextAlignmentDto,
 };
 use turkuaz_office_writer::CharacterStylePatch;
 
@@ -363,6 +363,33 @@ pub fn writer_replace_range_with_styled_runs(
             end_offset,
             runs.into_iter().map(Into::into).collect(),
             expected_revision,
+        )
+        .map(WriterDocumentDto::from)
+}
+
+#[tauri::command]
+pub fn writer_replace_all_ranges(
+    state: State<'_, WriterDesktopState>,
+    document_id: String,
+    expected_revision: u64,
+    replacements: Vec<WriterReplaceBatchEntryDto>,
+) -> Result<WriterDocumentDto, DesktopErrorDto> {
+    let mut service = state
+        .lock()
+        .map_err(|_| DesktopErrorDto::new(ERROR_STATE_LOCK))?;
+    service
+        .replace_all_ranges_checked(
+            &document_id,
+            expected_revision,
+            replacements
+                .into_iter()
+                .map(|item| WriterReplaceBatchEntry {
+                    paragraph_id: item.paragraph_id,
+                    start_offset: item.start_offset,
+                    end_offset: item.end_offset,
+                    runs: item.runs.into_iter().map(Into::into).collect(),
+                })
+                .collect(),
         )
         .map(WriterDocumentDto::from)
 }

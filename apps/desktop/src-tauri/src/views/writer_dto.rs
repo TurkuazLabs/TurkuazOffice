@@ -45,6 +45,15 @@ pub struct WriterStyledRunInputDto {
     pub style: WriterCharacterStyleInputDto,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WriterReplaceBatchEntryDto {
+    pub paragraph_id: String,
+    pub start_offset: usize,
+    pub end_offset: usize,
+    pub runs: Vec<WriterStyledRunInputDto>,
+}
+
 impl From<WriterStyledRunInputDto> for StyledTextRun {
     fn from(run: WriterStyledRunInputDto) -> Self {
         Self {

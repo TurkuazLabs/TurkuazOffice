@@ -176,6 +176,13 @@ Bir dosyanin silinebilir oldugu ancak su dort kanit birlikte varsa kabul edilir:
 - Kaydedilmis dis surec dosya degisiklikleri icin var olan dosya lock/external change mekanizmalari ayrica isletilir. Bu precondition, ayni native state icindeki stale request'i engeller; disk uzerindeki harici dosya mutasyonunu anlik kontrol eden bir file hashing protokolu degildir.
 - Rust kabul testi stale revision -> typed error ve ayni undo gecmisi; guncel revision -> tek degisiklik. Frontend servis testi planlanan revizyonun IPC Tool'a iletildigini dogrular.
 
+## Writer Replace All native atomiklik kontrati
+
+- Native `writer_replace_all_ranges` IPC'si `WriterDesktopState` mutex'i altinda `ensure_writable` + zorunlu `expected_revision` dogrulamasi yapar. Sira/overlap/bounds kontrolunden gecmeyen batch `writer.invalid_replace_batch` ile reddedilir.
+- Domain `WriterEditorService.execute_batch` komutlari canonical `WriterDocument` kopyasi uzerinde uygular. Tum komutlar basarili olmadikca `repository.save` ve `history.undo` yapilmaz. Basarili batch tek revision ve tek Undo adimidir.
+- Unicode offsetler byte degil scalar (Rust `.chars().count()`); islem listesi ters paragraf/offset sirasindadir. Satir sonu, fazla run, 4096+ replacement ve 1000+ spans reddedilir.
+- Native komutun varligi tek basina kullaniciya Replace All destegi sunmaz. UI baglantisi, input/DOM stale recheck ve gercek platform CI ayri PR test ve kabul konusudur.
+
 ## Denetim raporu kontrol listesi
 
 - [ ] `entrypoint-graph` olusturuldu ve dinamik/generator/Tauri/WASM referanslari manuel teyit edildi.

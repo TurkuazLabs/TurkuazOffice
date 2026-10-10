@@ -14,6 +14,7 @@ pub const ERROR_NOTHING_TO_UNDO: &str = "writer.nothing_to_undo";
 pub const ERROR_NOTHING_TO_REDO: &str = "writer.nothing_to_redo";
 pub const ERROR_COMMAND_FAILED: &str = "writer.command_failed";
 pub const ERROR_DOCUMENT_REVISION_CONFLICT: &str = "writer.document_revision_conflict";
+pub const ERROR_INVALID_REPLACE_BATCH: &str = "writer.invalid_replace_batch";
 pub const ERROR_TEMPLATE_INVALID: &str = "writer.template_invalid";
 pub const ERROR_TEMPLATE_NOT_FOUND: &str = "writer.template_not_found";
 pub const ERROR_INVALID_OFFSET: &str = "writer.invalid_offset";
