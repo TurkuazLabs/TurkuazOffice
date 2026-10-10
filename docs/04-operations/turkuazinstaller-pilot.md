@@ -1,3 +1,10 @@
+# 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
+# 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
+# 📌 Modul - FileType: Docs - Markdown
+# Version: 0.1.1
+# Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
+# Bagimli Oldugu Katman: CI | Distribution | Documentation
+
 # TurkuazInstaller — Turkuaz Office Windows pilot
 
 ## Scope
