@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.1.1
+# Version: 0.2.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -32,9 +32,12 @@ production feed.
 
 ## Compatibility blockers — must fix before actual installation migration
 
-1. **Lifecycle:** Tauri currently has no proven Velopack startup/update
-   hooks. `--skipVeloAppCheck true` is ONLY used to test the packaging tool.
-   A successful CI package does not mean a correct installer lifecycle.
+1. **Lifecycle:** An opt-in Windows Cargo feature
+   `installer-velopack-pilot` calls the official Rust Velopack
+   `VelopackApp::build().set_auto_apply_on_startup(false).run()`
+   **before** Tauri launches. Default NSIS and Linux binaries remain
+   unchanged, and the pilot no longer bypasses `vpk` app verification.
+   Real install/update/uninstall acceptance on Windows is still required.
 2. **File associations:** `apps/desktop/src-tauri/tauri.conf.json5` lets
    Tauri/NSIS manage `.tko`. Do not replace this with registry-default hacks.
    TurkuazInstaller must use explicit signed Windows integration actions
@@ -69,3 +72,14 @@ When all real Windows acceptance gates pass, integrate project-specific
 release artifacts with the **Community TurkuazInstaller**
 `docs/PROJECT_INTEGRATION.md` standard on a separate reviewed PR.
 Until then, do not remove NSIS or call this production-ready.
+
+## Installer vs application update authority
+
+The pilot exclusively adds `velopack = "=1.2.161"` behind a nondefault
+Windows Cargo feature. The application handles Velopack lifecycle hooks,
+but cannot independently apply pending updates on startup
+(`set_auto_apply_on_startup(false)`), since TurkuazInstaller must retain
+manifest signature, artifact SHA-256, staging and Pro policy control.
+
+The pilot is still unsigned and must never be used as a customer
+installer. See https://docs.velopack.io/getting-started/rust .

@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.1.0
+# Version: 0.2.0
 # Aciklama: Yalniz paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -55,9 +55,9 @@ foreach ($folder in @($payload, $releases, $assets, $temp)) {
 Copy-Item -LiteralPath $nativeExe -Destination (Join-Path $payload "turkuaz-office-desktop.exe")
 $env:VELOPACK_TEMP = $temp
 
-# Tauri does not currently implement Velopack startup/lifecycle hooks.
-# --skipVeloAppCheck is permissible ONLY for this isolated pack feasibility
-# probe. Do not use this package as a customer installer or update feed.
+# The optional Windows pilot feature initializes the official Velopack
+# startup handler before Tauri. Do NOT skip vpk app verification. Still
+# lab-only until real Windows installation lifecycle acceptance passes.
 $output = & $vpkPath --legacyConsole true --yes true --skip-updates true --verbose true pack `
     --runtime win-x64 `
     --packId "turkuazlabs.turkuazoffice.pilot" `
@@ -66,8 +66,7 @@ $output = & $vpkPath --legacyConsole true --yes true --skip-updates true --verbo
     --packDir $payload `
     --mainExe "turkuaz-office-desktop.exe" `
     --outputDir $releases `
-    --delta none `
-    --skipVeloAppCheck true 2>&1
+    --delta none 2>&1
 $output | ForEach-Object { Write-Host $_ }
 if ($LASTEXITCODE -ne 0) {
     throw "Real Velopack packaging failed."
@@ -94,7 +93,7 @@ Use an isolated disposable Windows x64 test VM.
 
 PRODUCTION BLOCKERS (NOT IMPLEMENTED HERE):
 - No signed installer-manifest.yml + .p7s and external cert-pinned trust.
-- No Velopack startup/lifecycle hooks in the Tauri application yet.
+- Optional Velopack startup hook is checked, but real Windows VM lifecycle is NOT yet proven.
 - NSIS Writer/Sheet Start Menu shortcuts are NOT migrated.
 - NSIS .tko file association is NOT migrated.
 - Need WebView2/prerequisite, clean install/update/repair/rollback/uninstall
