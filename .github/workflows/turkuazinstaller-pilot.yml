@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.2.2
+# Version: 0.3.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -79,6 +79,10 @@ jobs:
       - name: Produce non-production Tauri-to-Velopack packaging probe
         shell: pwsh
         run: ./tools/installer/New-TurkuazInstallerPilot.ps1
+
+      - name: Real Windows Velopack install and uninstall smoke
+        shell: pwsh
+        run: ./tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 
       - name: Upload lab-only pilot artifacts
         uses: actions/upload-artifact@v4

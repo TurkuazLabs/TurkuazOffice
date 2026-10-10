@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.2
+# Version: 0.3.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -96,3 +96,28 @@ the opt-in pilot binary. Each must exit successfully within 12 seconds
 without launching the Tauri UI. A timeout kills the test process and fails
 the workflow. This is NOT the same as the actual Setup.exe install/upgrade
 acceptance, which still needs a disposable Windows VM with signed manifests.
+
+## Real Windows host smoke test — installer engine, not production signature acceptance
+
+The pilot also runs `tools/installer/Test-TurkuazOfficeVelopackInstall.ps1`
+on the ephemeral GitHub-hosted Windows x64 runner, after packaging:
+
+1. Strictly checks `SHA256SUMS.txt` against the newly built unsigned
+   `Setup.exe` and `full.nupkg`.
+2. Creates a unique test install path under GitHub `RUNNER_TEMP`,
+   never touching the user's existing NSIS installation.
+3. Executes **real** `Setup.exe --silent --installto <test-root>` with a
+   bounded process timeout; checks for both `Update.exe` and the Office
+   executable in the installed `current` directory.
+4. Calls **real** `Update.exe --silent --rootDir <test-root> uninstall`,
+   then asserts installed binaries are absent.
+5. Always attempts best-effort official uninstall if a stage failed,
+   removing only the disposable test folder. No production registry,
+   file association or existing NSIS install is changed deliberately.
+
+**Important**: This validates actual initial install and uninstall
+mechanics, beyond only compiling or packaging. It does NOT validate
+signed project manifests, an Authenticode-pinned publisher, protected
+artifact distribution, product data retention, updates, repair, rollback,
+NSIS side-by-side behavior or end-user GUI interactions. All those
+remain required before a stable TurkuazInstaller release.
