@@ -1,0 +1,98 @@
+# 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
+# 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
+# 📌 Modul - CI YAML
+# Version: 0.3.0
+# Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
+# Bagimli Oldugu Katman: Tool | Config | CI
+
+name: TurkuazInstaller Office Velopack Pilot
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/turkuazinstaller-pilot.yml'
+      - 'tools/installer/**'
+      - 'docs/04-operations/turkuazinstaller-pilot.md'
+      - 'apps/desktop/src-tauri/tauri.conf.json5'
+      - 'apps/desktop/src-tauri/Cargo.toml'
+      - 'apps/desktop/package.json'
+      - 'Cargo.toml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: turkuazinstaller-office-pilot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  velopack-pilot:
+    name: Lab-only Windows x64 Velopack package
+    runs-on: windows-2025
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Setup .NET 10 for pinned vpk
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install Tauri frontend dependencies
+        working-directory: apps/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Build Tauri frontend resources (NSIS tested separately)
+        working-directory: apps/desktop
+        run: npm run build
+
+      - name: Build explicit Velopack-aware Windows Tauri binary
+        shell: pwsh
+        run: |
+          cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot
+          if ($LASTEXITCODE -ne 0) { throw 'Opt-in Velopack-aware Tauri build failed' }
+
+      - name: Verify Velopack lifecycle hooks exit without opening Tauri
+        shell: pwsh
+        run: ./tools/installer/Test-VelopackLifecycleHooks.ps1
+
+      - name: Install same pinned vpk used by TurkuazInstaller E2E
+        shell: pwsh
+        run: |
+          dotnet tool install vpk --tool-path .pilot-vpk --version 1.2.161
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned Velopack CLI install failed' }
+
+      - name: Produce non-production Tauri-to-Velopack packaging probe
+        shell: pwsh
+        run: ./tools/installer/New-TurkuazInstallerPilot.ps1
+
+      - name: Real Windows Velopack install and uninstall smoke
+        shell: pwsh
+        run: ./tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
+
+      - name: Upload lab-only pilot artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TurkuazOffice-UNSIGNED-TurkuazInstaller-LAB-ONLY-win-x64
+          path: |
+            artifacts/turkuazinstaller-pilot/assets/*Setup.exe
+            artifacts/turkuazinstaller-pilot/assets/*-full.nupkg
+            artifacts/turkuazinstaller-pilot/assets/SHA256SUMS.txt
+            artifacts/turkuazinstaller-pilot/assets/READ-ME-LAB-ONLY.txt
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
