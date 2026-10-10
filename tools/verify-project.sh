@@ -255,6 +255,8 @@ required_files=(
   "apps/desktop/src/tools/writer-find.tool.test.ts"
   "apps/desktop/src/tools/writer-replace.tool.ts"
   "apps/desktop/src/tools/writer-replace.tool.test.ts"
+  "apps/desktop/src/tools/writer-replace-all.tool.ts"
+  "apps/desktop/src/tools/writer-replace-all.tool.test.ts"
   "apps/desktop/src/services/writer-session-replace.service.test.ts"
   "apps/desktop/src/tools/sheet-find.tool.ts"
   "apps/desktop/src/tools/sheet-find.tool.test.ts"

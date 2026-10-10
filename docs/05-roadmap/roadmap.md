@@ -264,6 +264,16 @@ Durum: PR uzerinde gelistirme; tam CI ve kullanici kabulunden once tamamlandi sa
 - Yetkinin UI'da pasif gorunmesi backend write lock'un yerine GECMEZ. Native `expectedRevision` precondition'i Rust state lock icinde yanlis revizyonlu istegi typed `writer.document_revision_conflict` ile reddeder. Harici dis sureclerin disk degisiklikleri hala ayri lock/external file change protokolune tabidir.
 - Sheet Replace, cross-paragraph Replace, regex, toplu Replace ve Ctrl+H sonraki ayri kabul/guvenlik asamalarina birakilir.
 
+## R2.ac - Writer Replace All: read-only batch preflight v0.1.0
+
+Durum: sadece Tool/test; islev kullaniciya ACILMADI.
+
+- Canonical Writer Find Tool'u icin mevcut 1000 sonuc limiti varsayilan kalir; toplu degistirme plani icin bir adet ek sonuc probe edilir, boylece kirpilmis kismi sessizce degistirmek yasaktir.
+- Eslesmeler soldan saga ve paragraf bazinda cakismayan bloklara ayrilir. Komut adayi, ilk eslesme karakterinin run stilini, Unicode scalar offsetlerini, orijinal belge kimlik ve revision'ini korur.
+- Hatalı/eksik rich runs, gecersiz query/replacement, no-op, max limit fazlasi ya da cross-paragraph alana cikan aralikta plan URETILMEZ.
+- Islem listesi ters belge sirasinda uretilir, ancak bu tek basina atomik mutation saglamaz. Rust tarafinda tum eslesmeleri tek canonical komutta / tek undo snapshot'inda ve expected revision ile uygulayan backend olmadan servis, IPC veya UI'da Replace All acilmaz.
+- API ve CI kabul testi tamamlanincaya kadar mevcut Writer tek eslesme Replace ve Sheet salt-okunur Find kontratlari korunur.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
