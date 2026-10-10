@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.2.0
-# Aciklama: Yalniz paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
+# Version: 0.2.2
+# Aciklama: Yalniz native feature build paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
 # Bagimli Oldugu Katman: Tool | Config | CI
 
 [CmdletBinding()]

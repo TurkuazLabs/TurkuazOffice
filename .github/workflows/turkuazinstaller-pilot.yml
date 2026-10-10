@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.2.1
+# Version: 0.2.2
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -56,9 +56,9 @@ jobs:
         working-directory: apps/desktop
         run: npm install --no-audit --no-fund
 
-      - name: Build existing Windows NSIS preview and native executable
+      - name: Build Tauri frontend resources (NSIS tested separately)
         working-directory: apps/desktop
-        run: npm run tauri:build:windows
+        run: npm run build
 
       - name: Build explicit Velopack-aware Windows Tauri binary
         shell: pwsh

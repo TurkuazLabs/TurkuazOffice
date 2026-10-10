@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.1
+# Version: 0.2.2
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -14,9 +14,12 @@ not a general release channel. It leaves the existing Tauri/NSIS Windows
 installer, Linux DEB/AppImage bundles, .tko association, and Writer/Sheet
 Start Menu shortcuts untouched.
 
-The experimental workflow `TurkuazInstaller Office Velopack Pilot` builds the
-existing Windows Tauri executable and also packages it using the **same
-pinned vpk 1.2.161 CLI** used by the TurkuazInstaller real E2E test.
+The experimental workflow `TurkuazInstaller Office Velopack Pilot` builds
+the existing Tauri frontend assets, then the opt-in Velopack-aware Windows
+Rust binary, and packages it using the **same pinned vpk 1.2.161 CLI**
+used by the TurkuazInstaller real E2E test. It deliberately does NOT
+build another redundant NSIS setup: the unchanged `community-preview`
+workflow already produces and tests the Windows NSIS baseline.
 
 It produces an unsigned, short-lived GitHub Actions artifact with:
 
