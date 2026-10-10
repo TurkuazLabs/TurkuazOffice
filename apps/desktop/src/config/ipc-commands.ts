@@ -50,6 +50,7 @@ export const IPC_COMMANDS = {
   writerInsertImageData: "writer_insert_image_data",
   writerReplaceParagraphText: "writer_replace_paragraph_text",
   writerReplaceRangeWithStyledRuns: "writer_replace_range_with_styled_runs",
+  writerReplaceAllRanges: "writer_replace_all_ranges",
   writerApplyCharacterStyle: "writer_apply_character_style",
   writerApplyParagraphAlignment: "writer_apply_paragraph_alignment",
   writerSplitParagraph: "writer_split_paragraph",
