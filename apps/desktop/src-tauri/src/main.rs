@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/main.rs
 // # 📌 Amac: Turkuaz Office Desktop binary giris noktasini tanimlar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.5.3
+// # Version: 0.5.4
 // # Aciklama: Release Windows buildinde konsol penceresi acmadan library composition root run fonksiyonunu cagirir
 // Bagimli Oldugu Katman: Controller
 
@@ -18,10 +18,11 @@ fn main() {
         .any(|argument| argument == "--office-pilot-verify-embedded-frontend")
     {
         let context: tauri::Context<tauri::Wry> = tauri::generate_context!();
-        let index_found = context.assets().iter().any(|(path, html)| {
-            path.ends_with("index.html")
-                && html.len() > 64
-                && String::from_utf8_lossy(&html).contains("<html")
+        // Tauri release embeds Brotli-compressed assets. iter() returns
+        // compressed bytes; get() resolves/decompresses the requested file.
+        let index_key = tauri::utils::assets::AssetKey::from("index.html");
+        let index_found = context.assets().get(&index_key).is_some_and(|html| {
+            html.len() > 64 && String::from_utf8_lossy(&html).contains("<html")
         });
         if tauri::is_dev() || !index_found {
             std::process::exit(31);
