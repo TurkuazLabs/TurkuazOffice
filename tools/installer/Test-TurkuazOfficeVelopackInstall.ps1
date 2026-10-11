@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -22,7 +22,16 @@ $assets = (Resolve-Path -LiteralPath $AssetsPath).Path
 $setups = @(Get-ChildItem -LiteralPath $assets -File -Filter '*Setup.exe')
 $fulls = @(Get-ChildItem -LiteralPath $assets -File -Filter '*-full.nupkg')
 $version = [string](Get-Content -LiteralPath 'apps/desktop/package.json' -Raw | ConvertFrom-Json).version
-if ($version -notmatch '^\d+\.\d+\.\d+
+if ($version -notmatch '^\d+\.\d+\.\d+$') {
+    throw 'Invalid Office pilot version.'
+}
+$parsedVersion = [version]$version
+$nextVersion = '{0}.{1}.{2}' -f $parsedVersion.Major, $parsedVersion.Minor, ($parsedVersion.Build + 1)
+$fullV1 = @($fulls | Where-Object { $_.Name.EndsWith("-$version-full.nupkg", [StringComparison]::OrdinalIgnoreCase) })
+$fullV2 = @($fulls | Where-Object { $_.Name.EndsWith("-$nextVersion-full.nupkg", [StringComparison]::OrdinalIgnoreCase) })
+if ($setups.Count -ne 1 -or $fulls.Count -ne 2 -or $fullV1.Count -ne 1 -or $fullV2.Count -ne 1) {
+    throw 'Expected one pilot Setup.exe and two distinct versioned full.nupkg files.'
+}
 
 # Prove that the downloaded/copied artifact bytes match the producer
 # checksum manifest before any Windows installer process is started.
@@ -141,9 +150,16 @@ try {
             '--packageDir', $packagesDirectory, 'apply', '--norestart',
             '--package', $stagedPath
         )
-        $actualMarker = if (Test-Path -LiteralPath $marker -PathType Leaf) {
-            [System.IO.File]::ReadAllText($marker).Trim()
-        } else { '<missing>' }
+        # The updater may stage a follow-on file swap before returning. Wait
+        # for actual expected payload state, never claim success on exit 0.
+        $markerDeadline = [DateTime]::UtcNow.AddSeconds(30)
+        do {
+            $actualMarker = if (Test-Path -LiteralPath $marker -PathType Leaf) {
+                [System.IO.File]::ReadAllText($marker).Trim()
+            } else { '<missing>' }
+            if ($actualMarker -ceq $ExpectedVersion) { break }
+            Start-Sleep -Milliseconds 500
+        } while ([DateTime]::UtcNow -lt $markerDeadline)
         if ($actualMarker -cne $ExpectedVersion) {
             throw "Real Velopack $Operation failed: expected version $ExpectedVersion, found $actualMarker"
         }
@@ -158,7 +174,12 @@ try {
     }
 
     Apply-FullPilotPackage -Package $fullV2[0] -ExpectedVersion $nextVersion -Operation 'update'
+
+    # Deliberately corrupt non-executable fixture to prove same-version
+    # repair restores bytes rather than reporting success for a no-op.
+    Set-Content -LiteralPath $marker -Value 'damaged-by-repair-smoke' -NoNewline -Encoding utf8
     Apply-FullPilotPackage -Package $fullV2[0] -ExpectedVersion $nextVersion -Operation 'repair'
+
     Apply-FullPilotPackage -Package $fullV1[0] -ExpectedVersion $version -Operation 'rollback'
 
     # Windows Update.exe may hand off its own final deletion. Exit code 0

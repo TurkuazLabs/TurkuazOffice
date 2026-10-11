@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -145,3 +145,12 @@ These are **CLI/process mechanics**, not TurkuazInstaller's high-level
 signed CMS manifest, installer state journal, release entitlement gate,
 or a production-ready Tauri upgrade. A separate reviewed signed-manifest
 integration and normal Windows VM test remain required.
+
+## Script parser and repair mutation checks
+
+Before the resource-intensive Rust build, the pilot now runs
+PowerShell AST parsing for all `tools/installer/*.ps1` scripts.
+A parse error fails the workflow early. In the same-version repair stage
+the smoke test deliberately corrupts a non-executable marker and
+requires the real updater to restore its original contents. Updater
+completion also requires a bounded check of the expected file bytes.

@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -51,6 +51,24 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+
+      - name: PowerShell installer scripts syntax preflight
+        shell: pwsh
+        run: |
+          $paths = @(Get-ChildItem -LiteralPath tools/installer -Filter '*.ps1' -File)
+          if ($paths.Count -lt 3) { throw 'Expected installer PowerShell scripts missing' }
+          foreach ($file in $paths) {
+            $tokens = $null
+            $parseErrors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
+            if ($null -ne $parseErrors -and $parseErrors.Count -gt 0) {
+              foreach ($parseError in $parseErrors) {
+                Write-Host "::error file=$($file.FullName),line=$($parseError.Extent.StartLineNumber)::$($parseError.Message)"
+              }
+              throw "PowerShell parsing failed: $($file.Name)"
+            }
+          }
+          Write-Host 'OFFICE_INSTALLER_SCRIPT_PARSE_OK'
 
       - name: Install Tauri frontend dependencies
         working-directory: apps/desktop
