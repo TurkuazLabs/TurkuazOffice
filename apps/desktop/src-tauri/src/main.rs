@@ -14,9 +14,7 @@ fn main() {
     // This headless gate verifies the generated native binary truly embeds
     // the frontend before it can be published or installed by any CI job.
     #[cfg(all(windows, feature = "installer-velopack-pilot"))]
-    if std::env::args_os()
-        .any(|argument| argument == "--office-pilot-verify-embedded-frontend")
-    {
+    if std::env::args_os().any(|argument| argument == "--office-pilot-verify-embedded-frontend") {
         let context: tauri::Context<tauri::Wry> = tauri::generate_context!();
         // Tauri release embeds Brotli-compressed assets. iter() returns
         // compressed bytes; get() resolves/decompresses the requested file.
