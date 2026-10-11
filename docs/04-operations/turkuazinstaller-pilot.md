@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.4.1
+# Version: 0.5.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -154,3 +154,29 @@ A parse error fails the workflow early. In the same-version repair stage
 the smoke test deliberately corrupts a non-executable marker and
 requires the real updater to restore its original contents. Updater
 completion also requires a bounded check of the expected file bytes.
+
+## User-reported localhost refusal — release asset acceptance
+
+The initial user-installed pilot showed WebView2 `127.0.0.1`
+`ERR_CONNECTION_REFUSED`, **even though CI Windows install/update/repair/
+rollback/uninstall were all green**. Root cause: building the opt-in binary
+using raw `cargo build --release` without enabling Tauri's
+`custom-protocol` Cargo feature. With Tauri v2 this chooses the
+development URL instead of the locally embedded `frontendDist`.
+
+The `installer-velopack-pilot` Cargo feature now **depends on**
+`tauri/custom-protocol` only for the opt-in pilot. Normal Tauri NSIS
+and Linux release behavior is untouched.
+
+The pilot has a hidden, opt-in, feature-gated
+`--office-pilot-verify-embedded-frontend` process mode. It checks the
+compiled Tauri context's actual embedded `index.html` asset and rejects
+dev mode with exit code 31. CI executes it once on the built native binary
+and again on the **installed** Windows executable. This regression
+guard prevents a mere successful Setup.exe/process exit from masking the
+broken interface again.
+
+It is not yet a full automated screenshot-based GUI acceptance. A
+freshly produced LAB ONLY setup still requires manual Windows WebView2
+validation and screenshot feedback. The old failing pilot artifact must
+never be retested or described as a working production UI build.

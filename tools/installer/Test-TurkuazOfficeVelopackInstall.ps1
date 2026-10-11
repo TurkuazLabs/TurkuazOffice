@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.4.3
+# Version: 0.5.0
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -123,6 +123,13 @@ try {
         throw 'Real Turkuaz Office Tauri executable was not installed.'
     }
     Write-Host 'OFFICE_REAL_VELOPACK_INSTALL_OK'
+
+    # Real installed binary must serve embedded assets without a Vite server.
+    # A window/process-only smoke previously missed this user-visible defect.
+    Invoke-CheckedInstaller -Executable $installedExe -Operation 'embedded-frontend' -Arguments @(
+        '--office-pilot-verify-embedded-frontend'
+    )
+    Write-Host 'OFFICE_INSTALLED_FRONTEND_EMBEDDED_OK'
 
     $marker = Join-Path $installRoot 'current/installer-pilot-version.txt'
     if (-not (Test-Path -LiteralPath $marker -PathType Leaf) -or
