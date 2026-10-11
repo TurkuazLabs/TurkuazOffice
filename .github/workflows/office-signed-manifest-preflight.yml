@@ -1,0 +1,41 @@
+# 📄 Dosya Yolu: /.github/workflows/office-signed-manifest-preflight.yml
+# 📌 Amac: Office signed manifest metadata/CMS preflightini gecici Windows test sertifikasiyla dogrular
+# 📌 Modul - CI YAML
+# Version: 0.1.0
+# Aciklama: Production signer, production release veya trust-store provisioning yapmayan fail-closed kalite kapisi
+# Bagimli Oldugu Katman: CI | Tool | Test
+
+name: Office Signed Manifest Preflight LAB
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/office-signed-manifest-preflight.yml'
+      - 'tools/installer/New-OfficeSignedManifest.ps1'
+      - 'tools/installer/Test-OfficeSignedManifestPreflight.ps1'
+      - 'docs/04-operations/office-signed-manifest-preflight.md'
+permissions:
+  contents: read
+jobs:
+  offline-cms-metadata-preflight:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell files before execution
+        shell: pwsh
+        run: |
+          foreach ($path in @('tools/installer/New-OfficeSignedManifest.ps1', 'tools/installer/Test-OfficeSignedManifestPreflight.ps1')) {
+            $tokens = $null
+            $errors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path).Path, [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) {
+              foreach ($e in $errors) { Write-Host "::error file=$path,line=$($e.Extent.StartLineNumber)::$($e.Message)" }
+              throw "PowerShell AST syntax rejected $path"
+            }
+          }
+          Write-Host 'OFFICE_MANIFEST_POWERSHELL_PARSE_OK'
+      - name: Ephemeral LAB certificate and detached CMS test
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeSignedManifestPreflight.ps1
