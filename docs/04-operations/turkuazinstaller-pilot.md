@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.0
+# Version: 0.4.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -21,9 +21,9 @@ used by the TurkuazInstaller real E2E test. It deliberately does NOT
 build another redundant NSIS setup: the unchanged `community-preview`
 workflow already produces and tests the Windows NSIS baseline.
 
-It produces an unsigned, short-lived GitHub Actions artifact with:
+It produces an unsigned, short-lived GitHub Actions artifact with two simulated package versions (the same desktop EXE and a distinct text marker):
 
-- Experimental Velopack `*Setup.exe` and `*-full.nupkg`
+- Experimental Velopack `*Setup.exe`, a v1 full `.nupkg`, and a v2 full `.nupkg`
 - `SHA256SUMS.txt`
 - `READ-ME-LAB-ONLY.txt`
 
@@ -40,7 +40,7 @@ production feed.
    `VelopackApp::build().set_auto_apply_on_startup(false).run()`
    **before** Tauri launches. Default NSIS and Linux binaries remain
    unchanged, and the pilot no longer bypasses `vpk` app verification.
-   Real install/update/uninstall acceptance on Windows is still required.
+   Signed-manifest full adoption, legacy interoperability and end-user GUI acceptance on Windows remain required.
 2. **File associations:** `apps/desktop/src-tauri/tauri.conf.json5` lets
    Tauri/NSIS manage `.tko`. Do not replace this with registry-default hacks.
    TurkuazInstaller must use explicit signed Windows integration actions
@@ -121,3 +121,27 @@ signed project manifests, an Authenticode-pinned publisher, protected
 artifact distribution, product data retention, updates, repair, rollback,
 NSIS side-by-side behavior or end-user GUI interactions. All those
 remain required before a stable TurkuazInstaller release.
+
+## Full package lifecycle CI (two lab-only package versions)
+
+As an additional pre-release validation, the CI deliberately creates a
+second, **artificial** `PATCH+1` full Velopack package containing the same
+compiled native Office executable with a changed
+`installer-pilot-version.txt` marker. This is NOT an actual new application
+release and must not be published to customer update feeds.
+
+The real Windows runner verifies each package hash, installs the first
+`Setup.exe`, then uses the actual Velopack updater CLI to apply the second
+full `.nupkg`. It asserts the on-disk marker changed. It repeats the
+same-version full package for repair, then applies the first full package
+for rollback and checks that the original version returned.
+
+The test also creates a sentinel under the installation's sibling
+`UserData` path and verifies the sentinel survives update, repair and
+rollback. Finally it runs official uninstall and waits boundedly for
+active binary removal (self-cleanup is asynchronous).
+
+These are **CLI/process mechanics**, not TurkuazInstaller's high-level
+signed CMS manifest, installer state journal, release entitlement gate,
+or a production-ready Tauri upgrade. A separate reviewed signed-manifest
+integration and normal Windows VM test remain required.

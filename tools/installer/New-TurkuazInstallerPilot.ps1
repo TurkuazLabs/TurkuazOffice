@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.2.2
+# Version: 0.4.0
 # Aciklama: Yalniz native feature build paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -26,6 +26,11 @@ if ($version -notmatch '^\d+\.\d+\.\d+$') {
 $workspaceCargo = Get-Content -LiteralPath (Join-Path $repoRoot "Cargo.toml") -Raw
 $tauriConfig = Get-Content -LiteralPath (Join-Path $repoRoot "apps/desktop/src-tauri/tauri.conf.json5") -Raw
 $escapedVersion = [regex]::Escape($version)
+# Second TEST-ONLY version: same Tauri executable, changed payload marker.
+# It exercises the update/repair/rollback engine, not real product evolution.
+$parsedVersion = [version]$version
+if ($parsedVersion.Build -ge 2147483647) { throw 'Pilot patch version overflow.' }
+$nextVersion = '{0}.{1}.{2}' -f $parsedVersion.Major, $parsedVersion.Minor, ($parsedVersion.Build + 1)
 if ($workspaceCargo -notmatch "(?m)^version\s*=\s*\u0022$escapedVersion\u0022\s*$" -or
     $tauriConfig -notmatch "(?m)^\s*version:\s*\u0022$escapedVersion\u0022,?\s*$") {
     throw "package.json, Cargo workspace and Tauri config versions do not match."
@@ -53,6 +58,8 @@ foreach ($folder in @($payload, $releases, $assets, $temp)) {
 }
 
 Copy-Item -LiteralPath $nativeExe -Destination (Join-Path $payload "turkuaz-office-desktop.exe")
+$marker = Join-Path $payload "installer-pilot-version.txt"
+Set-Content -LiteralPath $marker -Value $version -NoNewline -Encoding utf8
 $env:VELOPACK_TEMP = $temp
 
 # The optional Windows pilot feature initializes the official Velopack
@@ -82,12 +89,37 @@ foreach ($file in @($setupFiles[0], $fullFiles[0])) {
     Copy-Item -LiteralPath $file.FullName -Destination (Join-Path $assets $file.Name)
 }
 
+# Create a second, intentionally artificial patch-version package. The
+# .exe is unchanged: a different version marker ensures the *real* updater
+# actually replaces payload files during the Windows lifecycle test.
+$releasesTwo = Join-Path $root "releases-v2"
+New-Item -ItemType Directory -Path $releasesTwo -Force | Out-Null
+Set-Content -LiteralPath $marker -Value $nextVersion -NoNewline -Encoding utf8
+$outputTwo = & $vpkPath --legacyConsole true --yes true --skip-updates true --verbose true pack `
+    --runtime win-x64 `
+    --packId "turkuazlabs.turkuazoffice.pilot" `
+    --packTitle "Turkuaz Office (LAB ONLY)" `
+    --packVersion $nextVersion `
+    --packDir $payload `
+    --mainExe "turkuaz-office-desktop.exe" `
+    --outputDir $releasesTwo `
+    --delta none 2>&1
+$outputTwo | ForEach-Object { Write-Host $_ }
+if ($LASTEXITCODE -ne 0) { throw "Second Velopack pilot package failed." }
+$fullTwo = @(Get-ChildItem -LiteralPath $releasesTwo -File -Filter "*-$nextVersion-full.nupkg")
+if ($fullTwo.Count -ne 1 -or $fullTwo[0].Length -le 0) {
+    throw "Expected exactly one non-empty second-version full nupkg."
+}
+Copy-Item -LiteralPath $fullTwo[0].FullName -Destination (Join-Path $assets $fullTwo[0].Name)
+
 $instructions = @'
 TURKUAZ OFFICE + TURKUAZINSTALLER = EXPERIMENTAL LAB ARTIFACT
 ================================================================
 This package is unsigned and NOT a TurkuazInstaller production release.
 It proves only that a Tauri Windows executable can be packaged into
-Velopack Setup.exe and full nupkg with the same vpk used in Core E2E.
+Velopack Setup.exe and two full nupkgs with the same pinned vpk as Core E2E.
+The two test versions use the SAME Tauri EXE and a changed marker only.
+Do NOT interpret v2 as an actual separately compiled application update.
 Do not run on a customer's machine, publish as stable, or disable AV.
 Use an isolated disposable Windows x64 test VM.
 
@@ -115,4 +147,4 @@ $lines = Get-ChildItem -LiteralPath $assets -File |
     [System.Text.UTF8Encoding]::new($false)
 )
 
-Write-Host "OFFICE_VELOPACK_PACKAGING_PROBE_OK version=$version"
+Write-Host "OFFICE_VELOPACK_PACKAGING_PROBE_OK versions=$version,$nextVersion"
