@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: Yalniz native feature build paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -45,6 +45,31 @@ if (-not (Test-Path -LiteralPath $nativeExe -PathType Leaf)) {
     throw "Tauri native Windows executable was not found: $nativeExe"
 }
 
+# Use the same Windows icon already declared by Tauri instead of duplicating
+# a second branding path in this packaging tool.
+$iconDeclaration = [regex]::Match(
+    $tauriConfig,
+    '(?m)^\s*icon:\s*\[[^\]\r\n]*"(?<path>icons/[A-Za-z0-9_./-]+\.ico)"'
+)
+if (-not $iconDeclaration.Success) {
+    throw 'Tauri bundle configuration must declare a Windows .ico file.'
+}
+$iconRelativePath = $iconDeclaration.Groups['path'].Value
+if ($iconRelativePath -match '(^|/)\.\.(/|$)') {
+    throw 'Tauri Windows icon path cannot traverse parent directories.'
+}
+$iconFile = Join-Path $repoRoot (Join-Path 'apps/desktop/src-tauri' $iconRelativePath)
+if (-not (Test-Path -LiteralPath $iconFile -PathType Leaf)) {
+    throw "Tauri Windows icon missing: $iconFile"
+}
+$iconBytes = [System.IO.File]::ReadAllBytes($iconFile)
+if ($iconBytes.Length -lt 6 -or $iconBytes[0] -ne 0 -or $iconBytes[1] -ne 0 -or
+    $iconBytes[2] -ne 1 -or $iconBytes[3] -ne 0 -or
+    ($iconBytes[4] -eq 0 -and $iconBytes[5] -eq 0)) {
+    throw 'Tauri Windows icon has an invalid ICO header.'
+}
+Write-Host 'OFFICE_VELOPACK_ICON_SOURCE_OK'
+
 $root = [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutputRoot))
 if (Test-Path -LiteralPath $root) {
     Remove-Item -LiteralPath $root -Recurse -Force
@@ -72,6 +97,7 @@ $output = & $vpkPath --legacyConsole true --yes true --skip-updates true --verbo
     --packVersion $version `
     --packDir $payload `
     --mainExe "turkuaz-office-desktop.exe" `
+    --icon $iconFile `
     --outputDir $releases `
     --delta none 2>&1
 $output | ForEach-Object { Write-Host $_ }
@@ -102,6 +128,7 @@ $outputTwo = & $vpkPath --legacyConsole true --yes true --skip-updates true --ve
     --packVersion $nextVersion `
     --packDir $payload `
     --mainExe "turkuaz-office-desktop.exe" `
+    --icon $iconFile `
     --outputDir $releasesTwo `
     --delta none 2>&1
 $outputTwo | ForEach-Object { Write-Host $_ }
