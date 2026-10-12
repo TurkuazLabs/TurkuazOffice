@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.5.0
+# Version: 0.5.1
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -65,6 +65,25 @@ foreach ($file in $requiredPackages) {
         throw "Checksum entry missing for package: $($file.Name)"
     }
 }
+
+# Confirm the packaged Setup.exe carries a real Windows icon resource.
+# A successful installer process alone cannot detect missing Explorer branding.
+$iconInterop = @'
+using System;
+using System.Runtime.InteropServices;
+public static class TurkuazOfficeIconResource {
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern uint ExtractIconEx(
+        string fileName, int iconIndex, IntPtr[] largeIcons, IntPtr[] smallIcons, uint iconCount);
+}
+'@
+Add-Type -TypeDefinition $iconInterop -ErrorAction Stop
+$setupIconCount = [TurkuazOfficeIconResource]::ExtractIconEx(
+    $setups[0].FullName, -1, $null, $null, 0)
+if ($setupIconCount -lt 1) {
+    throw 'Velopack Setup.exe has no embedded Windows icon resources.'
+}
+Write-Host "OFFICE_VELOPACK_SETUP_ICON_OK count=$setupIconCount"
 
 $runnerTemp = $env:RUNNER_TEMP
 if ([string]::IsNullOrWhiteSpace($runnerTemp) -or -not (Test-Path -LiteralPath $runnerTemp)) {
