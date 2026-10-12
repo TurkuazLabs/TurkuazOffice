@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.5.0
+# Version: 0.5.1
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -180,3 +180,37 @@ It is not yet a full automated screenshot-based GUI acceptance. A
 freshly produced LAB ONLY setup still requires manual Windows WebView2
 validation and screenshot feedback. The old failing pilot artifact must
 never be retested or described as a working production UI build.
+
+## Windows desktop field feedback: setup branding and interaction (2026-10-12)
+
+A Windows 10 manual trial of the corrected LAB ONLY pilot successfully launched
+the interactive Turkuaz Office Start Center, with no visible localhost refusal.
+The user found the startup fast, but reported a generic installer EXE icon and
+no installation questions.
+
+The pilot pack script now reads the same `.ico` reference as the Tauri bundle
+config and passes `--icon` to **both** Velopack pack invocations. It fails
+closed when the declared ICO is absent or invalid. Windows CI inspects the
+actual generated `Setup.exe` icon resource before exercising installation.
+
+The existing Velopack `Setup.exe` deliberately remains a **one-click,
+per-user** installer. Quick completion is not a failure and artificial waiting
+must not be added. Velopack does not provide a classic install wizard in this
+path; changing the prompt behavior requires a distinct opt-in MSI / reviewed
+TurkuazInstaller WinUI flow, not disabling security or layering an unsafe
+wrapper around `Setup.exe`.
+
+### Next UX acceptance scope (not implemented in this patch)
+
+- Use the existing TurkuazInstaller WinUI presentation/controller/service
+  stack to show a branded welcome, installation scope/path review,
+  shortcut and file-association preferences, progress, and completion.
+- Keep `.tko` association and Writer/Sheet shortcuts explicit, with no
+  silent reassignment of existing user defaults.
+- Route actual installation through the signed-manifest trust,
+  SHA-256 and package-engine workflow; never launch unverified payloads.
+- Validate a visible `Setup.exe` brand icon in Windows Explorer and
+  user-facing dialogs on a disposable Windows VM. This is separate from the
+  CI resource test, which cannot prove Windows icon rendering or GUI layout.
+- Preserve the existing NSIS distribution and prior user data while the
+  LAB ONLY pilot stays draft.
