@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.8.0
+# Version: 0.9.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -313,3 +313,34 @@ automatic repair permission, production signing, recovery journal
 unlock or a replacement for Windows 10/11 UAC and NSIS migration
 acceptance. The latest exact-commit CI must be green before claiming
 the new negative gates passed.
+
+## Recovery hold and cross-version baseline rejection on real Office
+
+The full inventory pilot passed on [Windows CI #38377433913](https://github.com/TurkuazLabs/TurkuazOffice/actions/runs/38377433913), including
+(1) a post-signature JSON tamper rejected with exit 4;
+(2) a deliberately incorrect independently pinned certificate rejected with exit 4;
+(3) an unexpected actual installed `current/` file reported without deletion
+and followed by a clean audit; and (4) marker corruption/explicit repair/V1
+rollback/inventory clean/uninstall.
+
+Two further **non-production negative acceptance** tests now run on the
+already-installed genuine Office V2 binary:
+
+- Derive and ephemeral-CMS-sign the true V1 full-package file inventory.
+  Present it to the valid signed **V2** manifest. Even a valid signature
+  from the same pinned signer cannot authorize use of the wrong release
+  identity or archive digest; require operation failure exit 4, no changed
+  installed state or UserData.
+- Create a distinct **test-owned** applying-phase (5) update (1) journal
+  under the real Installer per-user journal directory. The read-only CLI
+  audit must reject the otherwise clean V2 installation with exit 4
+  and preserve the exact journal bytes. Test cleanup then removes only
+  its own created checkpoint and requires clean V2 audit again.
+
+No runtime journal deletion, recovery ownership, automatic repair or
+unsafe restart policy is introduced. This validates existing fail-closed
+`audit` behavior across the actual Office/Installer boundary. The new
+exact-head Windows CI is required before these two additional claims can
+be called verified. Existing Tauri NSIS installer, public-trust signing,
+real different-version Office binaries, file-association migration and
+interactive Windows 10/11 UAC acceptance remain separate open gates.
