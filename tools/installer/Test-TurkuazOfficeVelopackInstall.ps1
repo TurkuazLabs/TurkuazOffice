@@ -1,13 +1,14 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.5.1
+# Version: 0.6.0
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
 [CmdletBinding()]
 param(
     [string]$AssetsPath = "artifacts/turkuazinstaller-pilot/assets",
+    [string]$CompiledBinaryRoot = ".pilot-vpk/binaries",
     [ValidateRange(30, 360)]
     [int]$ProcessTimeoutSeconds = 180
 )
@@ -19,6 +20,12 @@ if (-not $IsWindows) {
     throw 'This smoke test must run on Windows.'
 }
 $assets = (Resolve-Path -LiteralPath $AssetsPath).Path
+$compiled = (Resolve-Path -LiteralPath $CompiledBinaryRoot).Path
+$compiledV1 = (Resolve-Path -LiteralPath (Join-Path $compiled 'office-v1.exe')).Path
+$compiledV2 = (Resolve-Path -LiteralPath (Join-Path $compiled 'office-v2.exe')).Path
+$compiledDigestV1 = (Get-FileHash -LiteralPath $compiledV1 -Algorithm SHA256).Hash
+$compiledDigestV2 = (Get-FileHash -LiteralPath $compiledV2 -Algorithm SHA256).Hash
+if ($compiledDigestV1 -ceq $compiledDigestV2) { throw 'Office pilot V1/V2 compiled EXEs are identical.' }
 $setups = @(Get-ChildItem -LiteralPath $assets -File -Filter '*Setup.exe')
 $fulls = @(Get-ChildItem -LiteralPath $assets -File -Filter '*-full.nupkg')
 $packageJson = Get-Content -LiteralPath 'apps/desktop/package.json' -Raw | ConvertFrom-Json
@@ -142,6 +149,14 @@ try {
         throw 'Real Turkuaz Office Tauri executable was not installed.'
     }
     Write-Host 'OFFICE_REAL_VELOPACK_INSTALL_OK'
+    $installedHashV1 = (Get-FileHash -LiteralPath $installedExe -Algorithm SHA256).Hash
+    if ($installedHashV1 -cne $compiledDigestV1) {
+        throw 'Installed Office V1 EXE differs from the separately compiled V1 input.'
+    }
+    Invoke-CheckedInstaller -Executable $installedExe -Operation 'compiled-v1-identity' -Arguments @(
+        '--office-pilot-verify-compiled-v1'
+    )
+    Write-Host 'OFFICE_INSTALLED_COMPILED_V1_BINARY_OK'
 
     # Real installed binary must serve embedded assets without a Vite server.
     # A window/process-only smoke previously missed this user-visible defect.
@@ -194,6 +209,19 @@ try {
         if (-not (Test-Path -LiteralPath $installedExe -PathType Leaf)) {
             throw "Tauri executable absent after $Operation"
         }
+        $expectedHash = if ($ExpectedVersion -ceq $nextVersion) {
+            $compiledDigestV2
+        } else {
+            $compiledDigestV1
+        }
+        $actualHash = (Get-FileHash -LiteralPath $installedExe -Algorithm SHA256).Hash
+        if ($actualHash -cne $expectedHash) {
+            throw "Velopack $Operation kept wrong Office compiled executable at $ExpectedVersion"
+        }
+        $expectedVariant = if ($ExpectedVersion -ceq $nextVersion) { 'v2' } else { 'v1' }
+        Invoke-CheckedInstaller -Executable $installedExe -Operation "compiled-$expectedVariant-$Operation" -Arguments @(
+            "--office-pilot-verify-compiled-$expectedVariant"
+        )
         if (-not (Test-Path -LiteralPath $userFile -PathType Leaf) -or
             [System.IO.File]::ReadAllText($userFile) -cne 'user-data-preserve-probe') {
             throw "UserData not preserved across $Operation"
@@ -202,6 +230,7 @@ try {
     }
 
     Apply-FullPilotPackage -Package $fullV2[0] -ExpectedVersion $nextVersion -Operation 'update'
+    Write-Host 'OFFICE_REAL_VELOPACK_DISTINCT_EXECUTABLE_UPDATE_OK'
 
     # Deliberately corrupt non-executable fixture to prove same-version
     # repair restores bytes rather than reporting success for a no-op.
