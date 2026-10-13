@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.5.1
+# Version: 0.6.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -214,3 +214,43 @@ wrapper around `Setup.exe`.
   CI resource test, which cannot prove Windows icon rendering or GUI layout.
 - Preserve the existing NSIS distribution and prior user data while the
   LAB ONLY pilot stays draft.
+
+## Real Office -> TurkuazInstaller signed CLI integration LAB
+
+After its normal real Windows Tauri Velopack lifecycle, the pilot workflow
+checks out **immutable** TurkuazInstaller PR #54 commit
+05431511f8be83e6f6b88df009fb9fcf05f4b525 and builds its actual
+Windows x64 CLI. This is not an invented installer shim: real installed
+state, release provider, detached CMS verifier, SHA-256 artifact guard,
+operation journal, lock and Velopack engine all run.
+
+The additional Test-OfficeSignedTurkuazInstallerCli.ps1 is restricted to a
+disposable GitHub-hosted Windows worker. It refuses existing pilot
+state/journal/trust files and any preexisting target. It uses the genuinely
+built Office Setup.exe and the two existing full nupkg test packages, after
+SHA-256 validation. It creates a short-lived lab RSA certificate and
+externally pinned trust store, then signs real YAML manifest bytes with
+detached CMS. Private keys and trust files are never uploaded.
+
+High-level signed CLI acceptance gates:
+
+1. Manifest tampering is rejected before installation and state creation.
+2. Signed V1 Office Setup.exe installation commits verified state/files.
+3. Signed V2 manifest with wrong artifact digest is rejected while V1 and
+   UserData remain unchanged.
+4. Signed CLI update applies the genuine V2 full nupkg.
+5. Same-version signed repair restores a deliberately damaged test marker.
+6. Signed rollback to V1 preserves UserData bytes.
+7. Official signed CLI uninstall removes active binaries and committed state.
+
+Each native process has a finite timeout. This is beta-channel,
+test-only package identity and ephemeral LAB trust; no production signing,
+background update, per-machine elevation, registry default changes,
+NSIS migration or customer install is authorized. V2 uses the same
+compiled Office EXE as V1, with only a changed marker: do NOT call it
+a genuine product-code update.
+
+Successful new exact-head Windows CI is mandatory before claiming these
+new gates pass. The signed product trust preparation is separate Office
+PR #75. PR #71 remains Draft until production and actual Windows 10/11
+interactive User Experience / shortcuts / .tko ownership checks are accepted.
