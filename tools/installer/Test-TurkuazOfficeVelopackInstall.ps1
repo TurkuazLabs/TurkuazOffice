@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.7.0
+# Version: 0.7.1
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -82,6 +82,10 @@ if (-not $verified.ContainsKey('LAB_BUILD_PROVENANCE.json') -or
 }
 $provenance = Get-Content -LiteralPath $provenancePath -Raw | ConvertFrom-Json
 $checkoutSha = (& git rev-parse HEAD).Trim().ToLowerInvariant()
+$rustLockTracked = (@(& git ls-files -- Cargo.lock) -contains 'Cargo.lock') -and
+    (Test-Path -LiteralPath Cargo.lock -PathType Leaf)
+$nodeLockTracked = (@(& git ls-files -- apps/desktop/package-lock.json) -contains 'apps/desktop/package-lock.json') -and
+    (Test-Path -LiteralPath apps/desktop/package-lock.json -PathType Leaf)
 if ($LASTEXITCODE -ne 0 -or $checkoutSha -notmatch '^[0-9a-f]{40}
 # Confirm the packaged Setup.exe carries a real Windows icon resource.
 # A successful installer process alone cannot detect missing Explorer branding.
@@ -313,6 +317,9 @@ finally {
     $provenance.compile_variant_v2 -cne 'installer-velopack-pilot-v2' -or
     $provenance.release_version_v1 -cne $version -or
     $provenance.release_version_v2 -cne $nextVersion -or
+    $provenance.rust_lockfile_tracked_in_checkout -ne $rustLockTracked -or
+    $provenance.node_lockfile_tracked_in_checkout -ne $nodeLockTracked -or
+    $provenance.dependencies_locked_for_reproduction -ne ($rustLockTracked -and $nodeLockTracked) -or
     $provenance.compiled_executables_sha256_distinct -ne $true -or
     $provenance.compiled_executable_v1_sha256 -cne $compiledDigestV1.ToLowerInvariant() -or
     $provenance.compiled_executable_v2_sha256 -cne $compiledDigestV2.ToLowerInvariant() -or
