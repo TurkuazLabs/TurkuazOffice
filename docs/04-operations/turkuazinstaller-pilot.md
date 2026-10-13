@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.9.0
+# Version: 1.0.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -344,3 +344,32 @@ exact-head Windows CI is required before these two additional claims can
 be called verified. Existing Tauri NSIS installer, public-trust signing,
 real different-version Office binaries, file-association migration and
 interactive Windows 10/11 UAC acceptance remain separate open gates.
+
+## Missing detached signatures and cross-product rollback negative gates
+
+The exact-head [Office Windows CI #38386114359](https://github.com/TurkuazLabs/TurkuazOffice/actions/runs/38386114359)
+verified all four Office workflows green, including:
+- V1 valid CMS inventory rejected against the V2 signed release, exit 4.
+- An Applying-stage update journal causes the otherwise clean signed
+  Office audit to fail closed, exit 4, while preserving the journal's
+  exact SHA-256; explicit test-owned cleanup restores a clean audit.
+- Full V1→V2→repair→V1 rollback→uninstall mechanics and UserData checks.
+
+The next real-Office LAB gate adds independent **missing signature**
+checks to reject a manifest lacking its detached `.p7s` at both clean
+installation and V1→V2 update. It also rejects a copied genuine V2
+inventory JSON when its detached signature is missing. Expected exit
+code is an operation failure (4), not an invalid command syntax (2),
+and Office state and preserved data are rechecked after each rejection.
+
+A separate LAB-only package ID receives a **second independently
+provisioned trust-store entry** pointing to the same short-lived CMS
+signer. A valid, foreign-package V1 rollback manifest is presented
+against the installed Office V2 product. The CLI must still refuse
+rollback based on package identity (exit 4), leave V2 installed and
+pass its original clean signed inventory audit afterward. Same signer
+trust does not authorize crossing product boundaries.
+
+The new CI has not yet been verified. Do not use this shared test
+certificate, lab-only identities or external trust entries for
+production releases; normal Office NSIS remains authoritative.
