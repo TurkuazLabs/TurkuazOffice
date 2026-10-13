@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.7.1
+# Version: 0.8.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -281,3 +281,35 @@ This still does not prove snapshot atomicity, full installation-root
 ownership, actual second Office source version, UAC/NSIS migration,
 end-user UX, or publicly trusted code signing. The new exact-head CI
 must succeed before any of these claims are considered verified.
+
+## Additional fail-closed signed inventory acceptance
+
+After the first complete real Office signed V2 inventory passed on
+[Windows CI #38367693830](https://github.com/TurkuazLabs/TurkuazOffice/actions/runs/38367693830)
+(all five signed expected payload files matched, damaged version marker
+was detected and restored by explicit repair, and V1 rollback audit
+passed), a new adversarial acceptance phase was added.
+
+While the real V2 Office installation is active, the disposable hosted
+Windows test must now:
+
+1. Copy the signed V2 inventory and valid detached signature, append
+   harmless JSON whitespace **after** signing and require operation
+   failure exit code 4, never silently validating the modified bytes.
+2. Replace only the lab's independently provisioned external
+   trust-store SHA-256 pin with an incorrect pin. Require operation
+   failure exit 4, then restore the original trust policy in a
+   structured finally block and require a clean audit again.
+3. Add a benign unexpected file inside the actual installed
+   current/ directory. Require exit 4, an explicit unattributed path
+   and **no mismatch of previously signed files**. Assert that audit
+   has **not deleted or modified** the unexpected file. Explicitly
+   clean only this GUID-isolated test fixture, then require a
+   clean signed audit again.
+
+The existing corrupted expected-file, repaired, rollback and uninstall
+checks run afterward. These are test-only adversarial fixtures, **not**
+automatic repair permission, production signing, recovery journal
+unlock or a replacement for Windows 10/11 UAC and NSIS migration
+acceptance. The latest exact-commit CI must be green before claiming
+the new negative gates passed.
