@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.5.0
+# Version: 0.5.1
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -244,6 +244,7 @@ function Assert-UserData {
 }
 
 try {
+    $otherPackageId = 'turkuazlabs.turkuazoffice.foreign-ci'
     $pin = $cert.GetCertHashString(
         [Security.Cryptography.HashAlgorithmName]::SHA256).ToLowerInvariant()
     $trustRows = @(
@@ -276,7 +277,6 @@ try {
 
     # Both package identities have a valid external trust entry and
     # the SAME CMS signer. Package ID must still scope rollback authority.
-    $otherPackageId = 'turkuazlabs.turkuazoffice.foreign-ci'
     $foreignRollback = New-LabManifest 'office-foreign-rollback' $fullOne $versionOne -PackageIdentity $otherPackageId
 
     Invoke-Core 'CMS_TAMPER_REJECTED' @(
