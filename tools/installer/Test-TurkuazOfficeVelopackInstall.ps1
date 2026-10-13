@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
 # 📌 Amac: Turkuaz Office pilot paketini gecici Windows runner'a gercekten kurup kaldirarak temel lifecycle kabulunu sinamak
 # 📌 Modul - Tool PowerShell
-# Version: 0.7.2
+# Version: 0.7.3
 # Aciklama: Setup.exe/Update.exe gercek Windows processleri; private temp hedef, SHA256 ve timeout ile fail-closed smoke test
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -202,6 +202,9 @@ try {
     Invoke-CheckedInstaller -Executable $installedExe -Operation 'compiled-v1-identity' -Arguments @(
         '--office-pilot-verify-compiled-v1'
     )
+    Invoke-CheckedInstaller -Executable $installedExe -Operation 'v1-writer-sheet-launch-contract' -Arguments @(
+        '--office-pilot-verify-module-launch'
+    )
     Write-Host 'OFFICE_INSTALLED_COMPILED_V1_BINARY_OK'
 
     # Real installed binary must serve embedded assets without a Vite server.
@@ -267,6 +270,9 @@ try {
         $expectedVariant = if ($ExpectedVersion -ceq $nextVersion) { 'v2' } else { 'v1' }
         Invoke-CheckedInstaller -Executable $installedExe -Operation "compiled-$expectedVariant-$Operation" -Arguments @(
             "--office-pilot-verify-compiled-$expectedVariant"
+        )
+        Invoke-CheckedInstaller -Executable $installedExe -Operation "module-contract-$Operation" -Arguments @(
+            '--office-pilot-verify-module-launch'
         )
         if (-not (Test-Path -LiteralPath $userFile -PathType Leaf) -or
             [System.IO.File]::ReadAllText($userFile) -cne 'user-data-preserve-probe') {
