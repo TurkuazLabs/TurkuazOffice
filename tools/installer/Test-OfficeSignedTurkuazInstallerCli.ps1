@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.6.0
+# Version: 0.6.1
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -261,6 +261,10 @@ function Assert-State {
     $probeProcess = Start-Process -FilePath $exe -ArgumentList "--office-pilot-verify-compiled-$variant" -Wait -PassThru
     if ($probeProcess.ExitCode -ne 0) {
         throw "Installed Office compiled binary identity mismatch at $Version code=$($probeProcess.ExitCode)"
+    }
+    $moduleProbe = Start-Process -FilePath $exe -ArgumentList '--office-pilot-verify-module-launch' -Wait -PassThru
+    if ($moduleProbe.ExitCode -ne 0) {
+        throw "Installed Office Writer/Sheet module launch contract mismatch at $Version code=$($moduleProbe.ExitCode)"
     }
 }
 function Assert-UserData {
