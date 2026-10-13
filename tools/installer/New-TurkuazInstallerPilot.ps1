@@ -1,14 +1,15 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.4.1
-# Aciklama: Yalniz native feature build paketleme probe'u; imzalama, registry/file association veya urun guncelleme yetkisi uretmez
+# Version: 0.5.0
+# Aciklama: Ayrica derlenmis V1/V2 LAB exe'lerini paketler; signing/NSIS/file association/production yapmaz
 # Bagimli Oldugu Katman: Tool | Config | CI
 
 [CmdletBinding()]
 param(
     [string]$ToolRoot = ".pilot-vpk",
-    [string]$OutputRoot = "artifacts/turkuazinstaller-pilot"
+    [string]$OutputRoot = "artifacts/turkuazinstaller-pilot",
+    [string]$CompiledBinaryRoot = ".pilot-vpk/binaries"
 )
 
 Set-StrictMode -Version Latest
@@ -26,8 +27,9 @@ if ($version -notmatch '^\d+\.\d+\.\d+$') {
 $workspaceCargo = Get-Content -LiteralPath (Join-Path $repoRoot "Cargo.toml") -Raw
 $tauriConfig = Get-Content -LiteralPath (Join-Path $repoRoot "apps/desktop/src-tauri/tauri.conf.json5") -Raw
 $escapedVersion = [regex]::Escape($version)
-# Second TEST-ONLY version: same Tauri executable, changed payload marker.
-# It exercises the update/repair/rollback engine, not real product evolution.
+# LAB V2 uses a separate compiled Tauri binary with opt-in build
+# identity. Both compiled binaries share the same application source;
+# this is not an authentic historical customer release upgrade.
 $parsedVersion = [version]$version
 if ($parsedVersion.Build -ge 2147483647) { throw 'Pilot patch version overflow.' }
 $nextVersion = '{0}.{1}.{2}' -f $parsedVersion.Major, $parsedVersion.Minor, ($parsedVersion.Build + 1)
@@ -37,13 +39,23 @@ if ($workspaceCargo -notmatch "(?m)^version\s*=\s*\u0022$escapedVersion\u0022\s*
 }
 
 $vpkPath = [System.IO.Path]::GetFullPath((Join-Path $repoRoot "$ToolRoot/vpk.exe"))
-$nativeExe = Join-Path $repoRoot "target/release/turkuaz-office-desktop.exe"
+$compiledRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot $CompiledBinaryRoot))
+$nativeV1 = Join-Path $compiledRoot "office-v1.exe"
+$nativeV2 = Join-Path $compiledRoot "office-v2.exe"
 if (-not (Test-Path -LiteralPath $vpkPath -PathType Leaf)) {
     throw "Pinned vpk.exe was not found: $vpkPath"
 }
-if (-not (Test-Path -LiteralPath $nativeExe -PathType Leaf)) {
-    throw "Tauri native Windows executable was not found: $nativeExe"
+foreach ($nativeExe in @($nativeV1, $nativeV2)) {
+    if (-not (Test-Path -LiteralPath $nativeExe -PathType Leaf)) {
+        throw "Separately compiled Office LAB executable was not found: $nativeExe"
+    }
 }
+$compiledHashV1 = (Get-FileHash -LiteralPath $nativeV1 -Algorithm SHA256).Hash
+$compiledHashV2 = (Get-FileHash -LiteralPath $nativeV2 -Algorithm SHA256).Hash
+if ($compiledHashV1 -ceq $compiledHashV2) {
+    throw "Refusing marker-only V2 packaging: Office LAB compiled binaries are identical."
+}
+Write-Host "OFFICE_PILOT_COMPILED_BINARY_HASHES_DISTINCT_OK"
 
 # Use the same Windows icon already declared by Tauri instead of duplicating
 # a second branding path in this packaging tool.
@@ -82,7 +94,7 @@ foreach ($folder in @($payload, $releases, $assets, $temp)) {
     New-Item -ItemType Directory -Path $folder -Force | Out-Null
 }
 
-Copy-Item -LiteralPath $nativeExe -Destination (Join-Path $payload "turkuaz-office-desktop.exe")
+Copy-Item -LiteralPath $nativeV1 -Destination (Join-Path $payload "turkuaz-office-desktop.exe")
 $marker = Join-Path $payload "installer-pilot-version.txt"
 Set-Content -LiteralPath $marker -Value $version -NoNewline -Encoding utf8
 $env:VELOPACK_TEMP = $temp
@@ -115,11 +127,12 @@ foreach ($file in @($setupFiles[0], $fullFiles[0])) {
     Copy-Item -LiteralPath $file.FullName -Destination (Join-Path $assets $file.Name)
 }
 
-# Create a second, intentionally artificial patch-version package. The
-# .exe is unchanged: a different version marker ensures the *real* updater
-# actually replaces payload files during the Windows lifecycle test.
+# Create the second intentionally LAB-only patch-version package using a
+# SEPARATELY COMPILED EXE (different identity code), NOT a marker-only
+# repackaging. The actual Writer/Sheet business logic remains the same.
 $releasesTwo = Join-Path $root "releases-v2"
 New-Item -ItemType Directory -Path $releasesTwo -Force | Out-Null
+Copy-Item -LiteralPath $nativeV2 -Destination (Join-Path $payload "turkuaz-office-desktop.exe") -Force
 Set-Content -LiteralPath $marker -Value $nextVersion -NoNewline -Encoding utf8
 $outputTwo = & $vpkPath --legacyConsole true --yes true --skip-updates true --verbose true pack `
     --runtime win-x64 `
@@ -143,16 +156,18 @@ $instructions = @'
 TURKUAZ OFFICE + TURKUAZINSTALLER = EXPERIMENTAL LAB ARTIFACT
 ================================================================
 This package is unsigned and NOT a TurkuazInstaller production release.
-It proves only that a Tauri Windows executable can be packaged into
-Velopack Setup.exe and two full nupkgs with the same pinned vpk as Core E2E.
-The two test versions use the SAME Tauri EXE and a changed marker only.
-Do NOT interpret v2 as an actual separately compiled application update.
+It proves that two separately compiled Tauri Windows LAB binaries with
+different opt-in compile identities can be packaged into Velopack
+Setup.exe and two full nupkgs with the pinned vpk used by Core E2E.
+They use the SAME Office application source and Writer/Sheet logic.
+Do NOT interpret v2 as an independently developed product release.
 Do not run on a customer's machine, publish as stable, or disable AV.
 Use an isolated disposable Windows x64 test VM.
 
 PRODUCTION BLOCKERS (NOT IMPLEMENTED HERE):
 - No signed installer-manifest.yml + .p7s and external cert-pinned trust.
-- Optional Velopack startup hook is checked, but real Windows VM lifecycle is NOT yet proven.
+- CI verifies lifecycle on disposable hosted Windows only; clean end-user
+  Windows 10/11 GUI/UAC lifecycle is still NOT manually accepted.
 - NSIS Writer/Sheet Start Menu shortcuts are NOT migrated.
 - NSIS .tko file association is NOT migrated.
 - Need WebView2/prerequisite, clean install/update/repair/rollback/uninstall
