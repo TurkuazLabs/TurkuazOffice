@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.5.0
+# Version: 0.6.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -116,6 +116,28 @@ jobs:
       - name: Real Windows Velopack install update repair rollback uninstall and UserData smoke
         shell: pwsh
         run: ./tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
+
+      # LAB ONLY: tie a *real Office binary* to the Installer PR #54 trust
+      # implementation. This is intentionally pinned to an immutable commit,
+      # not an unreviewed moving branch or an unsigned production fallback.
+      - name: Checkout pinned TurkuazInstaller signed CLI for Office LAB
+        uses: actions/checkout@v4
+        with:
+          repository: TurkuazLabs/TurkuazInstaller
+          ref: 05431511f8be83e6f6b88df009fb9fcf05f4b525
+          path: .turkuazinstaller-core
+          persist-credentials: false
+
+      - name: Build pinned real TurkuazInstaller CLI
+        shell: pwsh
+        run: |
+          dotnet publish .turkuazinstaller-core/src/TurkuazInstaller.Cli/TurkuazInstaller.Cli.csproj --configuration Release --runtime win-x64 --self-contained true --output .turkuazinstaller-core/publish
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned real TurkuazInstaller CLI publish failed.' }
+          if (-not (Test-Path -LiteralPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe)) { throw 'Real installer CLI executable missing.' }
+
+      - name: Real Office signed CMS TurkuazInstaller CLI lifecycle and fail-closed checks
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1 -CliPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe
 
       - name: Upload lab-only pilot artifacts
         uses: actions/upload-artifact@v4
