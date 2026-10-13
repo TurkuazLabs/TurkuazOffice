@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.6.1
+# Version: 0.6.2
 # Aciklama: Ayrica derlenmis V1/V2 LAB exe'lerini paketler; signing/NSIS/file association/production yapmaz
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -152,71 +152,26 @@ if ($fullTwo.Count -ne 1 -or $fullTwo[0].Length -le 0) {
 }
 Copy-Item -LiteralPath $fullTwo[0].FullName -Destination (Join-Path $assets $fullTwo[0].Name)
 
-# A lab provenance record states WHAT was built without pretending that
-# both variants came from independently released Office source revisions.
-# Every digest below is over the real packaged input or generated payload,
-# not over a version marker. Never mark an unlocked build reproducible.
+# Provenance records actual build inputs and never grants release trust.
 $sourceCommit = (& git -C $repoRoot rev-parse HEAD)
-if ($LASTEXITCODE -ne 0 -or
-    $sourceCommit -notmatch '^[0-9a-fA-F]{40}
-================================================================
-This package is unsigned and NOT a TurkuazInstaller production release.
-It proves that two separately compiled Tauri Windows LAB binaries with
-different opt-in compile identities can be packaged into Velopack
-Setup.exe and two full nupkgs with the pinned vpk used by Core E2E.
-They use the SAME Office application source and Writer/Sheet logic.
-Do NOT interpret v2 as an independently developed product release.
-Do not run on a customer's machine, publish as stable, or disable AV.
-Use an isolated disposable Windows x64 test VM.
-
-PRODUCTION BLOCKERS (NOT IMPLEMENTED HERE):
-- No signed installer-manifest.yml + .p7s and external cert-pinned trust.
-- CI verifies lifecycle on disposable hosted Windows only; clean end-user
-  Windows 10/11 GUI/UAC lifecycle is still NOT manually accepted.
-- NSIS Writer/Sheet Start Menu shortcuts are NOT migrated.
-- NSIS .tko file association is NOT migrated.
-- Need WebView2/prerequisite, clean install/update/repair/rollback/uninstall
-  with real TurkuazInstaller, and preserve-data acceptance on Windows.
-- Existing NSIS preview/release pipeline remains authoritative.
-- No Pro licensing or staged rollout is enabled by this pilot.
-'@
-Set-Content -LiteralPath (Join-Path $assets "READ-ME-LAB-ONLY.txt") -Value $instructions -Encoding utf8
-
-$lines = Get-ChildItem -LiteralPath $assets -File |
-    Sort-Object Name |
-    ForEach-Object {
-        $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-        "$hash *$($_.Name)"
-    }
-[System.IO.File]::WriteAllLines(
-    (Join-Path $assets "SHA256SUMS.txt"),
-    $lines,
-    [System.Text.UTF8Encoding]::new($false)
-)
-
-Write-Host "OFFICE_VELOPACK_PACKAGING_PROBE_OK versions=$version,$nextVersion"
-) {
+if ($LASTEXITCODE -ne 0 -or $sourceCommit -notmatch '^[0-9a-fA-F]{40}$') {
     throw 'Cannot establish immutable Office source commit for pilot provenance.'
 }
 $packageArtifacts = @($setupFiles[0], $fullFiles[0], $fullTwo[0])
 $packagesEvidence = @(
     foreach ($file in $packageArtifacts) {
-        $sourcePath = Join-Path $assets $file.Name
+        $assetPath = Join-Path $assets $file.Name
         [ordered]@{
             name = $file.Name
-            sha256 = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash.ToLowerInvariant()
-            size_bytes = (Get-Item -LiteralPath $sourcePath).Length
+            sha256 = (Get-FileHash -LiteralPath $assetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+            size_bytes = (Get-Item -LiteralPath $assetPath).Length
         }
     }
 )
-$rustLockPath = Join-Path $repoRoot 'Cargo.lock'
-$nodeLockPath = Join-Path $repoRoot 'apps/desktop/package-lock.json'
-# Cargo and npm can generate UNTRACKED locks while building; their
-# existence must never be presented as source-controlled reproducibility.
-$hasRustLock = (@(& git -C $repoRoot ls-files -- 'Cargo.lock') -contains 'Cargo.lock') -and
-    (Test-Path -LiteralPath $rustLockPath -PathType Leaf)
-$hasNodeLock = (@(& git -C $repoRoot ls-files -- 'apps/desktop/package-lock.json') -contains 'apps/desktop/package-lock.json') -and
-    (Test-Path -LiteralPath $nodeLockPath -PathType Leaf)
+$rustLock = (@(& git -C $repoRoot ls-files -- 'Cargo.lock') -contains 'Cargo.lock') -and
+    (Test-Path -LiteralPath (Join-Path $repoRoot 'Cargo.lock') -PathType Leaf)
+$nodeLock = (@(& git -C $repoRoot ls-files -- 'apps/desktop/package-lock.json') -contains 'apps/desktop/package-lock.json') -and
+    (Test-Path -LiteralPath (Join-Path $repoRoot 'apps/desktop/package-lock.json') -PathType Leaf)
 $labProvenance = [ordered]@{
     schema_version = 1
     lab_only = $true
@@ -231,9 +186,9 @@ $labProvenance = [ordered]@{
     compiled_executable_v1_sha256 = $compiledHashV1.ToLowerInvariant()
     compiled_executable_v2_sha256 = $compiledHashV2.ToLowerInvariant()
     compiled_executables_sha256_distinct = $true
-    rust_lockfile_tracked_in_checkout = $hasRustLock
-    node_lockfile_tracked_in_checkout = $hasNodeLock
-    dependencies_locked_for_reproduction = ($hasRustLock -and $hasNodeLock)
+    rust_lockfile_tracked_in_checkout = $rustLock
+    node_lockfile_tracked_in_checkout = $nodeLock
+    dependencies_locked_for_reproduction = ($rustLock -and $nodeLock)
     signing_policy = 'UNSIGNED_LAB_ONLY_EPHEMERAL_CMS_IN_E2E'
     packages = $packagesEvidence
 }
