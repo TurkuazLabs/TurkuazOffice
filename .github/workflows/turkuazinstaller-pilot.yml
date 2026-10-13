@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.9.0
+# Version: 1.0.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -116,6 +116,10 @@ jobs:
             if ($negative.ExitCode -ne 32) { throw "Compiled $variant unexpectedly accepted $wrong identity" }
           }
           Write-Host 'OFFICE_PILOT_TWO_DISTINCT_COMPILED_EXES_AND_EMBEDDED_FRONTEND_OK'
+
+      - name: Read-only NSIS Writer Sheet shortcuts and .tko contract versus compiled LAB EXEs
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeWindowsIntegrationContract.ps1
 
       - name: Verify Velopack lifecycle hooks exit without opening Tauri
         shell: pwsh
