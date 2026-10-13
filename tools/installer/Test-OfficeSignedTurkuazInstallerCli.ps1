@@ -1,13 +1,14 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.1.0
+# Version: 0.2.0
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$CliPath,
+    [Parameter(Mandatory = $true)][string]$InventoryProbePath,
     [string]$AssetsPath = "artifacts/turkuazinstaller-pilot/assets",
     [ValidateRange(60, 600)][int]$ProcessTimeoutSeconds = 240
 )
@@ -20,6 +21,7 @@ if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT -or
 }
 $packageId = 'turkuazlabs.turkuazoffice.pilot'
 $cli = (Resolve-Path -LiteralPath $CliPath).Path
+$probe = (Resolve-Path -LiteralPath $InventoryProbePath).Path
 $assets = (Resolve-Path -LiteralPath $AssetsPath).Path
 $versionOne = [string](Get-Content 'apps/desktop/package.json' -Raw | ConvertFrom-Json).version
 if ($versionOne -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid Office SemVer.' }
@@ -118,6 +120,67 @@ function New-LabManifest {
     return $path
 }
 
+function New-SignedLabInventory {
+    param([string]$Name, [string]$Manifest, [IO.FileInfo]$FullPackage)
+
+    $output = Join-Path $root "$Name.json"
+    & $probe --package $packageId --channel beta --manifest $Manifest --trust $trust --full-package $FullPackage.FullName --output $output
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $output -PathType Leaf)) {
+        throw "Trusted full-package inventory derivation failed: $Name"
+    }
+    $bytes = [IO.File]::ReadAllBytes($output)
+    if ($bytes.Length -le 0 -or $bytes.Length -gt 1048576) {
+        throw 'Trusted Office full-package inventory exceeds signed limits.'
+    }
+    $cms = [Security.Cryptography.Pkcs.SignedCms]::new(
+        [Security.Cryptography.Pkcs.ContentInfo]::new($bytes), $true)
+    $signer = [Security.Cryptography.Pkcs.CmsSigner]::new($cert)
+    $signer.IncludeOption = [Security.Cryptography.X509Certificates.X509IncludeOption]::EndCertOnly
+    $signer.DigestAlgorithm = [Security.Cryptography.Oid]::new('2.16.840.1.101.3.4.2.1')
+    $cms.ComputeSignature($signer)
+    [IO.File]::WriteAllBytes(($output + '.p7s'), $cms.Encode())
+    return $output
+}
+
+function Invoke-Audit {
+    param([string]$Label, [string]$Manifest, [string]$Inventory,
+        [switch]$ExpectMismatch)
+
+    # Audit stdout is one typed JSON report, not a repair/resume command.
+    $auditArgs = @('audit', '--package', $packageId,
+        '--manifest', $Manifest, '--inventory', $Inventory, '--channel', 'beta')
+    $reportText = & $cli @auditArgs
+    $exitCode = $LASTEXITCODE
+    if ($null -eq $reportText) {
+        throw "Signed Office audit did not produce a report: $Label code=$exitCode"
+    }
+    $report = ($reportText | Out-String | ConvertFrom-Json)
+    $hasMarkerMismatch = @($report.mismatches | Where-Object {
+        $_.path -ceq 'current/installer-pilot-version.txt'
+    }).Count -eq 1
+    if ($report.diagnostic_only -ne $true -or
+        $report.permits_repair -ne $false -or
+        $report.snapshot_atomic -ne $false -or
+        $report.recovery_hold_cleared -ne $false) {
+        throw "Signed Office audit report must never claim repair authorization: $Label"
+    }
+
+    if ($ExpectMismatch) {
+        if ($exitCode -eq 0 -or $report.observed_clean -ne $false -or
+            -not $hasMarkerMismatch) {
+            throw "Signed Office audit failed to identify corrupted marker: $Label"
+        }
+    } else {
+        if ($exitCode -ne 0 -or $report.observed_clean -ne $true -or
+            @($report.mismatches).Count -ne 0 -or
+            @($report.unattributed_current_files).Count -ne 0 -or
+            $report.inspected_signed_files -lt 2) {
+            throw "Signed Office complete payload audit not clean: $Label code=$exitCode"
+        }
+    }
+    Write-Host ('OFFICE_REAL_SIGNED_NUPKG_AUDIT_{0}_OK code={1} files={2}' -f $Label.ToUpperInvariant(), $exitCode, $report.inspected_signed_files)
+}
+
 function Invoke-Core {
     param([string]$Label, [string[]]$Arguments, [switch]$Reject)
     $start = [Diagnostics.ProcessStartInfo]::new()
@@ -201,16 +264,26 @@ try {
     Assert-State $versionTwo
     Assert-UserData
 
+    # This uses the SAME archive inventory builder as Installer's own
+    # Windows E2E: checks the entire real Office nupkg SHA-256 and lib/app
+    # file list before ephemeral CMS signing and on-disk comparison.
+    $inventoryV2 = New-SignedLabInventory 'office-full-v2' $m2 $fullTwo
+    Invoke-Audit 'V2_CLEAN' $m2 $inventoryV2
+
     [IO.File]::WriteAllText($marker, 'deliberate-ci-corruption')
+    Invoke-Audit 'V2_CORRUPT_REJECTED' $m2 $inventoryV2 -ExpectMismatch
     Invoke-Core 'REPAIR' @(
         'repair', '--package', $packageId, '--manifest', $m2, '--channel', 'beta', '--silent')
     Assert-State $versionTwo
     Assert-UserData
+    Invoke-Audit 'V2_REPAIRED_CLEAN' $m2 $inventoryV2
     Invoke-Core 'ROLLBACK' @(
         'rollback', '--package', $packageId, '--manifest', $m2,
         '--rollback-manifest', $mRollback, '--channel', 'beta', '--silent')
     Assert-State $versionOne
     Assert-UserData
+    $inventoryV1 = New-SignedLabInventory 'office-full-v1' $mRollback $fullOne
+    Invoke-Audit 'V1_ROLLBACK_CLEAN' $mRollback $inventoryV1
     Invoke-Core 'UNINSTALL' @(
         'uninstall', '--package', $packageId, '--silent')
 
@@ -223,7 +296,7 @@ try {
         Start-Sleep -Milliseconds 500
     } while ([DateTime]::UtcNow -lt $deadline)
     if ($active) { throw 'Signed CLI uninstall retained binaries/state.' }
-    Write-Host 'OFFICE_REAL_PRODUCT_TURKUAZINSTALLER_SIGNED_CLI_LIFECYCLE_OK'
+    Write-Host 'OFFICE_REAL_PRODUCT_TURKUAZINSTALLER_SIGNED_CLI_LIFECYCLE_AND_INVENTORY_OK'
 }
 finally {
     $cert.Dispose()
