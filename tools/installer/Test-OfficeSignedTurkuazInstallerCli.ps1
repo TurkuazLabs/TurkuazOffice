@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.5.1
+# Version: 0.6.0
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -9,6 +9,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$CliPath,
     [Parameter(Mandatory = $true)][string]$InventoryProbePath,
+    [string]$CompiledBinaryRoot = ".pilot-vpk/binaries",
     [string]$AssetsPath = "artifacts/turkuazinstaller-pilot/assets",
     [ValidateRange(60, 600)][int]$ProcessTimeoutSeconds = 240
 )
@@ -23,6 +24,14 @@ $packageId = 'turkuazlabs.turkuazoffice.pilot'
 $cli = (Resolve-Path -LiteralPath $CliPath).Path
 $probe = (Resolve-Path -LiteralPath $InventoryProbePath).Path
 $assets = (Resolve-Path -LiteralPath $AssetsPath).Path
+$compiled = (Resolve-Path -LiteralPath $CompiledBinaryRoot).Path
+$compiledV1 = (Resolve-Path -LiteralPath (Join-Path $compiled 'office-v1.exe')).Path
+$compiledV2 = (Resolve-Path -LiteralPath (Join-Path $compiled 'office-v2.exe')).Path
+$compiledHashV1 = (Get-FileHash -LiteralPath $compiledV1 -Algorithm SHA256).Hash
+$compiledHashV2 = (Get-FileHash -LiteralPath $compiledV2 -Algorithm SHA256).Hash
+if ($compiledHashV1 -ceq $compiledHashV2) {
+    throw 'Real signed CLI E2E requires two DIFFERENT compiled Tauri EXEs.'
+}
 $versionOne = [string](Get-Content 'apps/desktop/package.json' -Raw | ConvertFrom-Json).version
 if ($versionOne -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid Office SemVer.' }
 $v = [version]$versionOne
@@ -232,11 +241,26 @@ function Invoke-Core {
 }
 function Assert-State {
     param([string]$Version)
+    $exe = Join-Path $installRoot 'current/turkuaz-office-desktop.exe'
     if (-not (Test-Path $marker -PathType Leaf) -or
         [IO.File]::ReadAllText($marker).Trim() -cne $Version -or
-        -not (Test-Path (Join-Path $installRoot 'current/turkuaz-office-desktop.exe') -PathType Leaf) -or
+        -not (Test-Path $exe -PathType Leaf) -or
         -not (Test-Path $state -PathType Leaf)) {
         throw "Installed Office binary/marker/committed state invalid at version $Version"
+    }
+
+    $expectedHash = if ($Version -ceq $versionOne) { $compiledHashV1 } elseif (
+        $Version -ceq $versionTwo) { $compiledHashV2 } else {
+        throw "No expected compiled Office LAB EXE for version $Version"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
+    if ($actualHash -cne $expectedHash) {
+        throw "Installed Office compiled EXE SHA256 mismatch at version $Version"
+    }
+    $variant = if ($Version -ceq $versionOne) { 'v1' } else { 'v2' }
+    $probeProcess = Start-Process -FilePath $exe -ArgumentList "--office-pilot-verify-compiled-$variant" -Wait -PassThru
+    if ($probeProcess.ExitCode -ne 0) {
+        throw "Installed Office compiled binary identity mismatch at $Version code=$($probeProcess.ExitCode)"
     }
 }
 function Assert-UserData {
@@ -310,6 +334,7 @@ try {
     Invoke-Core 'UPDATE' @(
         'update', '--package', $packageId, '--manifest', $m2, '--channel', 'beta', '--silent')
     Assert-State $versionTwo
+    Write-Host 'OFFICE_SIGNED_CLI_DISTINCT_COMPILED_EXECUTABLE_UPDATE_OK'
     Assert-UserData
 
     # This uses the SAME archive inventory builder as Installer's own
