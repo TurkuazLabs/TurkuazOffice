@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/main.rs
 // # 📌 Amac: Turkuaz Office Desktop binary giris noktasini tanimlar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.5.5
+// # Version: 0.5.6
 // # Aciklama: Release Windows buildinde konsol penceresi acmadan library composition root run fonksiyonunu cagirir
 // Bagimli Oldugu Katman: Controller
 
@@ -42,6 +42,33 @@ fn main() {
             std::env::args_os().any(|argument| argument == "--office-pilot-verify-compiled-v2");
         if requested_v2 != cfg!(feature = "installer-velopack-pilot-v2") {
             std::process::exit(32);
+        }
+        return;
+    }
+
+    // LAB-only, GUI-free contract test: the executable's actual launch
+    // parser must still resolve NSIS Writer/Sheet shortcut arguments.
+    // This does not create shortcuts, modify registry associations or
+    // claim interactive Windows/NSIS coexistence acceptance.
+    #[cfg(all(windows, feature = "installer-velopack-pilot"))]
+    if std::env::args_os().any(|argument| argument == "--office-pilot-verify-module-launch") {
+        use turkuaz_office_desktop_lib::tools::desktop_launch_tool::{
+            DesktopLaunchModule, DesktopLaunchTool,
+        };
+
+        if DesktopLaunchTool::from_args(["office.exe", "--module", "writer"])
+            != DesktopLaunchModule::Writer
+            || DesktopLaunchTool::from_args(["office.exe", "--module", "sheet"])
+                != DesktopLaunchModule::Sheet
+            || DesktopLaunchTool::from_args(["office.exe", "--module=writer"])
+                != DesktopLaunchModule::Writer
+            || DesktopLaunchTool::from_args(["office.exe", "--module=sheet"])
+                != DesktopLaunchModule::Sheet
+            || DesktopLaunchTool::from_args(["office.exe", "--module", "unknown"])
+                != DesktopLaunchModule::Home
+            || DesktopLaunchTool::from_args(["office.exe"]) != DesktopLaunchModule::Home
+        {
+            std::process::exit(33);
         }
         return;
     }
