@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.3.0
+# Version: 0.4.0
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -81,6 +81,7 @@ $cert = $request.CreateSelfSigned(
     [DateTimeOffset]::UtcNow.AddMinutes(-5),
     [DateTimeOffset]::UtcNow.AddHours(2))
 $trustCreated = $false
+$testJournalCreated = $false
 
 function New-LabManifest {
     param([string]$Name, [IO.FileInfo]$Artifact, [string]$Version, [switch]$WrongHash)
@@ -287,6 +288,65 @@ try {
     $inventoryV2 = New-SignedLabInventory 'office-full-v2' $m2 $fullTwo
     Invoke-Audit 'V2_CLEAN' $m2 $inventoryV2
 
+    # Inventory signatures are not interchangeable between package releases.
+    # The same trusted LAB signer signs V1 and V2 inventories, but the
+    # actual version and artifact SHA-256 are independently bound.
+    $inventoryV1 = New-SignedLabInventory 'office-full-v1' $mRollback $fullOne
+    Invoke-Core 'AUDIT_WRONG_RELEASE_INVENTORY_REJECTED' @(
+        'audit', '--package', $packageId, '--manifest', $m2,
+        '--inventory', $inventoryV1, '--channel', 'beta') -Reject
+    Assert-State $versionTwo
+    Assert-UserData
+
+    # A persisted operation checkpoint must block a "clean" result even
+    # when every expected Office file hashes correctly. 5=Applying and
+    # 1=Update are the stable JSON enum values of this pinned Installer.
+    # Never ask audit to remove a journal or resume/repair the installation.
+    $now = [DateTimeOffset]::UtcNow.ToString('O')
+    $journalDocument = [ordered]@{
+        OperationId = [Guid]::NewGuid().ToString('D')
+        PackageId = $packageId
+        Operation = 1
+        Version = $versionTwo
+        TargetPath = $installRoot
+        Phase = 5
+        StartedAtUtc = $now
+        UpdatedAtUtc = $now
+        Failure = $null
+        PendingPrerequisiteId = $null
+        InterruptedPhase = $null
+    }
+    $journalBytes = [Text.UTF8Encoding]::new($false).GetBytes(
+        ($journalDocument | ConvertTo-Json -Depth 4))
+    $journalStream = [IO.File]::Open(
+        $journal, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
+    try {
+        $journalStream.Write($journalBytes, 0, $journalBytes.Length)
+        $journalStream.Flush()
+    }
+    finally { $journalStream.Dispose() }
+    $testJournalCreated = $true
+    try {
+        Invoke-Core 'AUDIT_PERSISTED_APPLY_JOURNAL_REJECTED' @(
+            'audit', '--package', $packageId, '--manifest', $m2,
+            '--inventory', $inventoryV2, '--channel', 'beta') -Reject
+        if (-not (Test-Path -LiteralPath $journal -PathType Leaf) -or
+            -not [IO.File]::ReadAllBytes($journal).AsSpan().SequenceEqual($journalBytes)) {
+            throw 'Read-only Office audit modified or removed the operation journal.'
+        }
+        Assert-State $versionTwo
+        Assert-UserData
+    }
+    finally {
+        # Explicitly delete only this GUID-isolated test fixture after
+        # the audit proves that it did NOT mutate the checkpoint.
+        if ($testJournalCreated -and (Test-Path -LiteralPath $journal -PathType Leaf)) {
+            Remove-Item -LiteralPath $journal -Force
+            $testJournalCreated = $false
+        }
+    }
+    Invoke-Audit 'V2_TEST_JOURNAL_REMOVED_CLEAN' $m2 $inventoryV2
+
     # Even a syntactically valid JSON inventory must fail if changed
     # AFTER signing. This does not overwrite the trusted baseline.
     $tamperedInventory = Join-Path $root 'office-v2-tampered-inventory.json'
@@ -353,7 +413,6 @@ try {
         '--rollback-manifest', $mRollback, '--channel', 'beta', '--silent')
     Assert-State $versionOne
     Assert-UserData
-    $inventoryV1 = New-SignedLabInventory 'office-full-v1' $mRollback $fullOne
     Invoke-Audit 'V1_ROLLBACK_CLEAN' $mRollback $inventoryV1
     Invoke-Core 'UNINSTALL' @(
         'uninstall', '--package', $packageId, '--silent')
@@ -370,6 +429,11 @@ try {
     Write-Host 'OFFICE_REAL_PRODUCT_TURKUAZINSTALLER_SIGNED_CLI_LIFECYCLE_AND_INVENTORY_OK'
 }
 finally {
+    # LAB cleanup only: an initially existing journal makes the test abort
+    # before creation. Never delete any journal outside this test ownership.
+    if ($testJournalCreated -and (Test-Path -LiteralPath $journal -PathType Leaf)) {
+        Remove-Item -LiteralPath $journal -Force
+    }
     $cert.Dispose()
     $rsa.Dispose()
     if ($trustCreated -and (Test-Path $trust)) {
