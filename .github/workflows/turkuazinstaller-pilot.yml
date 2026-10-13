@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.7.1
+# Version: 0.8.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -17,6 +17,7 @@ on:
       - 'docs/04-operations/turkuazinstaller-pilot.md'
       - 'apps/desktop/src-tauri/tauri.conf.json5'
       - 'apps/desktop/src-tauri/Cargo.toml'
+      - 'apps/desktop/src-tauri/src/main.rs'
       - 'apps/desktop/package.json'
       - 'Cargo.toml'
 
@@ -79,25 +80,42 @@ jobs:
         working-directory: apps/desktop
         run: npm run build
 
-      - name: Build explicit Velopack-aware Windows Tauri binary
+      - name: Build separately compiled LAB V1 and V2 Tauri binaries
         shell: pwsh
         run: |
+          $binaryRoot = '.pilot-vpk/binaries'
+          New-Item -ItemType Directory -Force -Path $binaryRoot | Out-Null
           cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot
-          if ($LASTEXITCODE -ne 0) { throw 'Opt-in Velopack-aware Tauri build failed' }
+          if ($LASTEXITCODE -ne 0) { throw 'Opt-in V1 Tauri build failed' }
+          Copy-Item -LiteralPath target/release/turkuaz-office-desktop.exe -Destination "$binaryRoot/office-v1.exe"
+          cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot-v2
+          if ($LASTEXITCODE -ne 0) { throw 'Separately compiled LAB V2 Tauri build failed' }
+          Copy-Item -LiteralPath target/release/turkuaz-office-desktop.exe -Destination "$binaryRoot/office-v2.exe"
 
-      - name: Assert release binary embeds frontend rather than dev localhost
+      - name: Assert both compiled binaries embed frontend and attest correct LAB variant
         shell: pwsh
         run: |
           $cargoManifest = Get-Content -LiteralPath apps/desktop/src-tauri/Cargo.toml -Raw
           if ($cargoManifest -notmatch '(?m)^installer-velopack-pilot\s*=\s*\[[^\]]*"tauri/custom-protocol"') {
             throw 'Pilot must enable Tauri production custom-protocol feature.'
           }
-          $nativeExe = (Resolve-Path 'target/release/turkuaz-office-desktop.exe').Path
-          $process = Start-Process -FilePath $nativeExe -ArgumentList '--office-pilot-verify-embedded-frontend' -Wait -PassThru
-          if ($process.ExitCode -ne 0) {
-            throw "Release binary has no embedded index.html or still uses dev mode. Exit=$($process.ExitCode)"
+          $v1 = (Resolve-Path '.pilot-vpk/binaries/office-v1.exe').Path
+          $v2 = (Resolve-Path '.pilot-vpk/binaries/office-v2.exe').Path
+          $digestV1 = (Get-FileHash $v1 -Algorithm SHA256).Hash
+          $digestV2 = (Get-FileHash $v2 -Algorithm SHA256).Hash
+          if ($digestV1 -ceq $digestV2) { throw 'LAB V1 and V2 are the SAME Tauri EXE; refusing marker-only update.' }
+          foreach ($entry in @(@($v1,'v1'),@($v2,'v2'))) {
+            $exe = $entry[0]
+            $variant = $entry[1]
+            foreach ($argument in @('--office-pilot-verify-embedded-frontend', "--office-pilot-verify-compiled-$variant")) {
+              $proc = Start-Process -FilePath $exe -ArgumentList $argument -Wait -PassThru
+              if ($proc.ExitCode -ne 0) { throw "Compiled $variant failed $argument exit=$($proc.ExitCode)" }
+            }
+            $wrong = if ($variant -eq 'v1') { 'v2' } else { 'v1' }
+            $negative = Start-Process -FilePath $exe -ArgumentList "--office-pilot-verify-compiled-$wrong" -Wait -PassThru
+            if ($negative.ExitCode -ne 32) { throw "Compiled $variant unexpectedly accepted $wrong identity" }
           }
-          Write-Host 'OFFICE_PILOT_EMBEDDED_FRONTEND_RELEASE_OK'
+          Write-Host 'OFFICE_PILOT_TWO_DISTINCT_COMPILED_EXES_AND_EMBEDDED_FRONTEND_OK'
 
       - name: Verify Velopack lifecycle hooks exit without opening Tauri
         shell: pwsh
