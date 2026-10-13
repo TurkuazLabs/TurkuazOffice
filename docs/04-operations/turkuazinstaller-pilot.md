@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 1.0.0
+# Version: 1.1.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -16,12 +16,12 @@ Start Menu shortcuts untouched.
 
 The experimental workflow `TurkuazInstaller Office Velopack Pilot` builds
 the existing Tauri frontend assets, then the opt-in Velopack-aware Windows
-Rust binary, and packages it using the **same pinned vpk 1.2.161 CLI**
+Rust binaries, and packages them using the **same pinned vpk 1.2.161 CLI**
 used by the TurkuazInstaller real E2E test. It deliberately does NOT
 build another redundant NSIS setup: the unchanged `community-preview`
 workflow already produces and tests the Windows NSIS baseline.
 
-It produces an unsigned, short-lived GitHub Actions artifact with two simulated package versions (the same desktop EXE and a distinct text marker):
+The updated pilot produces an unsigned, short-lived GitHub Actions artifact with two **separately compiled** Windows executables (a different LAB-only Cargo variant per package), not the same EXE under two marker versions. Both binaries still share the same Office source and business logic; this is not a historical source-version upgrade:
 
 - Experimental Velopack `*Setup.exe`, a v1 full `.nupkg`, and a v2 full `.nupkg`
 - `SHA256SUMS.txt`
@@ -373,3 +373,32 @@ trust does not authorize crossing product boundaries.
 The new CI has not yet been verified. Do not use this shared test
 certificate, lab-only identities or external trust entries for
 production releases; normal Office NSIS remains authoritative.
+
+## Two separately compiled Windows executables (new LAB acceptance)
+
+The opt-in Windows CI now invokes Cargo **twice** using the same pinned
+toolchain and source tree:
+- `installer-velopack-pilot` creates `.pilot-vpk/binaries/office-v1.exe`.
+- `installer-velopack-pilot-v2` implies the first feature and creates
+  `.pilot-vpk/binaries/office-v2.exe`. Only the opt-in LAB executable
+  attestation branch is different; Writer/Sheet runtime features remain
+  unchanged.
+
+Both compiled EXEs must embed the release frontend, accept their own
+headless `--office-pilot-verify-compiled-v1/v2` argument, refuse the
+opposite identity with exit 32 and have **different SHA-256 hashes**.
+The Velopack packager consumes V1 compiled bytes for Setup + V1 full
+nupkg and V2 compiled bytes for V2 full nupkg; it refuses identical
+inputs. The direct Velopack lifecycle and real pinned
+TurkuazInstaller signed CLI lifecycle check the **installed Windows EXE
+hash against its own compiled input** after every install,
+update, repair and rollback, not merely a marker file or state JSON.
+
+The release artifact continues to be LAB-only and unsigned; the
+production NSIS and DEB/AppImage releases are unchanged. These two
+build variants demonstrate actual EXE replacement and byte-level
+rollback through the real installer engines. They **do not** constitute
+two separately developed/authentic Office source revisions, public
+trusted signatures, a fully validated GUI launch, or production
+patch compatibility. The new exact-head Windows CI must pass before
+the two-executable improvement is called verified.
