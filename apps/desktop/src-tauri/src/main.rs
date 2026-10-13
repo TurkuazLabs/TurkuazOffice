@@ -3,7 +3,7 @@
 // # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/src/main.rs
 // # 📌 Amac: Turkuaz Office Desktop binary giris noktasini tanimlar
 // # 📌 Modul - FileType: Desktop - Rust
-// # Version: 0.5.4
+// # Version: 0.5.5
 // # Aciklama: Release Windows buildinde konsol penceresi acmadan library composition root run fonksiyonunu cagirir
 // Bagimli Oldugu Katman: Controller
 
@@ -24,6 +24,24 @@ fn main() {
         });
         if tauri::is_dev() || !index_found {
             std::process::exit(31);
+        }
+        return;
+    }
+
+    // The two LAB versions must be separately COMPILED executables,
+    // not identical source EXE bytes wrapped with different nupkg versions.
+    // This headless attestation exists only in the opt-in Windows pilot.
+    // Both use the same Office application source; this is NOT proof of
+    // an independently developed or signed customer product release.
+    #[cfg(all(windows, feature = "installer-velopack-pilot"))]
+    if std::env::args_os().any(|argument| {
+        argument == "--office-pilot-verify-compiled-v1"
+            || argument == "--office-pilot-verify-compiled-v2"
+    }) {
+        let requested_v2 =
+            std::env::args_os().any(|argument| argument == "--office-pilot-verify-compiled-v2");
+        if requested_v2 != cfg!(feature = "installer-velopack-pilot-v2") {
+            std::process::exit(32);
         }
         return;
     }
