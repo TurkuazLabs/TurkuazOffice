@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.6.0
+# Version: 0.7.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -219,7 +219,7 @@ wrapper around `Setup.exe`.
 
 After its normal real Windows Tauri Velopack lifecycle, the pilot workflow
 checks out **immutable** TurkuazInstaller PR #54 commit
-05431511f8be83e6f6b88df009fb9fcf05f4b525 and builds its actual
+5cc227687b3be77ab48d2e46259a736e7d4fb954 and builds its actual
 Windows x64 CLI. This is not an invented installer shim: real installed
 state, release provider, detached CMS verifier, SHA-256 artifact guard,
 operation journal, lock and Velopack engine all run.
@@ -254,3 +254,30 @@ Successful new exact-head Windows CI is mandatory before claiming these
 new gates pass. The signed product trust preparation is separate Office
 PR #75. PR #71 remains Draft until production and actual Windows 10/11
 interactive User Experience / shortcuts / .tko ownership checks are accepted.
+
+## Complete installed Office payload audit, not just a version marker
+
+The next signed Office workflow phase compiles the pinned Installer
+`TurkuazInstaller.Inventory.LabProbe` in the same isolated checkout.
+After the real V2 Office CLI update, it resolves the signed V2 full
+package manifest through the independent external CMS certificate pin,
+confirms the true nupkg size and SHA-256, then enumerates every
+`lib/app` file with the shared Installer builder (including Velopack
+relocated updater/launcher binaries). Raw deterministic inventory JSON
+is signed with the same temporary LAB CMS certificate.
+
+The **real** `TurkuazInstaller.Cli.exe audit` command then checks the
+V2 disk state against this signed archive-derived inventory. It must:
+- accept a clean V2 report without any unaccounted `current/` files;
+- return nonzero with an explicit marker hash mismatch after controlled
+  corruption, with no automatic repair;
+- accept clean V2 again **only after** the user-invoked explicit repair;
+- build and sign a separate V1 full nupkg inventory, then accept the
+  actual V1 rollback disk state.
+
+The audit retains its journal and state-change checks. The inventory
+probe never creates production private keys or installer trust anchors.
+This still does not prove snapshot atomicity, full installation-root
+ownership, actual second Office source version, UAC/NSIS migration,
+end-user UX, or publicly trusted code signing. The new exact-head CI
+must succeed before any of these claims are considered verified.
