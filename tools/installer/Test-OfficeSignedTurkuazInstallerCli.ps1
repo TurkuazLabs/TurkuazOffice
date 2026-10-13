@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.2.0
+# Version: 0.2.1
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -124,7 +124,11 @@ function New-SignedLabInventory {
     param([string]$Name, [string]$Manifest, [IO.FileInfo]$FullPackage)
 
     $output = Join-Path $root "$Name.json"
-    & $probe --package $packageId --channel beta --manifest $Manifest --trust $trust --full-package $FullPackage.FullName --output $output
+    # Keep CLI stdout (the unsigned inventory probe's success marker)
+    # OUT of the function's return value. PowerShell otherwise yields an
+    # object[] containing the marker and path, so audit sees a false path.
+    & $probe --package $packageId --channel beta --manifest $Manifest --trust $trust --full-package $FullPackage.FullName --output $output |
+        ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $output -PathType Leaf)) {
         throw "Trusted full-package inventory derivation failed: $Name"
     }
