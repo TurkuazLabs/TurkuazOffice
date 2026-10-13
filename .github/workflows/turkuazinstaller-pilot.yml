@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.7.0
+# Version: 0.7.1
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: TurkuazLabs/TurkuazInstaller
-          ref: 5cc227687b3be77ab48d2e46259a736e7d4fb954
+          ref: 11c75eacc745b0acf141b7fd5ccaa7cac351df2b
           path: .turkuazinstaller-core
           persist-credentials: false
 
