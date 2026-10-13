@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 0.6.0
+# Version: 0.7.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: TurkuazLabs/TurkuazInstaller
-          ref: 05431511f8be83e6f6b88df009fb9fcf05f4b525
+          ref: 5cc227687b3be77ab48d2e46259a736e7d4fb954
           path: .turkuazinstaller-core
           persist-credentials: false
 
@@ -135,9 +135,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Pinned real TurkuazInstaller CLI publish failed.' }
           if (-not (Test-Path -LiteralPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe)) { throw 'Real installer CLI executable missing.' }
 
-      - name: Real Office signed CMS TurkuazInstaller CLI lifecycle and fail-closed checks
+      - name: Build pinned verified full-nupkg inventory LAB probe
         shell: pwsh
-        run: ./tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1 -CliPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe
+        run: |
+          dotnet publish .turkuazinstaller-core/tests/TurkuazInstaller.Inventory.LabProbe/TurkuazInstaller.Inventory.LabProbe.csproj --configuration Release --runtime win-x64 --self-contained true --output .turkuazinstaller-core/inventory-probe
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned trusted archive inventory probe publish failed.' }
+          if (-not (Test-Path -LiteralPath .turkuazinstaller-core/inventory-probe/TurkuazInstaller.Inventory.LabProbe.exe)) { throw 'Trusted nupkg inventory probe executable missing.' }
+
+      - name: Real Office signed CMS TurkuazInstaller CLI lifecycle, signed nupkg inventory and fail-closed checks
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1 -CliPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe -InventoryProbePath .turkuazinstaller-core/inventory-probe/TurkuazInstaller.Inventory.LabProbe.exe
 
       - name: Upload lab-only pilot artifacts
         uses: actions/upload-artifact@v4
