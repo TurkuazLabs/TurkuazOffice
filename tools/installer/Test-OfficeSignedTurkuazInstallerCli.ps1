@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.4.0
+# Version: 0.4.1
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -326,12 +326,14 @@ try {
     }
     finally { $journalStream.Dispose() }
     $testJournalCreated = $true
+    $expectedJournalHash = [Convert]::ToHexString(
+        [Security.Cryptography.SHA256]::HashData($journalBytes))
     try {
         Invoke-Core 'AUDIT_PERSISTED_APPLY_JOURNAL_REJECTED' @(
             'audit', '--package', $packageId, '--manifest', $m2,
             '--inventory', $inventoryV2, '--channel', 'beta') -Reject
         if (-not (Test-Path -LiteralPath $journal -PathType Leaf) -or
-            -not [IO.File]::ReadAllBytes($journal).AsSpan().SequenceEqual($journalBytes)) {
+            (Get-FileHash -LiteralPath $journal -Algorithm SHA256).Hash -cne $expectedJournalHash) {
             throw 'Read-only Office audit modified or removed the operation journal.'
         }
         Assert-State $versionTwo
