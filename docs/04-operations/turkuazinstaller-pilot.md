@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 1.2.0
+# Version: 1.3.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -433,3 +433,39 @@ builds enforce `--locked`/`npm ci` (see
 this evidence is diagnostic LAB-only and cannot prove a reproducible
 production release. The current-head CI result must be verified before
 this new provenance validation is accepted.
+
+## Writer/Sheet and .tko migration contract regression (read only)
+
+The real signed Installer LAB + provenance run [#38407193439](https://github.com/TurkuazLabs/TurkuazOffice/actions/runs/38407193439)
+passed all four Office workflows and confirmed the
+`LAB_BUILD_PROVENANCE.json` source/EXE/package digests.
+
+Before authorizing any migration from NSIS, preserve the **actual existing**
+Windows integration contract:
+
+- NSIS `windows/installer-hooks.nsh` installs **two** Turkuaz Office
+  Start Menu entries targeting the Office EXE with
+  `--module writer` and `--module sheet`, and removes both on uninstall
+- Tauri `tauri.conf.json5` declares the existing NSIS hook,
+  `Turkuaz Office` Start Menu folder and `.tko` file association with
+  `application/x-turkuaz-office`
+- The native Office launcher parses `--module writer/sheet` and
+  `--module=writer/sheet`, with home as safe default
+
+The Windows LAB pilot now runs
+`tools/installer/Test-OfficeWindowsIntegrationContract.ps1` on
+both separately compiled versions. It rejects a source contract drift
+and invokes a real headless `--office-pilot-verify-module-launch` probe
+on each executable. Both the native Velopack and the signed
+TurkuazInstaller CLI test also run this headless contract check
+against the *actually installed EXE* after install, update, repair
+and rollback.
+
+**Important:** these are non-mutating source and native command-line
+regression checks. They do **not** install shortcuts, set `.tko`
+registry associations/defaults, claim app ownership, create COM objects,
+or validate real clickable Start Menu entries in a Windows 10/11 VM.
+NSIS remains authoritative. A separately reviewed Windows integration
+plan, clean/NSIS-coexistence tests, uninstallation ownership and
+interactive acceptance are still required. The latest exact-head CI
+must be green before the new read-only acceptance can be called passed.
