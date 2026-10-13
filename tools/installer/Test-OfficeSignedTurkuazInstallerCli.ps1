@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1
 # 📌 Amac: Gercek Tauri Office paketini signed manifest ile TurkuazInstaller CLI'ye baglar
 # 📌 Modul - Tool PowerShell
-# Version: 0.2.1
+# Version: 0.3.0
 # Aciklama: Hosted Windows LAB; ephemeral CMS, independently pinned trust, real lifecycle; production degildir
 # Bagimli Oldugu Katman: Tool | CI | Test
 
@@ -148,7 +148,7 @@ function New-SignedLabInventory {
 
 function Invoke-Audit {
     param([string]$Label, [string]$Manifest, [string]$Inventory,
-        [switch]$ExpectMismatch)
+        [switch]$ExpectMismatch, [string]$ExpectUnattributedPath = '')
 
     # Audit stdout is one typed JSON report, not a repair/resume command.
     $auditArgs = @('audit', '--package', $packageId,
@@ -169,10 +169,21 @@ function Invoke-Audit {
         throw "Signed Office audit report must never claim repair authorization: $Label"
     }
 
+    if ($ExpectMismatch -and -not [string]::IsNullOrWhiteSpace($ExpectUnattributedPath)) {
+        throw 'An audit probe cannot expect two unrelated negative classes.'
+    }
     if ($ExpectMismatch) {
-        if ($exitCode -eq 0 -or $report.observed_clean -ne $false -or
+        if ($exitCode -ne 4 -or $report.observed_clean -ne $false -or
             -not $hasMarkerMismatch) {
             throw "Signed Office audit failed to identify corrupted marker: $Label"
+        }
+    } elseif (-not [string]::IsNullOrWhiteSpace($ExpectUnattributedPath)) {
+        $hasForeignFile = @($report.unattributed_current_files | Where-Object {
+            $_ -ceq $ExpectUnattributedPath
+        }).Count -eq 1
+        if ($exitCode -ne 4 -or $report.observed_clean -ne $false -or
+            -not $hasForeignFile -or @($report.mismatches).Count -ne 0) {
+            throw "Signed Office audit failed to report unexpected current/ file: $Label"
         }
     } else {
         if ($exitCode -ne 0 -or $report.observed_clean -ne $true -or
@@ -202,7 +213,9 @@ function Invoke-Core {
             throw "Installer CLI timed out: $Label"
         }
         $code = $process.ExitCode
-        if (($Reject -and $code -eq 0) -or (-not $Reject -and $code -ne 0)) {
+        # A negative security gate must fail specifically as an operation
+        # failure, not accidentally pass due to invalid arguments (2).
+        if (($Reject -and $code -ne 4) -or (-not $Reject -and $code -ne 0)) {
             throw "Unexpected Installer CLI $Label exit=$code"
         }
         Write-Host ('OFFICE_REAL_INSTALLER_SIGNED_CLI_{0}_OK code={1}' -f $Label.ToUpperInvariant(), $code)
@@ -273,6 +286,60 @@ try {
     # file list before ephemeral CMS signing and on-disk comparison.
     $inventoryV2 = New-SignedLabInventory 'office-full-v2' $m2 $fullTwo
     Invoke-Audit 'V2_CLEAN' $m2 $inventoryV2
+
+    # Even a syntactically valid JSON inventory must fail if changed
+    # AFTER signing. This does not overwrite the trusted baseline.
+    $tamperedInventory = Join-Path $root 'office-v2-tampered-inventory.json'
+    [IO.File]::WriteAllBytes($tamperedInventory, [IO.File]::ReadAllBytes($inventoryV2))
+    [IO.File]::WriteAllBytes(
+        ($tamperedInventory + '.p7s'), [IO.File]::ReadAllBytes($inventoryV2 + '.p7s'))
+    [IO.File]::AppendAllText($tamperedInventory, [Environment]::NewLine + ' ')
+    Invoke-Core 'AUDIT_TAMPERED_INVENTORY_REJECTED' @(
+        'audit', '--package', $packageId, '--manifest', $m2,
+        '--inventory', $tamperedInventory, '--channel', 'beta') -Reject
+    Assert-State $versionTwo
+    Assert-UserData
+
+    # External trust must NOT be learnable from the signed input.
+    # The wrong pin is transient and restored in finally, even if
+    # verification fails unexpectedly. Never modify a non-LAB store.
+    $originalTrust = [IO.File]::ReadAllBytes($trust)
+    try {
+        $badTrust = @(
+            'schema_version: 1'
+            'packages:'
+            ('  - id: ' + $packageId)
+            ('    publisher_subject: "' + $cert.Subject + '"')
+            ('    certificate_sha256: ' + ('0' * 64))
+            ''
+        )
+        [IO.File]::WriteAllText(
+            $trust, [string]::Join([char]10, $badTrust),
+            [Text.UTF8Encoding]::new($false))
+        Invoke-Core 'AUDIT_WRONG_EXTERNAL_PIN_REJECTED' @(
+            'audit', '--package', $packageId, '--manifest', $m2,
+            '--inventory', $inventoryV2, '--channel', 'beta') -Reject
+    }
+    finally {
+        [IO.File]::WriteAllBytes($trust, $originalTrust)
+    }
+    Assert-State $versionTwo
+    Assert-UserData
+    Invoke-Audit 'V2_TRUST_RESTORED_CLEAN' $m2 $inventoryV2
+
+    # A foreign file in current/ must be reported but never removed
+    # by the diagnostic. Removing the disposable marker here is an
+    # explicit test-fixture cleanup, not an audit repair operation.
+    $foreignRelative = 'current/office-foreign-file.lab'
+    $foreign = Join-Path $installRoot 'current/office-foreign-file.lab'
+    [IO.File]::WriteAllText($foreign, 'foreign-payload-must-survive-audit')
+    Invoke-Audit 'V2_FOREIGN_FILE_REPORTED' $m2 $inventoryV2 -ExpectUnattributedPath $foreignRelative
+    if ([IO.File]::ReadAllText($foreign) -cne 'foreign-payload-must-survive-audit') {
+        throw 'Read-only signed audit modified unattributed Office file.'
+    }
+    Remove-Item -LiteralPath $foreign
+    Assert-UserData
+    Invoke-Audit 'V2_NEGATIVE_GATES_RESTORED_CLEAN' $m2 $inventoryV2
 
     [IO.File]::WriteAllText($marker, 'deliberate-ci-corruption')
     Invoke-Audit 'V2_CORRUPT_REJECTED' $m2 $inventoryV2 -ExpectMismatch
