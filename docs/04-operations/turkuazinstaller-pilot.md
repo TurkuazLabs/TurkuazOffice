@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 1.1.0
+# Version: 1.2.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -402,3 +402,34 @@ two separately developed/authentic Office source revisions, public
 trusted signatures, a fully validated GUI launch, or production
 patch compatibility. The new exact-head Windows CI must pass before
 the two-executable improvement is called verified.
+
+## LAB source and executable provenance
+
+The verified two-executable Windows run
+[#38399146552](https://github.com/TurkuazLabs/TurkuazOffice/actions/runs/38399146552)
+passed both native Velopack and independently CMS-trusted Installer CLI
+workflows, installed binary SHA-256 checks, signed full-file inventory,
+UserData persistence, repair, rollback, and uninstall.
+
+A follow-up acceptance gate now writes **LAB_BUILD_PROVENANCE.json**
+alongside Setup, both full nupkg packages, README and SHA256SUMS.
+Its fields identify the exact Git checkout commit, both distinct
+feature-gated EXE SHA-256s and package hashes/sizes, the two LAB
+versions, and Git-*tracked* Cargo/npm lockfile status. The provenance
+explicitly asserts `lab_only=true`,
+`production_release_approved=false` and
+`independently_developed_office_versions=false`.
+The Windows package smoke checks its contents against the checkout,
+the actual compiled EXEs and both installed package source artifacts.
+It is itself covered by SHA256SUMS.
+
+`Cargo.lock` and `apps/desktop/package-lock.json` are currently
+absent **from Git source tracking**. Cargo/npm can generate local
+untracked locks during builds: the recorded reproducibility flags use
+`git ls-files`, not simple file existence, to prevent misleading
+provenance. Until tracked/reviewed locks are added and all release
+builds enforce `--locked`/`npm ci` (see
+[Office release gate #72](https://github.com/TurkuazLabs/TurkuazOffice/issues/72)),
+this evidence is diagnostic LAB-only and cannot prove a reproducible
+production release. The current-head CI result must be verified before
+this new provenance validation is accepted.
