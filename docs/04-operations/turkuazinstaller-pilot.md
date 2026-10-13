@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 0.7.0
+# Version: 0.7.1
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -219,7 +219,7 @@ wrapper around `Setup.exe`.
 
 After its normal real Windows Tauri Velopack lifecycle, the pilot workflow
 checks out **immutable** TurkuazInstaller PR #54 commit
-5cc227687b3be77ab48d2e46259a736e7d4fb954 and builds its actual
+11c75eacc745b0acf141b7fd5ccaa7cac351df2b and builds its actual
 Windows x64 CLI. This is not an invented installer shim: real installed
 state, release provider, detached CMS verifier, SHA-256 artifact guard,
 operation journal, lock and Velopack engine all run.
