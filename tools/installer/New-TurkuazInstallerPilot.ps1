@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/New-TurkuazInstallerPilot.ps1
 # 📌 Amac: Mevcut Tauri Windows EXE'den ek NSIS degisikligi olmadan Velopack pilot Setup ve full nupkg uretmek
 # 📌 Modul - Tool PowerShell
-# Version: 0.6.0
+# Version: 0.6.1
 # Aciklama: Ayrica derlenmis V1/V2 LAB exe'lerini paketler; signing/NSIS/file association/production yapmaz
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -211,8 +211,12 @@ $packagesEvidence = @(
 )
 $rustLockPath = Join-Path $repoRoot 'Cargo.lock'
 $nodeLockPath = Join-Path $repoRoot 'apps/desktop/package-lock.json'
-$hasRustLock = Test-Path -LiteralPath $rustLockPath -PathType Leaf
-$hasNodeLock = Test-Path -LiteralPath $nodeLockPath -PathType Leaf
+# Cargo and npm can generate UNTRACKED locks while building; their
+# existence must never be presented as source-controlled reproducibility.
+$hasRustLock = (@(& git -C $repoRoot ls-files -- 'Cargo.lock') -contains 'Cargo.lock') -and
+    (Test-Path -LiteralPath $rustLockPath -PathType Leaf)
+$hasNodeLock = (@(& git -C $repoRoot ls-files -- 'apps/desktop/package-lock.json') -contains 'apps/desktop/package-lock.json') -and
+    (Test-Path -LiteralPath $nodeLockPath -PathType Leaf)
 $labProvenance = [ordered]@{
     schema_version = 1
     lab_only = $true
