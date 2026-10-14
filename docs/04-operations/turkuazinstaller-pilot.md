@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /docs/04-operations/turkuazinstaller-pilot.md
 # 📌 Amac: Turkuaz Office icin TurkuazInstaller Velopack pilotunun guvenlik ve uyumluluk sinirlarini izlemek
 # 📌 Modul - FileType: Docs - Markdown
-# Version: 1.3.0
+# Version: 1.4.0
 # Aciklama: Test-only Velopack packaging, legacy NSIS korumasi ve Windows kabul kriterleri
 # Bagimli Oldugu Katman: CI | Distribution | Documentation
 
@@ -469,3 +469,59 @@ NSIS remains authoritative. A separately reviewed Windows integration
 plan, clean/NSIS-coexistence tests, uninstallation ownership and
 interactive acceptance are still required. The latest exact-head CI
 must be green before the new read-only acceptance can be called passed.
+
+## Portable manual Windows WinUI integration kit (draft, not production)
+
+A user confirmed the **unsigned** Windows 10 x64 TurkuazInstaller
+Bootstrapper opens and the updated UI safely disables actions until
+package ID and manifest source are entered. That does **not** prove
+installation through the shared WinUI runtime.
+
+The previous Office signed-CMS lifecycle tests created two-hour ephemeral
+certificates and signed YAML manifests using **GitHub runner-local**
+absolute file URIs. Exporting those signed manifests would produce
+unusable paths on another machine. The new
+`tools/installer/Initialize-OfficeManualLab.ps1` addresses this by
+creating portable *package assets*, **not portable private keys**:
+
+1. The existing hosted Windows CI builds and verifies separate V1/V2
+   Office LAB EXEs, real Velopack Setup/full-nupkg artifacts, provenance
+   and full signed Installer CLI lifecycle.
+2. It adds the helper and
+   `tools/installer/README-OFFICE-MANUAL-WINUI-LAB.txt` to the
+   **short-lived GitHub Actions artifact**, then regenerates
+   `SHA256SUMS.txt` covering all included files.
+3. In `-Mode VerifyOnly`, the helper checks every checksum and all
+   three package hashes/sizes against `LAB_BUILD_PROVENANCE.json`.
+   It does not create state, target, certificates or trust files.
+4. In **explicit** `-Mode Prepare` on a disposable Windows 10/11 x64
+   VM with PowerShell 7+, it first refuses to overwrite existing LAB
+   install target, state, journal, trust policy or preparation folder.
+   It creates a *local* temporary RSA CMS signer and uses the actual
+   downloaded Office package paths in three signed manifests:
+   `office-install-v1.yml`, `office-update-v2.yml`,
+   `office-rollback-v1.yml`, each with a detached `.p7s`.
+   The tool verifies each CMS signature before writing it and writes a
+   single external manifest trust record with the public certificate
+   SHA-256 pin under the normal Installer per-user config.
+   The private key is disposed, **never written or uploaded**.
+5. Launch the **separately downloaded** unsigned WinUI Bootstrapper.
+   Enter the printed fixed package ID, **Beta** channel and V1
+   manifest path; use signed manifest default target (Quick / PerUser)
+   and later the printed V2/rollback manifest paths. The preparer
+   refuses existing real Office installs and never attempts to adopt
+   a raw NSIS or Velopack Office installation.
+6. Complete installation/update/repair/rollback/uninstall in the same
+   isolated VM within the local test certificate's **72-hour** life.
+   Never edit signed files or the external trust policy after signing.
+   Only remove test-generated trust after complete uninstall, no
+   outstanding state/journal, and confirmation it belongs to this lab.
+
+**Important:** the test certificate is deliberately self-signed and
+locally trusted for **only the LAB package ID**; public-trust
+Authenticode, real separate source-version upgrade, signed production
+feeds, Windows 10/11 GUI/UAC/NSIS migration remain open. An existing
+external trust policy is **not modified**. GitHub artifact checksums
+detect accidental corruption but do not establish public producer
+authenticity. The latest exact-head CI must pass before offering the
+new downloadable kit.
