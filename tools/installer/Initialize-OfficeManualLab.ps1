@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /tools/installer/Initialize-OfficeManualLab.ps1
 # 📌 Amac: Portable Office LAB paketlerini yerel Windows yollarinda CMS imzali test manifestine hazirlar
 # 📌 Modul - Tool PowerShell
-# Version: 1.0.0
+# Version: 1.0.1
 # Aciklama: Test kitini hash ile kontrol eder; sadece acik Prepare isteginde yeni yerel test sertifikasi ve dis trust olusturur
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -42,7 +42,7 @@ foreach ($name in $known.Keys) {
     if (-not (Test-Path -LiteralPath $filePath -PathType Leaf)) {
         throw "Expected LAB asset missing: $name"
     }
-    $actual = (Get-FileHash -LiteralPath $filePath -Algorithm SHA256).Hash
+    $actual = (Get-FileHash -LiteralPath $filePath -Algorithm SHA256).Hash.ToLowerInvariant()
     if ($actual -cne $known[$name]) {
         throw "LAB asset checksum mismatch: $name"
     }
@@ -53,7 +53,6 @@ foreach ($file in $allAssets) {
         throw "Unlisted extra LAB asset refused: $($file.Name)"
     }
 }
-$packageJsonVersion = $null
 $provenancePath = Join-Path $assets 'LAB_BUILD_PROVENANCE.json'
 $provenance = Get-Content -LiteralPath $provenancePath -Raw | ConvertFrom-Json
 if ($provenance.schema_version -ne 1 -or
