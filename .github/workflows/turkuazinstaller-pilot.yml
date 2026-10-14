@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 1.0.0
+# Version: 1.1.0
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -168,16 +168,77 @@ jobs:
         shell: pwsh
         run: ./tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1 -CliPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe -InventoryProbePath .turkuazinstaller-core/inventory-probe/TurkuazInstaller.Inventory.LabProbe.exe
 
+      - name: Prepare portable manual Office WinUI LAB kit and validate local-only CMS signer
+        shell: pwsh
+        run: |
+          $assets = (Resolve-Path 'artifacts/turkuazinstaller-pilot/assets').Path
+          Copy-Item -LiteralPath 'tools/installer/Initialize-OfficeManualLab.ps1' -Destination $assets
+          Copy-Item -LiteralPath 'tools/installer/README-OFFICE-MANUAL-WINUI-LAB.txt' -Destination $assets
+          $checksumLines = Get-ChildItem -LiteralPath $assets -File |
+            Where-Object { $_.Name -cne 'SHA256SUMS.txt' } |
+            Sort-Object Name |
+            ForEach-Object {
+              $digest = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$digest *$($_.Name)"
+            }
+          [IO.File]::WriteAllLines(
+            (Join-Path $assets 'SHA256SUMS.txt'), $checksumLines,
+            [Text.UTF8Encoding]::new($false))
+          & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode VerifyOnly -AssetsPath $assets
+          if ($LASTEXITCODE -ne 0) { throw 'Portable Office LAB checksum verification failed' }
+
+          # The real Preparation path is executed ONLY on this disposable
+          # hosted Windows runner, after the signed CLI E2E removed its
+          # separate ephemeral trust policy. Do not ship any signing keys.
+          if ($env:RUNNER_ENVIRONMENT -cne 'github-hosted') {
+            throw 'Manual LAB signing rehearsal requires GitHub hosted Windows.'
+          }
+          $local = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+          $trust = Join-Path $local 'TurkuazInstaller/config/manifest-trust.yml'
+          $state = Join-Path $local 'TurkuazInstaller/state/turkuazlabs.turkuazoffice.pilot.json'
+          $journal = Join-Path $local 'TurkuazInstaller/journal/turkuazlabs.turkuazoffice.pilot.json'
+          $root = Join-Path $local 'TurkuazOfficeInstallerManualLab'
+          $target = Join-Path $local 'Programs/TurkuazOfficeInstallerLab'
+          foreach ($path in @($trust, $state, $journal, $root, $target)) {
+            if (Test-Path -LiteralPath $path) {
+              throw "Refusing to overwrite hosted Windows test path: $path"
+            }
+          }
+          try {
+            & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode Prepare -AssetsPath $assets
+            if ($LASTEXITCODE -ne 0) { throw 'Manual LAB local CMS preparation failed' }
+            foreach ($name in @('office-install-v1', 'office-update-v2', 'office-rollback-v1')) {
+              foreach ($extension in @('.yml', '.yml.p7s')) {
+                if (-not (Test-Path -LiteralPath (Join-Path $root ($name + $extension)) -PathType Leaf)) {
+                  throw "Local signed manifest file missing: $name$extension"
+                }
+              }
+            }
+            $trustBytes = [IO.File]::ReadAllText($trust)
+            if (-not $trustBytes.Contains('turkuazlabs.turkuazoffice.pilot') -or
+                -not $trustBytes.Contains('CN=Office Manual Installer LAB Only')) {
+              throw 'Unexpected manually generated LAB trust policy'
+            }
+            Write-Host 'OFFICE_MANUAL_GUI_LAB_LOCAL_CMS_AND_TRUST_PREPARE_OK'
+          }
+          finally {
+            # Only the two previously ABSENT and test-owned paths are removed,
+            # only on the throwaway CI runner. No user data/production policy.
+            if ((Test-Path -LiteralPath $trust -PathType Leaf) -and
+                [IO.File]::ReadAllText($trust).Contains('CN=Office Manual Installer LAB Only')) {
+              Remove-Item -LiteralPath $trust -Force
+            }
+            if (Test-Path -LiteralPath $root) {
+              Remove-Item -LiteralPath $root -Recurse -Force
+            }
+          }
+
       - name: Upload lab-only pilot artifacts
         uses: actions/upload-artifact@v4
         with:
           name: TurkuazOffice-UNSIGNED-TurkuazInstaller-LAB-ONLY-win-x64
           path: |
-            artifacts/turkuazinstaller-pilot/assets/*Setup.exe
-            artifacts/turkuazinstaller-pilot/assets/*-full.nupkg
-            artifacts/turkuazinstaller-pilot/assets/SHA256SUMS.txt
-            artifacts/turkuazinstaller-pilot/assets/LAB_BUILD_PROVENANCE.json
-            artifacts/turkuazinstaller-pilot/assets/READ-ME-LAB-ONLY.txt
+            artifacts/turkuazinstaller-pilot/assets/*
           if-no-files-found: error
           retention-days: 3
           compression-level: 0
