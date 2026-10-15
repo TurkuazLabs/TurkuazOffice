@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
 # 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
 # 📌 Modul - CI YAML
-# Version: 1.1.1
+# Version: 1.1.2
 # Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
 # Bagimli Oldugu Katman: Tool | Config | CI
 
@@ -185,7 +185,10 @@ jobs:
             (Join-Path $assets 'SHA256SUMS.txt'), $checksumLines,
             [Text.UTF8Encoding]::new($false))
           & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode VerifyOnly -AssetsPath $assets
-          if ($LASTEXITCODE -ne 0) { throw 'Portable Office LAB checksum verification failed' }
+          # PowerShell script invocation does not set $LASTEXITCODE. The
+          # previous signed-CLI negative test may leave native exit=4.
+          # The helper itself throws on any checksum/provenance failure.
+          if (-not $?) { throw 'Portable Office LAB checksum verification failed' }
 
           # The real Preparation path is executed ONLY on this disposable
           # hosted Windows runner, after the signed CLI E2E removed its
@@ -206,7 +209,7 @@ jobs:
           }
           try {
             & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode Prepare -AssetsPath $assets
-            if ($LASTEXITCODE -ne 0) { throw 'Manual LAB local CMS preparation failed' }
+            if (-not $?) { throw 'Manual LAB local CMS preparation failed' }
             foreach ($name in @('office-install-v1', 'office-update-v2', 'office-rollback-v1')) {
               foreach ($extension in @('.yml', '.yml.p7s')) {
                 if (-not (Test-Path -LiteralPath (Join-Path $root ($name + $extension)) -PathType Leaf)) {
