@@ -1,0 +1,247 @@
+# 📄 Dosya Yolu: /.github/workflows/turkuazinstaller-pilot.yml
+# 📌 Amac: Turkuaz Office Windows Tauri binary'sini TurkuazInstaller icin pilot Velopack Setup/full paketine cevirir
+# 📌 Modul - CI YAML
+# Version: 1.1.2
+# Aciklama: NSIS release zincirini degistirmeyen imzasiz LAB-ONLY paketleme fizibilite testi
+# Bagimli Oldugu Katman: Tool | Config | CI
+
+name: TurkuazInstaller Office Velopack Pilot
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/turkuazinstaller-pilot.yml'
+      - 'tools/installer/**'
+      - 'docs/04-operations/turkuazinstaller-pilot.md'
+      - 'apps/desktop/src-tauri/tauri.conf.json5'
+      - 'apps/desktop/src-tauri/Cargo.toml'
+      - 'apps/desktop/src-tauri/src/main.rs'
+      - 'apps/desktop/package.json'
+      - 'Cargo.toml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: turkuazinstaller-office-pilot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  velopack-pilot:
+    name: Lab-only Windows x64 Velopack package
+    runs-on: windows-2025
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Setup pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Setup .NET 10 for pinned vpk
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: PowerShell installer scripts syntax preflight
+        shell: pwsh
+        run: |
+          $paths = @(Get-ChildItem -LiteralPath tools/installer -Filter '*.ps1' -File)
+          if ($paths.Count -lt 3) { throw 'Expected installer PowerShell scripts missing' }
+          foreach ($file in $paths) {
+            $tokens = $null
+            $parseErrors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
+            if ($null -ne $parseErrors -and $parseErrors.Count -gt 0) {
+              foreach ($parseError in $parseErrors) {
+                Write-Host ("OFFICE_SCRIPT_PARSE_FAILURE file={0} line={1} column={2} message={3} snippet={4}" -f $file.Name, $parseError.Extent.StartLineNumber, $parseError.Extent.StartColumnNumber, $parseError.Message, $parseError.Extent.Text)
+                Write-Host "::error file=$($file.FullName),line=$($parseError.Extent.StartLineNumber)::$($parseError.Message)"
+              }
+              throw "PowerShell parsing failed: $($file.Name)"
+            }
+          }
+          Write-Host 'OFFICE_INSTALLER_SCRIPT_PARSE_OK'
+
+      - name: Install Tauri frontend dependencies
+        working-directory: apps/desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Build Tauri frontend resources (NSIS tested separately)
+        working-directory: apps/desktop
+        run: npm run build
+
+      - name: Build separately compiled LAB V1 and V2 Tauri binaries
+        shell: pwsh
+        run: |
+          $binaryRoot = '.pilot-vpk/binaries'
+          New-Item -ItemType Directory -Force -Path $binaryRoot | Out-Null
+          cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot
+          if ($LASTEXITCODE -ne 0) { throw 'Opt-in V1 Tauri build failed' }
+          Copy-Item -LiteralPath target/release/turkuaz-office-desktop.exe -Destination "$binaryRoot/office-v1.exe"
+          cargo build --release --package turkuaz-office-desktop --features installer-velopack-pilot-v2
+          if ($LASTEXITCODE -ne 0) { throw 'Separately compiled LAB V2 Tauri build failed' }
+          Copy-Item -LiteralPath target/release/turkuaz-office-desktop.exe -Destination "$binaryRoot/office-v2.exe"
+
+      - name: Assert both compiled binaries embed frontend and attest correct LAB variant
+        shell: pwsh
+        run: |
+          $cargoManifest = Get-Content -LiteralPath apps/desktop/src-tauri/Cargo.toml -Raw
+          if ($cargoManifest -notmatch '(?m)^installer-velopack-pilot\s*=\s*\[[^\]]*"tauri/custom-protocol"') {
+            throw 'Pilot must enable Tauri production custom-protocol feature.'
+          }
+          $v1 = (Resolve-Path '.pilot-vpk/binaries/office-v1.exe').Path
+          $v2 = (Resolve-Path '.pilot-vpk/binaries/office-v2.exe').Path
+          $digestV1 = (Get-FileHash $v1 -Algorithm SHA256).Hash
+          $digestV2 = (Get-FileHash $v2 -Algorithm SHA256).Hash
+          if ($digestV1 -ceq $digestV2) { throw 'LAB V1 and V2 are the SAME Tauri EXE; refusing marker-only update.' }
+          foreach ($entry in @(@($v1,'v1'),@($v2,'v2'))) {
+            $exe = $entry[0]
+            $variant = $entry[1]
+            foreach ($argument in @('--office-pilot-verify-embedded-frontend', "--office-pilot-verify-compiled-$variant")) {
+              $proc = Start-Process -FilePath $exe -ArgumentList $argument -Wait -PassThru
+              if ($proc.ExitCode -ne 0) { throw "Compiled $variant failed $argument exit=$($proc.ExitCode)" }
+            }
+            $wrong = if ($variant -eq 'v1') { 'v2' } else { 'v1' }
+            $negative = Start-Process -FilePath $exe -ArgumentList "--office-pilot-verify-compiled-$wrong" -Wait -PassThru
+            if ($negative.ExitCode -ne 32) { throw "Compiled $variant unexpectedly accepted $wrong identity" }
+          }
+          Write-Host 'OFFICE_PILOT_TWO_DISTINCT_COMPILED_EXES_AND_EMBEDDED_FRONTEND_OK'
+
+      - name: Read-only NSIS Writer Sheet shortcuts and .tko contract versus compiled LAB EXEs
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeWindowsIntegrationContract.ps1
+
+      - name: Verify Velopack lifecycle hooks exit without opening Tauri
+        shell: pwsh
+        run: ./tools/installer/Test-VelopackLifecycleHooks.ps1
+
+      - name: Install same pinned vpk used by TurkuazInstaller E2E
+        shell: pwsh
+        run: |
+          dotnet tool install vpk --tool-path .pilot-vpk --version 1.2.161
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned Velopack CLI install failed' }
+
+      - name: Produce non-production Tauri-to-Velopack packaging probe
+        shell: pwsh
+        run: ./tools/installer/New-TurkuazInstallerPilot.ps1
+
+      - name: Real Windows Velopack install update repair rollback uninstall and UserData smoke
+        shell: pwsh
+        run: ./tools/installer/Test-TurkuazOfficeVelopackInstall.ps1
+
+      # LAB ONLY: tie a *real Office binary* to the Installer PR #54 trust
+      # implementation. This is intentionally pinned to an immutable commit,
+      # not an unreviewed moving branch or an unsigned production fallback.
+      - name: Checkout pinned TurkuazInstaller signed CLI for Office LAB
+        uses: actions/checkout@v4
+        with:
+          repository: TurkuazLabs/TurkuazInstaller
+          ref: eec834c472cdb4ad0681c0651c6e343e4ee7f68c
+          path: .turkuazinstaller-core
+          persist-credentials: false
+
+      - name: Build pinned real TurkuazInstaller CLI
+        shell: pwsh
+        run: |
+          dotnet publish .turkuazinstaller-core/src/TurkuazInstaller.Cli/TurkuazInstaller.Cli.csproj --configuration Release --runtime win-x64 --self-contained true --output .turkuazinstaller-core/publish
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned real TurkuazInstaller CLI publish failed.' }
+          if (-not (Test-Path -LiteralPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe)) { throw 'Real installer CLI executable missing.' }
+
+      - name: Build pinned verified full-nupkg inventory LAB probe
+        shell: pwsh
+        run: |
+          dotnet publish .turkuazinstaller-core/tests/TurkuazInstaller.Inventory.LabProbe/TurkuazInstaller.Inventory.LabProbe.csproj --configuration Release --runtime win-x64 --self-contained true --output .turkuazinstaller-core/inventory-probe
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned trusted archive inventory probe publish failed.' }
+          if (-not (Test-Path -LiteralPath .turkuazinstaller-core/inventory-probe/TurkuazInstaller.Inventory.LabProbe.exe)) { throw 'Trusted nupkg inventory probe executable missing.' }
+
+      - name: Real Office signed CMS TurkuazInstaller CLI lifecycle, signed nupkg inventory and fail-closed checks
+        shell: pwsh
+        run: ./tools/installer/Test-OfficeSignedTurkuazInstallerCli.ps1 -CliPath .turkuazinstaller-core/publish/TurkuazInstaller.Cli.exe -InventoryProbePath .turkuazinstaller-core/inventory-probe/TurkuazInstaller.Inventory.LabProbe.exe
+
+      - name: Prepare portable manual Office WinUI LAB kit and validate local-only CMS signer
+        shell: pwsh
+        run: |
+          $assets = (Resolve-Path 'artifacts/turkuazinstaller-pilot/assets').Path
+          Copy-Item -LiteralPath 'tools/installer/Initialize-OfficeManualLab.ps1' -Destination $assets
+          Copy-Item -LiteralPath 'tools/installer/README-OFFICE-MANUAL-WINUI-LAB.txt' -Destination $assets
+          $checksumLines = Get-ChildItem -LiteralPath $assets -File |
+            Where-Object { $_.Name -cne 'SHA256SUMS.txt' } |
+            Sort-Object Name |
+            ForEach-Object {
+              $digest = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$digest *$($_.Name)"
+            }
+          [IO.File]::WriteAllLines(
+            (Join-Path $assets 'SHA256SUMS.txt'), $checksumLines,
+            [Text.UTF8Encoding]::new($false))
+          & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode VerifyOnly -AssetsPath $assets
+          # PowerShell script invocation does not set $LASTEXITCODE. The
+          # previous signed-CLI negative test may leave native exit=4.
+          # The helper itself throws on any checksum/provenance failure.
+          if (-not $?) { throw 'Portable Office LAB checksum verification failed' }
+
+          # The real Preparation path is executed ONLY on this disposable
+          # hosted Windows runner, after the signed CLI E2E removed its
+          # separate ephemeral trust policy. Do not ship any signing keys.
+          if ($env:RUNNER_ENVIRONMENT -cne 'github-hosted') {
+            throw 'Manual LAB signing rehearsal requires GitHub hosted Windows.'
+          }
+          $local = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+          $trust = Join-Path $local 'TurkuazInstaller/config/manifest-trust.yml'
+          $state = Join-Path $local 'TurkuazInstaller/state/turkuazlabs.turkuazoffice.pilot.json'
+          $journal = Join-Path $local 'TurkuazInstaller/journal/turkuazlabs.turkuazoffice.pilot.json'
+          $root = Join-Path $local 'TurkuazOfficeInstallerManualLab'
+          $target = Join-Path $local 'Programs/TurkuazOfficeInstallerLab'
+          foreach ($path in @($trust, $state, $journal, $root, $target)) {
+            if (Test-Path -LiteralPath $path) {
+              throw "Refusing to overwrite hosted Windows test path: $path"
+            }
+          }
+          try {
+            & ./tools/installer/Initialize-OfficeManualLab.ps1 -Mode Prepare -AssetsPath $assets
+            if (-not $?) { throw 'Manual LAB local CMS preparation failed' }
+            foreach ($name in @('office-install-v1', 'office-update-v2', 'office-rollback-v1')) {
+              foreach ($extension in @('.yml', '.yml.p7s')) {
+                if (-not (Test-Path -LiteralPath (Join-Path $root ($name + $extension)) -PathType Leaf)) {
+                  throw "Local signed manifest file missing: $name$extension"
+                }
+              }
+            }
+            $trustBytes = [IO.File]::ReadAllText($trust)
+            if (-not $trustBytes.Contains('turkuazlabs.turkuazoffice.pilot') -or
+                -not $trustBytes.Contains('CN=Office Manual Installer LAB Only')) {
+              throw 'Unexpected manually generated LAB trust policy'
+            }
+            Write-Host 'OFFICE_MANUAL_GUI_LAB_LOCAL_CMS_AND_TRUST_PREPARE_OK'
+          }
+          finally {
+            # Only the two previously ABSENT and test-owned paths are removed,
+            # only on the throwaway CI runner. No user data/production policy.
+            if ((Test-Path -LiteralPath $trust -PathType Leaf) -and
+                [IO.File]::ReadAllText($trust).Contains('CN=Office Manual Installer LAB Only')) {
+              Remove-Item -LiteralPath $trust -Force
+            }
+            if (Test-Path -LiteralPath $root) {
+              Remove-Item -LiteralPath $root -Recurse -Force
+            }
+          }
+
+      - name: Upload lab-only pilot artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TurkuazOffice-UNSIGNED-TurkuazInstaller-LAB-ONLY-win-x64
+          path: |
+            artifacts/turkuazinstaller-pilot/assets/*
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

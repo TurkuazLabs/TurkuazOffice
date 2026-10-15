@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/src-tauri/Cargo.toml
 # 📌 Amac: Turkuaz Office Desktop Tauri Rust shell crate bagimliliklarini tanimlar
 # 📌 Modul - FileType: Config - TOML
-# Version: 0.4.0
+# Version: 0.4.3
 # Aciklama: Tauri 2.11.x shell, serde DTO, Writer ve Sheet domain bagimliliklarini workspace'e baglar
 # Bagimli Oldugu Katman: Config
 
@@ -20,6 +20,15 @@ crate-type = ["lib", "cdylib", "staticlib"]
 [[bin]]
 name = "turkuaz-office-desktop"
 path = "src/main.rs"
+
+[features]
+default = []
+installer-velopack-pilot = ["dep:velopack", "tauri/custom-protocol"]
+# A distinct compiled LAB build; does not emulate real product source evolution.
+installer-velopack-pilot-v2 = ["installer-velopack-pilot"]
+
+[target.'cfg(windows)'.dependencies]
+velopack = { version = "=1.2.161", optional = true }
 
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = ["config-json5"] }
