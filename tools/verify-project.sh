@@ -892,6 +892,11 @@ grep -q 'plan.revision' "$ROOT/apps/desktop/src/services/writer-session.service.
 grep -q 'expectedRevision' "$ROOT/apps/desktop/src/tools/tauri-writer.tool.ts"
 grep -q 'expected_revision: Option<u64>' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
 grep -q 'ERROR_DOCUMENT_REVISION_CONFLICT' "$ROOT/apps/desktop/src-tauri/src/services/writer_desktop_service.rs"
+grep -q 'replace_all_ranges_checked' "$ROOT/apps/desktop/src-tauri/src/services/writer_desktop_service.rs"
+grep -q 'writer_replace_all_ranges' "$ROOT/apps/desktop/src-tauri/src/lib.rs"
+grep -q 'WriterReplaceBatchEntryDto' "$ROOT/apps/desktop/src-tauri/src/controllers/writer_desktop_controller.rs"
+grep -q 'writer_replace_all_commits_multi_match_unicode_batch_with_one_undo' "$ROOT/apps/desktop/src-tauri/tests/writer_desktop_service_tests.rs"
+
 grep -q 'writer_replace_rejects_stale_revision_before_history_is_mutated' "$ROOT/apps/desktop/src-tauri/tests/writer_desktop_service_tests.rs"
 grep -q 'replaceFoundMatch' "$ROOT/apps/desktop/src/views/writer-find-bar.tsx"
 grep -q 'writerReplaceOne' "$ROOT/apps/desktop/src/language/tr.ts"

@@ -6,9 +6,12 @@
 // Bagimli Oldugu Katman: Service
 
 use turkuaz_office_desktop_lib::config::constants::{
-    ERROR_DOCUMENT_REVISION_CONFLICT, ERROR_FILE_EXTENSION_INVALID, ERROR_RECOVERY_INVALID,
+    ERROR_DOCUMENT_REVISION_CONFLICT, ERROR_FILE_EXTENSION_INVALID, ERROR_INVALID_REPLACE_BATCH,
+    ERROR_RECOVERY_INVALID,
 };
-use turkuaz_office_desktop_lib::services::writer_desktop_service::WriterDesktopService;
+use turkuaz_office_desktop_lib::services::writer_desktop_service::{
+    WriterDesktopService, WriterReplaceBatchEntry,
+};
 use turkuaz_office_writer::{CharacterStyle, CharacterStylePatch, StyledTextRun, TextAlignment};
 
 #[test]
@@ -620,4 +623,141 @@ fn writer_replace_rejects_stale_revision_before_history_is_mutated() {
         .expect("current expected revision must write");
     assert_eq!(accepted.plain_text, "alpha BETA");
     assert_eq!(accepted.revision, redone.revision + 1);
+}
+
+#[test]
+fn writer_replace_all_commits_multi_match_unicode_batch_with_one_undo() {
+    let mut service = WriterDesktopService::new();
+    let created = service.create_document();
+    let paragraph_id = created.paragraphs[0].id.clone();
+    let before = service
+        .replace_paragraph_text(&created.id, &paragraph_id, "💠alpha beta alpha!")
+        .expect("seed document");
+
+    let updated = service
+        .replace_all_ranges_checked(
+            &before.id,
+            before.revision,
+            vec![
+                WriterReplaceBatchEntry {
+                    paragraph_id: paragraph_id.clone(),
+                    start_offset: 12,
+                    end_offset: 17,
+                    runs: vec![StyledTextRun {
+                        text: "B".to_string(),
+                        style: CharacterStyle::default(),
+                    }],
+                },
+                WriterReplaceBatchEntry {
+                    paragraph_id,
+                    start_offset: 1,
+                    end_offset: 6,
+                    runs: vec![StyledTextRun {
+                        text: "A".to_string(),
+                        style: CharacterStyle::default(),
+                    }],
+                },
+            ],
+        )
+        .expect("one atomic document batch");
+    assert_eq!(updated.plain_text, "💠A beta B!");
+    assert_eq!(updated.revision, before.revision + 1);
+
+    let undone = service
+        .undo(&updated.id)
+        .expect("one undo reverts all matches");
+    assert_eq!(undone.plain_text, "💠alpha beta alpha!");
+    let redone = service
+        .redo(&updated.id)
+        .expect("one redo restores all matches");
+    assert_eq!(redone.plain_text, "💠A beta B!");
+}
+
+#[test]
+fn writer_replace_all_rejects_stale_overlapping_and_failed_mid_batch_atomically() {
+    let mut service = WriterDesktopService::new();
+    let created = service.create_document();
+    let paragraph_id = created.paragraphs[0].id.clone();
+    let before = service
+        .replace_paragraph_text(&created.id, &paragraph_id, "alpha beta alpha")
+        .expect("seed document");
+    let good = || WriterReplaceBatchEntry {
+        paragraph_id: paragraph_id.clone(),
+        start_offset: 11,
+        end_offset: 16,
+        runs: vec![StyledTextRun {
+            text: "B".to_string(),
+            style: CharacterStyle::default(),
+        }],
+    };
+    let stale = service
+        .replace_all_ranges_checked(&before.id, before.revision - 1, vec![good()])
+        .expect_err("old revision must fail");
+    assert_eq!(stale.code, ERROR_DOCUMENT_REVISION_CONFLICT);
+    let overlapping = service
+        .replace_all_ranges_checked(
+            &before.id,
+            before.revision,
+            vec![
+                good(),
+                WriterReplaceBatchEntry {
+                    paragraph_id: paragraph_id.clone(),
+                    start_offset: 10,
+                    end_offset: 14,
+                    runs: vec![],
+                },
+            ],
+        )
+        .expect_err("overlapping spans must fail before mutation");
+    assert_eq!(overlapping.code, ERROR_INVALID_REPLACE_BATCH);
+
+    let invalid_newline = service
+        .replace_all_ranges_checked(
+            &before.id,
+            before.revision,
+            vec![WriterReplaceBatchEntry {
+                paragraph_id: paragraph_id.clone(),
+                start_offset: 11,
+                end_offset: 16,
+                runs: vec![StyledTextRun {
+                    text: "row\nnext".to_string(),
+                    style: CharacterStyle::default(),
+                }],
+            }],
+        )
+        .expect_err("paragraph-breaking replacement must be rejected");
+    assert_eq!(invalid_newline.code, ERROR_INVALID_REPLACE_BATCH);
+
+    let invalid_style = CharacterStyle {
+        font_size_half_points: 0,
+        ..CharacterStyle::default()
+    };
+    service
+        .replace_all_ranges_checked(
+            &before.id,
+            before.revision,
+            vec![
+                good(),
+                WriterReplaceBatchEntry {
+                    paragraph_id,
+                    start_offset: 0,
+                    end_offset: 5,
+                    runs: vec![StyledTextRun {
+                        text: "A".to_string(),
+                        style: invalid_style,
+                    }],
+                },
+            ],
+        )
+        .expect_err("failed second command must roll back first");
+    // Failed batches never add undo entries; the next undo must revert
+    // the prior successful seed rather than a partial replacement.
+    let undone = service
+        .undo(&before.id)
+        .expect("undo skips rejected batches");
+    assert_eq!(undone.plain_text, "");
+    let redone = service
+        .redo(&before.id)
+        .expect("original seed is the only redo");
+    assert_eq!(redone.plain_text, "alpha beta alpha");
 }

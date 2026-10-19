@@ -274,6 +274,16 @@ Durum: sadece Tool/test; islev kullaniciya ACILMADI.
 - Islem listesi ters belge sirasinda uretilir, ancak bu tek basina atomik mutation saglamaz. Rust tarafinda tum eslesmeleri tek canonical komutta / tek undo snapshot'inda ve expected revision ile uygulayan backend olmadan servis, IPC veya UI'da Replace All acilmaz.
 - API ve CI kabul testi tamamlanincaya kadar mevcut Writer tek eslesme Replace ve Sheet salt-okunur Find kontratlari korunur.
 
+## R2.ad - Writer Replace All native atomic batch v0.1.0
+
+Durum: PR icinde backend + Rust acceptance; UI AKTIF DEGIL.
+
+- Yeni typed `writer_replace_all_ranges` Tauri komutu `documentId`, zorunlu `expectedRevision` ve en fazla 1000 `replacements` alir. Native `WriterDesktopState` mutex'i altinda file lock ve document revision yeniden dogrulanir.
+- Her aralik Unicode scalar offset, paragraf, bounds, ters belge sirasi, ayni paragrafta non-overlap ve her replacement icin run/metin boyutu denetiminden gecer. Hatalarda typed `writer.invalid_replace_batch` ile mutation ONCESI durur.
+- Validated araliklar mevcut domain `execute_batch` uzerinden tek transaction ve tek undo/redo snapshot'i olarak islenir. Domain ikinci command'de hata verirse clone disina hicbir belge/history kaydi yazilmaz.
+- Rust acceptance: ayni paragrafta iki eslesme, Unicode, tek Undo/Redo; stale revision reddi, overlap reddi ve basarili ilk komuttan sonra ikinci komut hatasinda tam rollback.
+- Replace All gorunur UI, Ctrl+H, Sheet Replace ve harici disk senkronizasyonu hala kapsam disi. Browser kaynakli canli DOM typing ve busy queue siniri denetlenmeden yeni buton acilmayacak.
+
 ## M3 - Web v0.4.0
 
 Durum: Basladi. Ilk browser foundation dilimi aktiftir; milestone tamamlanmamistir.
