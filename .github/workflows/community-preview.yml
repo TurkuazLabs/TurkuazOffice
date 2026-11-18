@@ -1,8 +1,8 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/community-preview.yml
-# 📌 Amac: Community Writer Preview icin Windows NSIS ve Linux DEB/AppImage paketlerini gercek CI runner'larinda uretir
+# 📌 Amac: Community Writer Preview icin Windows raw EXE ve Linux DEB/AppImage paketlerini gercek CI runner'larinda uretir
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.2
-# Aciklama: Pull request ve manuel calistirmalarda imzasiz preview bundle, SHA-256 checksum ve GitHub Actions artifactlari uretir
+# Version: 0.3.3
+# Aciklama: Pull request ve manuel calistirmalarda TurkuazInstaller icin ham EXE, SHA-256 checksum ve GitHub Actions artifactlari uretir
 # Bagimli Oldugu Katman: CI | Distribution
 
 name: community-preview
@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   windows-preview:
-    name: Windows NSIS preview
+    name: Windows raw EXE payload
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -48,30 +48,31 @@ jobs:
         working-directory: apps/desktop
         run: npm install --no-audit --no-fund
 
-      - name: Build Windows NSIS
+      # @dev-id TO-TI-RAW-EXE-001
+      # TurkuazInstaller integration input; not an installable setup.
+      - name: Build Windows application without NSIS
         working-directory: apps/desktop
         run: npm run tauri:build:windows
 
-      - name: Create Windows Checksums
+      - name: Stage raw Windows payload and checksums
         shell: pwsh
         run: |
-          $files = Get-ChildItem -Path "target/release/bundle/nsis" -Filter "*.exe"
-          if (-not $files) {
-            throw "Windows NSIS artifact was not produced."
+          $source = 'target/release/turkuaz-office-desktop.exe'
+          if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+            throw 'Expected raw Turkuaz Office Windows executable was not produced.'
           }
-          $lines = foreach ($file in $files) {
-            $hash = (Get-FileHash -Algorithm SHA256 -Path $file.FullName).Hash.ToLowerInvariant()
-            "$hash  $($file.Name)"
-          }
-          $lines | Set-Content -Path "target/release/bundle/nsis/SHA256SUMS.txt"
+          $out = 'dist/turkuaz-installer-payload'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          Copy-Item -LiteralPath $source -Destination (Join-Path $out 'turkuaz-office-desktop.exe')
+          $file = Join-Path $out 'turkuaz-office-desktop.exe'
+          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file).Hash.ToLowerInvariant()
+          "$hash  turkuaz-office-desktop.exe" | Set-Content -LiteralPath (Join-Path $out 'SHA256SUMS.txt') -Encoding ascii
 
-      - name: Upload Windows Preview
+      - name: Upload TurkuazInstaller source payload
         uses: actions/upload-artifact@v4
         with:
-          name: turkuaz-office-community-windows-preview
-          path: |
-            target/release/bundle/nsis/*.exe
-            target/release/bundle/nsis/SHA256SUMS.txt
+          name: turkuaz-office-community-windows-raw-payload
+          path: dist/turkuaz-installer-payload/
           if-no-files-found: error
 
   linux-preview:
