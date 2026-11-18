@@ -2,7 +2,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/tools/verify-project.sh
 # 📌 Amac: Linux ve CI ortaminda M1 Writer, M2/R2 Sheet ve M3 Web foundation proje kontratlarini dogrular
 # 📌 Modul - FileType: Tool - Shell
-# Version: 0.12.0
+# Version: 0.12.1
 # Aciklama: Umbrella release versionini korur; M3 Web ve Desktop Start Center/Writer/Sheet UI refresh kontratlarini uygular
 # Bagimli Oldugu Katman: Tool
 
@@ -101,7 +101,6 @@ required_files=(
   "apps/desktop/src/tools/desktop-launch.tool.ts"
   "apps/desktop/src-tauri/src/controllers/desktop_launch_controller.rs"
   "apps/desktop/src-tauri/src/tools/desktop_launch_tool.rs"
-  "apps/desktop/src-tauri/windows/installer-hooks.nsh"
   "docs/08-implementation/desktop-suite-entrypoints-v0.5.0.md"
   "apps/desktop/src/views/sheet-menubar.tsx"
   "apps/desktop/src/views/sheet-properties-sidebar.tsx"
@@ -633,12 +632,6 @@ grep -q 'SuiteTitlebar' "$ROOT/apps/desktop/src/views/sheet-shell.tsx"
 grep -q 'kind="writer"' "$ROOT/apps/desktop/src/views/start-center.tsx"
 grep -q 'kind="sheet"' "$ROOT/apps/desktop/src/views/start-center.tsx"
 grep -q 'windows_console_window: false' "$ROOT/config/project.yml"
-grep -q 'installerHooks: "./windows/installer-hooks.nsh"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
-grep -q 'startMenuFolder: "Turkuaz Office"' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
-grep -q 'TURKUAZ_WRITER_SHORTCUT' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
-grep -q 'TURKUAZ_SHEET_SHORTCUT' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
-grep -q -- '--module writer' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
-grep -q -- '--module sheet' "$ROOT/apps/desktop/src-tauri/windows/installer-hooks.nsh"
 grep -q 'windows_subsystem = "windows"' "$ROOT/apps/desktop/src-tauri/src/main.rs"
 grep -q 'desktop_get_launch_module' "$ROOT/apps/desktop/src-tauri/src/lib.rs"
 grep -q 'DesktopLaunchTool' "$ROOT/apps/desktop/src/main.tsx"
@@ -819,7 +812,7 @@ grep -q 'desktop_file_associations:' "$ROOT/config/project.yml"
 grep -q 'running_instance_handoff: false' "$ROOT/config/project.yml"
 grep -q 'fileAssociations' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
 grep -q 'application/x-turkuaz-office' "$ROOT/apps/desktop/src-tauri/tauri.conf.json5"
-grep -q '"tauri:build:windows": "tauri build --bundles nsis"' "$ROOT/apps/desktop/package.json"
+grep -q '"tauri:build:windows": "tauri build --no-bundle"' "$ROOT/apps/desktop/package.json"
 grep -q '"tauri:build:linux": "tauri build --bundles deb,appimage"' "$ROOT/apps/desktop/package.json"
 grep -q 'pub struct StartupArgumentsTool' "$ROOT/apps/desktop/src-tauri/src/tools/startup_arguments_tool.rs"
 grep -q 'pub struct StartupFileService' "$ROOT/apps/desktop/src-tauri/src/services/startup_file_service.rs"
