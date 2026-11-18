@@ -95,10 +95,20 @@ jobs:
           path: turkuaz-installer-source
           persist-credentials: false
 
-      - name: Build TurkuazInstaller Rust setup engine
+      # @dev-id TI-COMMAND-SUBSYSTEM-001
+      # Console CLI runs commands; GUI-subsystem stub is embedded into Setup.
+      - name: Build separate GUI stub and console CLI
         shell: pwsh
         run: |
-          cargo build --locked --manifest-path turkuaz-installer-source/rust/Cargo.toml -p turkuaz-installer-cli --release --bin turkuaz-installer --features setup-authoring-gui
+          $manifest = 'turkuaz-installer-source/rust/Cargo.toml'
+          $bin = 'turkuaz-installer-source/rust/target/release/turkuaz-installer.exe'
+          $stub = 'turkuaz-installer-source/rust/target/release/turkuaz-installer-studio.exe'
+          cargo build --locked --manifest-path $manifest -p turkuaz-installer-cli --release --bin turkuaz-installer --features setup-authoring-gui
+          if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller GUI stub build failed.' }
+          Copy-Item -LiteralPath $bin -Destination $stub -Force
+          cargo build --locked --manifest-path $manifest -p turkuaz-installer-cli --release --bin turkuaz-installer --no-default-features
+          if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller console CLI build failed.' }
+          if (-not (Test-Path -LiteralPath $stub -PathType Leaf)) { throw 'GUI stub missing.' }
 
       - name: Create TurkuazInstaller package and native setup
         shell: pwsh
@@ -114,7 +124,7 @@ jobs:
           Copy-Item -LiteralPath (Join-Path $source 'turkuaz-office-desktop.exe') -Destination (Join-Path $payload 'turkuaz-office-desktop.exe')
           & $cli build-package --package-id com.turkuazlabs.office --version 0.3.1 --source $payload --output (Join-Path $out 'TurkuazOffice.tzpkg') --executable turkuaz-office-desktop.exe
           if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller build-package failed.' }
-          & $cli build-native-setup --stub $cli --package (Join-Path $out 'TurkuazOffice.tzpkg') --output (Join-Path $out 'TurkuazOffice-Setup.exe')
+          & $cli build-native-setup --stub 'turkuaz-installer-source/rust/target/release/turkuaz-installer-studio.exe' --package (Join-Path $out 'TurkuazOffice.tzpkg') --output (Join-Path $out 'TurkuazOffice-Setup.exe')
           if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller build-native-setup failed.' }
           $files = @('TurkuazOffice.tzpkg', 'TurkuazOffice-Setup.exe')
           $hashes = foreach ($name in $files) {
