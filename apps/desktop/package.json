@@ -3,8 +3,8 @@
     "# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/apps/desktop/package.json",
     "# 📌 Amac: Desktop SolidJS ve Tauri frontend bagimliliklarini ve scriptlerini tanimlar",
     "# 📌 Modul - FileType: Desktop - JSON",
-    "# Version: 0.3.1",
-    "# Aciklama: SolidJS, TypeScript, Vite, Vitest ve Tauri CLI Writer/Sheet build-test kontratini sabitler",
+    "# Version: 0.3.2",
+    "# Aciklama: Windows NSIS yerine TurkuazInstaller icin ham Windows EXE build kontrati",
     "# Bagimli Oldugu Katman: Config"
   ],
   "name": "turkuaz-office-desktop",
@@ -19,7 +19,7 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "test": "vitest run",
-    "tauri:build:windows": "tauri build --bundles nsis",
+    "tauri:build:windows": "tauri build --no-bundle",
     "tauri:build:linux": "tauri build --bundles deb,appimage"
   },
   "dependencies": {
