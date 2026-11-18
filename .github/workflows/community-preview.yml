@@ -1,7 +1,7 @@
 # 📄 Dosya Yolu: E:/Projects/TurkuazOffice/.github/workflows/community-preview.yml
 # 📌 Amac: Community Writer Preview icin Windows raw EXE ve Linux DEB/AppImage paketlerini gercek CI runner'larinda uretir
 # 📌 Modul - FileType: Config - YAML
-# Version: 0.3.3
+# Version: 0.3.4
 # Aciklama: Pull request ve manuel calistirmalarda TurkuazInstaller icin ham EXE, SHA-256 checksum ve GitHub Actions artifactlari uretir
 # Bagimli Oldugu Katman: CI | Distribution
 
@@ -73,6 +73,56 @@ jobs:
         with:
           name: turkuaz-office-community-windows-raw-payload
           path: dist/turkuaz-installer-payload/
+          if-no-files-found: error
+
+      # @dev-id TO-TI-SETUP-002
+      # Pin installer engine; never download an unverified 'latest' executable.
+      - name: Checkout pinned TurkuazInstaller v0.2.24
+        uses: actions/checkout@v5
+        with:
+          repository: TurkuazLabs/TurkuazInstaller
+          ref: 10101dee8b6efe4775f5cf72aa05f3a3da934bfa
+          path: turkuaz-installer-source
+          persist-credentials: false
+
+      - name: Build TurkuazInstaller Rust setup engine
+        shell: pwsh
+        run: |
+          cargo build --locked --manifest-path turkuaz-installer-source/rust/Cargo.toml -p turkuaz-installer-cli --release --bin turkuaz-installer --features setup-authoring-gui
+
+      - name: Create TurkuazInstaller package and native setup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cli = 'turkuaz-installer-source/rust/target/release/turkuaz-installer.exe'
+          $source = 'dist/turkuaz-installer-payload'
+          $out = 'dist/turkuaz-installer'
+          New-Item -ItemType Directory -Path $out -Force | Out-Null
+          # The archive must contain only application payload, not its checksum.
+          $payload = Join-Path $out 'payload'
+          New-Item -ItemType Directory -Path $payload -Force | Out-Null
+          Copy-Item -LiteralPath (Join-Path $source 'turkuaz-office-desktop.exe') -Destination (Join-Path $payload 'turkuaz-office-desktop.exe')
+          & $cli build-package --package-id com.turkuazlabs.office --version 0.3.1 --source $payload --output (Join-Path $out 'TurkuazOffice.tzpkg') --executable turkuaz-office-desktop.exe
+          if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller build-package failed.' }
+          & $cli build-native-setup --stub $cli --package (Join-Path $out 'TurkuazOffice.tzpkg') --output (Join-Path $out 'TurkuazOffice-Setup.exe')
+          if ($LASTEXITCODE -ne 0) { throw 'TurkuazInstaller build-native-setup failed.' }
+          $files = @('TurkuazOffice.tzpkg', 'TurkuazOffice-Setup.exe')
+          $hashes = foreach ($name in $files) {
+            $full = Join-Path $out $name
+            if (-not (Test-Path -LiteralPath $full -PathType Leaf)) { throw "Missing TurkuazInstaller output: $name" }
+            $hash = (Get-FileHash -LiteralPath $full -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $name"
+          }
+          $hashes | Set-Content -LiteralPath (Join-Path $out 'SHA256SUMS.txt') -Encoding ascii
+
+      - name: Upload TurkuazInstaller Windows setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: turkuaz-office-community-turkuaz-installer-v0.2.24
+          path: |
+            dist/turkuaz-installer/TurkuazOffice.tzpkg
+            dist/turkuaz-installer/TurkuazOffice-Setup.exe
+            dist/turkuaz-installer/SHA256SUMS.txt
           if-no-files-found: error
 
   linux-preview:
