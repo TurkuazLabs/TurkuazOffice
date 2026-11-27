@@ -1,10 +1,11 @@
-# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/SECURITY.md
-# 📌 Amac: Turkuaz Office guvenlik bildirim ve guvenli gelistirme politikasini tanimlar
-# 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
-# Aciklama: Security issue disclosure, belge input guvenligi ve secret handling kurallarini toplar
-
+<!--
+Dosya Yolu: REPO_ROOT/SECURITY.md
+Amac: Turkuaz Office guvenlik bildirim ve guvenli gelistirme politikasini tanimlar
+Modul - Markdown
+Version: 0.2.0
+Aciklama: Security issue disclosure, belge input guvenligi ve secret handling kurallarini toplar
 Bagimli Oldugu Katman: Documentation
+-->
 
 # Security Policy
 
