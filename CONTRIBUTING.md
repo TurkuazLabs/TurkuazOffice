@@ -1,10 +1,11 @@
-# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/CONTRIBUTING.md
-# 📌 Amac: Turkuaz Office gelistirme ve pull request kurallarini tanimlar
-# 📌 Modul - FileType: Docs - Markdown
-# Version: 0.2.0
-# Aciklama: Layering, docs, test, roadmap ve dependency review kurallarini contributor seviyesinde toplar
-
+<!--
+Dosya Yolu: REPO_ROOT/CONTRIBUTING.md
+Amac: Turkuaz Office gelistirme ve pull request kurallarini tanimlar
+Modul - Markdown
+Version: 0.2.0
+Aciklama: Layering, docs, test, roadmap ve dependency review kurallarini contributor seviyesinde toplar
 Bagimli Oldugu Katman: Documentation
+-->
 
 # Contributing
 

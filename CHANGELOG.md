@@ -1,10 +1,11 @@
-# 📄 Dosya Yolu: E:/Projects/TurkuazOffice/CHANGELOG.md
-# 📌 Amac: Turkuaz Office surum degisikliklerini kullanici ve gelistirici seviyesinde izler
-# 📌 Modul - FileType: Docs - Markdown
-# Version: 0.3.1
-# Aciklama: Foundation, Writer M1 ve Sheet M2 degisiklik kaydini tutar
-
+<!--
+Dosya Yolu: REPO_ROOT/CHANGELOG.md
+Amac: Turkuaz Office surum degisikliklerini kullanici ve gelistirici seviyesinde izler
+Modul - Markdown
+Version: 0.3.1
+Aciklama: Foundation, Writer M1 ve Sheet M2 degisiklik kaydini tutar
 Bagimli Oldugu Katman: Documentation
+-->
 
 # Changelog
 
